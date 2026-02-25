@@ -1,0 +1,230 @@
+import 'package:auto_route/auto_route.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
+import 'package:music_app/features/home/presentation/cubit/orquestador_home_cubit.dart';
+import 'package:music_app/features/playlist/domain/use_cases/get_playlist_use_case.dart';
+import 'package:music_app/features/playlist/presentation/cubit/playlist_cubit.dart';
+import 'package:music_app/features/playlist/presentation/cubit/playlist_state.dart';
+import 'package:music_app/features/playlist/presentation/widgets/playlist_error_widget.dart';
+import 'package:music_app/features/playlist/presentation/widgets/playlist_header_widget.dart';
+import 'package:music_app/features/playlist/presentation/widgets/playlist_listeners.dart';
+import 'package:music_app/features/playlist/presentation/widgets/playlist_loading_overlay.dart';
+import 'package:music_app/features/playlist/presentation/widgets/playlist_loading_widget.dart';
+import 'package:music_app/features/playlist/presentation/widgets/playlist_track_item_widget.dart';
+import 'package:music_app/features/playlist/presentation/widgets/playlist_actions_widget.dart';
+import 'package:music_app/features/search/domain/entities/thumbnail.dart';
+import 'package:music_app/main.dart';
+
+@RoutePage()
+class PlaylistScreen extends StatefulWidget implements AutoRouteWrapper {
+  final String id;
+
+  const PlaylistScreen({super.key, required this.id});
+
+  @override
+  Widget wrappedRoute(BuildContext context) {
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<PlaylistCubit>(
+          create: (context) {
+            final playlistCubit = PlaylistCubit(
+              getPlaylistUseCase: getIt<GetPlaylistUseCase>(),
+            );
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              try {
+                final orquestadorCubit = context.read<OrquestadorHomeCubit>();
+                orquestadorCubit.registerPlaylistCubit(playlistCubit);
+              } catch (e) {
+                // Orquestador no disponible en este contexto
+              }
+            });
+            return playlistCubit;
+          },
+        ),
+      ],
+      child: this,
+    );
+  }
+
+  @override
+  State<PlaylistScreen> createState() => _PlaylistScreenState();
+}
+
+class _PlaylistScreenState extends State<PlaylistScreen> {
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.id.isNotEmpty) {
+        context.read<PlaylistCubit>().loadPlaylist(widget.id);
+      } else {
+        debugPrint('PlaylistScreen: ERROR - ID is empty!');
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return PlaylistListeners(
+      child: Scaffold(
+        backgroundColor: const Color(0xFF0D0D0D),
+        body: BlocBuilder<PlayerBlocBloc, PlayerBlocState>(
+          bloc: getIt<PlayerBlocBloc>(),
+          builder: (context, playerState) {
+            final isLoadingPlaylist =
+                playerState is PlayerBlocLoaded &&
+                playerState.isLoading &&
+                playerState.playlist.isNotEmpty;
+
+            return PlaylistLoadingOverlay(
+              isLoading: isLoadingPlaylist,
+              child: BlocBuilder<OrquestadorHomeCubit, OrquestadorHomeState>(
+                builder: (context, orquestadorState) {
+                  final playlistState = orquestadorState.playlistState;
+
+                  // Mostrar loading
+                  if (playlistState.status == PlaylistStatus.loading ||
+                      playlistState.status == PlaylistStatus.initial) {
+                    return const PlaylistLoadingWidget();
+                  }
+
+                  // Mostrar error
+                  if (playlistState.status == PlaylistStatus.failure) {
+                    return PlaylistErrorWidget(
+                      errorMessage:
+                          playlistState.errorMessage ?? 'Error desconocido',
+                      playlistId: widget.id,
+                    );
+                  }
+
+                  // Mostrar contenido
+                  final playlist = playlistState.response;
+                  if (playlist == null) {
+                    return const PlaylistLoadingWidget();
+                  }
+
+                  // Obtener la mejor thumbnail para el backdrop
+                  Thumbnail? bestThumbnail;
+                  if (playlist.thumbnails.isNotEmpty) {
+                    bestThumbnail = playlist.thumbnails.first;
+                    for (final thumbnail in playlist.thumbnails) {
+                      if (thumbnail.width > bestThumbnail!.width) {
+                        bestThumbnail = thumbnail;
+                      }
+                    }
+                  }
+
+                  return Stack(
+                    children: [
+                      // Backdrop difuminado
+                      // PlaylistBackdropWidget(thumbnail: bestThumbnail),
+
+                      // Contenido con CustomScrollView
+                      CustomScrollView(
+                        slivers: [
+                          // App Bar con imagen mejorado
+                          SliverAppBar(
+                            expandedHeight: 400,
+                            pinned: true,
+                            floating: false,
+                            snap: false,
+                            backgroundColor: Colors.transparent,
+                            elevation: 0,
+                            leading: Container(
+                              margin: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withValues(alpha: 0.3),
+                                shape: BoxShape.circle,
+                              ),
+                              child: IconButton(
+                                icon: const Icon(
+                                  Icons.arrow_back,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                                onPressed: () => context.router.pop(),
+                              ),
+                            ),
+                            actions: [
+                              Container(
+                                margin: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withValues(alpha: 0.3),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: IconButton(
+                                  icon: const Icon(
+                                    Icons.search,
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
+                                  onPressed: () {},
+                                ),
+                              ),
+                              Container(
+                                margin: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withValues(alpha: 0.3),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: IconButton(
+                                  icon: const Icon(
+                                    Icons.more_vert,
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
+                                  onPressed: () {},
+                                ),
+                              ),
+                            ],
+                            flexibleSpace: FlexibleSpaceBar(
+                              titlePadding: const EdgeInsets.only(
+                                left: 16,
+                                bottom: 16,
+                                right: 16,
+                              ),
+
+                              background: PlaylistHeaderWidget(
+                                playlist: playlist,
+                              ),
+                            ),
+                          ),
+
+                          // Action buttons
+                          SliverToBoxAdapter(
+                            child: PlaylistActionsWidget(playlist: playlist),
+                          ),
+
+                          // Lista de tracks
+                          SliverList(
+                            delegate: SliverChildBuilderDelegate((
+                              context,
+                              index,
+                            ) {
+                              final track = playlist.tracks[index];
+                              return PlaylistTrackItemWidget(
+                                track: track,
+                                index: index,
+                                allTracks: playlist.tracks,
+                              );
+                            }, childCount: playlist.tracks.length),
+                          ),
+
+                          const SliverToBoxAdapter(
+                            child: SizedBox(height: 100),
+                          ),
+                        ],
+                      ),
+                    ],
+                  );
+                },
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
