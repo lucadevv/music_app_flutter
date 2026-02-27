@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/services/local/onboarding_service.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
+import 'package:music_app/l10n/app_localizations.dart';
 import 'package:music_app/main.dart';
 
 @RoutePage()
@@ -17,26 +18,30 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
-  final List<OnboardingPage> _pages = [
-    OnboardingPage(
-      title: 'Descubre Nueva Música',
-      description:
-          'Explora millones de canciones y encuentra tu próxima obsesión musical',
-      icon: Icons.music_note,
-    ),
-    OnboardingPage(
-      title: 'Crea Tus Playlists',
-      description:
-          'Organiza tu música favorita y comparte tus playlists con amigos',
-      icon: Icons.playlist_add,
-    ),
-    OnboardingPage(
-      title: 'Escucha Sin Límites',
-      description:
-          'Disfruta de música de alta calidad sin interrupciones, donde quieras',
-      icon: Icons.headphones,
-    ),
-  ];
+  late List<OnboardingPage> _pages;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final l10n = AppLocalizations.of(context)!;
+    _pages = [
+      OnboardingPage(
+        title: l10n.discoverNewMusic,
+        description: l10n.discoverNewMusicDesc,
+        icon: Icons.music_note,
+      ),
+      OnboardingPage(
+        title: l10n.createYourPlaylists,
+        description: l10n.createYourPlaylistsDesc,
+        icon: Icons.playlist_add,
+      ),
+      OnboardingPage(
+        title: l10n.listenWithoutLimits,
+        description: l10n.listenWithoutLimitsDesc,
+        icon: Icons.headphones,
+      ),
+    ];
+  }
 
   @override
   void dispose() {
@@ -70,6 +75,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Scaffold(
       backgroundColor: AppColorsDark.surface,
       body: SafeArea(
@@ -83,7 +90,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 child: TextButton(
                   onPressed: _skip,
                   child: Text(
-                    'Saltar',
+                    l10n.skip,
                     style: TextStyle(
                       color: AppColorsDark.onSurfaceVariant,
                       fontSize: 16,
@@ -140,8 +147,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   ),
                   child: Text(
                     _currentPage == _pages.length - 1
-                        ? 'Comenzar'
-                        : 'Siguiente',
+                        ? l10n.getStarted
+                        : l10n.next,
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,

@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:music_app/core/managers/auth/auth_manager.dart';
 import 'package:music_app/core/services/auth/auth_service.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
+import 'package:music_app/l10n/app_localizations.dart';
 import 'package:music_app/main.dart';
 
 @RoutePage()
@@ -33,7 +34,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
     });
   }
 
-  Future<void> _openEmailApp() async {
+  Future<void> _openEmailApp(AppLocalizations l10n) async {
     if (_userEmail == null) return;
 
     // Intentar abrir la aplicación de correo predeterminada
@@ -50,7 +51,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: const Text('No se pudo abrir la aplicación de correo'),
+                content: Text(l10n.couldNotOpenEmailApp),
                 backgroundColor: AppColorsDark.error,
               ),
             );
@@ -69,31 +70,31 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
     }
   }
 
-  Future<void> _logout() async {
+  Future<void> _logout(AppLocalizations l10n) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColorsDark.surfaceContainerHigh,
         title: Text(
-          'Cerrar sesión',
+          l10n.logoutConfirmation,
           style: TextStyle(color: AppColorsDark.onSurface),
         ),
         content: Text(
-          '¿Estás seguro de que deseas cerrar sesión? Se eliminarán todos tus tokens.',
+          l10n.logoutTokensWarning,
           style: TextStyle(color: AppColorsDark.onSurfaceVariant),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
             child: Text(
-              'Cancelar',
+              l10n.cancel,
               style: TextStyle(color: AppColorsDark.onSurfaceVariant),
             ),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
             child: Text(
-              'Cerrar sesión',
+              l10n.logout,
               style: TextStyle(color: AppColorsDark.error),
             ),
           ),
@@ -122,8 +123,8 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
         // Si aún hay tokens, mostrar error
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Error al cerrar sesión. Intenta nuevamente.'),
+            SnackBar(
+              content: Text(l10n.errorClosingSession),
               backgroundColor: AppColorsDark.error,
             ),
           );
@@ -134,6 +135,8 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Scaffold(
       backgroundColor: AppColorsDark.surface,
       body: SafeArea(
@@ -153,7 +156,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
 
               // Título
               Text(
-                'Verifica tu correo',
+                l10n.verifyYourEmail,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 32,
@@ -165,7 +168,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
 
               // Descripción
               Text(
-                'Hemos enviado un enlace de verificación a tu correo electrónico.',
+                l10n.verificationEmailSent,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16,
@@ -188,9 +191,9 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
 
               // Botón para abrir correo
               FilledButton.icon(
-                onPressed: _openEmailApp,
+                onPressed: () => _openEmailApp(l10n),
                 icon: const Icon(Icons.email),
-                label: const Text('Abrir mi correo'),
+                label: Text(l10n.openMyEmail),
                 style: FilledButton.styleFrom(
                   backgroundColor: AppColorsDark.primary,
                   foregroundColor: AppColorsDark.onPrimary,
@@ -204,10 +207,10 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
 
               // Botón de salir
               OutlinedButton.icon(
-                onPressed: _logout,
+                onPressed: () => _logout(l10n),
                 icon: Icon(Icons.logout, color: AppColorsDark.error),
                 label: Text(
-                  'Cerrar sesión',
+                  l10n.logout,
                   style: TextStyle(color: AppColorsDark.error),
                 ),
                 style: OutlinedButton.styleFrom(
@@ -222,7 +225,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
 
               // Mensaje adicional
               Text(
-                'Una vez que verifiques tu correo, podrás acceder a todas las funciones de la aplicación.',
+                l10n.onceVerifiedAccess,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,

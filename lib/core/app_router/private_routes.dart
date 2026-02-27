@@ -45,6 +45,7 @@ class PrivateRoutes {
           page: SearchShell.page,
           children: [
             AutoRoute(path: '', page: SearchRoute.page),
+            AutoRoute(path: 'mood-genre/:params', page: MoodGenreRoute.page),
             AutoRoute(path: 'artist/:id', page: ArtistRoute.page),
             AutoRoute(path: 'album/:id', page: AlbumRoute.page),
             AutoRoute(path: 'playlist/:id', page: PlaylistRoute.page),

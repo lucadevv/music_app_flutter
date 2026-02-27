@@ -69,6 +69,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tryAgain => 'Try Again';
 
   @override
+  String get retry => 'Retry';
+
+  @override
   String get login => 'Login';
 
   @override
@@ -139,4 +142,282 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get spanish => 'Spanish';
+
+  @override
+  String get yourLibrary => 'Your Library';
+
+  @override
+  String get likedSongs => 'Liked Songs';
+
+  @override
+  String get genres => 'Genres';
+
+  @override
+  String get seeAll => 'See all';
+
+  @override
+  String get yourLibraryIsEmpty => 'Your library is empty';
+
+  @override
+  String get songsAndPlaylistsWillAppearHere =>
+      'Songs and playlists you like will appear here';
+
+  @override
+  String get exploreMusic => 'Explore Music';
+
+  @override
+  String get removeFromLikedSongs => 'Remove from Liked Songs';
+
+  @override
+  String get addToPlaylist => 'Add to Playlist';
+
+  @override
+  String get share => 'Share';
+
+  @override
+  String get errorLoadingLibrary => 'Error loading library';
+
+  @override
+  String get musicLanguages => 'Music Language(s)';
+
+  @override
+  String get streamingQuality => 'Streaming Quality';
+
+  @override
+  String get downloadQuality => 'Download Quality';
+
+  @override
+  String get autoPlay => 'Auto-Play';
+
+  @override
+  String get showLyricsOnPlayer => 'Show Lyrics on Player';
+
+  @override
+  String get equalizer => 'Equalizer';
+
+  @override
+  String get adjustAudioSettings => 'Adjust audio settings';
+
+  @override
+  String get connectToDevice => 'Connect to a Device';
+
+  @override
+  String get listenAndControlOnDevices =>
+      'Listen to and control music on your devices';
+
+  @override
+  String get others => 'Others';
+
+  @override
+  String get helpAndSupport => 'Help & Support';
+
+  @override
+  String get hd => 'HD';
+
+  @override
+  String get myProfile => 'My Profile';
+
+  @override
+  String get exit => 'Exit';
+
+  @override
+  String get errorLoadingProfile => 'Error loading profile';
+
+  @override
+  String get provider => 'Provider';
+
+  @override
+  String get memberSince => 'Member since';
+
+  @override
+  String get songs => 'songs';
+
+  @override
+  String get appPreferencesAndAccountSettings =>
+      'App preferences and account settings';
+
+  @override
+  String get manageYourDownloadedMusic => 'Manage your downloaded music';
+
+  @override
+  String get changeAppLanguage => 'Change app language';
+
+  @override
+  String get logoutConfirmation => 'Logout';
+
+  @override
+  String get logoutConfirmationMessage => 'Are you sure you want to logout?';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get errorUnknown => 'Unknown error';
+
+  @override
+  String get song => 'Song';
+
+  @override
+  String get deleteDownloadConfirmation => 'Delete download';
+
+  @override
+  String deleteDownloadMessage(String title) {
+    return 'Are you sure you want to delete \"$title\" from your downloads?';
+  }
+
+  @override
+  String get downloadingTitle => 'Downloading';
+
+  @override
+  String get skip => 'Skip';
+
+  @override
+  String get discoverNewMusic => 'Discover New Music';
+
+  @override
+  String get discoverNewMusicDesc =>
+      'Explore millions of songs and find your next musical obsession';
+
+  @override
+  String get createYourPlaylists => 'Create Your Playlists';
+
+  @override
+  String get createYourPlaylistsDesc =>
+      'Organize your favorite music and share your playlists with friends';
+
+  @override
+  String get listenWithoutLimits => 'Listen Without Limits';
+
+  @override
+  String get listenWithoutLimitsDesc =>
+      'Enjoy high-quality music without interruptions, wherever you are';
+
+  @override
+  String get getStarted => 'Get Started';
+
+  @override
+  String get loginTitle => 'Login';
+
+  @override
+  String get enterYourCredentials => 'Enter your credentials';
+
+  @override
+  String get emailAddress => 'Email address';
+
+  @override
+  String get emailHint => 'your@email.com';
+
+  @override
+  String get passwordLabel => 'Password';
+
+  @override
+  String get passwordHint => 'Enter your password';
+
+  @override
+  String get forgotYourPassword => 'Forgot your password?';
+
+  @override
+  String get loginButton => 'Login';
+
+  @override
+  String get or => 'or';
+
+  @override
+  String get noAccount => 'Don\'t have an account?';
+
+  @override
+  String get register => 'Register';
+
+  @override
+  String get welcome => 'Welcome';
+
+  @override
+  String get signInToContinue => 'Sign in to continue';
+
+  @override
+  String get continueWithGoogle => 'Continue with Google';
+
+  @override
+  String get continueWithApple => 'Continue with Apple';
+
+  @override
+  String get verifyYourEmail => 'Verify your email';
+
+  @override
+  String get verificationEmailSent =>
+      'We have sent a verification link to your email address.';
+
+  @override
+  String get openMyEmail => 'Open my email';
+
+  @override
+  String get couldNotOpenEmailApp => 'Could not open email application';
+
+  @override
+  String get errorClosingSession => 'Error closing session. Please try again.';
+
+  @override
+  String get onceVerifiedAccess =>
+      'Once you verify your email, you will be able to access all app features.';
+
+  @override
+  String get logoutTokensWarning =>
+      'Are you sure you want to logout? All your tokens will be deleted.';
+
+  @override
+  String get likedSongsCount => 'liked songs';
+
+  @override
+  String get noLikedSongsYet => 'No liked songs yet';
+
+  @override
+  String get songsYouLikeWillAppearHere => 'Songs you like will appear here';
+
+  @override
+  String get errorLoadingSongs => 'Error loading songs';
+
+  @override
+  String get errorLoadingPlaylist => 'Error loading playlist';
+
+  @override
+  String get errorLoadingHome => 'Error loading home';
+
+  @override
+  String get errorLoadingPlaylists => 'Error loading playlists';
+
+  @override
+  String get monthsJan => 'Jan';
+
+  @override
+  String get monthsFeb => 'Feb';
+
+  @override
+  String get monthsMar => 'Mar';
+
+  @override
+  String get monthsApr => 'Apr';
+
+  @override
+  String get monthsMay => 'May';
+
+  @override
+  String get monthsJun => 'Jun';
+
+  @override
+  String get monthsJul => 'Jul';
+
+  @override
+  String get monthsAug => 'Aug';
+
+  @override
+  String get monthsSep => 'Sep';
+
+  @override
+  String get monthsOct => 'Oct';
+
+  @override
+  String get monthsNov => 'Nov';
+
+  @override
+  String get monthsDec => 'Dec';
 }

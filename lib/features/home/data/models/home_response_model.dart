@@ -27,12 +27,16 @@ class HomeResponseModel extends HomeResponse {
     final genres = <MoodGenreModel>[];
     
     // Separar moods y genres (primeros 12 son moods según el ejemplo del API)
+    // Solo incluir items con params válido (no vacío)
     // Nota: Esto es una aproximación. Si la API cambia, necesitaremos otro criterio
     for (var i = 0; i < moodsGenresList.length; i++) {
       try {
         final item = moodsGenresList[i];
         if (item is Map<String, dynamic>) {
           final moodGenre = MoodGenreModel.fromJson(item);
+          // Solo agregar si tiene params válido
+          if (moodGenre.params.isEmpty) continue;
+          
           // Los primeros 12 son moods, el resto son genres
           if (i < 12) {
             moods.add(moodGenre);

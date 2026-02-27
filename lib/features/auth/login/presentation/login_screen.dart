@@ -9,6 +9,7 @@ import 'package:music_app/features/auth/login/presentation/cubit/login_cubit.dar
 import 'package:music_app/features/auth/login/presentation/notifiers/login_form_notifier.dart';
 import 'package:music_app/features/auth/login/presentation/widgets/login_listeners.dart';
 import 'package:music_app/features/auth/presentation/cubit/orquestador_auth_cubit.dart';
+import 'package:music_app/l10n/app_localizations.dart';
 import 'package:music_app/main.dart';
 
 @RoutePage()
@@ -67,6 +68,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return LoginListeners(
       child: Scaffold(
         backgroundColor: AppColorsDark.surface,
@@ -86,7 +89,7 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 // Título
                 Text(
-                  'Iniciar sesión',
+                  l10n.loginTitle,
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
@@ -95,7 +98,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Ingresa tus credenciales',
+                  l10n.enterYourCredentials,
                   style: TextStyle(
                     fontSize: 16,
                     color: AppColorsDark.onSurfaceVariant,
@@ -111,8 +114,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       controller: _formNotifier.emailController,
                       keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
-                        labelText: 'Email',
-                        hintText: 'tu@email.com',
+                        labelText: l10n.emailAddress,
+                        hintText: l10n.emailHint,
                         prefixIcon: Icon(
                           Icons.email,
                           color: AppColorsDark.primary,
@@ -145,8 +148,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       controller: _formNotifier.passwordController,
                       obscureText: _obscurePassword,
                       decoration: InputDecoration(
-                        labelText: 'Contraseña',
-                        hintText: 'Ingresa tu contraseña',
+                        labelText: l10n.passwordLabel,
+                        hintText: l10n.passwordHint,
                         prefixIcon: Icon(
                           Icons.lock,
                           color: AppColorsDark.primary,
@@ -192,7 +195,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       context.router.push(const ForgotPasswordRoute());
                     },
                     child: Text(
-                      '¿Olvidaste tu contraseña?',
+                      l10n.forgotYourPassword,
                       style: TextStyle(
                         color: AppColorsDark.primary,
                         fontSize: 14,
@@ -228,9 +231,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                               ),
                             )
-                          : const Text(
-                              'Iniciar sesión',
-                              style: TextStyle(
+                          : Text(
+                              l10n.loginButton,
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -249,7 +252,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
-                        'o',
+                        l10n.or,
                         style: TextStyle(color: AppColorsDark.onSurfaceVariant),
                       ),
                     ),
@@ -336,9 +339,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         fontSize: 14,
                       ),
                       children: [
-                        const TextSpan(text: '¿No tienes una cuenta? '),
+                        TextSpan(text: '${l10n.noAccount} '),
                         TextSpan(
-                          text: 'Registrarse',
+                          text: l10n.register,
                           style: TextStyle(
                             color: AppColorsDark.primary,
                             fontWeight: FontWeight.w600,

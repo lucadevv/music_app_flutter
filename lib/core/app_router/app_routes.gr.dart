@@ -354,7 +354,7 @@ class MyProfileRoute extends _i30.PageRouteInfo<void> {
   static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
-      return const _i16.MyProfileScreen();
+      return _i30.WrappedRoute(child: const _i16.MyProfileScreen());
     },
   );
 }
@@ -581,7 +581,7 @@ class SettingsRoute extends _i30.PageRouteInfo<void> {
   static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
-      return const _i26.SettingsScreen();
+      return _i30.WrappedRoute(child: const _i26.SettingsScreen());
     },
   );
 }

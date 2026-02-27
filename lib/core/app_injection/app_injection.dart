@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:music_app/core/app_router/app_routes.dart';
+import 'package:music_app/core/bloc/locale_cubit.dart';
 import 'package:music_app/core/managers/auth/auth_manager.dart';
 import 'package:music_app/core/managers/auth/auth_manager_impl.dart';
 import 'package:music_app/core/managers/auth/storage/token_manager.dart';
@@ -37,6 +38,7 @@ import 'package:music_app/features/search/domain/use_cases/search_use_case.dart'
 import 'package:music_app/features/search/domain/use_cases/get_recent_searches_use_case.dart';
 import 'package:music_app/features/search/presentation/cubit/search_cubit.dart';
 import 'package:music_app/features/search/presentation/cubit/recent_searches_cubit.dart';
+import 'package:music_app/features/search/presentation/cubit/categories_cubit.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/home/data/data_sources/home_remote_data_source.dart';
 import 'package:music_app/features/home/data/repositories/home_repository_impl.dart';
@@ -139,6 +141,13 @@ class AppInjection {
     if (!_getIt.isRegistered<ThemeCubit>()) {
       _getIt.registerFactoryAsync<ThemeCubit>(
         () async => ThemeCubit(await _getIt.getAsync<SharedPreferences>()),
+      );
+    }
+
+    // LocaleCubit - singleton async porque depende de SharedPreferences y debe persistir en toda la app
+    if (!_getIt.isRegistered<LocaleCubit>()) {
+      _getIt.registerLazySingletonAsync<LocaleCubit>(
+        () async => LocaleCubit(await _getIt.getAsync<SharedPreferences>()),
       );
     }
 
@@ -292,6 +301,13 @@ class AppInjection {
         () => RecentSearchesCubit(
           getRecentSearchesUseCase: _getIt<GetRecentSearchesUseCase>(),
         ),
+      );
+    }
+
+    // CategoriesCubit - factory para cargar moods/genres en SearchScreen
+    if (!_getIt.isRegistered<CategoriesCubit>()) {
+      _getIt.registerFactory<CategoriesCubit>(
+        () => CategoriesCubit(_getIt<ApiServices>()),
       );
     }
   }

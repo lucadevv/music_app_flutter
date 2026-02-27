@@ -16,7 +16,10 @@ class MoodGenreCardWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        context.router.push(MoodGenreRoute(params: moodGenre.params));
+        // Solo navegar si hay params válido
+        if (moodGenre.params.isNotEmpty) {
+          context.router.push(MoodGenreRoute(params: moodGenre.params));
+        }
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),

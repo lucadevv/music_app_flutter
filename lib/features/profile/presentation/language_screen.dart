@@ -1,6 +1,10 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:music_app/core/bloc/locale_cubit.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
+import 'package:music_app/l10n/app_localizations.dart';
+import 'package:music_app/main.dart';
 
 @RoutePage()
 class LanguageScreen extends StatelessWidget {
@@ -8,26 +12,17 @@ class LanguageScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final languages = [
-      'English',
-      'Spanish',
-      'French',
-      'German',
-      'Italian',
-      'Portuguese',
-      'Japanese',
-      'Korean',
-      'Chinese',
-    ];
-
+    final l10n = AppLocalizations.of(context)!;
+    final localeCubit = getIt<LocaleCubit>();
+    
     return Scaffold(
       backgroundColor: const Color(0xFF0D0D0D),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
-          'Language',
-          style: TextStyle(
+        title: Text(
+          l10n.language,
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -38,20 +33,32 @@ class LanguageScreen extends StatelessWidget {
           onPressed: () => context.router.pop(),
         ),
       ),
-      body: ListView.builder(
-        itemCount: languages.length,
-        itemBuilder: (context, index) {
-          final isSelected = index == 0;
-          return RadioListTile<String>(
-            value: languages[index],
-            groupValue: isSelected ? languages[0] : null,
-            onChanged: (value) {},
-            title: Text(
-              languages[index],
-              style: const TextStyle(color: Colors.white),
-            ),
-            activeColor: AppColorsDark.primary,
-            selected: isSelected,
+      body: BlocBuilder<LocaleCubit, LocaleState>(
+        bloc: localeCubit,
+        builder: (context, state) {
+          return ListView.builder(
+            itemCount: LocaleCubit.supportedLocales.length,
+            itemBuilder: (context, index) {
+              final locale = LocaleCubit.supportedLocales[index];
+              final isSelected = state.locale.languageCode == locale.languageCode;
+              final localeName = LocaleCubit.localeNames[locale.languageCode] ?? locale.languageCode;
+              
+              return RadioListTile<String>(
+                value: locale.languageCode,
+                groupValue: state.locale.languageCode,
+                onChanged: (value) {
+                  if (value != null) {
+                    localeCubit.setLocaleByCode(value);
+                  }
+                },
+                title: Text(
+                  localeName,
+                  style: const TextStyle(color: Colors.white),
+                ),
+                activeColor: AppColorsDark.primary,
+                selected: isSelected,
+              );
+            },
           );
         },
       ),

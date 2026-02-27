@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:music_app/l10n/app_localizations.dart';
 import '../cubit/playlist_cubit.dart';
 
 /// Widget para mostrar errores en la playlist
@@ -15,6 +16,8 @@ class PlaylistErrorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -28,7 +31,7 @@ class PlaylistErrorWidget extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'Error al cargar la playlist',
+              l10n.errorLoadingPlaylist,
               style: TextStyle(
                 color: Colors.white.withValues(alpha: 0.9),
                 fontSize: 20,
@@ -54,7 +57,7 @@ class PlaylistErrorWidget extends StatelessWidget {
                 foregroundColor: Colors.black,
                 padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
               ),
-              child: const Text('Reintentar'),
+              child: Text(l10n.retry),
             ),
           ],
         ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:music_app/l10n/app_localizations.dart';
 import '../cubit/home_cubit.dart';
 
 /// Widget para mostrar el estado de error del home
@@ -16,12 +17,14 @@ class HomeErrorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            errorMessage ?? 'Error al cargar el home',
+            errorMessage ?? l10n.errorLoadingHome,
             style: const TextStyle(color: Colors.white),
           ),
           const SizedBox(height: 16),
@@ -29,7 +32,7 @@ class HomeErrorWidget extends StatelessWidget {
             onPressed: () {
               context.read<HomeCubit>().loadHome();
             },
-            child: const Text('Reintentar'),
+            child: Text(l10n.retry),
           ),
         ],
       ),

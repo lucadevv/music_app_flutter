@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:music_app/l10n/app_localizations.dart';
 import '../cubit/mood_genre_cubit.dart';
 
 /// Widget para mostrar el estado de error
@@ -18,12 +19,14 @@ class MoodGenreErrorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            errorMessage ?? 'Error al cargar las playlists',
+            errorMessage ?? l10n.errorLoadingPlaylists,
             style: const TextStyle(color: Colors.white),
             textAlign: TextAlign.center,
           ),
@@ -32,7 +35,7 @@ class MoodGenreErrorWidget extends StatelessWidget {
             onPressed: () {
               context.read<MoodGenreCubit>().loadMoodPlaylists(params);
             },
-            child: const Text('Reintentar'),
+            child: Text(l10n.retry),
           ),
         ],
       ),

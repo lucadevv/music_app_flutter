@@ -10,6 +10,8 @@ import 'package:music_app/features/favorites/presentation/widgets/favorite_butto
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/library/presentation/cubit/library_cubit.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
+import 'package:music_app/features/profile/profile_cubit.dart';
+import 'package:music_app/l10n/app_localizations.dart';
 import 'package:music_app/main.dart';
 
 @RoutePage()
@@ -18,8 +20,11 @@ class LibraryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => getIt<LibraryCubit>()..loadLibrary(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => getIt<LibraryCubit>()..loadLibrary()),
+        BlocProvider(create: (_) => getIt<ProfileCubit>()..loadProfile()),
+      ],
       child: const _LibraryView(),
     );
   }
@@ -30,6 +35,8 @@ class _LibraryView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Scaffold(
       backgroundColor: const Color(0xFF0D0D0D),
       body: BlocBuilder<LibraryCubit, LibraryState>(
@@ -39,7 +46,7 @@ class _LibraryView extends StatelessWidget {
             onRefresh: () => context.read<LibraryCubit>().loadLibrary(),
             child: CustomScrollView(
               slivers: [
-                _buildHeader(context),
+                _buildHeader(context, l10n),
                 if (state.status == LibraryStatus.loading)
                   const SliverFillRemaining(
                     child: Center(
@@ -48,16 +55,16 @@ class _LibraryView extends StatelessWidget {
                   )
                 else if (state.status == LibraryStatus.failure)
                   SliverFillRemaining(
-                    child: _buildError(state.errorMessage, context),
+                    child: _buildError(state.errorMessage, context, l10n),
                   )
                 else ...[
-                  _buildQuickAccess(context, state),
+                  _buildQuickAccess(context, state, l10n),
                   if (state.favoritePlaylists.isNotEmpty)
-                    _buildPlaylistsSection(context, state),
+                    _buildPlaylistsSection(context, state, l10n),
                   if (state.favoriteSongs.isNotEmpty)
-                    _buildSongsSection(context, state),
+                    _buildSongsSection(context, state, l10n),
                   if (state.isEmpty && state.status == LibraryStatus.success)
-                    _buildEmptyState(context),
+                    _buildEmptyState(context, l10n),
                   const SliverToBoxAdapter(child: SizedBox(height: 100)),
                 ],
               ],
@@ -68,30 +75,22 @@ class _LibraryView extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
+  Widget _buildHeader(BuildContext context, AppLocalizations l10n) {
     return SliverAppBar(
       backgroundColor: Colors.transparent,
       elevation: 0,
       pinned: true,
-      leading: IconButton(
-        icon: Container(
-          width: 48,
-          height: 48,
-          decoration: BoxDecoration(
-            color: AppColorsDark.primaryContainer,
-            shape: BoxShape.circle,
-          ),
-          child: Icon(
-            Icons.person,
-            color: AppColorsDark.primary,
-            size: 24,
-          ),
-        ),
-        onPressed: () => context.router.push(const ProfileRoute()),
+      leading: BlocBuilder<ProfileCubit, ProfileState>(
+        builder: (context, profileState) {
+          return IconButton(
+            icon: _buildProfileAvatar(profileState),
+            onPressed: () => context.router.push(const MyProfileRoute()),
+          );
+        },
       ),
-      title: const Text(
-        'Your Library',
-        style: TextStyle(
+      title: Text(
+        l10n.yourLibrary,
+        style: const TextStyle(
           color: Colors.white,
           fontSize: 24,
           fontWeight: FontWeight.bold,
@@ -116,7 +115,54 @@ class _LibraryView extends StatelessWidget {
     );
   }
 
-  Widget _buildError(String? errorMessage, BuildContext context) {
+  Widget _buildProfileAvatar(ProfileState profileState) {
+    if (profileState.avatarUrl != null && profileState.avatarUrl!.isNotEmpty) {
+      return Container(
+        width: 32,
+        height: 32,
+        decoration: const BoxDecoration(shape: BoxShape.circle),
+        child: ClipOval(
+          child: CachedNetworkImage(
+            imageUrl: profileState.avatarUrl!,
+            fit: BoxFit.cover,
+            placeholder: (_, __) => _buildInitialsAvatar(profileState, 32),
+            errorWidget: (_, __, ___) => _buildInitialsAvatar(profileState, 32),
+          ),
+        ),
+      );
+    }
+    return _buildInitialsAvatar(profileState, 32);
+  }
+
+  Widget _buildInitialsAvatar(ProfileState profileState, double size) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColorsDark.primary,
+            AppColorsDark.primary.withValues(alpha: 0.7),
+          ],
+        ),
+        shape: BoxShape.circle,
+      ),
+      child: Center(
+        child: Text(
+          profileState.initials,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: size * 0.4,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildError(String? errorMessage, BuildContext context, AppLocalizations l10n) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -124,21 +170,21 @@ class _LibraryView extends StatelessWidget {
           const Icon(Icons.error_outline, color: Colors.red, size: 48),
           const SizedBox(height: 16),
           Text(
-            errorMessage ?? 'Error loading library',
+            errorMessage ?? l10n.errorLoadingLibrary,
             style: const TextStyle(color: Colors.white70),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () => context.read<LibraryCubit>().loadLibrary(),
-            child: const Text('Retry'),
+            child: Text(l10n.retry),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildQuickAccess(BuildContext context, LibraryState state) {
+  Widget _buildQuickAccess(BuildContext context, LibraryState state, AppLocalizations l10n) {
     return SliverToBoxAdapter(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
@@ -148,19 +194,19 @@ class _LibraryView extends StatelessWidget {
           children: [
             _QuickAccessChip(
               icon: Icons.favorite,
-              label: 'Liked Songs',
+              label: l10n.likedSongs,
               count: state.totalSongs,
               onTap: () => context.router.push(const LikedSongsRoute()),
             ),
             _QuickAccessChip(
               icon: Icons.playlist_play,
-              label: 'Playlists',
+              label: l10n.playlists,
               count: state.totalPlaylists,
               onTap: () {},
             ),
             _QuickAccessChip(
               icon: Icons.library_music,
-              label: 'Genres',
+              label: l10n.genres,
               count: state.totalGenres,
               onTap: () {},
             ),
@@ -170,7 +216,7 @@ class _LibraryView extends StatelessWidget {
     );
   }
 
-  Widget _buildPlaylistsSection(BuildContext context, LibraryState state) {
+  Widget _buildPlaylistsSection(BuildContext context, LibraryState state, AppLocalizations l10n) {
     return SliverToBoxAdapter(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -180,9 +226,9 @@ class _LibraryView extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Playlists',
-                  style: TextStyle(
+                Text(
+                  l10n.playlists,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -191,9 +237,9 @@ class _LibraryView extends StatelessWidget {
                 if (state.totalPlaylists > 5)
                   TextButton(
                     onPressed: () {},
-                    child: const Text(
-                      'See all',
-                      style: TextStyle(color: AppColorsDark.primary, fontSize: 14),
+                    child: Text(
+                      l10n.seeAll,
+                      style: const TextStyle(color: AppColorsDark.primary, fontSize: 14),
                     ),
                   ),
               ],
@@ -221,7 +267,7 @@ class _LibraryView extends StatelessWidget {
     );
   }
 
-  Widget _buildSongsSection(BuildContext context, LibraryState state) {
+  Widget _buildSongsSection(BuildContext context, LibraryState state, AppLocalizations l10n) {
     return SliverToBoxAdapter(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -231,9 +277,9 @@ class _LibraryView extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Liked Songs',
-                  style: TextStyle(
+                Text(
+                  l10n.likedSongs,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -242,9 +288,9 @@ class _LibraryView extends StatelessWidget {
                 if (state.totalSongs > 5)
                   TextButton(
                     onPressed: () => context.router.push(const LikedSongsRoute()),
-                    child: const Text(
-                      'See all',
-                      style: TextStyle(color: AppColorsDark.primary, fontSize: 14),
+                    child: Text(
+                      l10n.seeAll,
+                      style: const TextStyle(color: AppColorsDark.primary, fontSize: 14),
                     ),
                   ),
               ],
@@ -260,7 +306,7 @@ class _LibraryView extends StatelessWidget {
               return _SongListItem(
                 song: song,
                 onTap: () => _playSong(context, song, state.favoriteSongs),
-                onOptionsTap: () => _showSongOptions(context, song),
+                onOptionsTap: () => _showSongOptions(context, song, l10n),
               );
             },
           ),
@@ -269,7 +315,7 @@ class _LibraryView extends StatelessWidget {
     );
   }
 
-  Widget _buildEmptyState(BuildContext context) {
+  Widget _buildEmptyState(BuildContext context, AppLocalizations l10n) {
     return SliverFillRemaining(
       child: Center(
         child: Column(
@@ -282,7 +328,7 @@ class _LibraryView extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'Your library is empty',
+              l10n.yourLibraryIsEmpty,
               style: TextStyle(
                 color: Colors.white.withValues(alpha: 0.7),
                 fontSize: 18,
@@ -290,7 +336,7 @@ class _LibraryView extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Songs and playlists you like will appear here',
+              l10n.songsAndPlaylistsWillAppearHere,
               style: TextStyle(
                 color: Colors.white.withValues(alpha: 0.5),
                 fontSize: 14,
@@ -300,7 +346,7 @@ class _LibraryView extends StatelessWidget {
             ElevatedButton.icon(
               onPressed: () => context.router.push(const HomeRoute()),
               icon: const Icon(Icons.explore),
-              label: const Text('Explore Music'),
+              label: Text(l10n.exploreMusic),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColorsDark.primary,
                 foregroundColor: Colors.white,
@@ -327,14 +373,14 @@ class _LibraryView extends StatelessWidget {
     context.router.push(PlayerRoute(nowPlayingData: nowPlayingData));
   }
 
-  void _showSongOptions(BuildContext context, FavoriteSong song) {
+  void _showSongOptions(BuildContext context, FavoriteSong song, AppLocalizations l10n) {
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColorsDark.surfaceContainerHigh,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder: (context) => _SongOptionsSheet(song: song),
+      builder: (context) => _SongOptionsSheet(song: song, l10n: l10n),
     );
   }
 
@@ -545,8 +591,9 @@ class _SongListItem extends StatelessWidget {
 
 class _SongOptionsSheet extends StatelessWidget {
   final FavoriteSong song;
+  final AppLocalizations l10n;
 
-  const _SongOptionsSheet({required this.song});
+  const _SongOptionsSheet({required this.song, required this.l10n});
 
   @override
   Widget build(BuildContext context) {
@@ -588,7 +635,7 @@ class _SongOptionsSheet extends StatelessWidget {
           const Divider(color: Colors.white24),
           _OptionTile(
             icon: Icons.heart_broken,
-            label: 'Remove from Liked Songs',
+            label: l10n.removeFromLikedSongs,
             onTap: () {
               Navigator.pop(context);
               // Usar videoId para eliminar (el backend ahora lo soporta)
@@ -601,12 +648,12 @@ class _SongOptionsSheet extends StatelessWidget {
           ),
           _OptionTile(
             icon: Icons.playlist_add,
-            label: 'Add to Playlist',
+            label: l10n.addToPlaylist,
             onTap: () => Navigator.pop(context),
           ),
           _OptionTile(
             icon: Icons.share,
-            label: 'Share',
+            label: l10n.share,
             onTap: () => Navigator.pop(context),
           ),
         ],

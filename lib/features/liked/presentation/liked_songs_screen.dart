@@ -8,6 +8,7 @@ import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/library/presentation/cubit/library_cubit.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
+import 'package:music_app/l10n/app_localizations.dart';
 import 'package:music_app/main.dart';
 
 @RoutePage()
@@ -31,11 +32,13 @@ class _LikedSongsScreenView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return BlocBuilder<LibraryCubit, LibraryState>(
       builder: (context, state) {
         return CustomScrollView(
           slivers: [
-            _buildHeader(context, state),
+            _buildHeader(context, state, l10n),
             if (state.status == LibraryStatus.loading)
               const SliverFillRemaining(
                 child: Center(
@@ -44,11 +47,11 @@ class _LikedSongsScreenView extends StatelessWidget {
               )
             else if (state.status == LibraryStatus.failure)
               SliverFillRemaining(
-                child: _buildError(state.errorMessage, context),
+                child: _buildError(state.errorMessage, context, l10n),
               )
             else ...[
               _buildPlayButton(context, state),
-              _buildSongsList(context, state),
+              _buildSongsList(context, state, l10n),
             ],
           ],
         );
@@ -56,8 +59,10 @@ class _LikedSongsScreenView extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context, LibraryState state) {
-    final totalText = state.totalSongs > 0 ? '${state.totalSongs} liked songs' : 'Liked Songs';
+  Widget _buildHeader(BuildContext context, LibraryState state, AppLocalizations l10n) {
+    final totalText = state.totalSongs > 0 
+        ? '${state.totalSongs} ${l10n.likedSongsCount}' 
+        : l10n.likedSongs;
 
     return SliverAppBar(
       expandedHeight: 280,
@@ -114,9 +119,9 @@ class _LikedSongsScreenView extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-                const Text(
-                  'Liked Songs',
-                  style: TextStyle(
+                Text(
+                  l10n.likedSongs,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
@@ -173,7 +178,7 @@ class _LikedSongsScreenView extends StatelessWidget {
     );
   }
 
-  Widget _buildSongsList(BuildContext context, LibraryState state) {
+  Widget _buildSongsList(BuildContext context, LibraryState state, AppLocalizations l10n) {
     if (state.favoriteSongs.isEmpty) {
       return SliverFillRemaining(
         child: Center(
@@ -187,7 +192,7 @@ class _LikedSongsScreenView extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                'No liked songs yet',
+                l10n.noLikedSongsYet,
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.7),
                   fontSize: 18,
@@ -195,7 +200,7 @@ class _LikedSongsScreenView extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Songs you like will appear here',
+                l10n.songsYouLikeWillAppearHere,
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.5),
                   fontSize: 14,
@@ -223,7 +228,7 @@ class _LikedSongsScreenView extends StatelessWidget {
     );
   }
 
-  Widget _buildError(String? errorMessage, BuildContext context) {
+  Widget _buildError(String? errorMessage, BuildContext context, AppLocalizations l10n) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -231,7 +236,7 @@ class _LikedSongsScreenView extends StatelessWidget {
           const Icon(Icons.error_outline, color: Colors.red, size: 48),
           const SizedBox(height: 16),
           Text(
-            errorMessage ?? 'Error loading songs',
+            errorMessage ?? l10n.errorLoadingSongs,
             style: const TextStyle(color: Colors.white70),
             textAlign: TextAlign.center,
           ),
@@ -241,7 +246,7 @@ class _LikedSongsScreenView extends StatelessWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColorsDark.primary,
             ),
-            child: const Text('Retry'),
+            child: Text(l10n.retry),
           ),
         ],
       ),

@@ -6,6 +6,7 @@ import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/favorites/presentation/widgets/favorite_button.dart';
+import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 import 'package:music_app/main.dart';
 import '../../domain/entities/playlist_track.dart';
@@ -230,6 +231,12 @@ class PlaylistTrackItemWidget extends StatelessWidget {
                   FavoriteButton(
                     videoId: track.videoId ?? '',
                     size: 20,
+                    metadata: SongMetadata(
+                      title: track.title,
+                      artist: _getArtistsNames(),
+                      thumbnail: thumbnail?.url,
+                      duration: track.durationSeconds,
+                    ),
                   ),
                   IconButton(
                     icon: Icon(

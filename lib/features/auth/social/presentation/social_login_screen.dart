@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
+import 'package:music_app/l10n/app_localizations.dart';
 
 @RoutePage()
 class SocialLoginScreen extends StatelessWidget {
@@ -9,6 +10,8 @@ class SocialLoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Scaffold(
       backgroundColor: AppColorsDark.surface,
       body: SafeArea(
@@ -35,7 +38,7 @@ class SocialLoginScreen extends StatelessWidget {
 
               // Título
               Text(
-                'Bienvenido',
+                l10n.welcome,
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
@@ -44,7 +47,7 @@ class SocialLoginScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Inicia sesión para continuar',
+                l10n.signInToContinue,
                 style: TextStyle(
                   fontSize: 16,
                   color: AppColorsDark.onSurfaceVariant,
@@ -55,7 +58,7 @@ class SocialLoginScreen extends StatelessWidget {
               // Botones sociales
               _SocialButton(
                 icon: Icons.g_mobiledata,
-                label: 'Continuar con Google',
+                label: l10n.continueWithGoogle,
                 onPressed: () {
                   // TODO: Implementar login con Google
                 },
@@ -63,7 +66,7 @@ class SocialLoginScreen extends StatelessWidget {
               const SizedBox(height: 16),
               _SocialButton(
                 icon: Icons.apple,
-                label: 'Continuar con Apple',
+                label: l10n.continueWithApple,
                 onPressed: () {
                   // TODO: Implementar login con Apple
                 },
@@ -77,7 +80,7 @@ class SocialLoginScreen extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Text(
-                      'o',
+                      l10n.or,
                       style: TextStyle(color: AppColorsDark.onSurfaceVariant),
                     ),
                   ),
@@ -100,9 +103,9 @@ class SocialLoginScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                   ),
                 ),
-                child: const Text(
-                  'Iniciar sesión',
-                  style: TextStyle(
+                child: Text(
+                  l10n.login,
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),
@@ -122,9 +125,9 @@ class SocialLoginScreen extends StatelessWidget {
                       fontSize: 14,
                     ),
                     children: [
-                      const TextSpan(text: '¿No tienes una cuenta? '),
+                      TextSpan(text: '${l10n.noAccount} '),
                       TextSpan(
-                        text: 'Registrarse',
+                        text: l10n.register,
                         style: TextStyle(
                           color: AppColorsDark.primary,
                           fontWeight: FontWeight.w600,

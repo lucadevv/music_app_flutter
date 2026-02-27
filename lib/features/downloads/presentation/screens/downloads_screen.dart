@@ -5,6 +5,7 @@ import 'package:music_app/features/downloads/domain/entities/downloaded_song.dar
 import 'package:music_app/features/downloads/presentation/cubit/downloads_cubit.dart';
 import 'package:music_app/features/downloads/presentation/widgets/downloaded_song_item_widget.dart';
 import 'package:music_app/features/downloads/presentation/widgets/download_progress_widget.dart';
+import 'package:music_app/l10n/app_localizations.dart';
 
 /// Pantalla de descargas
 ///
@@ -42,9 +43,11 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     if (_downloadsCubit == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Descargas')),
+        appBar: AppBar(title: Text(l10n.downloads)),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
@@ -53,7 +56,7 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
       value: _downloadsCubit!,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Descargas'),
+          title: Text(l10n.downloads),
           actions: [
             IconButton(
               icon: const Icon(Icons.settings_outlined),
@@ -63,14 +66,16 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
             ),
           ],
         ),
-        body: const _DownloadsBody(),
+        body: _DownloadsBody(l10n: l10n),
       ),
     );
   }
 }
 
 class _DownloadsBody extends StatelessWidget {
-  const _DownloadsBody();
+  final AppLocalizations l10n;
+
+  const _DownloadsBody({required this.l10n});
 
   @override
   Widget build(BuildContext context) {
@@ -107,12 +112,12 @@ class _DownloadsBody extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'Sin descargas aún',
+            l10n.noDownloadsYet,
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 8),
           Text(
-            'Las canciones que descargues aparecerán aquí',
+            l10n.downloadsWillAppearHere,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: colorScheme.onSurfaceVariant,
                 ),
@@ -137,12 +142,12 @@ class _DownloadsBody extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'Ocurrió un error',
+            l10n.errorOccurred,
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 8),
           Text(
-            state.errorMessage ?? 'Error desconocido',
+            state.errorMessage ?? l10n.errorUnknown,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: colorScheme.onSurfaceVariant,
                 ),
@@ -153,7 +158,7 @@ class _DownloadsBody extends StatelessWidget {
             onPressed: () {
               context.read<DownloadsCubit>().loadDownloads();
             },
-            child: const Text('Reintentar'),
+            child: Text(l10n.retry),
           ),
         ],
       ),
@@ -171,7 +176,7 @@ class _DownloadsBody extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Descargando',
+                  l10n.downloadingTitle,
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: 8),
@@ -180,7 +185,7 @@ class _DownloadsBody extends StatelessWidget {
                     padding: const EdgeInsets.only(bottom: 8),
                     child: DownloadProgressWidget(
                       progress: state.downloadProgress[videoId] ?? 0,
-                      title: 'Canción $videoId',
+                      title: '${l10n.song} $videoId',
                     ),
                   ),
                 ),
@@ -223,16 +228,16 @@ class _DownloadsBody extends StatelessWidget {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          title: const Text('Eliminar descarga'),
+          title: Text(l10n.deleteDownloadConfirmation),
           content: Text(
-            '¿Estás seguro de que quieres eliminar "${song.title}" de tus descargas?',
+            l10n.deleteDownloadMessage(song.title),
           ),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(dialogContext).pop();
               },
-              child: const Text('Cancelar'),
+              child: Text(l10n.cancel),
             ),
             FilledButton(
               onPressed: () {
@@ -242,7 +247,7 @@ class _DownloadsBody extends StatelessWidget {
               style: FilledButton.styleFrom(
                 backgroundColor: Theme.of(context).colorScheme.error,
               ),
-              child: const Text('Eliminar'),
+              child: Text(l10n.deleteDownload),
             ),
           ],
         );
