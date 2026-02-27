@@ -1,0 +1,66 @@
+part of 'library_cubit.dart';
+
+enum LibraryStatus {
+  initial,
+  loading,
+  success,
+  failure,
+}
+
+class LibraryState {
+  final LibraryStatus status;
+  final String? errorMessage;
+  final List<FavoriteSong> favoriteSongs;
+  final List<FavoritePlaylist> favoritePlaylists;
+  final List<FavoriteGenre> favoriteGenres;
+  final int totalSongs;
+  final int totalPlaylists;
+  final int totalGenres;
+  final LibrarySummary? summary;
+  final bool isLoadingMoreSongs;
+
+  const LibraryState({
+    this.status = LibraryStatus.initial,
+    this.errorMessage,
+    this.favoriteSongs = const [],
+    this.favoritePlaylists = const [],
+    this.favoriteGenres = const [],
+    this.totalSongs = 0,
+    this.totalPlaylists = 0,
+    this.totalGenres = 0,
+    this.summary,
+    this.isLoadingMoreSongs = false,
+  });
+
+  bool get hasMoreSongs => favoriteSongs.length < totalSongs;
+  bool get hasMorePlaylists => favoritePlaylists.length < totalPlaylists;
+  bool get hasMoreGenres => favoriteGenres.length < totalGenres;
+  bool get isEmpty => favoriteSongs.isEmpty && favoritePlaylists.isEmpty && favoriteGenres.isEmpty;
+
+  LibraryState copyWith({
+    LibraryStatus? status,
+    String? errorMessage,
+    List<FavoriteSong>? favoriteSongs,
+    List<FavoritePlaylist>? favoritePlaylists,
+    List<FavoriteGenre>? favoriteGenres,
+    int? totalSongs,
+    int? totalPlaylists,
+    int? totalGenres,
+    LibrarySummary? summary,
+    bool? isLoadingMoreSongs,
+    bool clearError = false,
+  }) {
+    return LibraryState(
+      status: status ?? this.status,
+      errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+      favoriteSongs: favoriteSongs ?? this.favoriteSongs,
+      favoritePlaylists: favoritePlaylists ?? this.favoritePlaylists,
+      favoriteGenres: favoriteGenres ?? this.favoriteGenres,
+      totalSongs: totalSongs ?? this.totalSongs,
+      totalPlaylists: totalPlaylists ?? this.totalPlaylists,
+      totalGenres: totalGenres ?? this.totalGenres,
+      summary: summary ?? this.summary,
+      isLoadingMoreSongs: isLoadingMoreSongs ?? this.isLoadingMoreSongs,
+    );
+  }
+}

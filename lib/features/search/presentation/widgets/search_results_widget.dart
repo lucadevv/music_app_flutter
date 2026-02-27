@@ -3,6 +3,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
+import 'package:music_app/features/favorites/presentation/widgets/favorite_button.dart';
+import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 import '../../domain/entities/song.dart';
 
@@ -45,27 +47,19 @@ class _SongItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Obtener la mejor thumbnail (la más grande disponible)
-    final thumbnail = song.thumbnails.isNotEmpty
-        ? song.thumbnails.last
-        : null; // Usar la última que suele ser la más grande
-
-    // Obtener nombres de artistas
+    final thumbnail = song.thumbnails.isNotEmpty ? song.thumbnails.last : null;
     final artistsNames = song.artists.map((a) => a.name).join(', ');
 
     return GestureDetector(
       onTap: () {
         context.router.push(
-          PlayerRoute(
-            nowPlayingData: NowPlayingData.fromSong(song),
-          ),
+          PlayerRoute(nowPlayingData: NowPlayingData.fromSong(song)),
         );
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         child: Row(
           children: [
-            // Thumbnail con Hero animation
             Hero(
               tag: 'song_artwork_${song.videoId}',
               child: ClipRRect(
@@ -86,9 +80,7 @@ class _SongItem extends StatelessWidget {
                               height: 20,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  AppColorsDark.primary,
-                                ),
+                                valueColor: AlwaysStoppedAnimation<Color>(AppColorsDark.primary),
                               ),
                             ),
                           ),
@@ -97,25 +89,18 @@ class _SongItem extends StatelessWidget {
                           width: 60,
                           height: 60,
                           color: AppColorsDark.primaryContainer,
-                          child: Icon(
-                            Icons.music_note,
-                            color: AppColorsDark.primary,
-                          ),
+                          child: Icon(Icons.music_note, color: AppColorsDark.primary),
                         ),
                       )
                     : Container(
                         width: 60,
                         height: 60,
                         color: AppColorsDark.primaryContainer,
-                        child: Icon(
-                          Icons.music_note,
-                          color: AppColorsDark.primary,
-                        ),
+                        child: Icon(Icons.music_note, color: AppColorsDark.primary),
                       ),
               ),
             ),
             const SizedBox(width: 16),
-            // Información de la canción
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -151,15 +136,27 @@ class _SongItem extends StatelessWidget {
                 ],
               ),
             ),
-            // Botón de más opciones
-            IconButton(
-              icon: Icon(
-                Icons.more_vert,
-                color: Colors.white.withValues(alpha: 0.5),
-              ),
-              onPressed: () {
-                // TODO: Mostrar menú de opciones
-              },
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                FavoriteButton(
+                  videoId: song.videoId,
+                  size: 22,
+                  metadata: SongMetadata(
+                    title: song.title,
+                    artist: artistsNames,
+                    thumbnail: thumbnail?.url,
+                    duration: song.durationSeconds,
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(
+                    Icons.more_vert,
+                    color: Colors.white.withValues(alpha: 0.5),
+                  ),
+                  onPressed: () {},
+                ),
+              ],
             ),
           ],
         ),

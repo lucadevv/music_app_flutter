@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:music_app/core/app_router/app_routes.dart';
@@ -9,6 +10,8 @@ import 'package:music_app/core/services/local/local_storage_service.dart';
 import 'package:music_app/core/services/local/shared_preferences_service_impl.dart';
 import 'package:music_app/core/services/network/api_services.dart';
 import 'package:music_app/core/services/network/dio_services_impl.dart';
+import 'package:music_app/core/theme/theme_cubit.dart';
+import 'package:music_app/features/auth/data/services/oauth_service.dart';
 import 'package:music_app/features/auth/register/data/data_sources/auth_remote_data_source.dart';
 import 'package:music_app/features/auth/presentation/cubit/orquestador_auth_cubit.dart';
 import 'package:music_app/features/auth/register/data/repositories/auth_repository_impl.dart';
@@ -16,8 +19,17 @@ import 'package:music_app/features/auth/register/domain/repositories/auth_reposi
 import 'package:music_app/features/auth/register/domain/use_cases/register_use_case.dart';
 import 'package:music_app/features/auth/register/presentation/cubit/register_cubit.dart';
 import 'package:music_app/features/auth/login/domain/use_cases/login_use_case.dart';
+import 'package:music_app/features/auth/login/domain/use_cases/oauth_sign_in_use_case.dart';
 import 'package:music_app/features/auth/login/presentation/cubit/login_cubit.dart';
 import 'package:music_app/features/auth/refresh_token/domain/use_cases/refresh_token_use_case.dart';
+import 'package:music_app/features/downloads/data/data_sources/downloads_local_data_source.dart';
+import 'package:music_app/features/downloads/data/repositories/downloads_repository_impl.dart';
+import 'package:music_app/features/downloads/domain/repositories/downloads_repository.dart';
+import 'package:music_app/features/downloads/domain/use_cases/check_download_status_use_case.dart';
+import 'package:music_app/features/downloads/domain/use_cases/download_song_use_case.dart';
+import 'package:music_app/features/downloads/domain/use_cases/get_downloaded_songs_use_case.dart';
+import 'package:music_app/features/downloads/domain/use_cases/remove_download_use_case.dart';
+import 'package:music_app/features/downloads/presentation/cubit/downloads_cubit.dart';
 import 'package:music_app/features/search/data/data_sources/search_remote_data_source.dart';
 import 'package:music_app/features/search/data/repositories/search_repository_impl.dart';
 import 'package:music_app/features/search/domain/repositories/search_repository.dart';
@@ -40,7 +52,13 @@ import 'package:music_app/features/playlist/data/data_sources/playlist_remote_da
 import 'package:music_app/features/playlist/data/repositories/playlist_repository_impl.dart';
 import 'package:music_app/features/playlist/domain/repositories/playlist_repository.dart';
 import 'package:music_app/features/playlist/domain/use_cases/get_playlist_use_case.dart';
+import 'package:music_app/core/services/local/onboarding_service.dart';
 import 'package:music_app/features/playlist/presentation/cubit/playlist_cubit.dart';
+import 'package:music_app/features/library/library_service.dart';
+import 'package:music_app/features/library/presentation/cubit/library_cubit.dart';
+import 'package:music_app/features/favorites/presentation/cubit/favorite_cubit.dart';
+import 'package:music_app/features/profile/profile_service.dart';
+import 'package:music_app/features/profile/profile_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppInjection {
@@ -52,9 +70,9 @@ class AppInjection {
     required GetIt getIt,
     required String baseUrl,
     required String accessToken,
-  }) : _getIt = getIt,
-       _baseUrl = baseUrl,
-       _accessToken = accessToken {
+  })  : _getIt = getIt,
+        _baseUrl = baseUrl,
+        _accessToken = accessToken {
     _init();
   }
 
@@ -89,6 +107,11 @@ class AppInjection {
       );
     }
 
+    // Dio for downloads
+    if (!_getIt.isRegistered<Dio>()) {
+      _getIt.registerLazySingleton<Dio>(() => Dio());
+    }
+
     // TokenManager - lazy pero espera SharedPreferences cuando se use
     if (!_getIt.isRegistered<TokenManager>()) {
       _getIt.registerLazySingletonAsync<TokenManager>(
@@ -112,12 +135,37 @@ class AppInjection {
       );
     }
 
+    // ThemeCubit - factory async porque depende de SharedPreferences
+    if (!_getIt.isRegistered<ThemeCubit>()) {
+      _getIt.registerFactoryAsync<ThemeCubit>(
+        () async => ThemeCubit(await _getIt.getAsync<SharedPreferences>()),
+      );
+    }
+
+    // OnboardingService - lazy singleton async porque depende de SharedPreferences
+    if (!_getIt.isRegistered<OnboardingService>()) {
+      _getIt.registerLazySingletonAsync<OnboardingService>(
+        () async => OnboardingService(await _getIt.getAsync<SharedPreferences>()),
+      );
+    }
+
+    // LibraryService - singleton para manejar la biblioteca del usuario
+    if (!_getIt.isRegistered<LibraryService>()) {
+      _getIt.registerLazySingleton<LibraryService>(
+        () => LibraryService(_getIt<ApiServices>()),
+      );
+    }
+
     _registerAuthFeature();
     _registerSearchFeature();
     _registerPlayerFeature();
     _registerHomeFeature();
     _registerMoodGenreFeature();
     _registerPlaylistFeature();
+    _registerDownloadsFeature();
+    _registerLibraryFeature();
+    _registerFavoritesFeature();
+    _registerProfileFeature();
   }
 
   void _registerAuthFeature() {
@@ -125,6 +173,13 @@ class AppInjection {
     if (!_getIt.isRegistered<AuthRemoteDataSource>()) {
       _getIt.registerLazySingleton<AuthRemoteDataSource>(
         () => AuthRemoteDataSourceImpl(_getIt<ApiServices>()),
+      );
+    }
+
+    // OAuth Service
+    if (!_getIt.isRegistered<OAuthService>()) {
+      _getIt.registerLazySingleton<OAuthService>(
+        () => OAuthServiceImpl(),
       );
     }
 
@@ -154,6 +209,25 @@ class AppInjection {
       );
     }
 
+    // OAuth Use Cases
+    if (!_getIt.isRegistered<GoogleSignInUseCase>()) {
+      _getIt.registerLazySingleton<GoogleSignInUseCase>(
+        () => GoogleSignInUseCase(
+          _getIt<AuthRepository>(),
+          _getIt<OAuthService>(),
+        ),
+      );
+    }
+
+    if (!_getIt.isRegistered<AppleSignInUseCase>()) {
+      _getIt.registerLazySingleton<AppleSignInUseCase>(
+        () => AppleSignInUseCase(
+          _getIt<AuthRepository>(),
+          _getIt<OAuthService>(),
+        ),
+      );
+    }
+
     // Cubits (factory porque cada pantalla necesita su propia instancia)
     if (!_getIt.isRegistered<RegisterCubit>()) {
       _getIt.registerFactory<RegisterCubit>(
@@ -163,7 +237,11 @@ class AppInjection {
 
     if (!_getIt.isRegistered<LoginCubit>()) {
       _getIt.registerFactory<LoginCubit>(
-        () => LoginCubit(loginUseCase: _getIt<LoginUseCase>()),
+        () => LoginCubit(
+          loginUseCase: _getIt<LoginUseCase>(),
+          googleSignInUseCase: _getIt<GoogleSignInUseCase>(),
+          appleSignInUseCase: _getIt<AppleSignInUseCase>(),
+        ),
       );
     }
 
@@ -221,7 +299,9 @@ class AppInjection {
   void _registerPlayerFeature() {
     // Bloc (singleton porque debe ser compartido en toda la app)
     if (!_getIt.isRegistered<PlayerBlocBloc>()) {
-      _getIt.registerLazySingleton<PlayerBlocBloc>(() => PlayerBlocBloc());
+      _getIt.registerLazySingleton<PlayerBlocBloc>(
+        () => PlayerBlocBloc(_getIt<ApiServices>()),
+      );
     }
   }
 
@@ -253,9 +333,6 @@ class AppInjection {
         () => HomeCubit(_getIt<GetHomeUseCase>()),
       );
     }
-
-    // OrquestadorHomeCubit se crea en HomeShell con los cubits necesarios
-    // No se registra aquí porque necesita los cubits del contexto
   }
 
   void _registerMoodGenreFeature() {
@@ -314,6 +391,108 @@ class AppInjection {
     if (!_getIt.isRegistered<PlaylistCubit>()) {
       _getIt.registerFactory<PlaylistCubit>(
         () => PlaylistCubit(getPlaylistUseCase: _getIt<GetPlaylistUseCase>()),
+      );
+    }
+  }
+
+  void _registerDownloadsFeature() {
+    // Data Sources - usa registerFactoryAsync porque depende de SharedPreferences
+    // El data source se inicializa de forma lazy cuando se necesita
+    if (!_getIt.isRegistered<DownloadsLocalDataSource>()) {
+      _getIt.registerFactoryAsync<DownloadsLocalDataSource>(
+        () async {
+          final prefs = await _getIt.getAsync<SharedPreferences>();
+          final dataSource = DownloadsLocalDataSourceImpl(
+            _getIt<Dio>(),
+            prefs,
+          );
+          await dataSource.init();
+          return dataSource;
+        },
+      );
+    }
+
+    // Repositories - usa registerFactoryAsync porque depende de DownloadsLocalDataSource
+    if (!_getIt.isRegistered<DownloadsRepository>()) {
+      _getIt.registerFactoryAsync<DownloadsRepository>(
+        () async => DownloadsRepositoryImpl(
+          await _getIt.getAsync<DownloadsLocalDataSource>(),
+        ),
+      );
+    }
+
+    // Use Cases - usan registerFactoryAsync porque dependen de DownloadsRepository
+    if (!_getIt.isRegistered<DownloadSongUseCase>()) {
+      _getIt.registerFactoryAsync<DownloadSongUseCase>(
+        () async => DownloadSongUseCase(
+          await _getIt.getAsync<DownloadsRepository>(),
+        ),
+      );
+    }
+
+    if (!_getIt.isRegistered<GetDownloadedSongsUseCase>()) {
+      _getIt.registerFactoryAsync<GetDownloadedSongsUseCase>(
+        () async => GetDownloadedSongsUseCase(
+          await _getIt.getAsync<DownloadsRepository>(),
+        ),
+      );
+    }
+
+    if (!_getIt.isRegistered<RemoveDownloadUseCase>()) {
+      _getIt.registerFactoryAsync<RemoveDownloadUseCase>(
+        () async => RemoveDownloadUseCase(
+          await _getIt.getAsync<DownloadsRepository>(),
+        ),
+      );
+    }
+
+    if (!_getIt.isRegistered<CheckDownloadStatusUseCase>()) {
+      _getIt.registerFactoryAsync<CheckDownloadStatusUseCase>(
+        () async => CheckDownloadStatusUseCase(
+          await _getIt.getAsync<DownloadsRepository>(),
+        ),
+      );
+    }
+
+    // Cubits - usa registerFactoryAsync porque depende de los Use Cases
+    if (!_getIt.isRegistered<DownloadsCubit>()) {
+      _getIt.registerFactoryAsync<DownloadsCubit>(
+        () async => DownloadsCubit(
+          await _getIt.getAsync<DownloadSongUseCase>(),
+          await _getIt.getAsync<GetDownloadedSongsUseCase>(),
+          await _getIt.getAsync<RemoveDownloadUseCase>(),
+          await _getIt.getAsync<CheckDownloadStatusUseCase>(),
+        ),
+      );
+    }
+  }
+
+  void _registerLibraryFeature() {
+    if (!_getIt.isRegistered<LibraryCubit>()) {
+      _getIt.registerFactory<LibraryCubit>(
+        () => LibraryCubit(_getIt<LibraryService>()),
+      );
+    }
+  }
+
+  void _registerFavoritesFeature() {
+    if (!_getIt.isRegistered<FavoriteCubit>()) {
+      _getIt.registerLazySingleton<FavoriteCubit>(
+        () => FavoriteCubit(_getIt<LibraryService>()),
+      );
+    }
+  }
+
+  void _registerProfileFeature() {
+    if (!_getIt.isRegistered<ProfileService>()) {
+      _getIt.registerLazySingleton<ProfileService>(
+        () => ProfileService(_getIt<ApiServices>()),
+      );
+    }
+    
+    if (!_getIt.isRegistered<ProfileCubit>()) {
+      _getIt.registerFactory<ProfileCubit>(
+        () => ProfileCubit(_getIt<ProfileService>()),
       );
     }
   }

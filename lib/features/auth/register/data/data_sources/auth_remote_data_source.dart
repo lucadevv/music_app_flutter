@@ -8,19 +8,28 @@ import '../../../login/domain/entities/login_request.dart';
 import '../../../refresh_token/domain/entities/refresh_token_request.dart';
 import '../models/register_response_model.dart';
 import '../../../refresh_token/data/models/refresh_token_response_model.dart';
+import '../../../data/models/oauth_request.dart';
 
 /// Data source remoto para operaciones de autenticación
 abstract class AuthRemoteDataSource {
   Future<Either<AppException, RegisterResponseModel>> register(
     RegisterRequest request,
   );
-  
+
   Future<Either<AppException, RegisterResponseModel>> login(
     LoginRequest request,
   );
-  
+
   Future<Either<AppException, RefreshTokenResponseModel>> refreshToken(
     RefreshTokenRequest request,
+  );
+
+  Future<Either<AppException, OAuthResponse>> signInWithGoogle(
+    OAuthRequest request,
+  );
+
+  Future<Either<AppException, OAuthResponse>> signInWithApple(
+    OAuthRequest request,
   );
 }
 
@@ -122,6 +131,62 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     } catch (e) {
       final appException = ExceptionHandler.handleException(e);
       ExceptionHandler.logException(appException, context: 'refreshToken');
+      return Left(appException);
+    }
+  }
+
+  @override
+  Future<Either<AppException, OAuthResponse>> signInWithGoogle(
+    OAuthRequest request,
+  ) async {
+    try {
+      final response = await _apiServices.post(
+        '/auth/oauth/google',
+        data: request.toJson(),
+      );
+
+      final responseData = response is Response ? response.data : response;
+
+      if (responseData is Map<String, dynamic>) {
+        return Right(OAuthResponse.fromJson(responseData));
+      } else {
+        final exception = const ServerException(
+          'Respuesta del servidor en formato incorrecto',
+        );
+        ExceptionHandler.logException(exception, context: 'signInWithGoogle');
+        return Left(exception);
+      }
+    } catch (e) {
+      final appException = ExceptionHandler.handleException(e);
+      ExceptionHandler.logException(appException, context: 'signInWithGoogle');
+      return Left(appException);
+    }
+  }
+
+  @override
+  Future<Either<AppException, OAuthResponse>> signInWithApple(
+    OAuthRequest request,
+  ) async {
+    try {
+      final response = await _apiServices.post(
+        '/auth/oauth/apple',
+        data: request.toJson(),
+      );
+
+      final responseData = response is Response ? response.data : response;
+
+      if (responseData is Map<String, dynamic>) {
+        return Right(OAuthResponse.fromJson(responseData));
+      } else {
+        final exception = const ServerException(
+          'Respuesta del servidor en formato incorrecto',
+        );
+        ExceptionHandler.logException(exception, context: 'signInWithApple');
+        return Left(exception);
+      }
+    } catch (e) {
+      final appException = ExceptionHandler.handleException(e);
+      ExceptionHandler.logException(appException, context: 'signInWithApple');
       return Left(appException);
     }
   }

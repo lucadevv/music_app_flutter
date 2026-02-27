@@ -2,7 +2,6 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
-import 'package:music_app/features/home/presentation/cubit/orquestador_home_cubit.dart';
 import 'package:music_app/features/mood_genre/domain/use_cases/get_mood_playlists_use_case.dart';
 import 'package:music_app/main.dart';
 import 'cubit/mood_genre_cubit.dart';
@@ -19,27 +18,12 @@ class MoodGenreScreen extends StatefulWidget implements AutoRouteWrapper {
 
   @override
   Widget wrappedRoute(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider<MoodGenreCubit>(
-          create: (context) {
-            final moodGenreCubit = MoodGenreCubit(
-              getIt<GetMoodPlaylistsUseCase>(),
-            );
-            // Registrar el cubit en el orquestador si está disponible
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              try {
-                final orquestadorCubit = context.read<OrquestadorHomeCubit>();
-                // Registrar el cubit en el orquestador para que lo escuche
-                orquestadorCubit.registerMoodGenreCubit(moodGenreCubit);
-              } catch (e) {
-                // Orquestador no disponible en este contexto
-              }
-            });
-            return moodGenreCubit;
-          },
-        ),
-      ],
+    return BlocProvider<MoodGenreCubit>(
+      create: (context) {
+        return MoodGenreCubit(
+          getIt<GetMoodPlaylistsUseCase>(),
+        );
+      },
       child: this,
     );
   }
@@ -60,10 +44,8 @@ class _MoodGenreScreenState extends State<MoodGenreScreen> {
   Widget build(BuildContext context) {
     return MoodGenreListeners(
       child: Scaffold(
-        body: BlocBuilder<OrquestadorHomeCubit, OrquestadorHomeState>(
-          builder: (context, orquestadorState) {
-            final state = orquestadorState.moodGenreState;
-
+        body: BlocBuilder<MoodGenreCubit, MoodGenreState>(
+          builder: (context, state) {
             // Mostrar loading cuando está cargando o en estado inicial
             if (state.status == MoodGenreStatus.loading ||
                 state.status == MoodGenreStatus.initial) {

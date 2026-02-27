@@ -73,17 +73,17 @@ class PlaybackControlsShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return const Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         _ShimmerCircle(size: 48),
-        const SizedBox(width: 16),
+         SizedBox(width: 16),
         _ShimmerCircle(size: 48),
-        const SizedBox(width: 16),
+         SizedBox(width: 16),
         _ShimmerCircle(size: 64),
-        const SizedBox(width: 16),
+         SizedBox(width: 16),
         _ShimmerCircle(size: 48),
-        const SizedBox(width: 16),
+         SizedBox(width: 16),
         _ShimmerCircle(size: 48),
       ],
     );

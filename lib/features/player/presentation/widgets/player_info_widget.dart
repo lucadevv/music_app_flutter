@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
+import 'package:music_app/features/favorites/presentation/widgets/favorite_button.dart';
+import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 import 'player_shimmer_widgets.dart';
 
@@ -20,20 +23,37 @@ class PlayerInfoWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Título
+        // Título con botón de like
         if (isLoading)
           const TitleShimmer()
         else
-          Text(
-            track.title,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Text(
+                  track.title,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              FavoriteButton(
+                videoId: track.videoId,
+                size: 28,
+                metadata: SongMetadata(
+                  title: track.title,
+                  artist: track.artistsNames,
+                  thumbnail: track.bestThumbnail?.url,
+                  duration: track.durationSeconds,
+                ),
+              ),
+            ],
           ),
         const SizedBox(height: 8),
 

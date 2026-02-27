@@ -2,9 +2,11 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:music_app/core/config/app_config.dart';
 import 'package:music_app/core/managers/auth/auth_manager.dart';
 import 'package:music_app/core/services/auth/auth_service.dart';
 import 'package:music_app/core/services/network/api_services.dart';
+import 'package:music_app/core/services/security/ssl_pinning_interceptor.dart';
 import 'package:music_app/features/auth/refresh_token/domain/entities/refresh_token_request.dart';
 import 'package:music_app/features/auth/refresh_token/domain/use_cases/refresh_token_use_case.dart';
 import 'package:music_app/main.dart';
@@ -38,6 +40,16 @@ class DioApiServicesImpl implements ApiServices {
   }
 
   void _setupInterceptors() {
+    // SSL Pinning - PRIMERO (seguridad)
+    if (AppConfig.enableSslPinning) {
+      _dio.interceptors.add(
+        SslPinningInterceptor(
+          allowedSHAFingerprints: AppConfig.sslFingerprints,
+          bypassInDebug: AppConfig.bypassSslPinningInDebug,
+        ),
+      );
+    }
+
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {

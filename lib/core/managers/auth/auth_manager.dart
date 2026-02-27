@@ -40,6 +40,9 @@ abstract class AuthManager {
   /// Verifica si el email está verificado
   Future<bool?> isEmailVerified();
 
+  /// Obtiene el email del usuario actual
+  Future<String?> getCurrentUserEmail();
+
   /// Stream de cambios en el estado de autenticación
   Stream<AuthStatus> get authStatusStream;
 }

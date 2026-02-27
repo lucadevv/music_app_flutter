@@ -264,41 +264,60 @@ class _LoginScreenState extends State<LoginScreen> {
                 Row(
                   children: [
                     Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: () {
-                          // TODO: Implementar login con Google
+                      child: BlocBuilder<LoginCubit, LoginState>(
+                        builder: (context, state) {
+                          final isLoading = state.status == LoginStatus.loading;
+                          return OutlinedButton.icon(
+                            onPressed: isLoading
+                                ? null
+                                : () {
+                                    context
+                                        .read<LoginCubit>()
+                                        .signInWithGoogle();
+                                  },
+                            icon: Icon(
+                              Icons.g_mobiledata,
+                              color: AppColorsDark.onSurface,
+                            ),
+                            label: const Text('Google'),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: AppColorsDark.onSurface,
+                              side: BorderSide(color: AppColorsDark.outline),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                            ),
+                          );
                         },
-                        icon: Icon(
-                          Icons.g_mobiledata,
-                          color: AppColorsDark.onSurface,
-                        ),
-                        label: const Text('Google'),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: AppColorsDark.onSurface,
-                          side: BorderSide(color: AppColorsDark.outline),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
                       ),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: () {
-                          // TODO: Implementar login con Apple
+                      child: BlocBuilder<LoginCubit, LoginState>(
+                        builder: (context, state) {
+                          final isLoading = state.status == LoginStatus.loading;
+                          return OutlinedButton.icon(
+                            onPressed: isLoading
+                                ? null
+                                : () {
+                                    context
+                                        .read<LoginCubit>()
+                                        .signInWithApple();
+                                  },
+                            icon: Icon(Icons.apple,
+                                color: AppColorsDark.onSurface),
+                            label: const Text('Apple'),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: AppColorsDark.onSurface,
+                              side: BorderSide(color: AppColorsDark.outline),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                            ),
+                          );
                         },
-                        icon: Icon(Icons.apple, color: AppColorsDark.onSurface),
-                        label: const Text('Apple'),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: AppColorsDark.onSurface,
-                          side: BorderSide(color: AppColorsDark.outline),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
                       ),
                     ),
                   ],

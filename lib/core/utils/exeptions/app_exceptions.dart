@@ -7,6 +7,9 @@ abstract class AppException implements Exception {
 
   @override
   String toString() => message;
+
+  /// Crea una excepción de cancelación
+  factory AppException.cancelled(String message) => CancelledException(message);
 }
 
 class NetworkException extends AppException {
@@ -27,4 +30,38 @@ class ValidationException extends AppException {
 
 class UnknownException extends AppException {
   const UnknownException(super.message, {super.code, super.details});
+}
+
+class CancelledException extends AppException {
+  const CancelledException(super.message, {super.code, super.details});
+}
+
+/// Excepción para errores relacionados con SSL/Certificados
+class SslException extends AppException {
+  /// Host que causó el error
+  final String? host;
+
+  /// Fingerprints esperados
+  final List<String>? expectedFingerprints;
+
+  /// Fingerprint recibido
+  final String? receivedFingerprint;
+
+  const SslException(
+    super.message, {
+    super.code,
+    super.details,
+    this.host,
+    this.expectedFingerprints,
+    this.receivedFingerprint,
+  });
+
+  @override
+  String toString() {
+    final buffer = StringBuffer('SslException: $message');
+    if (host != null) {
+      buffer.write(' (host: $host)');
+    }
+    return buffer.toString();
+  }
 }

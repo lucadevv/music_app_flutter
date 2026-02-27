@@ -7,6 +7,7 @@ import '../../../login/domain/entities/login_request.dart';
 import '../../../refresh_token/domain/entities/refresh_token_request.dart';
 import '../../../refresh_token/domain/entities/refresh_token_response.dart';
 import '../data_sources/auth_remote_data_source.dart';
+import '../../../data/models/oauth_request.dart';
 
 /// Implementación del repositorio de autenticación
 class AuthRepositoryImpl implements AuthRepository {
@@ -33,5 +34,19 @@ class AuthRepositoryImpl implements AuthRepository {
     RefreshTokenRequest request,
   ) async {
     return await _remoteDataSource.refreshToken(request);
+  }
+
+  @override
+  Future<Either<AppException, OAuthResponse>> signInWithGoogle(
+    OAuthRequest request,
+  ) async {
+    return await _remoteDataSource.signInWithGoogle(request);
+  }
+
+  @override
+  Future<Either<AppException, OAuthResponse>> signInWithApple(
+    OAuthRequest request,
+  ) async {
+    return await _remoteDataSource.signInWithApple(request);
   }
 }

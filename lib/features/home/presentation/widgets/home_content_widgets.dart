@@ -1,12 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
+import 'package:music_app/features/favorites/presentation/widgets/favorite_button.dart';
 import 'package:music_app/features/home/domain/entities/home_content_item.dart';
+import 'package:music_app/features/library/library_service.dart';
 
 /// Widget para mostrar una canción en formato card horizontal
-/// 
-/// SOLID: Single Responsibility Principle (SRP)
-/// Responsable única: Mostrar una card de canción
 class SongCardWidget extends StatelessWidget {
   final HomeContentItem item;
   final VoidCallback onTap;
@@ -37,15 +36,11 @@ class SongCardWidget extends StatelessWidget {
               child: Container(
                 decoration: BoxDecoration(
                   color: AppColorsDark.primaryContainer,
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(12),
-                  ),
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
                 ),
                 child: thumbnail != null
                     ? ClipRRect(
-                        borderRadius: const BorderRadius.vertical(
-                          top: Radius.circular(12),
-                        ),
+                        borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
                         child: CachedNetworkImage(
                           imageUrl: thumbnail.url,
                           width: double.infinity,
@@ -53,9 +48,7 @@ class SongCardWidget extends StatelessWidget {
                           fit: BoxFit.cover,
                           placeholder: (context, url) => Center(
                             child: CircularProgressIndicator(
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                AppColorsDark.primary,
-                              ),
+                              valueColor: AlwaysStoppedAnimation<Color>(AppColorsDark.primary),
                             ),
                           ),
                           errorWidget: (context, url, error) => Icon(
@@ -112,9 +105,6 @@ class SongCardWidget extends StatelessWidget {
 }
 
 /// Widget para mostrar una playlist en formato card horizontal
-/// 
-/// SOLID: Single Responsibility Principle (SRP)
-/// Responsable única: Mostrar una card de playlist
 class PlaylistCardWidget extends StatelessWidget {
   final HomeContentItem item;
   final VoidCallback? onTap;
@@ -145,15 +135,11 @@ class PlaylistCardWidget extends StatelessWidget {
               child: Container(
                 decoration: BoxDecoration(
                   color: AppColorsDark.primaryContainer,
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(12),
-                  ),
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
                 ),
                 child: thumbnail != null
                     ? ClipRRect(
-                        borderRadius: const BorderRadius.vertical(
-                          top: Radius.circular(12),
-                        ),
+                        borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
                         child: CachedNetworkImage(
                           imageUrl: thumbnail.url,
                           width: double.infinity,
@@ -161,9 +147,7 @@ class PlaylistCardWidget extends StatelessWidget {
                           fit: BoxFit.cover,
                           placeholder: (context, url) => Center(
                             child: CircularProgressIndicator(
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                AppColorsDark.primary,
-                              ),
+                              valueColor: AlwaysStoppedAnimation<Color>(AppColorsDark.primary),
                             ),
                           ),
                           errorWidget: (context, url, error) => Icon(
@@ -220,9 +204,6 @@ class PlaylistCardWidget extends StatelessWidget {
 }
 
 /// Widget para mostrar una canción en formato lista vertical
-/// 
-/// SOLID: Single Responsibility Principle (SRP)
-/// Responsable única: Mostrar un item de lista de canción
 class SongListItemWidget extends StatelessWidget {
   final HomeContentItem item;
   final VoidCallback onTap;
@@ -236,6 +217,7 @@ class SongListItemWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final thumbnail = item.thumbnails.isNotEmpty ? item.thumbnails.first : null;
+    final artistsNames = item.artists.map((a) => a.name).join(', ');
 
     return GestureDetector(
       onTap: onTap,
@@ -255,9 +237,7 @@ class SongListItemWidget extends StatelessWidget {
                     color: AppColorsDark.primaryContainer,
                     child: Center(
                       child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          AppColorsDark.primary,
-                        ),
+                        valueColor: AlwaysStoppedAnimation<Color>(AppColorsDark.primary),
                       ),
                     ),
                   ),
@@ -268,10 +248,7 @@ class SongListItemWidget extends StatelessWidget {
                       color: AppColorsDark.primaryContainer,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Icon(
-                      Icons.music_note,
-                      color: AppColorsDark.primary,
-                    ),
+                    child: Icon(Icons.music_note, color: AppColorsDark.primary),
                   ),
                 ),
               )
@@ -282,10 +259,7 @@ class SongListItemWidget extends StatelessWidget {
                   color: AppColorsDark.primaryContainer,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(
-                  Icons.music_note,
-                  color: AppColorsDark.primary,
-                ),
+                child: Icon(Icons.music_note, color: AppColorsDark.primary),
               ),
         title: Text(
           item.title,
@@ -296,20 +270,29 @@ class SongListItemWidget extends StatelessWidget {
           ),
         ),
         subtitle: Text(
-          item.artists.isNotEmpty
-              ? item.artists.map((a) => a.name).join(', ')
-              : item.views,
+          item.artists.isNotEmpty ? artistsNames : item.views,
           style: TextStyle(
             color: Colors.white.withValues(alpha: 0.6),
             fontSize: 14,
           ),
         ),
-        trailing: IconButton(
-          icon: Icon(
-            Icons.more_vert,
-            color: Colors.white.withValues(alpha: 0.6),
-          ),
-          onPressed: () {},
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FavoriteButton(
+              videoId: item.videoId ?? '',
+              size: 22,
+              metadata: SongMetadata(
+                title: item.title,
+                artist: artistsNames,
+                thumbnail: thumbnail?.url,
+              ),
+            ),
+            IconButton(
+              icon: Icon(Icons.more_vert, color: Colors.white.withValues(alpha: 0.6)),
+              onPressed: () {},
+            ),
+          ],
         ),
       ),
     );
@@ -317,9 +300,6 @@ class SongListItemWidget extends StatelessWidget {
 }
 
 /// Widget para mostrar una playlist en formato lista vertical
-/// 
-/// SOLID: Single Responsibility Principle (SRP)
-/// Responsable única: Mostrar un item de lista de playlist
 class PlaylistListItemWidget extends StatelessWidget {
   final HomeContentItem item;
   final VoidCallback? onTap;
@@ -352,9 +332,7 @@ class PlaylistListItemWidget extends StatelessWidget {
                     color: AppColorsDark.primaryContainer,
                     child: Center(
                       child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          AppColorsDark.primary,
-                        ),
+                        valueColor: AlwaysStoppedAnimation<Color>(AppColorsDark.primary),
                       ),
                     ),
                   ),
@@ -365,10 +343,7 @@ class PlaylistListItemWidget extends StatelessWidget {
                       color: AppColorsDark.primaryContainer,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Icon(
-                      Icons.playlist_play,
-                      color: AppColorsDark.primary,
-                    ),
+                    child: Icon(Icons.playlist_play, color: AppColorsDark.primary),
                   ),
                 ),
               )
@@ -379,10 +354,7 @@ class PlaylistListItemWidget extends StatelessWidget {
                   color: AppColorsDark.primaryContainer,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(
-                  Icons.playlist_play,
-                  color: AppColorsDark.primary,
-                ),
+                child: Icon(Icons.playlist_play, color: AppColorsDark.primary),
               ),
         title: Text(
           item.title,
@@ -400,10 +372,7 @@ class PlaylistListItemWidget extends StatelessWidget {
           ),
         ),
         trailing: IconButton(
-          icon: Icon(
-            Icons.more_vert,
-            color: Colors.white.withValues(alpha: 0.6),
-          ),
+          icon: Icon(Icons.more_vert, color: Colors.white.withValues(alpha: 0.6)),
           onPressed: () {},
         ),
       ),

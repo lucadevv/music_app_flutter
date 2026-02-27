@@ -4,9 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
+import 'package:music_app/features/favorites/presentation/widgets/favorite_button.dart';
+import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 import '../cubit/orquestador_search_cubit.dart';
-import '../cubit/recent_searches_cubit.dart' show RecentSearchesStatus;
+import '../cubit/recent_searches_cubit.dart'
+    show RecentSearchesState, RecentSearchesStatus;
 import '../../domain/entities/recent_search.dart';
 
 class RecentSearchesWidget extends StatelessWidget {
@@ -189,15 +192,30 @@ class _RecentSearchItem extends StatelessWidget {
                 ],
               ),
             ),
-            // Botón de más opciones
-            IconButton(
-              icon: Icon(
-                Icons.more_vert,
-                color: Colors.white.withValues(alpha: 0.5),
-              ),
-              onPressed: () {
-                // TODO: Mostrar menú de opciones
-              },
+            // Botón de favorito y más opciones
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                FavoriteButton(
+                  videoId: song.videoId,
+                  size: 22,
+                  metadata: SongMetadata(
+                    title: song.title,
+                    artist: artistsNames,
+                    thumbnail: thumbnail?.url,
+                    duration: song.durationSeconds,
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(
+                    Icons.more_vert,
+                    color: Colors.white.withValues(alpha: 0.5),
+                  ),
+                  onPressed: () {
+                    // TODO: Mostrar menú de opciones
+                  },
+                ),
+              ],
             ),
           ],
         ),

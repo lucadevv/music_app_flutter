@@ -2,7 +2,6 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
-import 'package:music_app/features/home/presentation/cubit/orquestador_home_cubit.dart';
 import 'package:music_app/features/playlist/domain/use_cases/get_playlist_use_case.dart';
 import 'package:music_app/features/playlist/presentation/cubit/playlist_cubit.dart';
 import 'package:music_app/features/playlist/presentation/cubit/playlist_state.dart';
@@ -24,25 +23,12 @@ class PlaylistScreen extends StatefulWidget implements AutoRouteWrapper {
 
   @override
   Widget wrappedRoute(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider<PlaylistCubit>(
-          create: (context) {
-            final playlistCubit = PlaylistCubit(
-              getPlaylistUseCase: getIt<GetPlaylistUseCase>(),
-            );
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              try {
-                final orquestadorCubit = context.read<OrquestadorHomeCubit>();
-                orquestadorCubit.registerPlaylistCubit(playlistCubit);
-              } catch (e) {
-                // Orquestador no disponible en este contexto
-              }
-            });
-            return playlistCubit;
-          },
-        ),
-      ],
+    return BlocProvider<PlaylistCubit>(
+      create: (context) {
+        return PlaylistCubit(
+          getPlaylistUseCase: getIt<GetPlaylistUseCase>(),
+        );
+      },
       child: this,
     );
   }
@@ -80,10 +66,8 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
 
             return PlaylistLoadingOverlay(
               isLoading: isLoadingPlaylist,
-              child: BlocBuilder<OrquestadorHomeCubit, OrquestadorHomeState>(
-                builder: (context, orquestadorState) {
-                  final playlistState = orquestadorState.playlistState;
-
+              child: BlocBuilder<PlaylistCubit, PlaylistState>(
+                builder: (context, playlistState) {
                   // Mostrar loading
                   if (playlistState.status == PlaylistStatus.loading ||
                       playlistState.status == PlaylistStatus.initial) {

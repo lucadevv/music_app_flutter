@@ -1,11 +1,27 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
+import 'package:music_app/features/profile/profile_cubit.dart';
+import 'package:music_app/main.dart';
 
 @RoutePage()
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => getIt<ProfileCubit>()..loadProfile(),
+      child: const _ProfileView(),
+    );
+  }
+}
+
+class _ProfileView extends StatelessWidget {
+  const _ProfileView();
 
   @override
   Widget build(BuildContext context) {
@@ -27,75 +43,123 @@ class ProfileScreen extends StatelessWidget {
           onPressed: () => context.router.pop(),
         ),
       ),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        children: [
-          // Profile header - clickeable para ir a My Profile
-          InkWell(
-            onTap: () {
-              context.router.push(const MyProfileRoute());
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Row(
-                children: [
-                  Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      color: AppColorsDark.primaryContainer,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.person,
-                      size: 40,
-                      color: AppColorsDark.primary,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Logan Jimmy',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
+      body: BlocBuilder<ProfileCubit, ProfileState>(
+        builder: (context, state) {
+          if (state.isLoading) {
+            return const Center(
+              child: CircularProgressIndicator(color: AppColorsDark.primary),
+            );
+          }
+
+          return ListView(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            children: [
+              // Profile header - clickeable para ir a My Profile
+              InkWell(
+                onTap: () {
+                  context.router.push(const MyProfileRoute());
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Row(
+                    children: [
+                      _buildAvatar(state),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              state.displayName,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              state.email,
+                              style: const TextStyle(color: Colors.white, fontSize: 14),
+                            ),
+                          ],
                         ),
-                        SizedBox(height: 4),
-                        Text(
-                          'jim_logan01@gmail.com',
-                          style: TextStyle(color: Colors.white, fontSize: 14),
-                        ),
-                      ],
-                    ),
+                      ),
+                      Icon(
+                        Icons.chevron_right,
+                        color: Colors.white.withValues(alpha: 0.6),
+                      ),
+                    ],
                   ),
-                  Icon(
-                    Icons.chevron_right,
-                    color: Colors.white.withValues(alpha: 0.6),
+                ),
+              ),
+
+              // Settings section
+              _SettingsSection(
+                title: 'Settings',
+                items: [
+                  _SettingsItem(
+                    icon: Icons.settings,
+                    title: 'Settings',
+                    onTap: () {
+                      context.router.push(const SettingsRoute());
+                    },
                   ),
                 ],
               ),
-            ),
-          ),
-
-          // Settings section
-          _SettingsSection(
-            title: 'Settings',
-            items: [
-              _SettingsItem(
-                icon: Icons.settings,
-                title: 'Settings',
-                onTap: () {
-                  context.router.push(const SettingsRoute());
-                },
-              ),
             ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildAvatar(ProfileState state) {
+    if (state.avatarUrl != null && state.avatarUrl!.isNotEmpty) {
+      return Container(
+        width: 80,
+        height: 80,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: AppColorsDark.primaryContainer,
+        ),
+        child: ClipOval(
+          child: CachedNetworkImage(
+            imageUrl: state.avatarUrl!,
+            fit: BoxFit.cover,
+            placeholder: (_, __) => _buildInitials(state),
+            errorWidget: (_, __, ___) => _buildInitials(state),
           ),
-        ],
+        ),
+      );
+    }
+    return _buildInitials(state);
+  }
+
+  Widget _buildInitials(ProfileState state) {
+    return Container(
+      width: 80,
+      height: 80,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColorsDark.primary,
+            AppColorsDark.primary.withValues(alpha: 0.7),
+          ],
+        ),
+        shape: BoxShape.circle,
+      ),
+      child: Center(
+        child: Text(
+          state.initials,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 32,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
     );
   }

@@ -1,7 +1,9 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
+import 'package:music_app/core/services/local/onboarding_service.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
+import 'package:music_app/main.dart';
 
 @RoutePage()
 class OnboardingScreen extends StatefulWidget {
@@ -42,6 +44,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     super.dispose();
   }
 
+  Future<void> _completeOnboardingAndNavigate() async {
+    final onboardingService = await getIt.getAsync<OnboardingService>();
+    await onboardingService.setOnboardingCompleted(true);
+    
+    if (mounted) {
+      context.router.push(const SocialLoginRoute());
+    }
+  }
+
   void _nextPage() {
     if (_currentPage < _pages.length - 1) {
       _pageController.nextPage(
@@ -49,12 +60,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         curve: Curves.easeInOut,
       );
     } else {
-      context.router.push(const SocialLoginRoute());
+      _completeOnboardingAndNavigate();
     }
   }
 
   void _skip() {
-    context.router.push(const SocialLoginRoute());
+    _completeOnboardingAndNavigate();
   }
 
   @override
@@ -103,7 +114,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(
                 _pages.length,
-                (index) => _PageIndicator(isActive: index == _currentPage),
+                (index) => PageIndicator(isActive: index == _currentPage),
               ),
             ),
 
@@ -195,10 +206,10 @@ class _OnboardingPageWidget extends StatelessWidget {
   }
 }
 
-class _PageIndicator extends StatelessWidget {
+class PageIndicator extends StatelessWidget {
   final bool isActive;
 
-  const _PageIndicator({required this.isActive});
+  const PageIndicator({super.key, required this.isActive});
 
   @override
   Widget build(BuildContext context) {

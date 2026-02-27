@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
+import 'package:music_app/features/favorites/presentation/cubit/favorite_cubit.dart';
+import 'package:music_app/features/favorites/presentation/widgets/favorite_button.dart';
+import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/playlist/data/isolates/playlist_processing_isolate.dart';
 import 'package:music_app/features/playlist/domain/entities/playlist_response.dart';
 import 'package:music_app/main.dart';
 
 /// Widget para los botones de acción de la playlist
-/// 
-/// SOLID: Single Responsibility Principle (SRP)
-/// Responsable única: Mostrar y manejar los botones de acción
 class PlaylistActionsWidget extends StatelessWidget {
   final PlaylistResponse playlist;
 
@@ -18,13 +18,21 @@ class PlaylistActionsWidget extends StatelessWidget {
     required this.playlist,
   });
 
-  /// Verifica si la playlist actual está cargada en el PlayerBloc
-  /// Compara los videoIds de la playlist con los de la playlist cargada
+  /// Obtiene la mejor thumbnail disponible
+  String? _getBestThumbnail() {
+    if (playlist.thumbnails.isEmpty) return null;
+    
+    // Ordenar por ancho y obtener la más grande
+    final sortedThumbnails = List.of(playlist.thumbnails)
+      ..sort((a, b) => b.width.compareTo(a.width));
+    
+    return sortedThumbnails.first.url;
+  }
+
   bool _isPlaylistLoaded(PlayerBlocState playerState) {
     if (playerState is! PlayerBlocLoaded) return false;
     if (playerState.playlist.isEmpty) return false;
 
-    // Obtener videoIds de la playlist actual
     final currentPlaylistVideoIds = playlist.tracks
         .where((track) =>
             track.videoId != null &&
@@ -33,18 +41,15 @@ class PlaylistActionsWidget extends StatelessWidget {
         .map((track) => track.videoId!)
         .toList();
 
-    // Obtener videoIds de la playlist cargada
     final loadedPlaylistVideoIds = playerState.playlist
-        .where((track) => track.videoId != null && track.videoId!.isNotEmpty)
-        .map((track) => track.videoId!)
+        .where((track) => track.videoId.isNotEmpty)
+        .map((track) => track.videoId)
         .toList();
 
-    // Verificar si tienen la misma cantidad y los mismos videoIds
     if (currentPlaylistVideoIds.length != loadedPlaylistVideoIds.length) {
       return false;
     }
 
-    // Comparar que todos los videoIds coincidan
     for (int i = 0; i < currentPlaylistVideoIds.length; i++) {
       if (currentPlaylistVideoIds[i] != loadedPlaylistVideoIds[i]) {
         return false;
@@ -79,35 +84,24 @@ class PlaylistActionsWidget extends StatelessWidget {
                     ? null
                     : () async {
                         if (isPlaylistLoaded) {
-                          // Si la playlist ya está cargada, solo toggle play/pause
-                          getIt<PlayerBlocBloc>().add(
-                            const PlayPauseToggleEvent(),
-                          );
+                          getIt<PlayerBlocBloc>().add(const PlayPauseToggleEvent());
                         } else {
-                          // Si la playlist no está cargada, cargarla
                           final availableTracks = playlist.tracks
-                              .where(
-                                (track) =>
-                                    track.videoId != null &&
-                                    track.videoId!.isNotEmpty &&
-                                    track.isAvailable,
-                              )
+                              .where((track) =>
+                                  track.videoId != null &&
+                                  track.videoId!.isNotEmpty &&
+                                  track.isAvailable)
                               .toList();
 
                           if (availableTracks.isEmpty) return;
 
-                          // Usar isolate para playlists grandes
-                          final tracks =
-                              await PlaylistProcessingIsolate.processPlaylistInIsolate(
+                          final tracks = await PlaylistProcessingIsolate.processPlaylistInIsolate(
                             availableTracks,
                           );
 
                           if (tracks.isNotEmpty && context.mounted) {
                             getIt<PlayerBlocBloc>().add(
-                              LoadPlaylistEvent(
-                                playlist: tracks,
-                                startIndex: 0,
-                              ),
+                              LoadPlaylistEvent(playlist: tracks, startIndex: 0),
                             );
                           }
                         }
@@ -132,9 +126,7 @@ class PlaylistActionsWidget extends StatelessWidget {
                           height: 28,
                           child: CircularProgressIndicator(
                             strokeWidth: 2.5,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              Colors.white,
-                            ),
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                           ),
                         )
                       : Icon(
@@ -146,31 +138,26 @@ class PlaylistActionsWidget extends StatelessWidget {
               ),
               const SizedBox(width: 16),
               // Botón de favorito
-              IconButton(
-                icon: const Icon(
-                  Icons.favorite_border,
-                  color: Colors.white,
-                  size: 28,
+              FavoriteButton(
+                videoId: playlist.id,
+                type: FavoriteType.playlist,
+                size: 28,
+                playlistMetadata: PlaylistMetadata(
+                  name: playlist.title,
+                  thumbnail: _getBestThumbnail(),
+                  description: playlist.description.isNotEmpty ? playlist.description : null,
                 ),
-                onPressed: () {},
               ),
+              const SizedBox(width: 8),
               // Botón de descarga
               IconButton(
-                icon: const Icon(
-                  Icons.download,
-                  color: Colors.white,
-                  size: 28,
-                ),
+                icon: const Icon(Icons.download, color: Colors.white, size: 28),
                 onPressed: () {},
               ),
               const Spacer(),
               // Botón de shuffle
               IconButton(
-                icon: const Icon(
-                  Icons.shuffle,
-                  color: Colors.white,
-                  size: 28,
-                ),
+                icon: const Icon(Icons.shuffle, color: Colors.white, size: 28),
                 onPressed: () {},
               ),
             ],

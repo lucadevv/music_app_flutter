@@ -35,25 +35,21 @@ class TokenManager {
       ]);
 
       // Verificar que se guardó correctamente
-      final saved = _prefs.getBool(_isEmailVerifiedKey);
+      final savedAccess = await _secureStorage.read(key: _accessTokenKey);
+      final savedRefresh = await _secureStorage.read(key: _refreshTokenKey);
       debugPrint(
-        'TokenManager: Guardado isEmailVerified = $isEmailVerified, leído = $saved',
+        'TokenManager.saveToken: ✅ Access token guardado: ${savedAccess != null}, Refresh token guardado: ${savedRefresh != null}',
       );
     } catch (e) {
       debugPrint('TokenManager: Error en saveToken, usando fallback: $e');
-      // Si flutter_secure_storage falla, usar SharedPreferences como fallback
+      // Fallback a SharedPreferences
       await Future.wait([
         _prefs.setString(_accessTokenKey, accessToken),
         _prefs.setString(_refreshTokenKey, refreshToken),
         _prefs.setBool(_isEmailVerifiedKey, isEmailVerified),
         if (email != null) _prefs.setString(_userEmailKey, email),
       ]);
-
-      // Verificar que se guardó correctamente en fallback
-      final saved = _prefs.getBool(_isEmailVerifiedKey);
-      debugPrint(
-        'TokenManager (fallback): Guardado isEmailVerified = $isEmailVerified, leído = $saved',
-      );
+      debugPrint('TokenManager.saveToken: ✅ Guardado en fallback (SharedPreferences)');
     }
   }
 

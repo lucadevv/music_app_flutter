@@ -85,6 +85,11 @@ class AuthManagerImpl implements AuthManager {
   }
 
   @override
+  Future<String?> getCurrentUserEmail() async {
+    return await _tokenManager.getUserEmail();
+  }
+
+  @override
   Stream<AuthStatus> get authStatusStream => _authStatusController.stream;
 
   /// Libera recursos

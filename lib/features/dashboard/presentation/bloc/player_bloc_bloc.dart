@@ -1,16 +1,22 @@
 import 'dart:async';
 
 import 'package:audio_service/audio_service.dart' show AudioHandler;
+import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:music_app/core/managers/auth/auth_manager.dart';
+import 'package:music_app/core/services/network/api_services.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
+import 'package:music_app/main.dart';
 
 part 'player_bloc_event.dart';
 part 'player_bloc_state.dart';
 
 class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
+  final ApiServices _apiServices;
   final AudioPlayer _audioPlayer = AudioPlayer();
 
   late StreamSubscription _playerStateSubscription;
@@ -21,7 +27,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
 
   AudioHandler? _audioHandler;
 
-  PlayerBlocBloc() : super(const PlayerBlocInitial()) {
+  PlayerBlocBloc(this._apiServices) : super(const PlayerBlocInitial()) {
     _initializePlayer();
     _registerEventHandlers();
   }
@@ -185,14 +191,15 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
         ),
       );
 
-      final streamUrl = event.track.streamUrl;
+      // Siempre obtener una URL fresca del backend para evitar 403
+      final freshStreamUrl = await _fetchFreshStreamUrl(event.track.videoId);
+      final streamUrl = freshStreamUrl ?? event.track.streamUrl;
 
       if (streamUrl == null || streamUrl.isEmpty) {
         emit(
           PlayerBlocLoaded(
             isLoading: false,
-            error:
-                'La canción no tiene URL de streaming. Asegúrate de usar include_stream_urls=true en el endpoint.',
+            error: 'No se pudo obtener la URL de streaming para esta canción.',
             currentTrack: event.track,
           ),
         );
@@ -263,6 +270,49 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
       );
       rethrow;
     }
+  }
+
+  /// Obtiene una URL de streaming fresca del backend.
+  /// Las URLs de YouTube expiran y están vinculadas a la IP del servidor,
+  /// por lo que necesitamos obtener una URL fresca cada vez que reproducimos.
+  /// 
+  /// Usa el endpoint de proxy (/music/stream-proxy/:videoId) que reenvía
+  /// el audio desde el servidor, evitando el problema de IP restriction.
+  /// El token se pasa como query parameter para validación.
+  Future<String?> _fetchFreshStreamUrl(String videoId) async {
+    try {
+      // Obtener el token de acceso
+      final authManager = await getIt.getAsync<AuthManager>();
+      final accessToken = await authManager.getCurrentAccessToken();
+      
+      if (accessToken == null || accessToken.isEmpty) {
+        debugPrint('PlayerBloc: No access token available');
+        return null;
+      }
+      
+      // Obtener la URL del proxy desde el backend
+      // El endpoint /music/stream devuelve JSON con proxyUrl
+      final response = await _apiServices.get('/music/stream/$videoId');
+      final data = response is Response ? response.data : response;
+      if (data is Map<String, dynamic>) {
+        // Obtener proxyUrl base y añadir el token como query parameter
+        String? proxyUrl = data['proxyUrl'] as String?;
+        if (proxyUrl != null && proxyUrl.isNotEmpty) {
+          // Añadir token como query parameter para autenticación
+          final separator = proxyUrl.contains('?') ? '&' : '?';
+          proxyUrl = '$proxyUrl${separator}token=$accessToken';
+          debugPrint('PlayerBloc: Using proxy URL with token for $videoId');
+          return proxyUrl;
+        }
+        // Fallback a streamUrl si no hay proxyUrl
+        return data['streamUrl'] as String?;
+      }
+    } catch (e) {
+      debugPrint(
+        'PlayerBloc: Error getting proxy stream URL for $videoId: $e',
+      );
+    }
+    return null;
   }
 
   Future<void> _onLoadPlaylist(
@@ -353,16 +403,20 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     NowPlayingData track,
     int maxRetries,
   ) async {
-    if (track.streamUrl == null || track.streamUrl!.isEmpty) {
+    // Obtener URL fresca del backend
+    final freshStreamUrl = await _fetchFreshStreamUrl(track.videoId);
+    final streamUrl = freshStreamUrl ?? track.streamUrl;
+
+    if (streamUrl == null || streamUrl.isEmpty) {
       if (kDebugMode) {
         debugPrint(
-          'Error: La canción ${track.videoId} no tiene stream_url. Asegúrate de usar include_stream_urls=true en el endpoint.',
+          'Error: No se pudo obtener stream URL para ${track.videoId}.',
         );
       }
       return null;
     }
 
-    return AudioSource.uri(Uri.parse(track.streamUrl!), tag: track);
+    return AudioSource.uri(Uri.parse(streamUrl), tag: track);
   }
 
   Future<void> _onPlayTrackAtIndex(
