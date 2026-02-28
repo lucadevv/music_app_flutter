@@ -18,6 +18,7 @@ class LibraryState {
   final int totalGenres;
   final LibrarySummary? summary;
   final bool isLoadingMoreSongs;
+  final bool isOffline;
 
   const LibraryState({
     this.status = LibraryStatus.initial,
@@ -30,6 +31,7 @@ class LibraryState {
     this.totalGenres = 0,
     this.summary,
     this.isLoadingMoreSongs = false,
+    this.isOffline = false,
   });
 
   bool get hasMoreSongs => favoriteSongs.length < totalSongs;
@@ -48,6 +50,7 @@ class LibraryState {
     int? totalGenres,
     LibrarySummary? summary,
     bool? isLoadingMoreSongs,
+    bool? isOffline,
     bool clearError = false,
   }) {
     return LibraryState(
@@ -61,6 +64,7 @@ class LibraryState {
       totalGenres: totalGenres ?? this.totalGenres,
       summary: summary ?? this.summary,
       isLoadingMoreSongs: isLoadingMoreSongs ?? this.isLoadingMoreSongs,
+      isOffline: isOffline ?? this.isOffline,
     );
   }
 }

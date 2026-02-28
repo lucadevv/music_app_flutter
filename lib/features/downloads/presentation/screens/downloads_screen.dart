@@ -1,16 +1,24 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/downloads/domain/entities/downloaded_song.dart';
 import 'package:music_app/features/downloads/presentation/cubit/downloads_cubit.dart';
 import 'package:music_app/features/downloads/presentation/widgets/downloaded_song_item_widget.dart';
 import 'package:music_app/features/downloads/presentation/widgets/download_progress_widget.dart';
+import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
+import 'package:music_app/features/search/domain/entities/album.dart';
+import 'package:music_app/features/search/domain/entities/artist.dart';
+import 'package:music_app/features/search/domain/entities/thumbnail.dart';
 import 'package:music_app/l10n/app_localizations.dart';
+import 'package:music_app/main.dart';
 
 /// Pantalla de descargas
 ///
 /// SOLID: Single Responsibility Principle (SRP)
 /// Responsable única: Mostrar la lista de canciones descargadas
+@RoutePage()
 class DownloadsScreen extends StatefulWidget {
   const DownloadsScreen({super.key});
 
@@ -209,7 +217,8 @@ class _DownloadsBody extends StatelessWidget {
                 isDownloading: isDownloading,
                 progress: progress,
                 onTap: () {
-                  // TODO: Reproducir canción descargada
+                  // Reproducir canción descargada offline
+                  _playDownloadedSong(song);
                 },
                 onDelete: () {
                   _showDeleteConfirmationDialog(context, song);
@@ -220,6 +229,34 @@ class _DownloadsBody extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  /// Reproduce una canción descargada localmente
+  void _playDownloadedSong(DownloadedSong song) {
+    // Convertir DownloadedSong a NowPlayingData
+    final nowPlayingData = NowPlayingData(
+      videoId: song.videoId,
+      title: song.title,
+      artists: [
+        SearchArtist(name: song.artist, id: ''),
+      ],
+      album: SearchAlbum(name: song.album ?? 'Unknown Album', id: ''),
+      duration: song.durationFormatted,
+      durationSeconds: song.duration.inSeconds,
+      views: '0',
+      isExplicit: false,
+      inLibrary: true,
+      thumbnails: song.thumbnail != null
+          ? [Thumbnail(url: song.thumbnail!, width: 200, height: 200)]
+          : [],
+      streamUrl: 'file://${song.localPath}', // Usar archivo local
+      thumbnail: song.thumbnail != null
+          ? Thumbnail(url: song.thumbnail!, width: 200, height: 200)
+          : null,
+    );
+
+    // Cargar y reproducir
+    getIt<PlayerBlocBloc>().add(LoadTrackEvent(nowPlayingData));
   }
 
   void _showDeleteConfirmationDialog(

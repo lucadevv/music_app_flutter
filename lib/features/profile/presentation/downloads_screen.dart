@@ -3,9 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/l10n/app_localizations.dart';
 
+// Esta pantalla ha sido reemplazada por la nueva en features/downloads/
+// Se mantiene aquí por compatibilidad pero ya no tiene @RoutePage()
+// La ruta DownloadsRoute ahora apunta a la nueva pantalla
 @RoutePage()
-class DownloadsScreen extends StatelessWidget {
-  const DownloadsScreen({super.key});
+class OldDownloadsScreen extends StatelessWidget {
+  const OldDownloadsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

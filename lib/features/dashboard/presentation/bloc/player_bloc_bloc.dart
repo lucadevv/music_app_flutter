@@ -9,6 +9,8 @@ import 'package:get_it/get_it.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:music_app/core/managers/auth/auth_manager.dart';
 import 'package:music_app/core/services/network/api_services.dart';
+import 'package:music_app/data/offline/models/offline_history.dart';
+import 'package:music_app/data/offline/services/offline_service.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 import 'package:music_app/main.dart';
 
@@ -19,6 +21,9 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
   final ApiServices _apiServices;
   final AudioPlayer _audioPlayer = AudioPlayer();
 
+  // OfflineService se obtiene de forma lazy para evitar dependencia circular
+  OfflineService? _offlineService;
+
   late StreamSubscription _playerStateSubscription;
   late StreamSubscription _positionSubscription;
   late StreamSubscription _durationSubscription;
@@ -27,9 +32,148 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
 
   AudioHandler? _audioHandler;
 
+  // ==================== Historial de reproducción ====================
+  /// ID de la entrada de historial actual
+  String? _currentHistoryId;
+
+  /// Momento en que comenzó la reproducción actual
+  DateTime? _playbackStartTime;
+
+  /// Última posición guardada en el historial (en segundos)
+  /// Se usa para evitar guardar en cada cambio de posición
+  int _lastSavedPositionSeconds = 0;
+
+  /// Intervalo mínimo entre actualizaciones de historial (en segundos)
+  static const int _historyUpdateIntervalSeconds = 5;
+
   PlayerBlocBloc(this._apiServices) : super(const PlayerBlocInitial()) {
     _initializePlayer();
     _registerEventHandlers();
+  }
+
+  /// Obtiene el OfflineService de forma lazy
+  Future<OfflineService?> _getOfflineService() async {
+    if (_offlineService != null) return _offlineService;
+
+    try {
+      if (GetIt.I.isRegistered<OfflineService>()) {
+        _offlineService = await GetIt.I.getAsync<OfflineService>();
+        return _offlineService;
+      }
+    } catch (e) {
+      debugPrint('PlayerBloc: Could not get OfflineService: $e');
+    }
+    return null;
+  }
+
+  // ==================== Métodos de Historial ====================
+
+  /// Guarda la duración reproducida de la entrada de historial actual
+  /// Es "fire and forget" - no bloquea la reproducción
+  Future<void> _saveHistoryPlayedDuration(int positionSeconds) async {
+    if (_currentHistoryId == null) return;
+
+    // Evitar guardar si la posición no cambió significativamente
+    if (positionSeconds - _lastSavedPositionSeconds < _historyUpdateIntervalSeconds) {
+      return;
+    }
+
+    _lastSavedPositionSeconds = positionSeconds;
+
+    // Fire and forget - no esperamos el resultado
+    _saveHistoryPlayedDurationInternal(_currentHistoryId!, positionSeconds);
+  }
+
+  /// Implementación interna del guardado de historial
+  Future<void> _saveHistoryPlayedDurationInternal(
+    String historyId,
+    int positionSeconds,
+  ) async {
+    try {
+      final offlineService = await _getOfflineService();
+      if (offlineService != null && offlineService.isInitialized) {
+        await offlineService.updateHistoryPlayedDuration(historyId, positionSeconds);
+        debugPrint('PlayerBloc: Updated history $historyId with duration $positionSeconds');
+      }
+    } catch (e) {
+      // No propagar el error - el historial no debe afectar la reproducción
+      debugPrint('PlayerBloc: Error updating history (non-critical): $e');
+    }
+  }
+
+  /// Finaliza la entrada de historial actual y crea una nueva para el track
+  Future<void> _startNewHistoryEntry(NowPlayingData track) async {
+    // Primero, guardar el estado del historial anterior si existe
+    await _finalizeCurrentHistoryEntry();
+
+    try {
+      final offlineService = await _getOfflineService();
+      if (offlineService == null || !offlineService.isInitialized) {
+        debugPrint('PlayerBloc: OfflineService not available for history');
+        return;
+      }
+
+      // Obtener el nombre del artista
+      final String artistName;
+      if (track.artists.isNotEmpty) {
+        artistName = track.artists.map((a) => a.name).join(', ');
+      } else {
+        artistName = 'Unknown Artist';
+      }
+
+      // Obtener la URL del thumbnail
+      String? thumbnailUrl;
+      if (track.thumbnail != null) {
+        thumbnailUrl = track.thumbnail?.url;
+      } else if (track.thumbnails.isNotEmpty) {
+        thumbnailUrl = track.thumbnails.first.url;
+      }
+
+      // Crear nueva entrada de historial
+      final history = OfflineHistory.create(
+        songId: track.videoId, // Usamos videoId como songId si no hay otro
+        videoId: track.videoId,
+        title: track.title,
+        artist: artistName,
+        thumbnail: thumbnailUrl,
+        duration: track.durationSeconds,
+        playedAt: DateTime.now(),
+      );
+
+      await offlineService.addToHistory(history);
+
+      // Actualizar tracking
+      _currentHistoryId = history.historyId;
+      _playbackStartTime = DateTime.now();
+      _lastSavedPositionSeconds = 0;
+
+      debugPrint('PlayerBloc: Created history entry ${history.historyId} for ${track.title}');
+    } catch (e) {
+      // No propagar el error - el historial no debe afectar la reproducción
+      debugPrint('PlayerBloc: Error creating history entry (non-critical): $e');
+    }
+  }
+
+  /// Finaliza la entrada de historial actual
+  Future<void> _finalizeCurrentHistoryEntry() async {
+    if (_currentHistoryId == null) return;
+
+    try {
+      // Guardar la posición final
+      await _saveHistoryPlayedDurationInternal(
+        _currentHistoryId!,
+        _lastSavedPositionSeconds,
+      );
+
+      debugPrint('PlayerBloc: Finalized history entry $_currentHistoryId');
+    } catch (e) {
+      debugPrint('PlayerBloc: Error finalizing history (non-critical): $e');
+    } finally {
+      // Limpiar estado
+      _currentHistoryId = null;
+      _playbackStartTime = null;
+      _lastSavedPositionSeconds = 0;
+    }
   }
 
   void _initializePlayer() {
@@ -126,6 +270,9 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
 
   Future<void> _onStop(StopEvent event, Emitter<PlayerBlocState> emit) async {
     try {
+      // Finalizar entrada de historial actual antes de detener
+      await _finalizeCurrentHistoryEntry();
+
       await _audioPlayer.stop();
       _audioHandler?.stop();
       if (state is PlayerBlocLoaded) {
@@ -205,6 +352,10 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     try {
       debugPrint('PlayerBloc: Loading track ${event.track.title} (${event.track.videoId})');
 
+      // Crear entrada de historial para el nuevo track (fire and forget)
+      // Se hace antes de emitir el estado para que no bloquee la UI
+      unawaited(_startNewHistoryEntry(event.track));
+
       emit(
         PlayerBlocLoaded(
           isLoading: true,
@@ -213,12 +364,27 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
         ),
       );
 
-      // Siempre obtener una URL fresca del backend para evitar 403
-      debugPrint('PlayerBloc: Fetching fresh stream URL...');
-      final freshStreamUrl = await _fetchFreshStreamUrl(event.track.videoId);
-      final streamUrl = freshStreamUrl ?? event.track.streamUrl;
+      String? streamUrl;
 
-      debugPrint('PlayerBloc: Stream URL obtained: ${streamUrl?.substring(0, (streamUrl?.length ?? 0).clamp(0, 50))}...');
+      // PRIMERO: Verificar si la canción está descargada localmente
+      final offlineService = await _getOfflineService();
+      if (offlineService != null && offlineService.isInitialized) {
+        debugPrint('PlayerBloc: Checking for local audio file...');
+        final localPath = await offlineService.getLocalAudioPath(event.track.videoId);
+        
+        if (localPath != null && localPath.isNotEmpty) {
+          streamUrl = 'file://$localPath';
+          debugPrint('PlayerBloc: Using local file: $streamUrl');
+        }
+      }
+
+      // SI NO hay archivo local, obtener URL del servidor
+      if (streamUrl == null || streamUrl.isEmpty) {
+        debugPrint('PlayerBloc: No local file found, fetching fresh stream URL...');
+        final freshStreamUrl = await _fetchFreshStreamUrl(event.track.videoId);
+        streamUrl = freshStreamUrl ?? event.track.streamUrl;
+        debugPrint('PlayerBloc: Stream URL obtained: ${streamUrl?.substring(0, (streamUrl?.length ?? 0).clamp(0, 50))}...');
+      }
 
       if (streamUrl == null || streamUrl.isEmpty) {
         emit(
@@ -493,9 +659,25 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     NowPlayingData track,
     int maxRetries,
   ) async {
-    // Obtener URL fresca del backend
-    final freshStreamUrl = await _fetchFreshStreamUrl(track.videoId);
-    final streamUrl = freshStreamUrl ?? track.streamUrl;
+    String? streamUrl;
+
+    // PRIMERO: Verificar si la canción está descargada localmente
+    final offlineService = await _getOfflineService();
+    if (offlineService != null && offlineService.isInitialized) {
+      debugPrint('PlayerBloc: Checking for local audio file for playlist track...');
+      final localPath = await offlineService.getLocalAudioPath(track.videoId);
+      
+      if (localPath != null && localPath.isNotEmpty) {
+        streamUrl = 'file://$localPath';
+        debugPrint('PlayerBloc: Using local file for playlist: $streamUrl');
+      }
+    }
+
+    // SI NO hay archivo local, obtener URL del servidor
+    if (streamUrl == null || streamUrl.isEmpty) {
+      final freshStreamUrl = await _fetchFreshStreamUrl(track.videoId);
+      streamUrl = freshStreamUrl ?? track.streamUrl;
+    }
 
     if (streamUrl == null || streamUrl.isEmpty) {
       if (kDebugMode) {
@@ -704,6 +886,9 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     debugPrint('PlayerBloc: Position changed to ${event.position}');
     if (state is PlayerBlocLoaded) {
       emit((state as PlayerBlocLoaded).copyWith(position: event.position));
+
+      // Actualizar historial cada ~5 segundos (fire and forget)
+      unawaited(_saveHistoryPlayedDuration(event.position.inSeconds));
     }
   }
 
@@ -740,6 +925,11 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
           event.index != null && event.index! < currentState.playlist.length
           ? currentState.playlist[event.index!]
           : null;
+
+      // Si cambió el track, crear nueva entrada de historial (fire and forget)
+      if (currentTrack != null && event.index != currentState.currentIndex) {
+        unawaited(_startNewHistoryEntry(currentTrack));
+      }
 
       emit(
         currentState.copyWith(
@@ -808,6 +998,9 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
 
   @override
   Future<void> close() async {
+    // Finalizar entrada de historial antes de dispose
+    await _finalizeCurrentHistoryEntry();
+
     await _playerStateSubscription.cancel();
     await _positionSubscription.cancel();
     await _durationSubscription.cancel();

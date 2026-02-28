@@ -1,6 +1,8 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
+import 'package:music_app/data/offline/services/offline_service.dart';
 import 'package:music_app/core/app_router/app_routes.dart';
 import 'package:music_app/core/bloc/locale_cubit.dart';
 import 'package:music_app/core/managers/auth/auth_manager.dart';
@@ -59,6 +61,8 @@ import 'package:music_app/features/playlist/presentation/cubit/playlist_cubit.da
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/library/presentation/cubit/library_cubit.dart';
 import 'package:music_app/features/favorites/presentation/cubit/favorite_cubit.dart';
+import 'package:music_app/features/offline/presentation/cubit/playlist_offline_cubit.dart';
+import 'package:music_app/features/offline/presentation/cubit/history_cubit.dart';
 import 'package:music_app/features/profile/profile_service.dart';
 import 'package:music_app/features/profile/profile_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -175,6 +179,7 @@ class AppInjection {
     _registerLibraryFeature();
     _registerFavoritesFeature();
     _registerProfileFeature();
+    _registerOfflineFeature();
   }
 
   void _registerAuthFeature() {
@@ -314,6 +319,7 @@ class AppInjection {
 
   void _registerPlayerFeature() {
     // Bloc (singleton porque debe ser compartido en toda la app)
+    // Nota: OfflineService se obtiene de forma lazy dentro del BLoC
     if (!_getIt.isRegistered<PlayerBlocBloc>()) {
       _getIt.registerLazySingleton<PlayerBlocBloc>(
         () => PlayerBlocBloc(_getIt<ApiServices>()),
@@ -412,32 +418,27 @@ class AppInjection {
   }
 
   void _registerDownloadsFeature() {
-    // Data Sources - usa registerFactoryAsync porque depende de SharedPreferences
-    // El data source se inicializa de forma lazy cuando se necesita
+    // Data Sources - singleton porque necesita compartir estado con OfflineService
     if (!_getIt.isRegistered<DownloadsLocalDataSource>()) {
-      _getIt.registerFactoryAsync<DownloadsLocalDataSource>(
+      _getIt.registerLazySingletonAsync<DownloadsLocalDataSource>(
         () async {
-          final prefs = await _getIt.getAsync<SharedPreferences>();
-          final dataSource = DownloadsLocalDataSourceImpl(
-            _getIt<Dio>(),
-            prefs,
-          );
+          final dataSource = DownloadsLocalDataSourceImpl(_getIt<OfflineService>());
           await dataSource.init();
           return dataSource;
         },
       );
     }
 
-    // Repositories - usa registerFactoryAsync porque depende de DownloadsLocalDataSource
+    // Repository - singleton para compartir estado
     if (!_getIt.isRegistered<DownloadsRepository>()) {
-      _getIt.registerFactoryAsync<DownloadsRepository>(
+      _getIt.registerLazySingletonAsync<DownloadsRepository>(
         () async => DownloadsRepositoryImpl(
           await _getIt.getAsync<DownloadsLocalDataSource>(),
         ),
       );
     }
 
-    // Use Cases - usan registerFactoryAsync porque dependen de DownloadsRepository
+    // Use Cases - factory async porque dependen del repository async
     if (!_getIt.isRegistered<DownloadSongUseCase>()) {
       _getIt.registerFactoryAsync<DownloadSongUseCase>(
         () async => DownloadSongUseCase(
@@ -470,7 +471,7 @@ class AppInjection {
       );
     }
 
-    // Cubits - usa registerFactoryAsync porque depende de los Use Cases
+    // DownloadsCubit - factory async para compartir estado entre pantallas
     if (!_getIt.isRegistered<DownloadsCubit>()) {
       _getIt.registerFactoryAsync<DownloadsCubit>(
         () async => DownloadsCubit(
@@ -486,7 +487,7 @@ class AppInjection {
   void _registerLibraryFeature() {
     if (!_getIt.isRegistered<LibraryCubit>()) {
       _getIt.registerFactory<LibraryCubit>(
-        () => LibraryCubit(_getIt<LibraryService>()),
+        () => LibraryCubit(_getIt<LibraryService>(), _getIt<OfflineService>()),
       );
     }
   }
@@ -494,7 +495,11 @@ class AppInjection {
   void _registerFavoritesFeature() {
     if (!_getIt.isRegistered<FavoriteCubit>()) {
       _getIt.registerLazySingleton<FavoriteCubit>(
-        () => FavoriteCubit(_getIt<LibraryService>()),
+        () => FavoriteCubit(
+          _getIt<LibraryService>(),
+          _getIt<PlaylistOfflineCubit>(),
+          _getIt<OfflineService>(),
+        ),
       );
     }
   }
@@ -509,6 +514,41 @@ class AppInjection {
     if (!_getIt.isRegistered<ProfileCubit>()) {
       _getIt.registerFactory<ProfileCubit>(
         () => ProfileCubit(_getIt<ProfileService>()),
+      );
+    }
+  }
+
+  void _registerOfflineFeature() {
+    // Connectivity - singleton para verificar estado de conexión
+    if (!_getIt.isRegistered<Connectivity>()) {
+      _getIt.registerLazySingleton<Connectivity>(() => Connectivity());
+    }
+
+    // OfflineService - singleton async porque necesita inicialización con init()
+    if (!_getIt.isRegistered<OfflineService>()) {
+      _getIt.registerLazySingletonAsync<OfflineService>(
+        () async {
+          final service = OfflineService(
+            _getIt<Dio>(),
+            _getIt<Connectivity>(),
+          );
+          await service.init();
+          return service;
+        },
+      );
+    }
+
+    // PlaylistOfflineCubit - singleton para compartir estado entre features
+    if (!_getIt.isRegistered<PlaylistOfflineCubit>()) {
+      _getIt.registerLazySingleton<PlaylistOfflineCubit>(
+        () => PlaylistOfflineCubit(_getIt<OfflineService>()),
+      );
+    }
+
+    // HistoryCubit - singleton para historial de reproducción offline
+    if (!_getIt.isRegistered<HistoryCubit>()) {
+      _getIt.registerLazySingleton<HistoryCubit>(
+        () => HistoryCubit(_getIt<OfflineService>()),
       );
     }
   }

@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
+import 'package:music_app/core/utils/bottom_sheet_visibility.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
+import 'package:music_app/features/downloads/presentation/widgets/download_option_tile.dart';
 import 'package:music_app/features/favorites/presentation/cubit/favorite_cubit.dart';
 import 'package:music_app/features/favorites/presentation/widgets/favorite_button.dart';
 import 'package:music_app/features/library/library_service.dart';
@@ -374,12 +376,8 @@ class _LibraryView extends StatelessWidget {
   }
 
   void _showSongOptions(BuildContext context, FavoriteSong song, AppLocalizations l10n) {
-    showModalBottomSheet(
+    BottomSheetVisibility().showBottomSheet(
       context: context,
-      backgroundColor: AppColorsDark.surfaceContainerHigh,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
       builder: (context) => _SongOptionsSheet(song: song, l10n: l10n),
     );
   }
@@ -598,7 +596,10 @@ class _SongOptionsSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16),
+      padding: EdgeInsets.only(
+        top: 16,
+        bottom: MediaQuery.of(context).padding.bottom + 80, // Avoid bottom navbar
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -650,6 +651,15 @@ class _SongOptionsSheet extends StatelessWidget {
             icon: Icons.playlist_add,
             label: l10n.addToPlaylist,
             onTap: () => Navigator.pop(context),
+          ),
+          // Opción de descarga
+          DownloadOptionTile(
+            videoId: song.videoId,
+            title: song.title,
+            artist: song.artist,
+            thumbnail: song.thumbnail,
+            durationSeconds: song.duration,
+            label: l10n.download,
           ),
           _OptionTile(
             icon: Icons.share,

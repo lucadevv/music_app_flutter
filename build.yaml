@@ -1,0 +1,15 @@
+# Build configuration for build_runner
+# Handles Hive and auto_route generators
+
+targets:
+  $default:
+    builders:
+      # Hive generator - generate for data layer files
+      hive_generator:
+        generate_for:
+          - lib/data/**/*.dart
+      
+      # auto_route generator - only run on router files  
+      auto_route:auto_route_generator:
+        generate_for:
+          - lib/core/app_router/**/*.dart

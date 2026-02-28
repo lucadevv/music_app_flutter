@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/managers/auth/auth_manager.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
+import 'package:music_app/core/utils/bottom_sheet_visibility.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/player/presentation/widgets/mini_player.dart';
 import 'package:music_app/l10n/app_localizations.dart';
@@ -30,6 +31,21 @@ class _DashboardShellState extends State<DashboardShell> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await _init();
     });
+    
+    // Listen to bottom sheet visibility changes
+    BottomSheetVisibility().addListener(_onBottomSheetChanged);
+  }
+
+  @override
+  void dispose() {
+    BottomSheetVisibility().removeListener(_onBottomSheetChanged);
+    super.dispose();
+  }
+
+  void _onBottomSheetChanged() {
+    if (mounted) {
+      setState(() {}); // Rebuild to update miniplayer position
+    }
   }
 
   Future<void> _init() async {
@@ -83,18 +99,24 @@ class _DashboardShellState extends State<DashboardShell> {
           },
           builder: (context, playerState) {
             final hasTrack = playerState is PlayerBlocLoaded && playerState.currentTrack != null;
+            final isBottomSheetOpen = BottomSheetVisibility().isBottomSheetOpen;
+            
+            // Posición del miniplayer:
+            // - Normal: 79 (navbar) + 32 (margen) + 8 (padding) = 119
+            // - Con bottom sheet abierto: subir para que no tape el bottom sheet
+            final miniPlayerBottom = isBottomSheetOpen ? 512 : 119;
             
             return Scaffold(
               backgroundColor: AppColorsDark.surface,
               body: Stack(
                 children: [
                   child,
-                  // Mini Player (encima del contenido, debajo del navbar)
+                  // Mini Player
                   if (isVisible && hasTrack)
                     Positioned(
                       left: 0,
                       right: 0,
-                      bottom: 79 + 32 + 8, // Altura navbar + margen + padding extra
+                      bottom: miniPlayerBottom.toDouble(),
                       child: const MiniPlayer(),
                     ),
                   // Navbar

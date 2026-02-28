@@ -29,11 +29,18 @@ class _PlayerSimilarSongsWidgetState extends State<PlayerSimilarSongsWidget> {
   List<dynamic> _radioTracks = [];
   bool _isLoading = true;
   String? _error;
+  bool _isDisposed = false;
 
   @override
   void initState() {
     super.initState();
     _loadRadioPlaylist();
+  }
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
   }
 
   @override
@@ -45,10 +52,14 @@ class _PlayerSimilarSongsWidgetState extends State<PlayerSimilarSongsWidget> {
   }
 
   Future<void> _loadRadioPlaylist() async {
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
+    if (_isDisposed) return;
+    
+    if (mounted) {
+      setState(() {
+        _isLoading = true;
+        _error = null;
+      });
+    }
 
     try {
       final apiServices = getIt<ApiServices>();
@@ -57,17 +68,25 @@ class _PlayerSimilarSongsWidgetState extends State<PlayerSimilarSongsWidget> {
         queryParameters: {'limit': 10},
       );
 
+      if (_isDisposed) return;
+      
       final tracks = response.data['tracks'] as List<dynamic>? ?? [];
 
-      setState(() {
-        _radioTracks = tracks;
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _radioTracks = tracks;
+          _isLoading = false;
+        });
+      }
     } catch (e) {
-      setState(() {
-        _error = e.toString();
-        _isLoading = false;
-      });
+      if (_isDisposed) return;
+      
+      if (mounted) {
+        setState(() {
+          _error = e.toString();
+          _isLoading = false;
+        });
+      }
     }
   }
 

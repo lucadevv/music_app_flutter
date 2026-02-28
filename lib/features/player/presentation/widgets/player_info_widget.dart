@@ -43,6 +43,7 @@ class PlayerInfoWidget extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
+              // Botón de favorito
               FavoriteButton(
                 videoId: track.videoId,
                 size: 28,

@@ -1,17 +1,16 @@
 import 'dart:io';
 
-import 'package:dartz/dartz.dart';
-import 'package:dio/dio.dart';
-import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
+import 'package:music_app/data/offline/models/offline_song.dart';
+import 'package:music_app/data/offline/services/offline_service.dart';
 import 'package:music_app/features/downloads/data/models/downloaded_song_model.dart';
-import 'package:music_app/features/downloads/domain/entities/downloaded_song.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 /// Data source local para gestionar las descargas
 ///
 /// SOLID: Single Responsibility Principle (SRP)
 /// Responsable única: Operaciones locales de descargas
+/// 
+/// Delega todas las operaciones a OfflineService (Hive) para
+/// persistencia de datos y gestión de descargas.
 abstract class DownloadsLocalDataSource {
   /// Inicializa el data source
   Future<void> init();
@@ -40,22 +39,16 @@ abstract class DownloadsLocalDataSource {
 }
 
 class DownloadsLocalDataSourceImpl implements DownloadsLocalDataSource {
-  static const String _prefsKeyPrefix = 'downloaded_song_';
-  static const String _prefsVideoIdsKey = 'downloaded_video_ids';
+  final OfflineService _offlineService;
 
-  final Dio _dio;
-  final SharedPreferences _prefs;
-  late String _downloadsDir;
-
-  DownloadsLocalDataSourceImpl(this._dio, this._prefs);
+  DownloadsLocalDataSourceImpl(this._offlineService);
 
   @override
   Future<void> init() async {
-    final appDir = await getApplicationDocumentsDirectory();
-    _downloadsDir = '${appDir.path}/downloads';
-    final dir = Directory(_downloadsDir);
-    if (!await dir.exists()) {
-      await dir.create(recursive: true);
+    // OfflineService ya debería estar inicializado por GetIt
+    // pero nos aseguramos de que esté listo
+    if (!_offlineService.isInitialized) {
+      await _offlineService.init();
     }
   }
 
@@ -65,144 +58,97 @@ class DownloadsLocalDataSourceImpl implements DownloadsLocalDataSource {
     String videoId,
     void Function(double) onProgress,
   ) async {
-    final filePath = '$_downloadsDir/$videoId.mp3';
-
-    await _dio.download(
+    final result = await _offlineService.downloadSongAudio(
+      videoId,
       url,
-      filePath,
-      onReceiveProgress: (received, total) {
-        if (total != -1) {
-          onProgress(received / total);
-        }
-      },
+      onProgress: (progress) => onProgress(progress.progress),
     );
 
-    return filePath;
-  }
-
-  @override
-  Future<void> saveDownloadedSong(DownloadedSongModel song) async {
-    // Guardar los datos de la canción
-    await _prefs.setString(
-      '$_prefsKeyPrefix${song.videoId}',
-      song.toJson().toString(),
-    );
-
-    // Actualizar la lista de videoIds
-    final videoIds = _prefs.getStringList(_prefsVideoIdsKey) ?? [];
-    if (!videoIds.contains(song.videoId)) {
-      videoIds.add(song.videoId);
-      await _prefs.setStringList(_prefsVideoIdsKey, videoIds);
-    }
-  }
-
-  @override
-  Future<List<DownloadedSongModel>> getDownloadedSongs() async {
-    final videoIds = _prefs.getStringList(_prefsVideoIdsKey) ?? [];
-    final songs = <DownloadedSongModel>[];
-
-    for (final videoId in videoIds) {
-      final songJson = _prefs.getString('$_prefsKeyPrefix$videoId');
-      if (songJson != null) {
-        try {
-          // Parsear el string del JSON almacenado
-          final json = _parseJsonString(songJson);
-          songs.add(DownloadedSongModel.fromJson(json));
-        } catch (e) {
-          // Si hay error parseando, ignorar esta canción
-          continue;
-        }
-      }
-    }
-
-    // Ordenar por fecha de descarga (más reciente primero)
-    songs.sort((a, b) => b.downloadedAt.compareTo(a.downloadedAt));
-
-    return songs;
-  }
-
-  /// Parsea un string JSON almacenado en SharedPreferences
-  Map<String, dynamic> _parseJsonString(String jsonString) {
-    // El formato guardado es: {key: value, key2: value2}
-    // Necesitamos convertirlo a JSON válido
-    final result = <String, dynamic>{};
-
-    // Remover llaves externas
-    var content = jsonString.trim();
-    if (content.startsWith('{') && content.endsWith('}')) {
-      content = content.substring(1, content.length - 1);
-    }
-
-    // Parsear pares key-value
-    final pairs = content.split(', ');
-    for (final pair in pairs) {
-      final keyValue = pair.split(': ');
-      if (keyValue.length == 2) {
-        final key = keyValue[0].trim();
-        var value = keyValue[1].trim();
-
-        // Determinar el tipo de valor
-        if (value == 'null') {
-          result[key] = null;
-        } else if (value.startsWith("'") && value.endsWith("'")) {
-          result[key] = value.substring(1, value.length - 1);
-        } else if (int.tryParse(value) != null) {
-          result[key] = int.parse(value);
-        } else {
-          result[key] = value;
-        }
-      }
+    if (result == null) {
+      throw Exception('Failed to download file for videoId: $videoId');
     }
 
     return result;
   }
 
   @override
-  Future<void> removeDownloadedSong(String videoId) async {
-    final songJson = _prefs.getString('$_prefsKeyPrefix$videoId');
-    if (songJson != null) {
-      try {
-        final json = _parseJsonString(songJson);
-        final localPath = json['localPath'] as String?;
+  Future<void> saveDownloadedSong(DownloadedSongModel song) async {
+    // Convertir DownloadedSongModel a OfflineSong
+    final offlineSong = OfflineSong()
+      ..songId = song.videoId // Usamos videoId como songId si no tenemos uno
+      ..videoId = song.videoId
+      ..title = song.title
+      ..artist = song.artist
+      ..thumbnail = song.thumbnail
+      ..duration = song.duration.inSeconds
+      ..localAudioPath = song.localPath
+      ..addedAt = song.downloadedAt
+      ..lastSyncedAt = DateTime.now();
 
-        // Eliminar el archivo
-        if (localPath != null) {
-          final file = File(localPath);
-          if (await file.exists()) {
-            await file.delete();
-          }
-        }
-      } catch (e) {
-        // Ignorar errores de parseo
-      }
+    await _offlineService.saveOfflineSong(offlineSong);
+  }
+
+  @override
+  Future<List<DownloadedSongModel>> getDownloadedSongs() async {
+    final offlineSongs = await _offlineService.getOfflineSongs();
+    
+    // Filtrar solo las que tienen audio descargado (localAudioPath no nulo)
+    final downloadedSongs = offlineSongs
+        .where((song) => song.localAudioPath != null)
+        .toList();
+
+    // Convertir OfflineSong a DownloadedSongModel
+    final models = <DownloadedSongModel>[];
+    for (final offlineSong in downloadedSongs) {
+      final model = await _convertToDownloadedSongModel(offlineSong);
+      models.add(model);
     }
 
-    // Eliminar de SharedPreferences
-    await _prefs.remove('$_prefsKeyPrefix$videoId');
+    // Ordenar por fecha de descarga (más reciente primero)
+    models.sort((a, b) => b.downloadedAt.compareTo(a.downloadedAt));
 
-    // Actualizar la lista de videoIds
-    final videoIds = _prefs.getStringList(_prefsVideoIdsKey) ?? [];
-    videoIds.remove(videoId);
-    await _prefs.setStringList(_prefsVideoIdsKey, videoIds);
+    return models;
+  }
+
+  @override
+  Future<void> removeDownloadedSong(String videoId) async {
+    await _offlineService.deleteOfflineSong(videoId);
   }
 
   @override
   Future<bool> isDownloaded(String videoId) async {
-    final videoIds = _prefs.getStringList(_prefsVideoIdsKey) ?? [];
-    return videoIds.contains(videoId);
+    return _offlineService.isSongDownloaded(videoId);
   }
 
   @override
   Future<String?> getLocalPath(String videoId) async {
-    final songJson = _prefs.getString('$_prefsKeyPrefix$videoId');
-    if (songJson != null) {
-      try {
-        final json = _parseJsonString(songJson);
-        return json['localPath'] as String?;
-      } catch (e) {
-        return null;
+    return _offlineService.getLocalAudioPath(videoId);
+  }
+
+  /// Convierte un OfflineSong a DownloadedSongModel
+  /// Calcula el fileSize del archivo si existe
+  Future<DownloadedSongModel> _convertToDownloadedSongModel(
+    OfflineSong offlineSong,
+  ) async {
+    // Calcular el tamaño del archivo
+    int fileSize = 0;
+    if (offlineSong.localAudioPath != null) {
+      final file = File(offlineSong.localAudioPath!);
+      if (await file.exists()) {
+        fileSize = await file.length();
       }
     }
-    return null;
+
+    return DownloadedSongModel(
+      videoId: offlineSong.videoId,
+      title: offlineSong.title,
+      artist: offlineSong.artist,
+      album: null, // OfflineSong no tiene campo album
+      thumbnail: offlineSong.thumbnail,
+      localPath: offlineSong.localAudioPath ?? '',
+      fileSize: fileSize,
+      duration: Duration(seconds: offlineSong.duration ?? 0),
+      downloadedAt: offlineSong.addedAt,
+    );
   }
 }
