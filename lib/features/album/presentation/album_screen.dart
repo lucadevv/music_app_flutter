@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
+import 'package:music_app/l10n/app_localizations.dart';
 
 @RoutePage()
 class AlbumScreen extends StatelessWidget {
@@ -8,6 +9,8 @@ class AlbumScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Scaffold(
       backgroundColor: const Color(0xFF0D0D0D),
       body: CustomScrollView(
@@ -62,9 +65,9 @@ class AlbumScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      const Text(
-                        'Album Name',
-                        style: TextStyle(
+                      Text(
+                        l10n.albumName,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
@@ -72,7 +75,7 @@ class AlbumScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Artist Name • 2024 • 12 songs',
+                        '${l10n.artistName} • 2024 • 12 ${l10n.songsCount}',
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.6),
                           fontSize: 14,
@@ -126,12 +129,10 @@ class AlbumScreen extends StatelessWidget {
           SliverList(
             delegate: SliverChildBuilderDelegate((context, index) {
               return GestureDetector(
-                onTap: () {
-                  // context.router.push(const PlayerRoute());
-                },
+                onTap: () {},
                 child: _AlbumSongItem(
                   number: index + 1,
-                  title: 'Song ${index + 1}',
+                  title: '${l10n.song} ${index + 1}',
                   duration: '${3 + index}:${20 + index * 10}',
                 ),
               );

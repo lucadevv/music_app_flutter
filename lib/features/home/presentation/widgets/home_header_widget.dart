@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/managers/auth/auth_manager.dart';
+import 'package:music_app/l10n/app_localizations.dart';
 import 'package:music_app/main.dart';
 
 /// Widget para el header del home con saludo
@@ -44,14 +45,14 @@ class _HomeHeaderWidgetState extends State<HomeHeaderWidget> {
     }
   }
 
-  String _getGreeting() {
+  String _getGreeting(AppLocalizations l10n) {
     final hour = DateTime.now().hour;
     if (hour < 12) {
-      return 'Good Morning';
+      return l10n.goodMorning;
     } else if (hour < 18) {
-      return 'Good Afternoon';
+      return l10n.goodAfternoon;
     } else {
-      return 'Good Evening';
+      return l10n.goodEvening;
     }
   }
 
@@ -68,6 +69,8 @@ class _HomeHeaderWidgetState extends State<HomeHeaderWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
       child: Row(
@@ -80,7 +83,7 @@ class _HomeHeaderWidgetState extends State<HomeHeaderWidget> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '👋 Hi',
+                  '👋 ${l10n.hi}',
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.75),
                     fontSize: 16,
@@ -88,7 +91,7 @@ class _HomeHeaderWidgetState extends State<HomeHeaderWidget> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  _getGreeting(),
+                  _getGreeting(l10n),
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 28,

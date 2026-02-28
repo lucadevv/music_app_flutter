@@ -151,5 +151,36 @@
   "monthsSep": "Sep",
   "monthsOct": "Oct",
   "monthsNov": "Nov",
-  "monthsDec": "Dec"
+  "monthsDec": "Dec",
+
+  "hi": "Hi",
+  "goodMorning": "Good Morning",
+  "goodAfternoon": "Good Afternoon",
+  "goodEvening": "Good Evening",
+
+  "artistName": "Artist Name",
+  "song": "Song",
+  "monthlyListeners": "monthly listeners",
+  "popular": "Popular",
+  "relax": "Relax",
+  "workout": "Workout",
+  "travel": "Travel",
+  "focus": "Focus",
+  "energize": "Energize",
+
+  "profileAndSettings": "Profile & Settings",
+  "areYouSureYouWantToLogout": "Are you sure you want to logout?",
+  "clear": "Clear",
+  "queue": "Queue",
+  "nowPlaying": "Now Playing",
+  "upNext": "Up Next",
+  "autoRecommendations": "Auto-Recommendations",
+  "forYou": "For you",
+  "mix": "Mix",
+  "albumName": "Album Name",
+  "songsCount": "songs",
+  "google": "Google",
+  "apple": "Apple",
+  "songsSimilarToThis": "Songs similar to this",
+  "radio": "Radio"
 }

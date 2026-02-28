@@ -282,7 +282,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               Icons.g_mobiledata,
                               color: AppColorsDark.onSurface,
                             ),
-                            label: const Text('Google'),
+                            label: Text(l10n.google),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: AppColorsDark.onSurface,
                               side: BorderSide(color: AppColorsDark.outline),
@@ -310,7 +310,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   },
                             icon: Icon(Icons.apple,
                                 color: AppColorsDark.onSurface),
-                            label: const Text('Apple'),
+                            label: Text(l10n.apple),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: AppColorsDark.onSurface,
                               side: BorderSide(color: AppColorsDark.outline),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
+import 'package:music_app/l10n/app_localizations.dart';
 
 class SocialButtons extends StatelessWidget {
   final VoidCallback? onGooglePressed;
@@ -13,6 +14,8 @@ class SocialButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Row(
       children: [
         Expanded(
@@ -22,7 +25,7 @@ class SocialButtons extends StatelessWidget {
               Icons.g_mobiledata,
               color: AppColorsDark.onSurface,
             ),
-            label: const Text('Google'),
+            label: Text(l10n.google),
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColorsDark.onSurface,
               side: BorderSide(color: AppColorsDark.outline),
@@ -41,7 +44,7 @@ class SocialButtons extends StatelessWidget {
               Icons.apple,
               color: AppColorsDark.onSurface,
             ),
-            label: const Text('Apple'),
+            label: Text(l10n.apple),
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColorsDark.onSurface,
               side: BorderSide(color: AppColorsDark.outline),

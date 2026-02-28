@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 
 import 'package:music_app/core/theme/app_colors_dark.dart';
+import 'package:music_app/l10n/app_localizations.dart';
 
 @RoutePage()
 class ArtistScreen extends StatelessWidget {
@@ -9,6 +10,8 @@ class ArtistScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Scaffold(
       backgroundColor: const Color(0xFF0D0D0D),
       body: CustomScrollView(
@@ -67,9 +70,9 @@ class ArtistScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Artist name
-                  const Text(
-                    'Artist Name',
-                    style: TextStyle(
+                  Text(
+                    l10n.artistName,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
@@ -77,7 +80,7 @@ class ArtistScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '12,345,678 monthly listeners',
+                    '12,345,678 ${l10n.monthlyListeners}',
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.6),
                       fontSize: 14,
@@ -92,7 +95,7 @@ class ArtistScreen extends StatelessWidget {
                         child: FilledButton.icon(
                           onPressed: () {},
                           icon: const Icon(Icons.play_arrow),
-                          label: const Text('Play'),
+                          label: Text(l10n.play),
                           style: FilledButton.styleFrom(
                             backgroundColor: AppColorsDark.primary,
                             foregroundColor: Colors.white,
@@ -117,9 +120,9 @@ class ArtistScreen extends StatelessWidget {
                   const SizedBox(height: 32),
 
                   // Popular
-                  const Text(
-                    'Popular',
-                    style: TextStyle(
+                  Text(
+                    l10n.popular,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -140,7 +143,7 @@ class ArtistScreen extends StatelessWidget {
                 },
                 child: _ArtistSongItem(
                   number: index + 1,
-                  title: 'Song ${index + 1}',
+                  title: '${l10n.song} ${index + 1}',
                   duration: '${3 + index}:${20 + index * 10}',
                 ),
               );

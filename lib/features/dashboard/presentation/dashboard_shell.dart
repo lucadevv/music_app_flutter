@@ -6,6 +6,7 @@ import 'package:music_app/core/managers/auth/auth_manager.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/player/presentation/widgets/mini_player.dart';
+import 'package:music_app/l10n/app_localizations.dart';
 import 'package:music_app/main.dart';
 
 @RoutePage()
@@ -41,10 +42,11 @@ class _DashboardShellState extends State<DashboardShell> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final navItems = [
-      {'icon': Icons.home, 'label': 'Home'},
-      {'icon': Icons.search, 'label': 'Search'},
-      {'icon': Icons.library_music, 'label': 'Library'},
+      {'icon': Icons.home, 'label': l10n.home},
+      {'icon': Icons.search, 'label': l10n.search},
+      {'icon': Icons.library_music, 'label': l10n.library},
     ];
     final visibleRoutes = [
       '/dashboard/home',

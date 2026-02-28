@@ -3,37 +3,33 @@ import 'package:flutter/material.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/managers/auth/auth_manager.dart';
 import 'package:music_app/core/services/auth/auth_service.dart';
+import 'package:music_app/l10n/app_localizations.dart';
 import 'package:music_app/main.dart';
 
 @RoutePage()
 class LogoutScreen extends StatelessWidget {
   const LogoutScreen({super.key});
 
-  Future<void> _handleLogout(BuildContext context) async {
+  Future<void> _handleLogout(BuildContext context, AppLocalizations l10n) async {
     try {
-      // Limpiar datos de AuthService (LocalStorageService)
       final authService = getIt<AuthService>();
       await authService.clearAuthData();
 
-      // Limpiar datos de TokenManager (FlutterSecureStorage + SharedPreferences)
       final authManager = await getIt.getAsync<AuthManager>();
       await authManager.logout();
 
-      // Verificar que se eliminaron correctamente
       final refreshToken = await authManager.getCurrentRefreshToken();
       final accessToken = await authManager.getCurrentAccessToken();
 
       if (refreshToken == null && accessToken == null) {
-        // Navegar a onboarding solo si los tokens fueron eliminados correctamente
         if (context.mounted) {
           context.router.replaceAll([const OnboardingRoute()]);
         }
       } else {
-        // Si aún hay tokens, mostrar error
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Error al cerrar sesión. Intenta nuevamente.'),
+            SnackBar(
+              content: Text(l10n.errorClosingSession),
               backgroundColor: Colors.red,
             ),
           );
@@ -53,6 +49,8 @@ class LogoutScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Scaffold(
       backgroundColor: const Color(0xFF0D0D0D),
       body: SafeArea(
@@ -67,9 +65,9 @@ class LogoutScreen extends StatelessWidget {
                 color: Colors.red,
               ),
               const SizedBox(height: 24),
-              const Text(
-                'Logout',
-                style: TextStyle(
+              Text(
+                l10n.logout,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
@@ -77,7 +75,7 @@ class LogoutScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                'Are you sure you want to logout?',
+                l10n.areYouSureYouWantToLogout,
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.6),
                   fontSize: 16,
@@ -88,15 +86,15 @@ class LogoutScreen extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: FilledButton(
-                  onPressed: () => _handleLogout(context),
+                  onPressed: () => _handleLogout(context, l10n),
                   style: FilledButton.styleFrom(
                     backgroundColor: Colors.red,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                  child: const Text(
-                    'Logout',
-                    style: TextStyle(
+                  child: Text(
+                    l10n.logout,
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
@@ -113,9 +111,9 @@ class LogoutScreen extends StatelessWidget {
                     side: const BorderSide(color: Colors.white),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                  child: const Text(
-                    'Cancel',
-                    style: TextStyle(
+                  child: Text(
+                    l10n.cancel,
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),

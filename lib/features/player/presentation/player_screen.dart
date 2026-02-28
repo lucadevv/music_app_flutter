@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
+import 'package:music_app/l10n/app_localizations.dart';
 import 'package:music_app/main.dart';
 import 'package:music_app/features/player/presentation/widgets/player_backdrop_widget.dart';
 import 'package:music_app/features/player/presentation/widgets/player_header_widget.dart';
@@ -35,9 +36,14 @@ class _PlayerScreenState extends State<PlayerScreen> {
       final bloc = getIt<PlayerBlocBloc>();
       final state = bloc.state;
 
-      // Si la canción actual ya es la que se quiere reproducir, no hacer nada
+      // Si la canción actual ya es la que se quiere reproducir, 
+      // solo reanudar si está pausada
       if (state is PlayerBlocLoaded &&
           state.currentTrack?.videoId == widget.nowPlayingData.videoId) {
+        // Si está pausada, reproducir
+        if (state.isPaused || state.isStopped) {
+          bloc.add(const PlayEvent());
+        }
         return;
       }
 
@@ -215,21 +221,27 @@ class _PlayerScreenState extends State<PlayerScreen> {
                               const SizedBox(height: 32),
 
                               // Connect to device
-                              TextButton.icon(
-                                onPressed: () {},
-                                icon: const Icon(
-                                  Icons.devices,
-                                  color: Colors.white,
-                                ),
-                                label: const Text(
-                                  'Connect to a device',
-                                  style: TextStyle(color: Colors.white),
-                                ),
+                              Builder(
+                                builder: (context) {
+                                  return TextButton.icon(
+                                    onPressed: () {},
+                                    icon: const Icon(
+                                      Icons.devices,
+                                      color: Colors.white,
+                                    ),
+                                    label: Text(
+                                      AppLocalizations.of(context)!.connectToDevice,
+                                      style: const TextStyle(color: Colors.white),
+                                    ),
+                                  );
+                                },
                               ),
                               const SizedBox(height: 32),
 
-                              // Songs similar to this
-                              const PlayerSimilarSongsWidget(),
+                              // Songs similar to this (Radio)
+                              PlayerSimilarSongsWidget(
+                                videoId: currentTrack.videoId,
+                              ),
                             ],
                           ),
                         ),

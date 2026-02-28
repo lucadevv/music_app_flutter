@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
+import 'package:music_app/l10n/app_localizations.dart';
 
 @RoutePage()
 class DownloadsScreen extends StatelessWidget {
@@ -8,14 +9,16 @@ class DownloadsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Scaffold(
       backgroundColor: const Color(0xFF0D0D0D),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
-          'Downloads',
-          style: TextStyle(
+        title: Text(
+          l10n.downloads,
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -28,9 +31,9 @@ class DownloadsScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () {},
-            child: const Text(
-              'Clear',
-              style: TextStyle(color: Colors.white),
+            child: Text(
+              l10n.clear,
+              style: const TextStyle(color: Colors.white),
             ),
           ),
         ],
@@ -40,8 +43,8 @@ class DownloadsScreen extends StatelessWidget {
         itemCount: 15,
         itemBuilder: (context, index) {
           return _DownloadItem(
-            title: 'Downloaded Song ${index + 1}',
-            artist: 'Artist ${index + 1}',
+            title: '${l10n.downloaded} ${index + 1}',
+            artist: '${l10n.artistName} ${index + 1}',
             isDownloaded: true,
           );
         },

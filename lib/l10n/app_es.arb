@@ -151,5 +151,36 @@
   "monthsSep": "Sep",
   "monthsOct": "Oct",
   "monthsNov": "Nov",
-  "monthsDec": "Dic"
+  "monthsDec": "Dic",
+
+  "hi": "Hola",
+  "goodMorning": "Buenos días",
+  "goodAfternoon": "Buenas tardes",
+  "goodEvening": "Buenas noches",
+
+  "artistName": "Nombre del artista",
+  "song": "Canción",
+  "monthlyListeners": "oyentes mensuales",
+  "popular": "Popular",
+  "relax": "Relax",
+  "workout": "Entrenamiento",
+  "travel": "Viaje",
+  "focus": "Concentración",
+  "energize": "Energía",
+
+  "profileAndSettings": "Perfil y Configuración",
+  "areYouSureYouWantToLogout": "¿Estás seguro de que quieres cerrar sesión?",
+  "clear": "Limpiar",
+  "queue": "Cola",
+  "nowPlaying": "Reproduciendo ahora",
+  "upNext": "Siguiente",
+  "autoRecommendations": "Recomendaciones automáticas",
+  "forYou": "Para ti",
+  "mix": "Mix",
+  "albumName": "Nombre del álbum",
+  "songsCount": "canciones",
+  "google": "Google",
+  "apple": "Apple",
+  "songsSimilarToThis": "Canciones similares a esta",
+  "radio": "Radio"
 }

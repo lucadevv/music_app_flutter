@@ -424,4 +424,86 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get monthsDec => 'Dic';
+
+  @override
+  String get hi => 'Hola';
+
+  @override
+  String get goodMorning => 'Buenos días';
+
+  @override
+  String get goodAfternoon => 'Buenas tardes';
+
+  @override
+  String get goodEvening => 'Buenas noches';
+
+  @override
+  String get artistName => 'Nombre del artista';
+
+  @override
+  String get monthlyListeners => 'oyentes mensuales';
+
+  @override
+  String get popular => 'Popular';
+
+  @override
+  String get relax => 'Relax';
+
+  @override
+  String get workout => 'Entrenamiento';
+
+  @override
+  String get travel => 'Viaje';
+
+  @override
+  String get focus => 'Concentración';
+
+  @override
+  String get energize => 'Energía';
+
+  @override
+  String get profileAndSettings => 'Perfil y Configuración';
+
+  @override
+  String get areYouSureYouWantToLogout =>
+      '¿Estás seguro de que quieres cerrar sesión?';
+
+  @override
+  String get clear => 'Limpiar';
+
+  @override
+  String get queue => 'Cola';
+
+  @override
+  String get nowPlaying => 'Reproduciendo ahora';
+
+  @override
+  String get upNext => 'Siguiente';
+
+  @override
+  String get autoRecommendations => 'Recomendaciones automáticas';
+
+  @override
+  String get forYou => 'Para ti';
+
+  @override
+  String get mix => 'Mix';
+
+  @override
+  String get albumName => 'Nombre del álbum';
+
+  @override
+  String get songsCount => 'canciones';
+
+  @override
+  String get google => 'Google';
+
+  @override
+  String get apple => 'Apple';
+
+  @override
+  String get songsSimilarToThis => 'Canciones similares a esta';
+
+  @override
+  String get radio => 'Radio';
 }

@@ -420,4 +420,85 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get monthsDec => 'Dec';
+
+  @override
+  String get hi => 'Hi';
+
+  @override
+  String get goodMorning => 'Good Morning';
+
+  @override
+  String get goodAfternoon => 'Good Afternoon';
+
+  @override
+  String get goodEvening => 'Good Evening';
+
+  @override
+  String get artistName => 'Artist Name';
+
+  @override
+  String get monthlyListeners => 'monthly listeners';
+
+  @override
+  String get popular => 'Popular';
+
+  @override
+  String get relax => 'Relax';
+
+  @override
+  String get workout => 'Workout';
+
+  @override
+  String get travel => 'Travel';
+
+  @override
+  String get focus => 'Focus';
+
+  @override
+  String get energize => 'Energize';
+
+  @override
+  String get profileAndSettings => 'Profile & Settings';
+
+  @override
+  String get areYouSureYouWantToLogout => 'Are you sure you want to logout?';
+
+  @override
+  String get clear => 'Clear';
+
+  @override
+  String get queue => 'Queue';
+
+  @override
+  String get nowPlaying => 'Now Playing';
+
+  @override
+  String get upNext => 'Up Next';
+
+  @override
+  String get autoRecommendations => 'Auto-Recommendations';
+
+  @override
+  String get forYou => 'For you';
+
+  @override
+  String get mix => 'Mix';
+
+  @override
+  String get albumName => 'Album Name';
+
+  @override
+  String get songsCount => 'songs';
+
+  @override
+  String get google => 'Google';
+
+  @override
+  String get apple => 'Apple';
+
+  @override
+  String get songsSimilarToThis => 'Songs similar to this';
+
+  @override
+  String get radio => 'Radio';
 }

@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/profile/profile_cubit.dart';
+import 'package:music_app/l10n/app_localizations.dart';
 import 'package:music_app/main.dart';
 
 @RoutePage()
@@ -25,14 +26,16 @@ class _ProfileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Scaffold(
       backgroundColor: const Color(0xFF0D0D0D),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
-          'Profile & Settings',
-          style: TextStyle(
+        title: Text(
+          l10n.profileAndSettings,
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -96,11 +99,11 @@ class _ProfileView extends StatelessWidget {
 
               // Settings section
               _SettingsSection(
-                title: 'Settings',
+                title: l10n.settings,
                 items: [
                   _SettingsItem(
                     icon: Icons.settings,
-                    title: 'Settings',
+                    title: l10n.settings,
                     onTap: () {
                       context.router.push(const SettingsRoute());
                     },

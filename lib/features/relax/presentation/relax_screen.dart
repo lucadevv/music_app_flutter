@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
+import 'package:music_app/l10n/app_localizations.dart';
 
 @RoutePage()
 class RelaxScreen extends StatelessWidget {
@@ -8,6 +9,8 @@ class RelaxScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Scaffold(
       backgroundColor: const Color(0xFF0D0D0D),
       body: SafeArea(
@@ -21,16 +24,16 @@ class RelaxScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '👋 Hi',
+                      '👋 ${l10n.hi}',
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.75),
                         fontSize: 16,
                       ),
                     ),
                     const SizedBox(height: 4),
-                    const Text(
-                      'Good Evening',
-                      style: TextStyle(
+                    Text(
+                      l10n.goodEvening,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
@@ -50,16 +53,16 @@ class RelaxScreen extends StatelessWidget {
                   child: ListView(
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(horizontal: 24),
-                    children: const [
-                      _CategoryChip(label: 'Relax', isSelected: true),
-                      SizedBox(width: 12),
-                      _CategoryChip(label: 'Workout'),
-                      SizedBox(width: 12),
-                      _CategoryChip(label: 'Travel'),
-                      SizedBox(width: 12),
-                      _CategoryChip(label: 'Focus'),
-                      SizedBox(width: 12),
-                      _CategoryChip(label: 'Energize'),
+                    children: [
+                      _CategoryChip(label: l10n.relax, isSelected: true),
+                      const SizedBox(width: 12),
+                      _CategoryChip(label: l10n.workout),
+                      const SizedBox(width: 12),
+                      _CategoryChip(label: l10n.travel),
+                      const SizedBox(width: 12),
+                      _CategoryChip(label: l10n.focus),
+                      const SizedBox(width: 12),
+                      _CategoryChip(label: l10n.energize),
                     ],
                   ),
                 ),
@@ -70,9 +73,9 @@ class RelaxScreen extends StatelessWidget {
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(24, 32, 24, 16),
-                child: const Text(
-                  'For you',
-                  style: TextStyle(
+                child: Text(
+                  l10n.forYou,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -91,7 +94,7 @@ class RelaxScreen extends StatelessWidget {
                   itemBuilder: (context, index) {
                     return _MusicCard(
                       title: 'Calvin Harris, Martin Garrix, Dewain Whi...',
-                      subtitle: 'Mix ${index + 1}',
+                      subtitle: '${l10n.mix} ${index + 1}',
                       width: 280,
                     );
                   },

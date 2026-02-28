@@ -33,16 +33,30 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
   }
 
   void _initializePlayer() {
+    debugPrint('PlayerBloc: Initializing AudioPlayer streams...');
+    
     _playerStateSubscription = _audioPlayer.playerStateStream.listen(
-      (playerState) => add(AudioPlayerStateChangedEvent(playerState)),
+      (playerState) {
+        debugPrint('PlayerBloc: playerStateStream emit - playing: ${playerState.playing}, processing: ${playerState.processingState}');
+        add(AudioPlayerStateChangedEvent(playerState));
+      },
+      onError: (e) => debugPrint('PlayerBloc: playerStateStream error: $e'),
     );
 
     _positionSubscription = _audioPlayer.positionStream.listen(
-      (position) => add(PositionChangedEvent(position)),
+      (position) {
+        debugPrint('PlayerBloc: positionStream emit - position: $position');
+        add(PositionChangedEvent(position));
+      },
+      onError: (e) => debugPrint('PlayerBloc: positionStream error: $e'),
     );
 
     _durationSubscription = _audioPlayer.durationStream.listen(
-      (duration) => add(DurationChangedEvent(duration ?? Duration.zero)),
+      (duration) {
+        debugPrint('PlayerBloc: durationStream emit - duration: $duration');
+        add(DurationChangedEvent(duration ?? Duration.zero));
+      },
+      onError: (e) => debugPrint('PlayerBloc: durationStream error: $e'),
     );
 
     _bufferedPositionSubscription = _audioPlayer.bufferedPositionStream.listen(
@@ -52,6 +66,8 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     _currentIndexSubscription = _audioPlayer.currentIndexStream.listen(
       (index) => add(CurrentIndexChangedEvent(index)),
     );
+    
+    debugPrint('PlayerBloc: AudioPlayer streams initialized');
   }
 
   void _registerEventHandlers() {
@@ -87,10 +103,14 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
   }
 
   Future<void> _onPlay(PlayEvent event, Emitter<PlayerBlocState> emit) async {
+    debugPrint('PlayerBloc: _onPlay called');
     try {
+      debugPrint('PlayerBloc: Calling _audioPlayer.play()...');
       await _audioPlayer.play();
+      debugPrint('PlayerBloc: _audioPlayer.play() completed');
       _audioHandler?.play();
     } catch (e) {
+      debugPrint('PlayerBloc: Error al reproducir: $e');
       add(AudioErrorEvent('Error al reproducir: $e'));
     }
   }
@@ -183,6 +203,8 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     Emitter<PlayerBlocState> emit,
   ) async {
     try {
+      debugPrint('PlayerBloc: Loading track ${event.track.title} (${event.track.videoId})');
+
       emit(
         PlayerBlocLoaded(
           isLoading: true,
@@ -192,8 +214,11 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
       );
 
       // Siempre obtener una URL fresca del backend para evitar 403
+      debugPrint('PlayerBloc: Fetching fresh stream URL...');
       final freshStreamUrl = await _fetchFreshStreamUrl(event.track.videoId);
       final streamUrl = freshStreamUrl ?? event.track.streamUrl;
+
+      debugPrint('PlayerBloc: Stream URL obtained: ${streamUrl?.substring(0, (streamUrl?.length ?? 0).clamp(0, 50))}...');
 
       if (streamUrl == null || streamUrl.isEmpty) {
         emit(
@@ -208,6 +233,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
 
       await _loadTrackWithUrl(streamUrl, event.track, emit);
     } catch (e) {
+      debugPrint('PlayerBloc: Error loading track: $e');
       emit(
         PlayerBlocLoaded(
           isLoading: false,
@@ -226,11 +252,12 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     try {
       await _audioPlayer.setUrl(streamUrl);
 
+      // Esperar a que el audio esté listo (processingState ready)
       try {
         await _audioPlayer.processingStateStream
             .firstWhere((state) => state == ProcessingState.ready)
             .timeout(
-              const Duration(seconds: 5),
+              const Duration(seconds: 10),
               onTimeout: () {
                 debugPrint(
                   '_loadTrackWithUrl: Timeout esperando audio ready, continuando...',
@@ -242,6 +269,32 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
         debugPrint('_loadTrackWithUrl: Error esperando processingState: $e');
       }
 
+      // IMPORTANTE: Esperar a que la duración esté disponible
+      // El durationStream puede tardar en emitirse mientras se descargan los headers
+      Duration actualDuration = _audioPlayer.duration ?? Duration.zero;
+      if (actualDuration == Duration.zero) {
+        debugPrint('_loadTrackWithUrl: Duración no disponible inicialmente, esperando...');
+        try {
+          final durationValue = await _audioPlayer.durationStream
+              .firstWhere((d) => d != null && d.inSeconds > 0)
+              .timeout(
+                const Duration(seconds: 10),
+                onTimeout: () {
+                  debugPrint('_loadTrackWithUrl: Timeout esperando duration, usando valor por defecto');
+                  // Usar la duración de los metadatos de la canción como fallback
+                  return Duration(seconds: track.durationSeconds ?? 180);
+                },
+              );
+          actualDuration = durationValue ?? Duration(seconds: track.durationSeconds ?? 180);
+        } catch (e) {
+          debugPrint('_loadTrackWithUrl: Error esperando duration: $e');
+          // Usar la duración de los metadatos como fallback
+          actualDuration = Duration(seconds: track.durationSeconds ?? 180);
+        }
+      }
+
+      debugPrint('_loadTrackWithUrl: Duración obtenida: $actualDuration');
+
       emit(
         PlayerBlocLoaded(
           playlist: [track],
@@ -250,10 +303,14 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
           currentIndex: 0,
           currentTrack: track,
           currentStreamUrl: streamUrl,
+          duration: actualDuration,
+          position: Duration.zero,
         ),
       );
 
+      debugPrint('_loadTrackWithUrl: Calling _audioPlayer.play()...');
       await _audioPlayer.play();
+      debugPrint('_loadTrackWithUrl: _audioPlayer.play() completed');
     } catch (e) {
       debugPrint('_loadTrackWithUrl: Error cargando audio: $e');
 
@@ -266,6 +323,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
           currentIndex: 0,
           currentTrack: track,
           currentStreamUrl: streamUrl,
+          duration: Duration(seconds: track.durationSeconds ?? 180),
         ),
       );
       rethrow;
@@ -290,26 +348,33 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
         return null;
       }
       
-      // Obtener la URL del proxy desde el backend
-      // El endpoint /music/stream devuelve JSON con proxyUrl
+      // Obtener la URL directa del stream desde el backend
+      // El endpoint /music/stream devuelve JSON con streamUrl (URL directa de YouTube)
+      // y proxyUrl (proxy de NestJS - causa problemas con duration/position)
       final response = await _apiServices.get('/music/stream/$videoId');
       final data = response is Response ? response.data : response;
       if (data is Map<String, dynamic>) {
-        // Obtener proxyUrl base y añadir el token como query parameter
+        // PRIORIZAR URL directa de YouTube (streamUrl) sobre el proxy
+        // El proxy causa problemas de buffering y duration/position
+        final directUrl = data['streamUrl'] as String?;
+        if (directUrl != null && directUrl.isNotEmpty) {
+          debugPrint('PlayerBloc: Using direct stream URL for $videoId');
+          return directUrl;
+        }
+        
+        // Fallback al proxy solo si no hay URL directa
         String? proxyUrl = data['proxyUrl'] as String?;
         if (proxyUrl != null && proxyUrl.isNotEmpty) {
           // Añadir token como query parameter para autenticación
           final separator = proxyUrl.contains('?') ? '&' : '?';
           proxyUrl = '$proxyUrl${separator}token=$accessToken';
-          debugPrint('PlayerBloc: Using proxy URL with token for $videoId');
+          debugPrint('PlayerBloc: Using proxy URL as fallback for $videoId');
           return proxyUrl;
         }
-        // Fallback a streamUrl si no hay proxyUrl
-        return data['streamUrl'] as String?;
       }
     } catch (e) {
       debugPrint(
-        'PlayerBloc: Error getting proxy stream URL for $videoId: $e',
+        'PlayerBloc: Error getting stream URL for $videoId: $e',
       );
     }
     return null;
@@ -373,6 +438,29 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
         initialIndex: safeStartIndex,
       );
 
+      // Esperar a que la duración esté disponible para la canción actual
+      Duration actualDuration = _audioPlayer.duration ?? Duration.zero;
+      if (actualDuration == Duration.zero) {
+        final firstTrack = event.playlist[safeStartIndex];
+        try {
+          final durationValue = await _audioPlayer.durationStream
+              .firstWhere((d) => d != null && d.inSeconds > 0)
+              .timeout(
+                const Duration(seconds: 10),
+                onTimeout: () {
+                  debugPrint('_onLoadPlaylist: Timeout esperando duration');
+                  return Duration(seconds: firstTrack.durationSeconds ?? 180);
+                },
+              );
+          actualDuration = durationValue ?? Duration(seconds: firstTrack.durationSeconds ?? 180);
+        } catch (e) {
+          debugPrint('_onLoadPlaylist: Error esperando duration: $e');
+          actualDuration = Duration(seconds: firstTrack.durationSeconds ?? 180);
+        }
+      }
+
+      debugPrint('_onLoadPlaylist: Duración inicial: $actualDuration');
+
       emit(
         PlayerBlocLoaded(
           playlist: event.playlist,
@@ -384,6 +472,8 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
           currentTrack: safeStartIndex < event.playlist.length
               ? event.playlist[safeStartIndex]
               : null,
+          duration: actualDuration,
+          position: Duration.zero,
         ),
       );
 
@@ -586,13 +676,19 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     AudioPlayerStateChangedEvent event,
     Emitter<PlayerBlocState> emit,
   ) async {
-    if (state is! PlayerBlocLoaded) return;
+    debugPrint('PlayerBloc: _onAudioPlayerStateChanged - playing: ${event.playerState.playing}, processing: ${event.playerState.processingState}');
+    if (state is! PlayerBlocLoaded) {
+      debugPrint('PlayerBloc: _onAudioPlayerStateChanged - state is not PlayerBlocLoaded, returning');
+      return;
+    }
 
     final currentState = state as PlayerBlocLoaded;
     final playbackState = event.playerState.playing
         ? PlaybackState.playing
         : PlaybackState.paused;
 
+    debugPrint('PlayerBloc: _onAudioPlayerStateChanged - emitting new state with playbackState: $playbackState');
+    
     emit(
       currentState.copyWith(
         playbackState: playbackState,
@@ -605,6 +701,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     PositionChangedEvent event,
     Emitter<PlayerBlocState> emit,
   ) async {
+    debugPrint('PlayerBloc: Position changed to ${event.position}');
     if (state is PlayerBlocLoaded) {
       emit((state as PlayerBlocLoaded).copyWith(position: event.position));
     }
@@ -614,6 +711,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     DurationChangedEvent event,
     Emitter<PlayerBlocState> emit,
   ) async {
+    debugPrint('PlayerBloc: Duration changed to ${event.duration}');
     if (state is PlayerBlocLoaded) {
       emit((state as PlayerBlocLoaded).copyWith(duration: event.duration));
     }

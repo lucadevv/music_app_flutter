@@ -901,6 +901,168 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Dec'**
   String get monthsDec;
+
+  /// No description provided for @hi.
+  ///
+  /// In en, this message translates to:
+  /// **'Hi'**
+  String get hi;
+
+  /// No description provided for @goodMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'Good Morning'**
+  String get goodMorning;
+
+  /// No description provided for @goodAfternoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Good Afternoon'**
+  String get goodAfternoon;
+
+  /// No description provided for @goodEvening.
+  ///
+  /// In en, this message translates to:
+  /// **'Good Evening'**
+  String get goodEvening;
+
+  /// No description provided for @artistName.
+  ///
+  /// In en, this message translates to:
+  /// **'Artist Name'**
+  String get artistName;
+
+  /// No description provided for @monthlyListeners.
+  ///
+  /// In en, this message translates to:
+  /// **'monthly listeners'**
+  String get monthlyListeners;
+
+  /// No description provided for @popular.
+  ///
+  /// In en, this message translates to:
+  /// **'Popular'**
+  String get popular;
+
+  /// No description provided for @relax.
+  ///
+  /// In en, this message translates to:
+  /// **'Relax'**
+  String get relax;
+
+  /// No description provided for @workout.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout'**
+  String get workout;
+
+  /// No description provided for @travel.
+  ///
+  /// In en, this message translates to:
+  /// **'Travel'**
+  String get travel;
+
+  /// No description provided for @focus.
+  ///
+  /// In en, this message translates to:
+  /// **'Focus'**
+  String get focus;
+
+  /// No description provided for @energize.
+  ///
+  /// In en, this message translates to:
+  /// **'Energize'**
+  String get energize;
+
+  /// No description provided for @profileAndSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile & Settings'**
+  String get profileAndSettings;
+
+  /// No description provided for @areYouSureYouWantToLogout.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to logout?'**
+  String get areYouSureYouWantToLogout;
+
+  /// No description provided for @clear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get clear;
+
+  /// No description provided for @queue.
+  ///
+  /// In en, this message translates to:
+  /// **'Queue'**
+  String get queue;
+
+  /// No description provided for @nowPlaying.
+  ///
+  /// In en, this message translates to:
+  /// **'Now Playing'**
+  String get nowPlaying;
+
+  /// No description provided for @upNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Up Next'**
+  String get upNext;
+
+  /// No description provided for @autoRecommendations.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-Recommendations'**
+  String get autoRecommendations;
+
+  /// No description provided for @forYou.
+  ///
+  /// In en, this message translates to:
+  /// **'For you'**
+  String get forYou;
+
+  /// No description provided for @mix.
+  ///
+  /// In en, this message translates to:
+  /// **'Mix'**
+  String get mix;
+
+  /// No description provided for @albumName.
+  ///
+  /// In en, this message translates to:
+  /// **'Album Name'**
+  String get albumName;
+
+  /// No description provided for @songsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'songs'**
+  String get songsCount;
+
+  /// No description provided for @google.
+  ///
+  /// In en, this message translates to:
+  /// **'Google'**
+  String get google;
+
+  /// No description provided for @apple.
+  ///
+  /// In en, this message translates to:
+  /// **'Apple'**
+  String get apple;
+
+  /// No description provided for @songsSimilarToThis.
+  ///
+  /// In en, this message translates to:
+  /// **'Songs similar to this'**
+  String get songsSimilarToThis;
+
+  /// No description provided for @radio.
+  ///
+  /// In en, this message translates to:
+  /// **'Radio'**
+  String get radio;
 }
 
 class _AppLocalizationsDelegate
