@@ -284,6 +284,18 @@ abstract class AppLocalizations {
   /// **'Recently Played'**
   String get recentlyPlayed;
 
+  /// No description provided for @noRecentlyPlayed.
+  ///
+  /// In en, this message translates to:
+  /// **'No recently played'**
+  String get noRecentlyPlayed;
+
+  /// No description provided for @songsYouListenToWillAppearHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Songs you listen to will appear here'**
+  String get songsYouListenToWillAppearHere;
+
   /// No description provided for @downloads.
   ///
   /// In en, this message translates to:
@@ -421,6 +433,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add to Playlist'**
   String get addToPlaylist;
+
+  /// No description provided for @createPlaylist.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Playlist'**
+  String get createPlaylist;
+
+  /// No description provided for @playlistName.
+  ///
+  /// In en, this message translates to:
+  /// **'Playlist name'**
+  String get playlistName;
+
+  /// No description provided for @myPlaylists.
+  ///
+  /// In en, this message translates to:
+  /// **'My Playlists'**
+  String get myPlaylists;
+
+  /// No description provided for @noPlaylistsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No playlists yet'**
+  String get noPlaylistsYet;
+
+  /// No description provided for @createPlaylistToOrganize.
+  ///
+  /// In en, this message translates to:
+  /// **'Create playlists to organize your music'**
+  String get createPlaylistToOrganize;
 
   /// No description provided for @share.
   ///
@@ -577,6 +619,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cancel'**
   String get cancel;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// No description provided for @edit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get edit;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
 
   /// No description provided for @errorUnknown.
   ///

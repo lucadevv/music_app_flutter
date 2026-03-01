@@ -43,6 +43,7 @@ import 'package:music_app/features/search/presentation/cubit/recent_searches_cub
 import 'package:music_app/features/search/presentation/cubit/categories_cubit.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/home/data/data_sources/home_remote_data_source.dart';
+import 'package:music_app/core/services/audio_handler_service.dart';
 import 'package:music_app/features/home/data/repositories/home_repository_impl.dart';
 import 'package:music_app/features/home/domain/repositories/home_repository.dart';
 import 'package:music_app/features/home/domain/use_cases/get_home_use_case.dart';
@@ -318,6 +319,9 @@ class AppInjection {
   }
 
   void _registerPlayerFeature() {
+    // AudioPlayerHandler debe estar registrado ANTES de PlayerBlocBloc
+    // Se registra en main.dart después de AudioService.init()
+    
     // Bloc (singleton porque debe ser compartido en toda la app)
     // Nota: OfflineService se obtiene de forma lazy dentro del BLoC
     if (!_getIt.isRegistered<PlayerBlocBloc>()) {
@@ -471,9 +475,9 @@ class AppInjection {
       );
     }
 
-    // DownloadsCubit - factory async para compartir estado entre pantallas
+    // DownloadsCubit - lazy singleton para compartir estado entre pantallas
     if (!_getIt.isRegistered<DownloadsCubit>()) {
-      _getIt.registerFactoryAsync<DownloadsCubit>(
+      _getIt.registerLazySingletonAsync<DownloadsCubit>(
         () async => DownloadsCubit(
           await _getIt.getAsync<DownloadSongUseCase>(),
           await _getIt.getAsync<GetDownloadedSongsUseCase>(),
@@ -511,9 +515,10 @@ class AppInjection {
       );
     }
     
+    // Singleton para compartir estado entre pantallas
     if (!_getIt.isRegistered<ProfileCubit>()) {
-      _getIt.registerFactory<ProfileCubit>(
-        () => ProfileCubit(_getIt<ProfileService>()),
+      _getIt.registerSingleton<ProfileCubit>(
+        ProfileCubit(_getIt<ProfileService>()),
       );
     }
   }

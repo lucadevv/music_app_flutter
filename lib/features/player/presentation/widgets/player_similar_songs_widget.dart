@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:music_app/core/services/network/api_services.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
+import 'package:music_app/core/widgets/song_list_item.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/favorites/presentation/cubit/favorite_cubit.dart';
 import 'package:music_app/features/favorites/presentation/widgets/favorite_button.dart';
@@ -254,51 +255,10 @@ class _SimilarSongItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      leading: Container(
-        width: 56,
-        height: 56,
-        decoration: BoxDecoration(
-          color: AppColorsDark.primaryContainer,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: thumbnail != null
-            ? ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.network(
-                  thumbnail!,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => const Icon(
-                    Icons.music_note,
-                    color: AppColorsDark.primary,
-                  ),
-                ),
-              )
-            : const Icon(
-                Icons.music_note,
-                color: AppColorsDark.primary,
-              ),
-      ),
-      title: Text(
-        isLoading ? 'Loading...' : title,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
-        ),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-      subtitle: Text(
-        isLoading ? '' : artist,
-        style: TextStyle(
-          color: Colors.white.withValues(alpha: 0.6),
-          fontSize: 14,
-        ),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
+    return SongListItem(
+      title: isLoading ? 'Loading...' : title,
+      artist: isLoading ? '' : artist,
+      thumbnail: thumbnail,
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

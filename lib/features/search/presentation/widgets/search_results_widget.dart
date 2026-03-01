@@ -3,9 +3,12 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
+import 'package:music_app/core/utils/bottom_sheet_visibility.dart';
+import 'package:music_app/features/downloads/presentation/widgets/download_option_tile.dart';
 import 'package:music_app/features/favorites/presentation/widgets/favorite_button.dart';
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
+import 'package:music_app/features/song_options/presentation/widgets/song_options_bottom_sheet.dart';
 import '../../domain/entities/song.dart';
 
 class SearchResultsWidget extends StatelessWidget {
@@ -154,7 +157,20 @@ class _SongItem extends StatelessWidget {
                     Icons.more_vert,
                     color: Colors.white.withValues(alpha: 0.5),
                   ),
-                  onPressed: () {},
+                  onPressed: () {
+                    SongOptionsBottomSheet.show(
+                      context: context,
+                      song: SongOptionsData(
+                        videoId: song.videoId,
+                        title: song.title,
+                        artist: artistsNames,
+                        thumbnail: thumbnail?.url,
+                        streamUrl: song.streamUrl,
+                        durationSeconds: song.durationSeconds,
+                        isFavorite: song.inLibrary,
+                      ),
+                    );
+                  },
                 ),
               ],
             ),

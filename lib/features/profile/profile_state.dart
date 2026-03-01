@@ -12,6 +12,11 @@ class ProfileState {
   final String role;
   final bool isEmailVerified;
   final DateTime? createdAt;
+  
+  // Settings
+  final UserSettings? settings;
+  final bool isSettingsLoading;
+  final String? settingsError;
 
   const ProfileState({
     this.isLoading = false,
@@ -25,6 +30,9 @@ class ProfileState {
     this.role = 'user',
     this.isEmailVerified = false,
     this.createdAt,
+    this.settings,
+    this.isSettingsLoading = false,
+    this.settingsError,
   });
 
   String get displayName {
@@ -67,7 +75,11 @@ class ProfileState {
     String? role,
     bool? isEmailVerified,
     DateTime? createdAt,
+    UserSettings? settings,
+    bool? isSettingsLoading,
+    String? settingsError,
     bool clearError = false,
+    bool clearSettingsError = false,
   }) {
     return ProfileState(
       isLoading: isLoading ?? this.isLoading,
@@ -81,6 +93,9 @@ class ProfileState {
       role: role ?? this.role,
       isEmailVerified: isEmailVerified ?? this.isEmailVerified,
       createdAt: createdAt ?? this.createdAt,
+      settings: settings ?? this.settings,
+      isSettingsLoading: isSettingsLoading ?? this.isSettingsLoading,
+      settingsError: clearSettingsError ? null : (settingsError ?? this.settingsError),
     );
   }
 }

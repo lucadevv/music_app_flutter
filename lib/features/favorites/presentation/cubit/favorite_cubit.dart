@@ -108,6 +108,7 @@ class FavoriteCubit extends Cubit<FavoriteState> with BaseBlocMixin {
               name: playlistMetadata?.name,
               thumbnail: playlistMetadata?.thumbnail,
               description: playlistMetadata?.description,
+              trackCount: playlistMetadata?.trackCount,
             );
             // Sincronizar offline: agregar al caché (fire and forget)
             _syncPlaylistToOfflineCache(

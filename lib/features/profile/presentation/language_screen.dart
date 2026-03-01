@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/bloc/locale_cubit.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
+import 'package:music_app/features/profile/profile_cubit.dart';
 import 'package:music_app/l10n/app_localizations.dart';
 import 'package:music_app/main.dart';
 
@@ -14,6 +15,7 @@ class LanguageScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final localeCubit = getIt<LocaleCubit>();
+    final profileCubit = getIt<ProfileCubit>();
     
     return Scaffold(
       backgroundColor: const Color(0xFF0D0D0D),
@@ -49,6 +51,8 @@ class LanguageScreen extends StatelessWidget {
                 onChanged: (value) {
                   if (value != null) {
                     localeCubit.setLocaleByCode(value);
+                    // Also update in backend
+                    profileCubit.updateLanguage(value);
                   }
                 },
                 title: Text(

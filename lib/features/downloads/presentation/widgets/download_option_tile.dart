@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:music_app/core/services/network/api_services.dart';
@@ -42,7 +43,7 @@ class _DownloadOptionTileState extends State<DownloadOptionTile> {
   bool _isLoadingStreamUrl = false;
   String? _streamUrl;
   bool _isInitialized = false;
-  DownloadsState? _lastState;
+  StreamSubscription<DownloadsState>? _subscription;
 
   @override
   void initState() {
@@ -51,21 +52,23 @@ class _DownloadOptionTileState extends State<DownloadOptionTile> {
     _initCubit();
   }
 
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
+  }
+
   Future<void> _initCubit() async {
     try {
+      // Ahora es un lazy singleton, esperamos a que esté listo
       _cubit = await GetIt.I.getAsync<DownloadsCubit>();
       
-      // Listen to cubit changes to update state
-      _cubit!.stream.listen((state) {
+      // Subscribe to stream to keep UI updated
+      _subscription = _cubit!.stream.listen((state) {
         if (mounted) {
-          setState(() {
-            _lastState = state;
-          });
+          setState(() {}); // Rebuild on state changes
         }
       });
-      
-      // Get initial state
-      _lastState = _cubit!.state;
       
       if (mounted) {
         setState(() {
@@ -74,6 +77,11 @@ class _DownloadOptionTileState extends State<DownloadOptionTile> {
       }
     } catch (e) {
       debugPrint('Error initializing DownloadsCubit: $e');
+      // Retry after a short delay
+      await Future.delayed(const Duration(milliseconds: 500));
+      if (mounted) {
+        _initCubit();
+      }
     }
   }
 
@@ -113,8 +121,25 @@ class _DownloadOptionTileState extends State<DownloadOptionTile> {
     return null;
   }
 
+  /// Get current download status synchronously
+  bool _isDownloaded() {
+    if (_cubit == null) return false;
+    return _cubit!.state.downloadedSongs.any((s) => s.videoId == widget.videoId);
+  }
+
+  bool _isDownloading() {
+    if (_cubit == null) return false;
+    return _cubit!.state.downloadingIds.contains(widget.videoId);
+  }
+
+  double _getProgress() {
+    if (_cubit == null) return 0.0;
+    return _cubit!.state.downloadProgress[widget.videoId] ?? 0.0;
+  }
+
   @override
   Widget build(BuildContext context) {
+    // If not initialized, show loading
     if (!_isInitialized || _cubit == null) {
       return const ListTile(
         leading: SizedBox(
@@ -126,16 +151,48 @@ class _DownloadOptionTileState extends State<DownloadOptionTile> {
       );
     }
     
-    // Use _lastState which is updated via stream listener
-    final state = _lastState;
-    final isDownloaded = state?.downloadedSongs.any((s) => s.videoId == widget.videoId) ?? false;
-    final isDownloading = state?.downloadingIds.contains(widget.videoId) ?? false;
-    final progress = state?.downloadProgress[widget.videoId] ?? 0.0;
+    // Get current state directly from cubit (this is the latest state)
+    final state = _cubit!.state;
+    
+    // Debug: Print videoIds para comparar
+    debugPrint('DownloadOptionTile - widget.videoId: "${widget.videoId}"');
+    debugPrint('DownloadOptionTile - downloaded songs: ${state.downloadedSongs.map((s) => s.videoId).toList()}');
+    
+    // Verificar si hay coincidencia exacta (incluyendo espacios)
+    final isDownloaded = state.downloadedSongs.any((s) => 
+      s.videoId.trim() == widget.videoId.trim()
+    );
+    final isDownloading = state.downloadingIds.any((id) => 
+      id.trim() == widget.videoId.trim()
+    );
+    final progress = state.downloadProgress[widget.videoId] ?? 
+                    state.downloadProgress[widget.videoId.trim()] ?? 
+                    0.0;
+    
+    debugPrint('DownloadOptionTile - isDownloaded: $isDownloaded, isDownloading: $isDownloading');
 
-    return _buildTileContent(
-      isDownloaded: isDownloaded,
-      isDownloading: isDownloading,
-      progress: progress,
+    // Listen to stream for real-time updates while bottom sheet is open
+    return StreamBuilder<DownloadsState>(
+      stream: _cubit!.stream,
+      builder: (context, snapshot) {
+        // Use latest state from stream if available, otherwise use cached state
+        final latestState = snapshot.data ?? state;
+        final currentIsDownloaded = latestState.downloadedSongs.any((s) => 
+          s.videoId.trim() == widget.videoId.trim()
+        );
+        final currentIsDownloading = latestState.downloadingIds.any((id) => 
+          id.trim() == widget.videoId.trim()
+        );
+        final currentProgress = latestState.downloadProgress[widget.videoId] ?? 
+                              latestState.downloadProgress[widget.videoId.trim()] ?? 
+                              0.0;
+
+        return _buildTileContent(
+          isDownloaded: currentIsDownloaded,
+          isDownloading: currentIsDownloading,
+          progress: currentProgress,
+        );
+      },
     );
   }
 
@@ -163,7 +220,6 @@ class _DownloadOptionTileState extends State<DownloadOptionTile> {
           style: const TextStyle(color: Colors.white),
         ),
         onTap: () {
-          // Cancelar descarga
           _cubit?.removeDownload(widget.videoId);
         },
       );
@@ -172,7 +228,7 @@ class _DownloadOptionTileState extends State<DownloadOptionTile> {
     // Si está descargado, mostrar opción de eliminar o reproducir offline
     if (isDownloaded) {
       return ListTile(
-        leading: Icon(
+        leading: const Icon(
           Icons.download_done,
           color: Colors.purple, // Color morado para indicar que ya está descargado
         ),
@@ -259,7 +315,6 @@ class _DownloadOptionTileState extends State<DownloadOptionTile> {
               title: const Text('Reproducir offline', style: TextStyle(color: Colors.white)),
               onTap: () {
                 Navigator.pop(bottomSheetContext);
-                // TODO: Reproducir desde archivo local
               },
             ),
             ListTile(

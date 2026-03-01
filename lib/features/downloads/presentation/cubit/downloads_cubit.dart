@@ -27,13 +27,20 @@ class DownloadsCubit extends Cubit<DownloadsState> with BaseBlocMixin {
     this._getDownloadedSongsUseCase,
     this._removeDownloadUseCase,
     this._checkDownloadStatusUseCase,
-  ) : super(const DownloadsState());
+  ) : super(const DownloadsState()) {
+    // Cargar descargas automáticamente al iniciar
+    loadDownloads();
+  }
 
   /// Carga las canciones descargadas
   Future<void> loadDownloads() async {
+    if (isClosed) return;
+    
     emit(state.copyWith(status: DownloadsStatus.loading, clearError: true));
 
     final (error, songs) = await _getDownloadedSongsUseCase();
+
+    if (isClosed) return;
 
     if (error != null) {
       emit(state.copyWith(

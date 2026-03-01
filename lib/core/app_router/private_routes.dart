@@ -36,7 +36,12 @@ class PrivateRoutes {
               path: 'streaming-quality',
               page: StreamingQualityRoute.page,
             ),
+            AutoRoute(
+              path: 'equalizer',
+              page: EqualizerRoute.page,
+            ),
             AutoRoute(path: 'logout', page: LogoutRoute.page),
+            AutoRoute(path: 'downloads', page: DownloadsRoute.page),
           ],
         ),
         AutoRoute(
@@ -50,6 +55,7 @@ class PrivateRoutes {
             AutoRoute(path: 'album/:id', page: AlbumRoute.page),
             AutoRoute(path: 'playlist/:id', page: PlaylistRoute.page),
             AutoRoute(path: 'player', page: PlayerRoute.page),
+            AutoRoute(path: 'downloads', page: DownloadsRoute.page),
           ],
         ),
         AutoRoute(
@@ -61,6 +67,9 @@ class PrivateRoutes {
             AutoRoute(path: 'playlist/:id', page: PlaylistRoute.page),
             AutoRoute(path: 'album/:id', page: AlbumRoute.page),
             AutoRoute(path: 'liked', page: LikedSongsRoute.page),
+            AutoRoute(path: 'recently-played', page: RecentlyPlayedRoute.page),
+            AutoRoute(path: 'user-playlists', page: UserPlaylistsRoute.page),
+            AutoRoute(path: 'user-playlist/:id', page: UserPlaylistDetailRoute.page),
             AutoRoute(path: 'downloads', page: DownloadsRoute.page),
             AutoRoute(path: 'player', page: PlayerRoute.page),
             AutoRoute(path: 'profile', page: ProfileRoute.page),
@@ -70,6 +79,10 @@ class PrivateRoutes {
             AutoRoute(
               path: 'streaming-quality',
               page: StreamingQualityRoute.page,
+            ),
+            AutoRoute(
+              path: 'equalizer',
+              page: EqualizerRoute.page,
             ),
             AutoRoute(path: 'logout', page: LogoutRoute.page),
           ],

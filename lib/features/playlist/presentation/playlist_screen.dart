@@ -89,10 +89,10 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                     return const PlaylistLoadingWidget();
                   }
 
-                  // Obtener la mejor thumbnail para el backdrop
+                  // Obtener la mejor thumbnail para el backdrop (usar .last para mejor calidad)
                   Thumbnail? bestThumbnail;
                   if (playlist.thumbnails.isNotEmpty) {
-                    bestThumbnail = playlist.thumbnails.first;
+                    bestThumbnail = playlist.thumbnails.last;
                     for (final thumbnail in playlist.thumbnails) {
                       if (thumbnail.width > bestThumbnail!.width) {
                         bestThumbnail = thumbnail;
@@ -190,7 +190,6 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                               final track = playlist.tracks[index];
                               return PlaylistTrackItemWidget(
                                 track: track,
-                                index: index,
                                 allTracks: playlist.tracks,
                               );
                             }, childCount: playlist.tracks.length),

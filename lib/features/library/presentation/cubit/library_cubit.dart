@@ -31,8 +31,37 @@ class LibraryCubit extends Cubit<LibraryState> with BaseBlocMixin {
       // Modo online: comportamiento normal
       final songsResponse = await _libraryService.getFavoriteSongs(page: 1, limit: 10);
       final playlistsResponse = await _libraryService.getFavoritePlaylists(page: 1, limit: 10);
+      final userPlaylistsResponse = await _libraryService.getUserPlaylists(page: 1, limit: 20);
       final genresResponse = await _libraryService.getFavoriteGenres(page: 1, limit: 10);
       final summary = await _libraryService.getLibrarySummary();
+
+      // Combinar playlists del usuario + playlists favoritas de YouTube
+      final allPlaylists = <PlaylistItem>[];
+      
+      // Agregar playlists creadas por el usuario
+      for (final userPlaylist in userPlaylistsResponse.data) {
+        allPlaylists.add(PlaylistItem(
+          id: userPlaylist.id,
+          name: userPlaylist.name,
+          description: userPlaylist.description,
+          thumbnail: userPlaylist.thumbnail,
+          songCount: userPlaylist.songCount,
+          isUserCreated: true,
+        ));
+      }
+      
+      // Agregar playlists favoritas de YouTube
+      for (final favPlaylist in playlistsResponse.data) {
+        allPlaylists.add(PlaylistItem(
+          id: favPlaylist.playlistId,
+          externalPlaylistId: favPlaylist.externalPlaylistId,
+          name: favPlaylist.name,
+          description: favPlaylist.description,
+          thumbnail: favPlaylist.thumbnail,
+          songCount: favPlaylist.cachedTrackCount ?? favPlaylist.trackCount ?? 0,
+          isUserCreated: false,
+        ));
+      }
 
       if (isClosed) return;
 
@@ -40,9 +69,11 @@ class LibraryCubit extends Cubit<LibraryState> with BaseBlocMixin {
         status: LibraryStatus.success,
         favoriteSongs: songsResponse.data,
         favoritePlaylists: playlistsResponse.data,
+        userPlaylists: userPlaylistsResponse.data,
+        allPlaylists: allPlaylists,
         favoriteGenres: genresResponse.data,
         totalSongs: songsResponse.total,
-        totalPlaylists: playlistsResponse.total,
+        totalPlaylists: userPlaylistsResponse.total + playlistsResponse.total, // Todas las playlists
         totalGenres: genresResponse.total,
         summary: summary,
         clearError: true,

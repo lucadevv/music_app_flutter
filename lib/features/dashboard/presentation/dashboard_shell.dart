@@ -92,18 +92,24 @@ class _DashboardShellState extends State<DashboardShell> {
         return BlocBuilder<PlayerBlocBloc, PlayerBlocState>(
           bloc: getIt<PlayerBlocBloc>(),
           buildWhen: (previous, current) {
-            // Solo rebuild cuando cambia si hay una canción cargada
-            final prevHasTrack = previous is PlayerBlocLoaded && previous.currentTrack != null;
-            final currHasTrack = current is PlayerBlocLoaded && current.currentTrack != null;
-            return prevHasTrack != currHasTrack;
+            // Rebuild cuando cambia la canción actual O la presencia de canción
+            // IMPORTANTE: Necesitamos rebuild en cada cambio para que el MiniPlayer se actualice
+            if (previous is PlayerBlocLoaded && current is PlayerBlocLoaded) {
+              return previous.currentTrack?.videoId != current.currentTrack?.videoId ||
+                  previous.playbackState != current.playbackState ||
+                  previous.position != current.position ||
+                  previous.duration != current.duration;
+            }
+            // También rebuild cuando cambia el estado (ej: de Initial a Loaded)
+            return true;
           },
           builder: (context, playerState) {
             final hasTrack = playerState is PlayerBlocLoaded && playerState.currentTrack != null;
             final isBottomSheetOpen = BottomSheetVisibility().isBottomSheetOpen;
             
             // Posición del miniplayer:
-            // - Normal: 79 (navbar) + 32 (margen) + 8 (padding) = 119
-            // - Con bottom sheet abierto: subir para que no tape el bottom sheet
+            // - Normal: 119
+            // - Con bottom sheet abierto: 512 (para que no tape el bottom sheet)
             final miniPlayerBottom = isBottomSheetOpen ? 512 : 119;
             
             return Scaffold(
@@ -111,9 +117,11 @@ class _DashboardShellState extends State<DashboardShell> {
               body: Stack(
                 children: [
                   child,
-                  // Mini Player
+                  // Mini Player con animación suave
                   if (isVisible && hasTrack)
-                    Positioned(
+                    AnimatedPositioned(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
                       left: 0,
                       right: 0,
                       bottom: miniPlayerBottom.toDouble(),

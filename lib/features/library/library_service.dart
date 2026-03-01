@@ -26,17 +26,20 @@ class PlaylistMetadata {
   final String? name;
   final String? thumbnail;
   final String? description;
+  final int? trackCount;
 
   const PlaylistMetadata({
     this.name,
     this.thumbnail,
     this.description,
+    this.trackCount,
   });
 
   Map<String, dynamic> toJson() => {
     if (name != null) 'name': name,
     if (thumbnail != null) 'thumbnail': thumbnail,
     if (description != null) 'description': description,
+    if (trackCount != null) 'trackCount': trackCount,
   };
 }
 
@@ -140,6 +143,7 @@ class LibraryService {
     String? name,
     String? thumbnail,
     String? description,
+    int? trackCount,
   }) async {
     try {
       await _apiServices.post(
@@ -149,6 +153,7 @@ class LibraryService {
           if (name != null) 'name': name,
           if (thumbnail != null) 'thumbnail': thumbnail,
           if (description != null) 'description': description,
+          if (trackCount != null) 'trackCount': trackCount,
         },
       );
     } catch (e) {
@@ -200,6 +205,120 @@ class LibraryService {
       return data['isFavorite'] ?? false;
     } catch (e) {
       return false;
+    }
+  }
+
+  // ============ User Playlists (Playlists creadas por el usuario) ============
+
+  Future<UserPlaylist> createUserPlaylist({
+    required String name,
+    String? description,
+    String? thumbnail,
+    bool isPublic = false,
+  }) async {
+    try {
+      final response = await _apiServices.post(
+        '/library/user-playlists',
+        data: {
+          'name': name,
+          if (description != null) 'description': description,
+          if (thumbnail != null) 'thumbnail': thumbnail,
+          'isPublic': isPublic,
+        },
+      );
+      final data = response is Response ? response.data : response;
+      return UserPlaylist.fromJson(data);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<UserPlaylistsResponse> getUserPlaylists({int page = 1, int limit = 20}) async {
+    try {
+      final response = await _apiServices.get(
+        '/library/user-playlists',
+        queryParameters: {'page': page, 'limit': limit},
+      );
+      final data = response is Response ? response.data : response;
+      return UserPlaylistsResponse.fromJson(data);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<UserPlaylistDetail> getUserPlaylist(String playlistId) async {
+    try {
+      final response = await _apiServices.get('/library/user-playlists/$playlistId');
+      final data = response is Response ? response.data : response;
+      return UserPlaylistDetail.fromJson(data);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<UserPlaylistDetail> updateUserPlaylist(
+    String playlistId, {
+    String? name,
+    String? description,
+    String? thumbnail,
+    bool? isPublic,
+  }) async {
+    try {
+      final response = await _apiServices.put(
+        '/library/user-playlists/$playlistId',
+        data: {
+          if (name != null) 'name': name,
+          if (description != null) 'description': description,
+          if (thumbnail != null) 'thumbnail': thumbnail,
+          if (isPublic != null) 'isPublic': isPublic,
+        },
+      );
+      final data = response is Response ? response.data : response;
+      return UserPlaylistDetail.fromJson(data);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> deleteUserPlaylist(String playlistId) async {
+    try {
+      await _apiServices.delete('/library/user-playlists/$playlistId');
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<UserPlaylistDetail> addSongToUserPlaylist(
+    String playlistId, {
+    required String videoId,
+    String? title,
+    String? artist,
+    String? thumbnail,
+    int? duration,
+  }) async {
+    try {
+      final response = await _apiServices.post(
+        '/library/user-playlists/$playlistId/songs',
+        data: {
+          'videoId': videoId,
+          if (title != null) 'title': title,
+          if (artist != null) 'artist': artist,
+          if (thumbnail != null) 'thumbnail': thumbnail,
+          if (duration != null) 'duration': duration,
+        },
+      );
+      final data = response is Response ? response.data : response;
+      return UserPlaylistDetail.fromJson(data);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> removeSongFromUserPlaylist(String playlistId, String songId) async {
+    try {
+      await _apiServices.delete('/library/user-playlists/$playlistId/songs/$songId');
+    } catch (e) {
+      rethrow;
     }
   }
 }
@@ -306,6 +425,7 @@ class FavoritePlaylist {
   final String? description;
   final String? thumbnail;
   final int? trackCount;
+  final int? cachedTrackCount;
   final DateTime createdAt;
 
   FavoritePlaylist({
@@ -316,6 +436,7 @@ class FavoritePlaylist {
     this.description,
     this.thumbnail,
     this.trackCount,
+    this.cachedTrackCount,
     required this.createdAt,
   });
 
@@ -329,6 +450,7 @@ class FavoritePlaylist {
       description: playlist?['description'],
       thumbnail: playlist?['thumbnail'],
       trackCount: playlist?['songs']?.length ?? 0,
+      cachedTrackCount: json['cachedTrackCount'],
       createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
     );
   }
@@ -377,5 +499,150 @@ class FavoriteGenre {
       name: genre?['name'] ?? '',
       createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
     );
+  }
+}
+
+// ============ User Playlists (Playlists creadas por el usuario) ============
+
+class UserPlaylist {
+  final String id;
+  final String name;
+  final String? description;
+  final String? thumbnail;
+  final int songCount;
+  final DateTime createdAt;
+
+  UserPlaylist({
+    required this.id,
+    required this.name,
+    this.description,
+    this.thumbnail,
+    required this.songCount,
+    required this.createdAt,
+  });
+
+  factory UserPlaylist.fromJson(Map<String, dynamic> json) {
+    return UserPlaylist(
+      id: json['id'] ?? '',
+      name: json['name'] ?? '',
+      description: json['description'],
+      thumbnail: json['thumbnail'],
+      songCount: json['songCount'] ?? 0,
+      createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
+    );
+  }
+}
+
+class UserPlaylistDetail {
+  final String id;
+  final String name;
+  final String? description;
+  final String? thumbnail;
+  final bool isPublic;
+  final List<UserPlaylistSong> songs;
+  final DateTime createdAt;
+
+  UserPlaylistDetail({
+    required this.id,
+    required this.name,
+    this.description,
+    this.thumbnail,
+    required this.isPublic,
+    required this.songs,
+    required this.createdAt,
+  });
+
+  factory UserPlaylistDetail.fromJson(Map<String, dynamic> json) {
+    return UserPlaylistDetail(
+      id: json['id'] ?? '',
+      name: json['name'] ?? '',
+      description: json['description'],
+      thumbnail: json['thumbnail'],
+      isPublic: json['isPublic'] ?? false,
+      songs: (json['songs'] as List?)
+          ?.map((e) => UserPlaylistSong.fromJson(e))
+          .toList() ?? [],
+      createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
+    );
+  }
+}
+
+class UserPlaylistSong {
+  final String id;
+  final String videoId;
+  final String title;
+  final String artist;
+  final String? thumbnail;
+  final int? duration;
+
+  UserPlaylistSong({
+    required this.id,
+    required this.videoId,
+    required this.title,
+    required this.artist,
+    this.thumbnail,
+    this.duration,
+  });
+
+  factory UserPlaylistSong.fromJson(Map<String, dynamic> json) {
+    return UserPlaylistSong(
+      id: json['id'] ?? '',
+      videoId: json['videoId'] ?? '',
+      title: json['title'] ?? '',
+      artist: json['artist'] ?? '',
+      thumbnail: json['thumbnail'],
+      duration: json['duration'],
+    );
+  }
+}
+
+class UserPlaylistsResponse {
+  final List<UserPlaylist> data;
+  final int total;
+
+  UserPlaylistsResponse({
+    required this.data,
+    required this.total,
+  });
+
+  factory UserPlaylistsResponse.fromJson(Map<String, dynamic> json) {
+    return UserPlaylistsResponse(
+      data: (json['data'] as List?)
+          ?.map((e) => UserPlaylist.fromJson(e))
+          .toList() ?? [],
+      total: json['total'] ?? 0,
+    );
+  }
+}
+
+/// Obtiene las lyrics de una canción
+class LyricsResponse {
+  final String? lyrics;
+  final String? source;
+
+  const LyricsResponse({
+    this.lyrics,
+    this.source,
+  });
+
+  factory LyricsResponse.fromJson(Map<String, dynamic> json) {
+    return LyricsResponse(
+      lyrics: json['lyrics'],
+      source: json['source'],
+    );
+  }
+}
+
+/// Extiende LibraryService para incluir métodos de lyrics
+extension LibraryServiceExtensions on LibraryService {
+  /// Obtiene las lyrics de una canción por su videoId o browseId
+  Future<LyricsResponse> getLyrics(String videoIdOrBrowseId) async {
+    try {
+      final response = await _apiServices.get('/music/lyrics/$videoIdOrBrowseId');
+      final data = response is Response ? response.data : response;
+      return LyricsResponse.fromJson(data);
+    } catch (e) {
+      rethrow;
+    }
   }
 }

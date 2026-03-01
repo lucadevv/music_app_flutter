@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:audio_service/audio_service.dart' show AudioHandler;
+import 'package:audio_service/audio_service.dart';
 import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
@@ -8,18 +8,47 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:music_app/core/managers/auth/auth_manager.dart';
+import 'package:music_app/core/services/audio_handler_service.dart';
 import 'package:music_app/core/services/network/api_services.dart';
 import 'package:music_app/data/offline/models/offline_history.dart';
 import 'package:music_app/data/offline/services/offline_service.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
-import 'package:music_app/main.dart';
+import 'package:music_app/features/profile/profile_cubit.dart';
 
 part 'player_bloc_event.dart';
 part 'player_bloc_state.dart';
 
 class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
   final ApiServices _apiServices;
-  final AudioPlayer _audioPlayer = AudioPlayer();
+  
+  // AudioPlayer se obtiene de forma lazy para evitar dependencia circular
+  // AudioPlayerHandler se registra en main.dart después de AudioService.init()
+  AudioPlayer? _audioPlayerInstance;
+  
+  /// Obtiene el player, creando uno nuevo si no está disponible del handler
+  AudioPlayer get _audioPlayer {
+    if (_audioPlayerInstance == null) {
+      try {
+        if (GetIt.I.isRegistered<AudioPlayerHandler>()) {
+          _audioPlayerInstance = GetIt.I<AudioPlayerHandler>().player;
+          debugPrint('PlayerBloc: Using AudioPlayer from AudioPlayerHandler');
+        } else {
+          // Fallback: crear un AudioPlayer básico si el handler no está disponible
+          _audioPlayerInstance = AudioPlayer();
+          debugPrint('PlayerBloc: Using fallback AudioPlayer (AudioPlayerHandler not available)');
+          // IMPORTANTE: Inicializar los streams del fallback player
+          _initializePlayer();
+        }
+      } catch (e) {
+        // Fallback final
+        _audioPlayerInstance = AudioPlayer();
+        debugPrint('PlayerBloc: Using emergency fallback AudioPlayer: $e');
+        // IMPORTANTE: Inicializar los streams del fallback player
+        _initializePlayer();
+      }
+    }
+    return _audioPlayerInstance!;
+  }
 
   // OfflineService se obtiene de forma lazy para evitar dependencia circular
   OfflineService? _offlineService;
@@ -30,7 +59,8 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
   late StreamSubscription _bufferedPositionSubscription;
   late StreamSubscription _currentIndexSubscription;
 
-  AudioHandler? _audioHandler;
+  // Flag para evitar inicialización múltiple de streams
+  bool _isPlayerInitialized = false;
 
   // ==================== Historial de reproducción ====================
   /// ID de la entrada de historial actual
@@ -47,8 +77,12 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
   static const int _historyUpdateIntervalSeconds = 5;
 
   PlayerBlocBloc(this._apiServices) : super(const PlayerBlocInitial()) {
-    _initializePlayer();
     _registerEventHandlers();
+    // No inicializar streams aquí - se hará cuando el player esté disponible
+    // Inicializar el handler de audio después de un pequeño delay para asegurar que todo esté listo
+    Future.microtask(() {
+      add(const InitializeAudioServiceEvent());
+    });
   }
 
   /// Obtiene el OfflineService de forma lazy
@@ -101,6 +135,20 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     }
   }
 
+  /// Actualiza el mediaItem del AudioHandler para que muestre la canción en la notificación
+  void _updateHandlerMediaItem(NowPlayingData track) {
+    try {
+      if (GetIt.I.isRegistered<AudioPlayerHandler>()) {
+        final handler = GetIt.I<AudioPlayerHandler>();
+        final mediaItem = track.toMediaItem();
+        handler.mediaItem.add(mediaItem);
+        debugPrint('PlayerBloc: Updated handler mediaItem for: ${track.title}');
+      }
+    } catch (e) {
+      debugPrint('PlayerBloc: Error updating handler mediaItem: $e');
+    }
+  }
+
   /// Finaliza la entrada de historial actual y crea una nueva para el track
   Future<void> _startNewHistoryEntry(NowPlayingData track) async {
     // Primero, guardar el estado del historial anterior si existe
@@ -121,12 +169,12 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
         artistName = 'Unknown Artist';
       }
 
-      // Obtener la URL del thumbnail
+      // Obtener la URL del thumbnail (usar .last para mejor calidad)
       String? thumbnailUrl;
       if (track.thumbnail != null) {
         thumbnailUrl = track.thumbnail?.url;
       } else if (track.thumbnails.isNotEmpty) {
-        thumbnailUrl = track.thumbnails.first.url;
+        thumbnailUrl = track.thumbnails.last.url;
       }
 
       // Crear nueva entrada de historial
@@ -177,6 +225,12 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
   }
 
   void _initializePlayer() {
+    // Evitar inicialización múltiple
+    if (_isPlayerInitialized) {
+      debugPrint('PlayerBloc: AudioPlayer streams already initialized, skipping');
+      return;
+    }
+    
     debugPrint('PlayerBloc: Initializing AudioPlayer streams...');
     
     _playerStateSubscription = _audioPlayer.playerStateStream.listen(
@@ -212,6 +266,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     );
     
     debugPrint('PlayerBloc: AudioPlayer streams initialized');
+    _isPlayerInitialized = true;
   }
 
   void _registerEventHandlers() {
@@ -252,7 +307,21 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
       debugPrint('PlayerBloc: Calling _audioPlayer.play()...');
       await _audioPlayer.play();
       debugPrint('PlayerBloc: _audioPlayer.play() completed');
-      _audioHandler?.play();
+      
+      // IMPORTANTE: Emitir estado inmediatamente para actualizar la UI
+      // No depender solo del stream, ya que puede no estar inicializado
+      if (state is PlayerBlocLoaded) {
+        emit((state as PlayerBlocLoaded).copyWith(
+          playbackState: PlaybackState.playing,
+          processingState: ProcessingState.ready,
+        ));
+      } else {
+        emit(PlayerBlocLoaded(
+          playbackState: PlaybackState.playing,
+          processingState: ProcessingState.ready,
+          connectionState: AudioConnectionState.connected,
+        ));
+      }
     } catch (e) {
       debugPrint('PlayerBloc: Error al reproducir: $e');
       add(AudioErrorEvent('Error al reproducir: $e'));
@@ -262,7 +331,18 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
   Future<void> _onPause(PauseEvent event, Emitter<PlayerBlocState> emit) async {
     try {
       await _audioPlayer.pause();
-      _audioHandler?.pause();
+      
+      // IMPORTANTE: Emitir estado inmediatamente para actualizar la UI
+      if (state is PlayerBlocLoaded) {
+        emit((state as PlayerBlocLoaded).copyWith(
+          playbackState: PlaybackState.paused,
+        ));
+      } else {
+        emit(PlayerBlocLoaded(
+          playbackState: PlaybackState.paused,
+          connectionState: AudioConnectionState.connected,
+        ));
+      }
     } catch (e) {
       add(AudioErrorEvent('Error al pausar: $e'));
     }
@@ -274,7 +354,6 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
       await _finalizeCurrentHistoryEntry();
 
       await _audioPlayer.stop();
-      _audioHandler?.stop();
       if (state is PlayerBlocLoaded) {
         emit(
           (state as PlayerBlocLoaded).copyWith(
@@ -311,7 +390,6 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
         final currentState = state as PlayerBlocLoaded;
         if (currentState.canPlayNext) {
           await _audioPlayer.seekToNext();
-          _audioHandler?.skipToNext();
         }
       }
     } catch (e) {
@@ -328,7 +406,6 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
         final currentState = state as PlayerBlocLoaded;
         if (currentState.canPlayPrevious) {
           await _audioPlayer.seekToPrevious();
-          _audioHandler?.skipToPrevious();
         }
       }
     } catch (e) {
@@ -339,7 +416,6 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
   Future<void> _onSeek(SeekEvent event, Emitter<PlayerBlocState> emit) async {
     try {
       await _audioPlayer.seek(event.position);
-      _audioHandler?.seek(event.position);
     } catch (e) {
       add(AudioErrorEvent('Error al hacer seek: $e'));
     }
@@ -416,7 +492,13 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     Emitter<PlayerBlocState> emit,
   ) async {
     try {
-      await _audioPlayer.setUrl(streamUrl);
+      // Usar setAudioSource con MediaItem para notificaciones
+      await _audioPlayer.setAudioSource(
+        AudioSource.uri(
+          Uri.parse(streamUrl),
+          tag: track.toMediaItem(),
+        ),
+      );
 
       // Esperar a que el audio esté listo (processingState ready)
       try {
@@ -460,6 +542,9 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
       }
 
       debugPrint('_loadTrackWithUrl: Duración obtenida: $actualDuration');
+
+      // ACTUALIZAR NOTIFICACIONES: Actualizar el mediaItem del handler para que muestre la canción en la notificación
+      _updateHandlerMediaItem(track);
 
       emit(
         PlayerBlocLoaded(
@@ -506,7 +591,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
   Future<String?> _fetchFreshStreamUrl(String videoId) async {
     try {
       // Obtener el token de acceso
-      final authManager = await getIt.getAsync<AuthManager>();
+      final authManager = await GetIt.I.getAsync<AuthManager>();
       final accessToken = await authManager.getCurrentAccessToken();
       
       if (accessToken == null || accessToken.isEmpty) {
@@ -688,7 +773,8 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
       return null;
     }
 
-    return AudioSource.uri(Uri.parse(streamUrl), tag: track);
+    // Usar toMediaItem() para que las notificaciones muestren info correcta
+    return AudioSource.uri(Uri.parse(streamUrl), tag: track.toMediaItem());
   }
 
   Future<void> _onPlayTrackAtIndex(
@@ -723,7 +809,6 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
             ),
           );
 
-          _audioHandler?.skipToQueueItem(event.index);
         }
       }
     } catch (e) {
@@ -758,7 +843,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
           ..add(event.track);
 
         await _audioPlayer.addAudioSource(
-          AudioSource.uri(Uri.parse(streamUrl), tag: event.track),
+          AudioSource.uri(Uri.parse(streamUrl), tag: event.track.toMediaItem()),
         );
 
         emit(currentState.copyWith(playlist: newPlaylist));
@@ -859,12 +944,25 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     Emitter<PlayerBlocState> emit,
   ) async {
     debugPrint('PlayerBloc: _onAudioPlayerStateChanged - playing: ${event.playerState.playing}, processing: ${event.playerState.processingState}');
+    
+    // Si el estado no es PlayerBlocLoaded, crear uno nuevo con los datos del player
     if (state is! PlayerBlocLoaded) {
-      debugPrint('PlayerBloc: _onAudioPlayerStateChanged - state is not PlayerBlocLoaded, returning');
+      debugPrint('PlayerBloc: _onAudioPlayerStateChanged - state is not PlayerBlocLoaded, creating new state');
+      
+      final playbackState = event.playerState.playing
+          ? PlaybackState.playing
+          : PlaybackState.paused;
+      
+      emit(PlayerBlocLoaded(
+        playbackState: playbackState,
+        processingState: event.playerState.processingState,
+        connectionState: AudioConnectionState.connected,
+      ));
       return;
     }
 
     final currentState = state as PlayerBlocLoaded;
+    final previousProcessingState = currentState.processingState;
     final playbackState = event.playerState.playing
         ? PlaybackState.playing
         : PlaybackState.paused;
@@ -877,6 +975,53 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
         processingState: event.playerState.processingState,
       ),
     );
+
+    // Auto-play: cuando termina una canción, reproducir la siguiente automáticamente
+    // Solo si:
+    // 1. La canción actual terminó (processingState changed to completed)
+    // 2. No es el modo loop.one (repetir una)
+    // 3. Auto-play está habilitado en settings
+    if (previousProcessingState != ProcessingState.completed && 
+        event.playerState.processingState == ProcessingState.completed) {
+      _handleAutoPlay();
+    }
+  }
+
+  /// Maneja la reproducción automática de la siguiente canción
+  Future<void> _handleAutoPlay() async {
+    try {
+      // Verificar si auto-play está habilitado
+      final profileCubit = GetIt.I<ProfileCubit>();
+      final autoPlayEnabled = profileCubit.state.settings?.autoPlay ?? true;
+
+      if (!autoPlayEnabled) {
+        debugPrint('PlayerBloc: Auto-play disabled, skipping to next track');
+        return;
+      }
+
+      // Verificar el modo de repetición actual
+      if (state is PlayerBlocLoaded) {
+        final currentState = state as PlayerBlocLoaded;
+        
+        // Si está en modo loop.one, no necesitamos avanzar automáticamente
+        if (currentState.loopMode == LoopMode.one) {
+          debugPrint('PlayerBloc: Loop mode is one, not auto-playing');
+          return;
+        }
+
+        // Verificar si hay siguiente canción
+        if (currentState.canPlayNext) {
+          debugPrint('PlayerBloc: Auto-playing next track');
+          add(const NextTrackEvent());
+        } else if (currentState.loopMode == LoopMode.all && currentState.playlist.isNotEmpty) {
+          // Si está en modo loop all y es la última canción, volver al inicio
+          debugPrint('PlayerBloc: Loop all enabled, restarting playlist');
+          add(PlayTrackAtIndexEvent(0));
+        }
+      }
+    } catch (e) {
+      debugPrint('PlayerBloc: Error in auto-play: $e');
+    }
   }
 
   Future<void> _onPositionChanged(
@@ -889,6 +1034,9 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
 
       // Actualizar historial cada ~5 segundos (fire and forget)
       unawaited(_saveHistoryPlayedDuration(event.position.inSeconds));
+    } else {
+      // Crear estado si no existe
+      emit(PlayerBlocLoaded(position: event.position));
     }
   }
 
@@ -899,6 +1047,9 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     debugPrint('PlayerBloc: Duration changed to ${event.duration}');
     if (state is PlayerBlocLoaded) {
       emit((state as PlayerBlocLoaded).copyWith(duration: event.duration));
+    } else {
+      // Crear estado si no existe
+      emit(PlayerBlocLoaded(duration: event.duration));
     }
   }
 
@@ -937,6 +1088,9 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
           currentTrack: currentTrack,
         ),
       );
+    } else if (event.index != null) {
+      // Crear estado básico si no existe
+      emit(PlayerBlocLoaded(currentIndex: event.index));
     }
   }
 
@@ -965,16 +1119,51 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     InitializeAudioServiceEvent event,
     Emitter<PlayerBlocState> emit,
   ) async {
-    if (state is PlayerBlocLoaded) {
-      emit(
-        (state as PlayerBlocLoaded).copyWith(
-          connectionState: AudioConnectionState.connected,
-        ),
-      );
-    } else {
-      emit(
-        const PlayerBlocLoaded(connectionState: AudioConnectionState.connected),
-      );
+    try {
+      // Intentar obtener el AudioPlayerHandler
+      if (GetIt.I.isRegistered<AudioPlayerHandler>()) {
+        final handler = GetIt.I<AudioPlayerHandler>();
+        _audioPlayerInstance = handler.player;
+        _initializePlayer();
+        
+        debugPrint('PlayerBloc: AudioPlayerHandler connected successfully');
+      } else {
+        debugPrint('PlayerBloc: AudioPlayerHandler not registered yet, will retry...');
+        // Reintentar después de un delay
+        await Future.delayed(const Duration(seconds: 2));
+        if (GetIt.I.isRegistered<AudioPlayerHandler>()) {
+          final handler = GetIt.I<AudioPlayerHandler>();
+          _audioPlayerInstance = handler.player;
+          _initializePlayer();
+          debugPrint('PlayerBloc: AudioPlayerHandler connected on retry');
+        } else {
+          // FALLBACK: Crear AudioPlayer básico SI NO se ha creado antes
+          // Esto asegura que los streams se inicialicen
+          if (_audioPlayerInstance == null) {
+            debugPrint('PlayerBloc: Creating fallback AudioPlayer...');
+            _audioPlayerInstance = AudioPlayer();
+            _initializePlayer();
+            debugPrint('PlayerBloc: Fallback AudioPlayer created and initialized');
+          } else {
+            debugPrint('PlayerBloc: Fallback AudioPlayer already exists, reusing');
+          }
+        }
+      }
+      
+      if (state is PlayerBlocLoaded) {
+        emit(
+          (state as PlayerBlocLoaded).copyWith(
+            connectionState: AudioConnectionState.connected,
+          ),
+        );
+      } else {
+        emit(
+          const PlayerBlocLoaded(connectionState: AudioConnectionState.connected),
+        );
+      }
+    } catch (e) {
+      debugPrint('PlayerBloc: Error initializing audio handler: $e');
+      add(AudioErrorEvent('Error initializing audio handler: $e'));
     }
   }
 
@@ -983,7 +1172,6 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     Emitter<PlayerBlocState> emit,
   ) async {
     try {
-      _audioHandler = null;
       if (state is PlayerBlocLoaded) {
         emit(
           (state as PlayerBlocLoaded).copyWith(

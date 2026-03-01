@@ -102,6 +102,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recentlyPlayed => 'Recently Played';
 
   @override
+  String get noRecentlyPlayed => 'No recently played';
+
+  @override
+  String get songsYouListenToWillAppearHere =>
+      'Songs you listen to will appear here';
+
+  @override
   String get downloads => 'Downloads';
 
   @override
@@ -170,6 +177,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addToPlaylist => 'Add to Playlist';
+
+  @override
+  String get createPlaylist => 'Create Playlist';
+
+  @override
+  String get playlistName => 'Playlist name';
+
+  @override
+  String get myPlaylists => 'My Playlists';
+
+  @override
+  String get noPlaylistsYet => 'No playlists yet';
+
+  @override
+  String get createPlaylistToOrganize =>
+      'Create playlists to organize your music';
 
   @override
   String get share => 'Share';
@@ -250,6 +273,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cancel => 'Cancel';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get edit => 'Edit';
+
+  @override
+  String get delete => 'Delete';
 
   @override
   String get errorUnknown => 'Unknown error';

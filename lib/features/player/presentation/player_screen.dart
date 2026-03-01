@@ -4,8 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
-import 'package:music_app/l10n/app_localizations.dart';
-import 'package:music_app/main.dart';
 import 'package:music_app/features/player/presentation/widgets/player_backdrop_widget.dart';
 import 'package:music_app/features/player/presentation/widgets/player_header_widget.dart';
 import 'package:music_app/features/player/presentation/widgets/player_error_widget.dart';
@@ -16,6 +14,10 @@ import 'package:music_app/features/player/presentation/widgets/player_metadata_w
 import 'package:music_app/features/player/presentation/widgets/player_controls_widget.dart';
 import 'package:music_app/features/player/presentation/widgets/player_shimmer_widgets.dart';
 import 'package:music_app/features/player/presentation/widgets/player_similar_songs_widget.dart';
+import 'package:music_app/features/player/presentation/widgets/lyrics_widget.dart';
+import 'package:music_app/features/profile/profile_cubit.dart';
+import 'package:music_app/l10n/app_localizations.dart';
+import 'package:music_app/main.dart';
 
 @RoutePage()
 class PlayerScreen extends StatefulWidget {
@@ -28,9 +30,22 @@ class PlayerScreen extends StatefulWidget {
 }
 
 class _PlayerScreenState extends State<PlayerScreen> {
+  bool _showLyrics = false;
+
   @override
   void initState() {
     super.initState();
+
+    // Check if user has showLyrics enabled in settings
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final profileCubit = getIt<ProfileCubit>();
+      final showLyrics = profileCubit.state.settings?.showLyrics ?? false;
+      if (mounted) {
+        setState(() {
+          _showLyrics = showLyrics;
+        });
+      }
+    });
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final bloc = getIt<PlayerBlocBloc>();
@@ -73,17 +88,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
         backgroundColor: const Color(0xFF0D0D0D),
         body: SafeArea(
           child: BlocBuilder<PlayerBlocBloc, PlayerBlocState>(
-            buildWhen: (previous, current) {
-              if (previous is PlayerBlocLoaded && current is PlayerBlocLoaded) {
-                return previous.position != current.position ||
-                    previous.duration != current.duration ||
-                    previous.playbackState != current.playbackState ||
-                    previous.currentTrack?.videoId !=
-                        current.currentTrack?.videoId ||
-                    previous.isLoading != current.isLoading;
-              }
-              return true;
-            },
+            // Quitar buildWhen para debug - reconstruir en cada cambio
             builder: (context, state) {
               final currentTrack = state is PlayerBlocLoaded
                   ? (state.currentTrack ?? widget.nowPlayingData)
@@ -220,22 +225,40 @@ class _PlayerScreenState extends State<PlayerScreen> {
                                 ),
                               const SizedBox(height: 32),
 
-                              // Connect to device
+                              // Toggle lyrics visibility
                               Builder(
                                 builder: (context) {
                                   return TextButton.icon(
-                                    onPressed: () {},
-                                    icon: const Icon(
-                                      Icons.devices,
-                                      color: Colors.white,
+                                    onPressed: () {
+                                      setState(() {
+                                        _showLyrics = !_showLyrics;
+                                      });
+                                    },
+                                    icon: Icon(
+                                      _showLyrics ? Icons.lyrics : Icons.lyrics_outlined,
+                                      color: _showLyrics 
+                                          ? Theme.of(context).primaryColor 
+                                          : Colors.white,
                                     ),
                                     label: Text(
-                                      AppLocalizations.of(context)!.connectToDevice,
-                                      style: const TextStyle(color: Colors.white),
+                                      _showLyrics ? 'Hide Lyrics' : 'Show Lyrics',
+                                      style: TextStyle(
+                                        color: _showLyrics 
+                                            ? Theme.of(context).primaryColor 
+                                            : Colors.white,
+                                      ),
                                     ),
                                   );
                                 },
                               ),
+                              const SizedBox(height: 16),
+
+                              // Lyrics widget
+                              if (_showLyrics)
+                                LyricsWidget(
+                                  videoId: currentTrack.videoId,
+                                ),
+
                               const SizedBox(height: 32),
 
                               // Songs similar to this (Radio)

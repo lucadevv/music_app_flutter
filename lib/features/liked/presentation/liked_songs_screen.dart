@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
+import 'package:music_app/core/widgets/song_list_item.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/library/presentation/cubit/library_cubit.dart';
@@ -216,9 +217,10 @@ class _LikedSongsScreenView extends StatelessWidget {
       delegate: SliverChildBuilderDelegate(
         (context, index) {
           final song = state.favoriteSongs[index];
-          return _SongItem(
-            index: index + 1,
-            song: song,
+          return SongListItemWithRemove(
+            title: song.title,
+            artist: song.artist,
+            thumbnail: song.thumbnail,
             onTap: () => _playSong(context, song),
             onRemove: () => _removeSong(context, song),
           );
@@ -294,86 +296,6 @@ class _LikedSongsScreenView extends StatelessWidget {
       song.videoId,
       song.songId,
       currentlyFavorite: true,
-    );
-  }
-}
-
-class _SongItem extends StatelessWidget {
-  final int index;
-  final FavoriteSong song;
-  final VoidCallback onTap;
-  final VoidCallback onRemove;
-
-  const _SongItem({
-    required this.index,
-    required this.song,
-    required this.onTap,
-    required this.onRemove,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
-      leading: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(
-            width: 40,
-            child: Text(
-              '$index',
-              style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.6),
-                fontSize: 16,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          const SizedBox(width: 8),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: Container(
-              width: 48,
-              height: 48,
-              color: AppColorsDark.primaryContainer,
-              child: song.thumbnail != null
-                  ? CachedNetworkImage(
-                      imageUrl: song.thumbnail!,
-                      fit: BoxFit.cover,
-                      errorWidget: (_, __, ___) => Icon(
-                        Icons.music_note,
-                        color: AppColorsDark.primary,
-                      ),
-                    )
-                  : Icon(Icons.music_note, color: AppColorsDark.primary),
-            ),
-          ),
-        ],
-      ),
-      title: Text(
-        song.title,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 15,
-          fontWeight: FontWeight.w500,
-        ),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-      subtitle: Text(
-        song.artist,
-        style: TextStyle(
-          color: Colors.white.withValues(alpha: 0.6),
-          fontSize: 13,
-        ),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-      trailing: IconButton(
-        icon: Icon(Icons.favorite, color: AppColorsDark.primary, size: 20),
-        onPressed: onRemove,
-      ),
-      onTap: onTap,
     );
   }
 }

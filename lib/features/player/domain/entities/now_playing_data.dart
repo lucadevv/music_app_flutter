@@ -1,3 +1,4 @@
+import 'package:audio_service/audio_service.dart';
 import 'package:equatable/equatable.dart';
 import 'package:music_app/features/playlist/domain/entities/playlist_track.dart';
 import 'package:music_app/features/search/domain/entities/album.dart';
@@ -154,6 +155,25 @@ class NowPlayingData extends Equatable {
     // Si no, usar la más grande de thumbnails
     if (thumbnails.isEmpty) return null;
     return thumbnails.last; // La última suele ser la más grande
+  }
+
+  /// Convierte NowPlayingData a MediaItem para notificaciones
+  /// 
+  /// Esto es necesario para que las notificaciones y controles
+  /// en pantalla de bloqueo muestren la información correcta
+  MediaItem toMediaItem() {
+    return MediaItem(
+      id: videoId,
+      album: album.name,
+      title: title,
+      artist: artistsNames,
+      duration: durationSeconds > 0 ? Duration(seconds: durationSeconds) : null,
+      artUri: bestThumbnail != null ? Uri.tryParse(bestThumbnail!.url) : null,
+      extras: {
+        'videoId': videoId,
+        'streamUrl': streamUrl,
+      },
+    );
   }
 
   /// Verifica si tiene información completa

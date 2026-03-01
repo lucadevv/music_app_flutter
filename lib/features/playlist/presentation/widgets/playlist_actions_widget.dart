@@ -22,11 +22,11 @@ class PlaylistActionsWidget extends StatelessWidget {
   String? _getBestThumbnail() {
     if (playlist.thumbnails.isEmpty) return null;
     
-    // Ordenar por ancho y obtener la más grande
+    // Ordenar por ancho y obtener la más grande (mayor a menor)
     final sortedThumbnails = List.of(playlist.thumbnails)
       ..sort((a, b) => b.width.compareTo(a.width));
     
-    return sortedThumbnails.first.url;
+    return sortedThumbnails.first.url; // Ya está ordenado de mayor a menor
   }
 
   bool _isPlaylistLoaded(PlayerBlocState playerState) {
@@ -146,6 +146,7 @@ class PlaylistActionsWidget extends StatelessWidget {
                   name: playlist.title,
                   thumbnail: _getBestThumbnail(),
                   description: playlist.description.isNotEmpty ? playlist.description : null,
+                  trackCount: playlist.trackCount,
                 ),
               ),
               const SizedBox(width: 8),

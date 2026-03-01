@@ -15,17 +15,9 @@ class MiniPlayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // QUITAR buildWhen temporalmente para debug - reconstruir en cada cambio de estado
     return BlocBuilder<PlayerBlocBloc, PlayerBlocState>(
       bloc: getIt<PlayerBlocBloc>(),
-      buildWhen: (previous, current) {
-        if (previous is PlayerBlocLoaded && current is PlayerBlocLoaded) {
-          return previous.currentTrack?.videoId != current.currentTrack?.videoId ||
-              previous.isPlaying != current.isPlaying ||
-              previous.position != current.position ||
-              previous.duration != current.duration;
-        }
-        return true;
-      },
       builder: (context, state) {
         if (state is! PlayerBlocLoaded || state.currentTrack == null) {
           return const SizedBox.shrink();

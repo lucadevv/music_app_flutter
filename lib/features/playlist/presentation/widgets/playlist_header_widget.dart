@@ -16,10 +16,10 @@ class PlaylistHeaderWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Obtener la mejor thumbnail
+    // Obtener la mejor thumbnail (usar .last + loop para garantizar)
     Thumbnail? bestThumbnail;
     if (playlist.thumbnails.isNotEmpty) {
-      bestThumbnail = playlist.thumbnails.first;
+      bestThumbnail = playlist.thumbnails.last;
       for (final thumbnail in playlist.thumbnails) {
         if (thumbnail.width > bestThumbnail!.width) {
           bestThumbnail = thumbnail;

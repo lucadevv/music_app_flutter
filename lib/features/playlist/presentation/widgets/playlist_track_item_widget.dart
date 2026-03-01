@@ -1,25 +1,24 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
+import 'package:music_app/core/widgets/song_list_item.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/favorites/presentation/widgets/favorite_button.dart';
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
+import 'package:music_app/features/song_options/presentation/widgets/song_options_bottom_sheet.dart';
 import 'package:music_app/main.dart';
 import '../../domain/entities/playlist_track.dart';
 
 class PlaylistTrackItemWidget extends StatelessWidget {
   final PlaylistTrack track;
-  final int index;
   final List<PlaylistTrack> allTracks;
 
   const PlaylistTrackItemWidget({
     super.key,
     required this.track,
-    required this.index,
     required this.allTracks,
   });
 
@@ -69,7 +68,6 @@ class PlaylistTrackItemWidget extends StatelessWidget {
 
     final isDisabled =
         !track.isAvailable || track.videoId == null || track.videoId!.isEmpty;
-    final opacity = isDisabled ? 0.5 : 1.0;
 
     return BlocBuilder<PlayerBlocBloc, PlayerBlocState>(
       bloc: getIt<PlayerBlocBloc>(),
@@ -88,8 +86,44 @@ class PlaylistTrackItemWidget extends StatelessWidget {
         final isPlaylistLoaded = _isPlaylistLoaded(playerState, allTracks);
 
         return Opacity(
-          opacity: opacity,
-          child: GestureDetector(
+          opacity: isDisabled ? 0.5 : 1.0,
+          child: SongListItemWithTrailing(
+            title: track.title ?? 'Unknown',
+            artist: _getArtistsNames(),
+            thumbnail: thumbnail?.url,
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Icono de reproducir o equalizer
+                SizedBox(
+                  width: 24,
+                  child: isCurrentlyPlaying
+                      ? Icon(Icons.equalizer, color: AppColorsDark.primary, size: 20)
+                      : Icon(Icons.play_arrow, color: Colors.white.withValues(alpha: isDisabled ? 0.3 : 0.6), size: 20),
+                ),
+                const SizedBox(width: 8),
+                // Botón de favorito
+                FavoriteButton(
+                  videoId: track.videoId ?? '',
+                  size: 20,
+                  metadata: SongMetadata(
+                    title: track.title ?? '',
+                    artist: _getArtistsNames(),
+                    thumbnail: thumbnail?.url,
+                    duration: track.durationSeconds,
+                  ),
+                ),
+                // Botón de más opciones
+                IconButton(
+                  icon: Icon(
+                    Icons.more_vert,
+                    color: Colors.white.withValues(alpha: isDisabled ? 0.3 : 0.6),
+                    size: 20,
+                  ),
+                  onPressed: isDisabled ? null : () => _showTrackOptionsBottomSheet(context),
+                ),
+              ],
+            ),
             onTap: isDisabled
                 ? null
                 : () {
@@ -106,153 +140,24 @@ class PlaylistTrackItemWidget extends StatelessWidget {
                       context.router.push(PlayerRoute(nowPlayingData: _toNowPlayingData()));
                     }
                   },
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: isCurrentTrack
-                    ? AppColorsDark.primary.withValues(alpha: 0.15)
-                    : Colors.transparent,
-                borderRadius: BorderRadius.circular(12),
-                border: isCurrentTrack
-                    ? Border.all(
-                        color: AppColorsDark.primary.withValues(alpha: 0.3),
-                        width: 1,
-                      )
-                    : null,
-              ),
-              child: Row(
-                children: [
-                  SizedBox(
-                    width: 32,
-                    child: isCurrentlyPlaying
-                        ? Icon(Icons.equalizer, color: AppColorsDark.primary, size: 24)
-                        : isCurrentTrack
-                            ? Icon(Icons.pause_circle_filled, color: AppColorsDark.primary, size: 24)
-                            : Text(
-                                '${index + 1}',
-                                style: TextStyle(
-                                  color: Colors.white.withValues(alpha: isDisabled ? 0.3 : 0.6),
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                  ),
-                  const SizedBox(width: 16),
-                  Hero(
-                    tag: 'playlist_track_${track.videoId ?? index}',
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: thumbnail != null
-                          ? CachedNetworkImage(
-                              imageUrl: thumbnail.url,
-                              width: 64,
-                              height: 64,
-                              fit: BoxFit.cover,
-                              placeholder: (context, url) => Container(
-                                width: 64,
-                                height: 64,
-                                color: AppColorsDark.primaryContainer,
-                                child: Center(
-                                  child: SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      valueColor: AlwaysStoppedAnimation<Color>(AppColorsDark.primary),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              errorWidget: (context, url, error) => Container(
-                                width: 64,
-                                height: 64,
-                                color: AppColorsDark.primaryContainer,
-                                child: Icon(Icons.music_note, color: AppColorsDark.primary, size: 32),
-                              ),
-                            )
-                          : Container(
-                              width: 64,
-                              height: 64,
-                              color: AppColorsDark.primaryContainer,
-                              child: Icon(Icons.music_note, color: AppColorsDark.primary, size: 32),
-                            ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        InkWell(
-                          onTap: isDisabled
-                              ? null
-                              : () => context.router.push(PlayerRoute(nowPlayingData: _toNowPlayingData())),
-                          child: Text(
-                            track.title,
-                            style: TextStyle(
-                              color: isCurrentTrack
-                                  ? AppColorsDark.primary
-                                  : Colors.white.withValues(alpha: isDisabled ? 0.3 : 1.0),
-                              fontSize: 16,
-                              fontWeight: isCurrentTrack ? FontWeight.w600 : FontWeight.w500,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          _getArtistsNames(),
-                          style: TextStyle(
-                            color: isCurrentTrack
-                                ? AppColorsDark.primary.withValues(alpha: 0.8)
-                                : Colors.white.withValues(alpha: isDisabled ? 0.2 : 0.6),
-                            fontSize: 14,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-                  Text(
-                    track.duration,
-                    style: TextStyle(
-                      color: isCurrentTrack
-                          ? AppColorsDark.primary.withValues(alpha: 0.8)
-                          : Colors.white.withValues(alpha: isDisabled ? 0.3 : 0.6),
-                      fontSize: 14,
-                      fontWeight: isCurrentTrack ? FontWeight.w500 : FontWeight.normal,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  FavoriteButton(
-                    videoId: track.videoId ?? '',
-                    size: 20,
-                    metadata: SongMetadata(
-                      title: track.title,
-                      artist: _getArtistsNames(),
-                      thumbnail: thumbnail?.url,
-                      duration: track.durationSeconds,
-                    ),
-                  ),
-                  IconButton(
-                    icon: Icon(
-                      Icons.more_vert,
-                      color: isCurrentTrack
-                          ? AppColorsDark.primary
-                          : Colors.white.withValues(alpha: isDisabled ? 0.3 : 0.6),
-                    ),
-                    onPressed: () {},
-                  ),
-                ],
-              ),
-            ),
           ),
         );
       },
+    );
+  }
+
+  void _showTrackOptionsBottomSheet(BuildContext context) {
+    SongOptionsBottomSheet.show(
+      context: context,
+      song: SongOptionsData(
+        videoId: track.videoId ?? '',
+        title: track.title ?? 'Unknown',
+        artist: _getArtistsNames(),
+        thumbnail: track.thumbnail?.url ?? (track.thumbnails.isNotEmpty ? track.thumbnails.last.url : null),
+        streamUrl: track.streamUrl,
+        durationSeconds: track.durationSeconds,
+        isFavorite: track.inLibrary ?? false,
+      ),
     );
   }
 }

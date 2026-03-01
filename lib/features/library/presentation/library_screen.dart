@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/core/utils/bottom_sheet_visibility.dart';
+import 'package:music_app/core/widgets/song_list_item.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/downloads/presentation/widgets/download_option_tile.dart';
 import 'package:music_app/features/favorites/presentation/cubit/favorite_cubit.dart';
@@ -13,6 +14,7 @@ import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/library/presentation/cubit/library_cubit.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 import 'package:music_app/features/profile/profile_cubit.dart';
+import 'package:music_app/features/song_options/presentation/widgets/song_options_bottom_sheet.dart';
 import 'package:music_app/l10n/app_localizations.dart';
 import 'package:music_app/main.dart';
 
@@ -47,7 +49,8 @@ class _LibraryView extends StatelessWidget {
             color: AppColorsDark.primary,
             onRefresh: () => context.read<LibraryCubit>().loadLibrary(),
             child: CustomScrollView(
-              slivers: [
+              physics: const AlwaysScrollableScrollPhysics(),
+              slivers: <Widget>[
                 _buildHeader(context, l10n),
                 if (state.status == LibraryStatus.loading)
                   const SliverFillRemaining(
@@ -99,19 +102,33 @@ class _LibraryView extends StatelessWidget {
         ),
       ),
       actions: [
-        IconButton(
-          icon: Icon(
-            Icons.search,
-            color: Colors.white.withValues(alpha: 0.8),
-          ),
-          onPressed: () {},
-        ),
-        IconButton(
+        // Botón de búsqueda eliminado - ya existe en otro tab
+        PopupMenuButton<String>(
           icon: Icon(
             Icons.add,
             color: Colors.white.withValues(alpha: 0.8),
           ),
-          onPressed: () {},
+          color: AppColorsDark.surfaceContainerHigh,
+          onSelected: (value) {
+            if (value == 'create_playlist') {
+              _showCreatePlaylistDialog(context);
+            }
+          },
+          itemBuilder: (context) => [
+            PopupMenuItem<String>(
+              value: 'create_playlist',
+              child: Row(
+                children: [
+                  Icon(Icons.playlist_add, color: Colors.white.withValues(alpha: 0.8)),
+                  const SizedBox(width: 12),
+                  Text(
+                    l10n.createPlaylist,
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -201,10 +218,16 @@ class _LibraryView extends StatelessWidget {
               onTap: () => context.router.push(const LikedSongsRoute()),
             ),
             _QuickAccessChip(
+              icon: Icons.history,
+              label: l10n.recentlyPlayed,
+              count: 0,
+              onTap: () => context.router.push(const RecentlyPlayedRoute()),
+            ),
+            _QuickAccessChip(
               icon: Icons.playlist_play,
-              label: l10n.playlists,
-              count: state.totalPlaylists,
-              onTap: () {},
+              label: l10n.myPlaylists,
+              count: state.totalPlaylists, // Ahora incluye todas las playlists
+              onTap: () => context.router.push(const UserPlaylistsRoute()),
             ),
             _QuickAccessChip(
               icon: Icons.library_music,
@@ -238,7 +261,7 @@ class _LibraryView extends StatelessWidget {
                 ),
                 if (state.totalPlaylists > 5)
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () => context.router.push(const UserPlaylistsRoute()),
                     child: Text(
                       l10n.seeAll,
                       style: const TextStyle(color: AppColorsDark.primary, fontSize: 14),
@@ -252,14 +275,20 @@ class _LibraryView extends StatelessWidget {
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: state.favoritePlaylists.length > 10 ? 10 : state.favoritePlaylists.length,
+              itemCount: state.allPlaylists.length > 10 ? 10 : state.allPlaylists.length,
               itemBuilder: (context, index) {
-                final playlist = state.favoritePlaylists[index];
+                final playlist = state.allPlaylists[index];
                 return _PlaylistCard(
                   playlist: playlist,
-                  onTap: () => context.router.push(
-                    PlaylistRoute(id: playlist.externalPlaylistId),
-                  ),
+                  onTap: () {
+                    if (playlist.isUserCreated) {
+                      // Playlist creada por el usuario - ir a UserPlaylistDetailRoute
+                      context.router.push(UserPlaylistDetailRoute(playlistId: playlist.id));
+                    } else if (playlist.externalPlaylistId != null) {
+                      // Playlist de YouTube favorita - ir a PlaylistRoute
+                      context.router.push(PlaylistRoute(id: playlist.externalPlaylistId!));
+                    }
+                  },
                 );
               },
             ),
@@ -376,10 +405,85 @@ class _LibraryView extends StatelessWidget {
   }
 
   void _showSongOptions(BuildContext context, FavoriteSong song, AppLocalizations l10n) {
-    BottomSheetVisibility().showBottomSheet(
+    SongOptionsBottomSheet.show(
       context: context,
-      builder: (context) => _SongOptionsSheet(song: song, l10n: l10n),
+      song: SongOptionsData(
+        videoId: song.videoId,
+        title: song.title,
+        artist: song.artist,
+        thumbnail: song.thumbnail,
+        durationSeconds: song.duration,
+        isFavorite: true,
+      ),
     );
+  }
+
+  Future<void> _showCreatePlaylistDialog(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
+    final nameController = TextEditingController();
+
+    final result = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: AppColorsDark.surfaceContainerHigh,
+        title: Text(
+          l10n.createPlaylist,
+          style: const TextStyle(color: Colors.white),
+        ),
+        content: TextField(
+          controller: nameController,
+          style: const TextStyle(color: Colors.white),
+          decoration: InputDecoration(
+            hintText: l10n.playlistName,
+            hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.5)),
+            enabledBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
+            ),
+            focusedBorder: const UnderlineInputBorder(
+              borderSide: BorderSide(color: AppColorsDark.primary),
+            ),
+          ),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(l10n.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, nameController.text),
+            child: Text(
+              l10n.createPlaylist,
+              style: const TextStyle(color: AppColorsDark.primary),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (result != null && result.isNotEmpty && context.mounted) {
+      try {
+        final libraryService = getIt<LibraryService>();
+        await libraryService.createUserPlaylist(name: result);
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('${l10n.createPlaylist}: $result'),
+              backgroundColor: AppColorsDark.primary,
+            ),
+          );
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
   }
 
   String _formatDuration(int seconds) {
@@ -439,7 +543,7 @@ class _QuickAccessChip extends StatelessWidget {
 }
 
 class _PlaylistCard extends StatelessWidget {
-  final FavoritePlaylist playlist;
+  final PlaylistItem playlist;
   final VoidCallback onTap;
 
   const _PlaylistCard({
@@ -460,7 +564,7 @@ class _PlaylistCard extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Container(
-                height: 140,
+                height: 130,
                 width: 140,
                 color: AppColorsDark.primaryContainer,
                 child: playlist.thumbnail != null
@@ -496,6 +600,14 @@ class _PlaylistCard extends StatelessWidget {
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
+            if (playlist.songCount > 0)
+              Text(
+                '${playlist.songCount} songs',
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.6),
+                  fontSize: 11,
+                ),
+              ),
           ],
         ),
       ),
@@ -517,7 +629,7 @@ class _SongListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
       leading: ClipRRect(
         borderRadius: BorderRadius.circular(4),
         child: Container(
@@ -587,108 +699,3 @@ class _SongListItem extends StatelessWidget {
   }
 }
 
-class _SongOptionsSheet extends StatelessWidget {
-  final FavoriteSong song;
-  final AppLocalizations l10n;
-
-  const _SongOptionsSheet({required this.song, required this.l10n});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.only(
-        top: 16,
-        bottom: MediaQuery.of(context).padding.bottom + 80, // Avoid bottom navbar
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ListTile(
-            leading: ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: Container(
-                width: 48,
-                height: 48,
-                color: AppColorsDark.primaryContainer,
-                child: song.thumbnail != null
-                    ? CachedNetworkImage(
-                        imageUrl: song.thumbnail!,
-                        fit: BoxFit.cover,
-                        errorWidget: (_, __, ___) => Icon(
-                          Icons.music_note,
-                          color: AppColorsDark.primary,
-                        ),
-                      )
-                    : Icon(Icons.music_note, color: AppColorsDark.primary),
-              ),
-            ),
-            title: Text(
-              song.title,
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            subtitle: Text(
-              song.artist,
-              style: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
-            ),
-          ),
-          const Divider(color: Colors.white24),
-          _OptionTile(
-            icon: Icons.heart_broken,
-            label: l10n.removeFromLikedSongs,
-            onTap: () {
-              Navigator.pop(context);
-              // Usar videoId para eliminar (el backend ahora lo soporta)
-              context.read<LibraryCubit>().toggleFavoriteSong(
-                    song.videoId,
-                    song.videoId, // El backend ahora acepta videoId
-                    currentlyFavorite: true,
-                  );
-            },
-          ),
-          _OptionTile(
-            icon: Icons.playlist_add,
-            label: l10n.addToPlaylist,
-            onTap: () => Navigator.pop(context),
-          ),
-          // Opción de descarga
-          DownloadOptionTile(
-            videoId: song.videoId,
-            title: song.title,
-            artist: song.artist,
-            thumbnail: song.thumbnail,
-            durationSeconds: song.duration,
-            label: l10n.download,
-          ),
-          _OptionTile(
-            icon: Icons.share,
-            label: l10n.share,
-            onTap: () => Navigator.pop(context),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _OptionTile extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  const _OptionTile({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      leading: Icon(icon, color: Colors.white70),
-      title: Text(label, style: const TextStyle(color: Colors.white)),
-      onTap: onTap,
-    );
-  }
-}

@@ -1,9 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
+import 'package:music_app/core/widgets/song_list_item.dart';
 import 'package:music_app/features/favorites/presentation/widgets/favorite_button.dart';
 import 'package:music_app/features/home/domain/entities/home_content_item.dart';
 import 'package:music_app/features/library/library_service.dart';
+import 'package:music_app/features/song_options/presentation/widgets/song_options_bottom_sheet.dart';
 
 /// Widget para mostrar una canción en formato card horizontal
 class SongCardWidget extends StatelessWidget {
@@ -216,24 +218,25 @@ class SongListItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final thumbnail = item.thumbnails.isNotEmpty ? item.thumbnails.first : null;
+    // Usar .last para obtener el thumbnail de mejor calidad
+    final thumbnail = item.thumbnails.isNotEmpty ? item.thumbnails.last : null;
     final artistsNames = item.artists.map((a) => a.name).join(', ');
 
     return GestureDetector(
       onTap: onTap,
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
         leading: thumbnail != null
             ? ClipRRect(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(4),
                 child: CachedNetworkImage(
                   imageUrl: thumbnail.url,
-                  width: 56,
-                  height: 56,
+                  width: 48,
+                  height: 48,
                   fit: BoxFit.cover,
                   placeholder: (context, url) => Container(
-                    width: 56,
-                    height: 56,
+                    width: 48,
+                    height: 48,
                     color: AppColorsDark.primaryContainer,
                     child: Center(
                       child: CircularProgressIndicator(
@@ -242,22 +245,22 @@ class SongListItemWidget extends StatelessWidget {
                     ),
                   ),
                   errorWidget: (context, url, error) => Container(
-                    width: 56,
-                    height: 56,
+                    width: 48,
+                    height: 48,
                     decoration: BoxDecoration(
                       color: AppColorsDark.primaryContainer,
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(4),
                     ),
                     child: Icon(Icons.music_note, color: AppColorsDark.primary),
                   ),
                 ),
               )
             : Container(
-                width: 56,
-                height: 56,
+                width: 48,
+                height: 48,
                 decoration: BoxDecoration(
                   color: AppColorsDark.primaryContainer,
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(4),
                 ),
                 child: Icon(Icons.music_note, color: AppColorsDark.primary),
               ),
@@ -265,16 +268,20 @@ class SongListItemWidget extends StatelessWidget {
           item.title,
           style: const TextStyle(
             color: Colors.white,
-            fontSize: 16,
+            fontSize: 15,
             fontWeight: FontWeight.w500,
           ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
         subtitle: Text(
           item.artists.isNotEmpty ? artistsNames : item.views,
           style: TextStyle(
             color: Colors.white.withValues(alpha: 0.6),
-            fontSize: 14,
+            fontSize: 13,
           ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
@@ -290,7 +297,21 @@ class SongListItemWidget extends StatelessWidget {
             ),
             IconButton(
               icon: Icon(Icons.more_vert, color: Colors.white.withValues(alpha: 0.6)),
-              onPressed: () {},
+              onPressed: () {
+                // Obtener thumbnail para el bottom sheet (usar mejor calidad)
+                final bottomSheetThumbnail = item.thumbnails.isNotEmpty ? item.thumbnails.last.url : null;
+                SongOptionsBottomSheet.show(
+                  context: context,
+                  song: SongOptionsData(
+                    videoId: item.videoId ?? '',
+                    title: item.title,
+                    artist: artistsNames,
+                    thumbnail: bottomSheetThumbnail,
+                    streamUrl: item.streamUrl,
+                    isFavorite: false, // No sabemos si es favorito
+                  ),
+                );
+              },
             ),
           ],
         ),
@@ -312,7 +333,8 @@ class PlaylistListItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final thumbnail = item.thumbnails.isNotEmpty ? item.thumbnails.first : null;
+    // Usar .last para obtener el thumbnail de mejor calidad
+    final thumbnail = item.thumbnails.isNotEmpty ? item.thumbnails.last : null;
 
     return GestureDetector(
       onTap: onTap,

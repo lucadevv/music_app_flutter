@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
+import 'package:music_app/core/widgets/song_list_item.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 import 'package:music_app/l10n/app_localizations.dart';
 
@@ -178,36 +179,9 @@ class _QueueItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
-      leading: Container(
-        width: 48,
-        height: 48,
-        decoration: BoxDecoration(
-          color: AppColorsDark.primaryContainer,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Icon(
-          Icons.music_note,
-          color: AppColorsDark.primary,
-          size: 24,
-        ),
-      ),
-      title: Text(
-        title,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-      subtitle: Text(
-        artist,
-        style: TextStyle(
-          color: Colors.white.withValues(alpha: 0.6),
-          fontSize: 14,
-        ),
-      ),
+    return SongListItemWithTrailing(
+      title: title,
+      artist: artist,
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

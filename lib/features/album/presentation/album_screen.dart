@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
+import 'package:music_app/core/widgets/song_list_item.dart';
 import 'package:music_app/l10n/app_localizations.dart';
 
 @RoutePage()
@@ -131,7 +132,6 @@ class AlbumScreen extends StatelessWidget {
               return GestureDetector(
                 onTap: () {},
                 child: _AlbumSongItem(
-                  number: index + 1,
                   title: '${l10n.song} ${index + 1}',
                   duration: '${3 + index}:${20 + index * 10}',
                 ),
@@ -146,39 +146,19 @@ class AlbumScreen extends StatelessWidget {
 }
 
 class _AlbumSongItem extends StatelessWidget {
-  final int number;
   final String title;
   final String duration;
 
   const _AlbumSongItem({
-    required this.number,
     required this.title,
     required this.duration,
   });
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-      leading: SizedBox(
-        width: 40,
-        child: Text(
-          '$number',
-          style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.6),
-            fontSize: 16,
-          ),
-          textAlign: TextAlign.center,
-        ),
-      ),
-      title: Text(
-        title,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
+    return SongListItemWithTrailing(
+      title: title,
+      artist: '', // Album songs typically don't show artist
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

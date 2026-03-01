@@ -28,17 +28,61 @@ class MyProfileScreen extends StatefulWidget implements AutoRouteWrapper {
   State<MyProfileScreen> createState() => _MyProfileScreenState();
 }
 
-class _MyProfileScreenState extends State<MyProfileScreen> {
+class _MyProfileScreenState extends State<MyProfileScreen> with SingleTickerProviderStateMixin {
   // Estadísticas del usuario
   int _favoriteSongsCount = 0;
   int _favoritePlaylistsCount = 0;
   int _favoriteGenresCount = 0;
   bool _isLoadingStats = true;
+  
+  // Animations
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+  late Animation<double> _scaleAnimation;
 
   @override
   void initState() {
     super.initState();
     _loadLibraryStats();
+    
+    // Setup animations
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
+      ),
+    );
+    
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.3),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.2, 0.8, curve: Curves.easeOutCubic),
+      ),
+    );
+    
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.0, 0.5, curve: Curves.elasticOut),
+      ),
+    );
+    
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadLibraryStats() async {
@@ -183,127 +227,170 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
           return RefreshIndicator(
             color: AppColorsDark.primary,
             onRefresh: _refreshAll,
-            child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                children: [
-                  // Profile picture
-                  _buildAvatar(state),
-                  const SizedBox(height: 24),
-
-                  // Name
-                  Text(
-                    state.displayName,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
+            child: AnimatedBuilder(
+              animation: _animationController,
+              builder: (context, child) {
+                return FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: SlideTransition(
+                    position: _slideAnimation,
+                    child: child,
                   ),
-                  const SizedBox(height: 32),
-
-                  // Email
-                  _ProfileField(
-                    label: l10n.email,
-                    value: state.email,
-                    icon: Icons.email_outlined,
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Provider
-                  _ProfileField(
-                    label: l10n.provider,
-                    value: state.provider.toUpperCase(),
-                    icon: Icons.login,
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Member since
-                  if (state.createdAt != null)
-                    _ProfileField(
-                      label: l10n.memberSince,
-                      value: _formatDate(state.createdAt!, l10n),
-                      icon: Icons.calendar_today_outlined,
+                );
+              },
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  children: [
+                    // Profile picture with scale animation
+                    ScaleTransition(
+                      scale: _scaleAnimation,
+                      child: _buildAvatar(state),
                     ),
-                  const SizedBox(height: 32),
+                    const SizedBox(height: 24),
 
-                  // Statistics
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.05),
-                      borderRadius: BorderRadius.circular(16),
+                    // Name with fade
+                    FadeTransition(
+                      opacity: _fadeAnimation,
+                      child: Text(
+                        state.displayName,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
-                    child: _isLoadingStats
-                        ? const Center(
-                            child: Padding(
-                              padding: EdgeInsets.all(16.0),
-                              child: SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: AppColorsDark.primary,
+                    const SizedBox(height: 32),
+
+                    // Email
+                    _AnimatedProfileField(
+                      delay: 0.1,
+                      child: _ProfileField(
+                        label: l10n.email,
+                        value: state.email,
+                        icon: Icons.email_outlined,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Provider
+                    _AnimatedProfileField(
+                      delay: 0.2,
+                      child: _ProfileField(
+                        label: l10n.provider,
+                        value: state.provider.toUpperCase(),
+                        icon: Icons.login,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Member since
+                    if (state.createdAt != null)
+                      _AnimatedProfileField(
+                        delay: 0.3,
+                        child: _ProfileField(
+                          label: l10n.memberSince,
+                          value: _formatDate(state.createdAt!, l10n),
+                          icon: Icons.calendar_today_outlined,
+                        ),
+                      ),
+                    const SizedBox(height: 32),
+
+                    // Statistics with animation
+                    _AnimatedStatCard(
+                      delay: 0.4,
+                      child: Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.05),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: _isLoadingStats
+                            ? const Center(
+                                child: Padding(
+                                  padding: EdgeInsets.all(16.0),
+                                  child: SizedBox(
+                                    width: 24,
+                                    height: 24,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: AppColorsDark.primary,
+                                    ),
+                                  ),
                                 ),
+                              )
+                            : Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                children: [
+                                  _StatCard(
+                                    icon: Icons.favorite,
+                                    number: _favoriteSongsCount.toString(),
+                                    label: l10n.songs,
+                                    onTap: () => context.router.push(const LikedSongsRoute()),
+                                  ),
+                                  Container(
+                                    width: 1,
+                                    height: 40,
+                                    color: Colors.white.withValues(alpha: 0.1),
+                                  ),
+                                  _StatCard(
+                                    icon: Icons.playlist_play,
+                                    number: _favoritePlaylistsCount.toString(),
+                                    label: l10n.playlists,
+                                    onTap: () {
+                                      // TODO: Navigate to playlists tab
+                                    },
+                                  ),
+                                  Container(
+                                    width: 1,
+                                    height: 40,
+                                    color: Colors.white.withValues(alpha: 0.1),
+                                  ),
+                                  _StatCard(
+                                    icon: Icons.library_music,
+                                    number: _favoriteGenresCount.toString(),
+                                    label: l10n.genres,
+                                  ),
+                                ],
                               ),
-                            ),
-                          )
-                        : Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              _StatCard(
-                                icon: Icons.favorite,
-                                number: _favoriteSongsCount.toString(),
-                                label: l10n.songs,
-                              ),
-                              Container(
-                                width: 1,
-                                height: 40,
-                                color: Colors.white.withValues(alpha: 0.1),
-                              ),
-                              _StatCard(
-                                icon: Icons.playlist_play,
-                                number: _favoritePlaylistsCount.toString(),
-                                label: l10n.playlists,
-                              ),
-                              Container(
-                                width: 1,
-                                height: 40,
-                                color: Colors.white.withValues(alpha: 0.1),
-                              ),
-                              _StatCard(
-                                icon: Icons.library_music,
-                                number: _favoriteGenresCount.toString(),
-                                label: l10n.genres,
-                              ),
-                            ],
-                          ),
-                  ),
-                  const SizedBox(height: 32),
+                      ),
+                    ),
+                    const SizedBox(height: 32),
 
-                  // Quick actions
-                  _QuickActionCard(
-                    icon: Icons.settings_outlined,
-                    title: l10n.settings,
-                    subtitle: l10n.appPreferencesAndAccountSettings,
-                    onTap: () => context.router.push(const SettingsRoute()),
-                  ),
-                  const SizedBox(height: 12),
-                  _QuickActionCard(
-                    icon: Icons.download_outlined,
-                    title: l10n.downloads,
-                    subtitle: l10n.manageYourDownloadedMusic,
-                    onTap: () => context.router.push(const DownloadsRoute()),
-                  ),
-                  const SizedBox(height: 12),
-                  _QuickActionCard(
-                    icon: Icons.language_outlined,
-                    title: l10n.language,
-                    subtitle: l10n.changeAppLanguage,
-                    onTap: () => context.router.push(const LanguageRoute()),
-                  ),
-                ],
+                    // Quick actions with staggered animations
+                    _AnimatedQuickAction(
+                      delay: 0.5,
+                      child: _QuickActionCard(
+                        icon: Icons.settings_outlined,
+                        title: l10n.settings,
+                        subtitle: l10n.appPreferencesAndAccountSettings,
+                        onTap: () => context.router.push(const SettingsRoute()),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    _AnimatedQuickAction(
+                      delay: 0.6,
+                      child: _QuickActionCard(
+                        icon: Icons.download_outlined,
+                        title: l10n.downloads,
+                        subtitle: l10n.manageYourDownloadedMusic,
+                        onTap: () => context.router.push(const DownloadsRoute()),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    _AnimatedQuickAction(
+                      delay: 0.7,
+                      child: _QuickActionCard(
+                        icon: Icons.language_outlined,
+                        title: l10n.language,
+                        subtitle: l10n.changeAppLanguage,
+                        onTap: () => context.router.push(const LanguageRoute()),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           );
@@ -444,40 +531,45 @@ class _StatCard extends StatelessWidget {
   final IconData icon;
   final String number;
   final String label;
+  final VoidCallback? onTap;
 
   const _StatCard({
     required this.icon,
     required this.number,
     required this.label,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Icon(
-          icon,
-          color: AppColorsDark.primary,
-          size: 24,
-        ),
-        const SizedBox(height: 8),
-        Text(
-          number,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Icon(
+            icon,
+            color: AppColorsDark.primary,
+            size: 24,
           ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.6),
-            fontSize: 12,
+          const SizedBox(height: 8),
+          Text(
+            number,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
-      ],
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.6),
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -550,6 +642,184 @@ class _QuickActionCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Animated wrapper for profile fields
+class _AnimatedProfileField extends StatefulWidget {
+  final double delay;
+  final Widget child;
+
+  const _AnimatedProfileField({
+    required this.delay,
+    required this.child,
+  });
+
+  @override
+  State<_AnimatedProfileField> createState() => _AnimatedProfileFieldState();
+}
+
+class _AnimatedProfileFieldState extends State<_AnimatedProfileField>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+    );
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.3),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
+    );
+
+    Future.delayed(Duration(milliseconds: (widget.delay * 1000).toInt()), () {
+      if (mounted) _controller.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: SlideTransition(
+        position: _slideAnimation,
+        child: widget.child,
+      ),
+    );
+  }
+}
+
+/// Animated wrapper for stat card
+class _AnimatedStatCard extends StatefulWidget {
+  final double delay;
+  final Widget child;
+
+  const _AnimatedStatCard({
+    required this.delay,
+    required this.child,
+  });
+
+  @override
+  State<_AnimatedStatCard> createState() => _AnimatedStatCardState();
+}
+
+class _AnimatedStatCardState extends State<_AnimatedStatCard>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
+
+    _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.elasticOut,
+      ),
+    );
+
+    Future.delayed(Duration(milliseconds: (widget.delay * 1000).toInt()), () {
+      if (mounted) _controller.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ScaleTransition(
+      scale: _scaleAnimation,
+      child: widget.child,
+    );
+  }
+}
+
+/// Animated wrapper for quick actions
+class _AnimatedQuickAction extends StatefulWidget {
+  final double delay;
+  final Widget child;
+
+  const _AnimatedQuickAction({
+    required this.delay,
+    required this.child,
+  });
+
+  @override
+  State<_AnimatedQuickAction> createState() => _AnimatedQuickActionState();
+}
+
+class _AnimatedQuickActionState extends State<_AnimatedQuickAction>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 400),
+      vsync: this,
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+    );
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0.3, 0),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
+    );
+
+    Future.delayed(Duration(milliseconds: (widget.delay * 1000).toInt()), () {
+      if (mounted) _controller.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: SlideTransition(
+        position: _slideAnimation,
+        child: widget.child,
       ),
     );
   }
