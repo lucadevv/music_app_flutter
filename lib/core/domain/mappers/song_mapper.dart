@@ -1,4 +1,4 @@
-import 'package:music_app/core/domain/entities/song.dart';
+import 'package:music_app/core/domain/entities/song.dart' as core;
 import 'package:music_app/features/search/domain/entities/song.dart' as search;
 import 'package:music_app/features/downloads/domain/entities/downloaded_song.dart';
 import 'package:music_app/features/home/domain/entities/chart_song.dart';
@@ -49,11 +49,11 @@ class RecentSong {
 /// Mappers para convertir entre las diferentes entidades de Song y la entidad centralizada.
 ///
 /// Esta clase proporciona métodos para convertir fácilmente
-/// desde las entidades específicas de cada feature hacia la entidad [Song] central.
+/// desde las entidades específicas de cada feature hacia la entidad [core.Song] central.
 class SongMapper {
-  /// Crea una instancia de [Song] desde [search.Song] (búsqueda)
-  static Song fromSearchSong(search.Song song) {
-    return Song(
+  /// Crea una instancia de [core.Song] desde [search.Song] (búsqueda)
+  static core.Song fromSearchSong(search.Song song) {
+    return core.Song(
       videoId: song.videoId,
       title: song.title,
       artist: song.artists.isNotEmpty ? song.artists.first.name : 'Unknown',
@@ -62,7 +62,7 @@ class SongMapper {
       thumbnail: song.thumbnails.isNotEmpty ? song.thumbnails.first.url : null,
       highThumbnail: song.thumbnail?.url ?? song.thumbnails.lastOrNull?.url,
       thumbnails: song.thumbnails
-          .map((t) => Thumbnail(url: t.url, width: t.width ?? 0, height: t.height ?? 0))
+          .map((t) => core.Thumbnail(url: t.url, width: t.width ?? 0, height: t.height ?? 0))
           .toList(),
       streamUrl: song.streamUrl,
       durationSeconds: song.durationSeconds,
@@ -73,9 +73,9 @@ class SongMapper {
     );
   }
 
-  /// Crea una instancia de [Song] desde [DownloadedSong]
-  static Song fromDownloadedSong(DownloadedSong song) {
-    return Song(
+  /// Crea una instancia de [core.Song] desde [DownloadedSong]
+  static core.Song fromDownloadedSong(DownloadedSong song) {
+    return core.Song(
       videoId: song.videoId,
       title: song.title,
       artist: song.artist,
@@ -90,9 +90,9 @@ class SongMapper {
     );
   }
 
-  /// Crea una instancia de [Song] desde [ChartSong]
-  static Song fromChartSong(ChartSong song) {
-    return Song(
+  /// Crea una instancia de [core.Song] desde [ChartSong]
+  static core.Song fromChartSong(ChartSong song) {
+    return core.Song(
       videoId: song.videoId,
       title: song.title,
       artist: song.artist,
@@ -102,9 +102,9 @@ class SongMapper {
     );
   }
 
-  /// Crea una instancia de [Song] desde [SongMetadata] (library)
-  static Song fromSongMetadata(SongMetadata metadata, String videoId) {
-    return Song(
+  /// Crea una instancia de [core.Song] desde [SongMetadata] (library)
+  static core.Song fromSongMetadata(SongMetadata metadata, String videoId) {
+    return core.Song(
       videoId: videoId,
       title: metadata.title ?? 'Unknown',
       artist: metadata.artist ?? 'Unknown',
@@ -113,9 +113,9 @@ class SongMapper {
     );
   }
 
-  /// Crea una instancia de [Song] desde [FavoriteSong] (library)
-  static Song fromFavoriteSong(FavoriteSong song) {
-    return Song(
+  /// Crea una instancia de [core.Song] desde [FavoriteSong] (library)
+  static core.Song fromFavoriteSong(FavoriteSong song) {
+    return core.Song(
       videoId: song.videoId,
       title: song.title ?? 'Unknown',
       artist: song.artist ?? 'Unknown',
@@ -126,9 +126,9 @@ class SongMapper {
     );
   }
 
-  /// Crea una instancia de [Song] desde [UserPlaylistSong]
-  static Song fromUserPlaylistSong(UserPlaylistSong song) {
-    return Song(
+  /// Crea una instancia de [core.Song] desde [UserPlaylistSong]
+  static core.Song fromUserPlaylistSong(UserPlaylistSong song) {
+    return core.Song(
       videoId: song.videoId,
       title: song.title ?? 'Unknown',
       artist: song.artist ?? 'Unknown',
@@ -138,9 +138,9 @@ class SongMapper {
     );
   }
 
-  /// Crea una instancia de [Song] desde [RecentSong] (recently played)
-  static Song fromRecentSong(RecentSong song) {
-    return Song(
+  /// Crea una instancia de [core.Song] desde [RecentSong] (recently played)
+  static core.Song fromRecentSong(RecentSong song) {
+    return core.Song(
       videoId: song.videoId,
       title: song.title ?? 'Unknown',
       artist: song.artist ?? 'Unknown',
@@ -150,23 +150,23 @@ class SongMapper {
     );
   }
 
-  /// Convierte una lista de [search.Song] a [Song]
-  static List<Song> fromSearchSongList(List<search.Song> songs) {
+  /// Convierte una lista de [search.Song] a [core.Song]
+  static List<core.Song> fromSearchSongList(List<search.Song> songs) {
     return songs.map(fromSearchSong).toList();
   }
 
-  /// Convierte una lista de [DownloadedSong] a [Song]
-  static List<Song> fromDownloadedSongList(List<DownloadedSong> songs) {
+  /// Convierte una lista de [DownloadedSong] a [core.Song]
+  static List<core.Song> fromDownloadedSongList(List<DownloadedSong> songs) {
     return songs.map(fromDownloadedSong).toList();
   }
 
-  /// Convierte una lista de [FavoriteSong] a [Song]
-  static List<Song> fromFavoriteSongList(List<FavoriteSong> songs) {
+  /// Convierte una lista de [FavoriteSong] a [core.Song]
+  static List<core.Song> fromFavoriteSongList(List<FavoriteSong> songs) {
     return songs.map(fromFavoriteSong).toList();
   }
 
-  /// Convierte una lista de [RecentSong] a [Song]
-  static List<Song> fromRecentSongList(List<RecentSong> songs) {
+  /// Convierte una lista de [RecentSong] a [core.Song]
+  static List<core.Song> fromRecentSongList(List<RecentSong> songs) {
     return songs.map(fromRecentSong).toList();
   }
 }
