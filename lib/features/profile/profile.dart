@@ -2,6 +2,5 @@
 //
 // Exporta todos los componentes públicos de la feature profile.
 
-// Re-export from new location for compatibility
-export 'presentation/cubit/profile_cubit.dart'; // exports both cubit and state (state is part of cubit)
+// Re-export services only (profile_cubit.dart has part file that can't be exported)
 export 'data/services/profile_service.dart';

@@ -27,7 +27,7 @@ class SongModel extends domain.Song {
       album = domain.SearchAlbum(
         id: albumModel.id,
         name: albumModel.name,
-        artists: albumModel.artists.map((a) => domain.SearchArtist(id: a.id, name: a.name)).toList(),
+        artists: [], // SearchAlbumModel doesn't have artists
       );
     } else {
       album = const domain.SearchAlbum(id: '', name: '', artists: []);
