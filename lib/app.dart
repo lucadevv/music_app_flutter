@@ -7,6 +7,7 @@ import 'package:music_app/core/theme/app_theme.dart';
 import 'package:music_app/core/theme/theme_cubit.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/downloads/presentation/cubit/downloads_cubit.dart';
+import 'package:music_app/features/profile/profile_cubit.dart';
 import 'package:music_app/l10n/app_localizations.dart';
 import 'package:music_app/main.dart';
 
@@ -23,6 +24,7 @@ class _AppState extends State<App> {
   LocaleCubit? _localeCubit;
   PlayerBlocBloc? _playerBlocBloc;
   DownloadsCubit? _downloadsCubit;
+  ProfileCubit? _profileCubit;
   bool _isInitialized = false;
 
   @override
@@ -37,6 +39,7 @@ class _AppState extends State<App> {
     _localeCubit?.close();
     _playerBlocBloc?.close();
     _downloadsCubit?.close();
+    _profileCubit?.close();
     super.dispose();
   }
 
@@ -62,6 +65,10 @@ class _AppState extends State<App> {
       _downloadsCubit = await getIt.getAsync<DownloadsCubit>();
       print('[App] DownloadsCubit resolved: $_downloadsCubit');
       
+      // ProfileCubit es singleton registrado en AppInjection
+      _profileCubit = getIt<ProfileCubit>();
+      print('[App] ProfileCubit resolved: $_profileCubit');
+      
       print('[App] All cubits initialized successfully');
     } catch (e, stack) {
       print('[App] ERROR in _initApp(): $e');
@@ -77,7 +84,7 @@ class _AppState extends State<App> {
 
   @override
   Widget build(BuildContext context) {
-    if (!_isInitialized || _themeCubit == null || _localeCubit == null || _playerBlocBloc == null || _downloadsCubit == null) {
+    if (!_isInitialized || _themeCubit == null || _localeCubit == null || _playerBlocBloc == null || _downloadsCubit == null || _profileCubit == null) {
       return MaterialApp(
         title: 'Music App',
         theme: AppTheme.dark(),
@@ -99,6 +106,7 @@ class _AppState extends State<App> {
         BlocProvider.value(value: _localeCubit!),
         BlocProvider.value(value: _playerBlocBloc!),
         BlocProvider.value(value: _downloadsCubit!),
+        BlocProvider.value(value: _profileCubit!),
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(
         builder: (context, themeState) {
