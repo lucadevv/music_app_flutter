@@ -19,15 +19,13 @@ import 'package:music_app/main.dart';
 /// La clase usa la abstracción ApiServices y puede ser reemplazada fácilmente.
 class DioApiServicesImpl implements ApiServices {
   final Dio _dio;
-  final String? _accessToken;
   bool _isRefreshing = false;
   Completer<bool>? _refreshTokenCompleter;
   bool _isHandlingAuthError = false;
   Completer<void>? _handleAuthErrorCompleter;
 
-  DioApiServicesImpl(String baseUrl, {String? accessToken})
-    : _accessToken = accessToken,
-      _dio = Dio(
+  DioApiServicesImpl(String baseUrl)
+    : _dio = Dio(
         BaseOptions(
           baseUrl: baseUrl,
           connectTimeout: const Duration(seconds: 10),
@@ -58,18 +56,12 @@ class DioApiServicesImpl implements ApiServices {
                 .getCurrentAccessToken();
             if (currentAccessToken != null && currentAccessToken.isNotEmpty) {
               options.headers['Authorization'] = 'Bearer $currentAccessToken';
-            } else if (_accessToken != null && _accessToken.isNotEmpty) {
-              options.headers['Authorization'] = 'Bearer $_accessToken';
             }
           } catch (e) {
             if (kDebugMode) {
               debugPrint(
                 'DioApiServicesImpl: Error obteniendo access token: $e',
               );
-            }
-            // Si falla, usar el token inicial si existe
-            if (_accessToken != null && _accessToken.isNotEmpty) {
-              options.headers['Authorization'] = 'Bearer $_accessToken';
             }
           }
 

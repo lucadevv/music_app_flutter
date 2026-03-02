@@ -97,16 +97,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AppInjection {
   final GetIt _getIt;
   final String _baseUrl;
-  final String _accessToken;
   bool _isInitialized = false;
 
   AppInjection({
     required GetIt getIt,
     required String baseUrl,
-    required String accessToken,
   }) : _getIt = getIt,
-       _baseUrl = baseUrl,
-       _accessToken = accessToken {
+       _baseUrl = baseUrl {
     // Don't call _init() here - call init() explicitly from main.dart
   }
 
@@ -131,7 +128,7 @@ class AppInjection {
 
     if (!_getIt.isRegistered<ApiServices>()) {
       _getIt.registerLazySingleton<ApiServices>(
-        () => DioApiServicesImpl(_baseUrl, accessToken: _accessToken),
+        () => DioApiServicesImpl(_baseUrl),
       );
     } else {}
 
