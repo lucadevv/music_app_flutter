@@ -28,10 +28,13 @@ class DioApiServicesImpl implements ApiServices {
     : _dio = Dio(
         BaseOptions(
           baseUrl: baseUrl,
-          connectTimeout: const Duration(seconds: 10),
-          receiveTimeout: const Duration(seconds: 10),
+          connectTimeout: const Duration(seconds: 30),
+          receiveTimeout: const Duration(seconds: 30),
         ),
       ) {
+    if (kDebugMode) {
+      debugPrint('DioApiServicesImpl: Base URL = $baseUrl');
+    }
     _setupInterceptors();
   }
 
@@ -49,6 +52,10 @@ class DioApiServicesImpl implements ApiServices {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
+          if (kDebugMode) {
+            debugPrint('DioApiServicesImpl: REQUEST ${options.method} ${options.uri}');
+          }
+          
           // Obtener el access token actual del AuthManager
           try {
             final authManager = await getIt.getAsync<AuthManager>();
@@ -56,11 +63,18 @@ class DioApiServicesImpl implements ApiServices {
                 .getCurrentAccessToken();
             if (currentAccessToken != null && currentAccessToken.isNotEmpty) {
               options.headers['Authorization'] = 'Bearer $currentAccessToken';
+              if (kDebugMode) {
+                debugPrint('DioApiServicesImpl: Token added');
+              }
+            } else {
+              if (kDebugMode) {
+                debugPrint('DioApiServicesImpl: No token available');
+              }
             }
           } catch (e) {
             if (kDebugMode) {
               debugPrint(
-                'DioApiServicesImpl: Error obteniendo access token: $e',
+                'DioApiServicesImpl: Error obtaining access token: $e',
               );
             }
           }
@@ -68,6 +82,11 @@ class DioApiServicesImpl implements ApiServices {
           return handler.next(options);
         },
         onError: (e, handler) async {
+          if (kDebugMode) {
+            debugPrint('DioApiServicesImpl: ERROR ${e.type} ${e.message}');
+            debugPrint('DioApiServicesImpl: Response: ${e.response}');
+          }
+          
           final statusCode = e.response?.statusCode;
 
           // Solo considerar errores de token para códigos específicos
@@ -299,18 +318,32 @@ class DioApiServicesImpl implements ApiServices {
     int attempts = 0;
     DioException? lastError;
 
+    if (kDebugMode) {
+      debugPrint('DioApiServicesImpl: Starting request (max retries: $maxRetries)');
+    }
+
     while (attempts < maxRetries) {
       try {
+        if (kDebugMode) {
+          debugPrint('DioApiServicesImpl: Attempt ${attempts + 1}/$maxRetries');
+        }
         return await request();
       } on DioException catch (e) {
         lastError = e;
         attempts++;
+
+        if (kDebugMode) {
+          debugPrint('DioApiServicesImpl: Attempt failed - ${e.type}: ${e.message}');
+        }
 
         // No hacer retry para errores 4xx (excepto 401 que ya se maneja en el interceptor)
         if (e.response?.statusCode != null &&
             e.response!.statusCode! >= 400 &&
             e.response!.statusCode! < 500 &&
             e.response!.statusCode != 401) {
+          if (kDebugMode) {
+            debugPrint('DioApiServicesImpl: 4xx error, not retrying');
+          }
           rethrow;
         }
 

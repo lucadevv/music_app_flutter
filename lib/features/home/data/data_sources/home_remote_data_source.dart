@@ -26,11 +26,23 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
   @override
   Future<Either<AppException, HomeResponse>> getHome() async {
     try {
+      if (kDebugMode) {
+        debugPrint('HomeRemoteDataSource: Calling /music/explore');
+      }
+      
       final endpoint = '/music/explore?include_stream_urls=true';
       final response = await _apiServices.get(endpoint);
 
+      if (kDebugMode) {
+        debugPrint('HomeRemoteDataSource: Response received');
+      }
+
       // Dio devuelve Response, necesitamos acceder a response.data
       final responseData = response is Response ? response.data : response;
+
+      if (kDebugMode) {
+        debugPrint('HomeRemoteDataSource: responseData type = ${responseData.runtimeType}');
+      }
 
       if (responseData is Map<String, dynamic>) {
         // Debug: Ver qué está llegando de la API
@@ -63,6 +75,9 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
         return Left(exception);
       }
     } catch (e) {
+      if (kDebugMode) {
+        debugPrint('HomeRemoteDataSource: Exception - $e');
+      }
       final appException = ExceptionHandler.handleException(e);
       ExceptionHandler.logException(appException, context: 'getHome');
       return Left(appException);
