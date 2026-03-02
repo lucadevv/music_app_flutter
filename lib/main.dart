@@ -7,7 +7,7 @@ import 'package:music_app/core/config/app_config.dart';
 import 'package:music_app/core/managers/auth/auth_manager.dart';
 import 'package:music_app/core/services/audio_handler_service.dart';
 import 'package:music_app/data/offline/services/offline_service.dart';
-import 'package:music_app/features/profile/profile_cubit.dart';
+import 'package:music_app/features/profile/presentation/cubit/profile_cubit.dart';
 
 
 final GetIt getIt = GetIt.instance;
