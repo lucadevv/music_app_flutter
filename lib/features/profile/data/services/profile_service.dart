@@ -195,4 +195,36 @@ class ProfileService {
       rethrow;
     }
   }
+
+  /// Get library summary (favorite songs, playlists, genres count)
+  Future<LibrarySummary> getLibrarySummary() async {
+    try {
+      final response = await _apiServices.get('/library/summary');
+      final data = response is Response ? response.data : response;
+      return LibrarySummary.fromJson(data);
+    } catch (e) {
+      rethrow;
+    }
+  }
+}
+
+/// Library summary data
+class LibrarySummary {
+  final int favoriteSongsCount;
+  final int favoritePlaylistsCount;
+  final int favoriteGenresCount;
+
+  const LibrarySummary({
+    this.favoriteSongsCount = 0,
+    this.favoritePlaylistsCount = 0,
+    this.favoriteGenresCount = 0,
+  });
+
+  factory LibrarySummary.fromJson(Map<String, dynamic> json) {
+    return LibrarySummary(
+      favoriteSongsCount: json['favoriteSongsCount'] ?? 0,
+      favoritePlaylistsCount: json['favoritePlaylistsCount'] ?? 0,
+      favoriteGenresCount: json['favoriteGenresCount'] ?? 0,
+    );
+  }
 }

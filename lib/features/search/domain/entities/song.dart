@@ -71,4 +71,7 @@ class Thumbnail extends Equatable {
     this.width,
     this.height,
   });
+
+  @override
+  List<Object?> get props => [url, width, height];
 }

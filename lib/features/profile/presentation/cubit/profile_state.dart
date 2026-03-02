@@ -2,7 +2,8 @@ part of 'profile_cubit.dart';
 
 class ProfileState {
   final bool isLoading;
-  final String? error;
+  final String? errorMessage;
+  final UserProfile? profile;
   final String id;
   final String email;
   final String? firstName;
@@ -26,7 +27,8 @@ class ProfileState {
 
   const ProfileState({
     this.isLoading = false,
-    this.error,
+    this.errorMessage,
+    this.profile,
     this.id = '',
     this.email = '',
     this.firstName,
@@ -47,6 +49,9 @@ class ProfileState {
   });
 
   String get displayName {
+    final name = profile?.displayName;
+    if (name != null && name.isNotEmpty) return name;
+    
     if (firstName != null && firstName!.isNotEmpty) {
       if (lastName != null && lastName!.isNotEmpty) {
         return '$firstName $lastName';
@@ -60,6 +65,9 @@ class ProfileState {
   }
 
   String get initials {
+    final init = profile?.initials;
+    if (init != null && init.isNotEmpty) return init;
+    
     if (firstName != null && firstName!.isNotEmpty) {
       if (lastName != null && lastName!.isNotEmpty) {
         return '${firstName![0]}${lastName![0]}'.toUpperCase();
@@ -76,7 +84,8 @@ class ProfileState {
 
   ProfileState copyWith({
     bool? isLoading,
-    String? error,
+    String? errorMessage,
+    UserProfile? profile,
     String? id,
     String? email,
     String? firstName,
@@ -99,7 +108,8 @@ class ProfileState {
   }) {
     return ProfileState(
       isLoading: isLoading ?? this.isLoading,
-      error: clearError ? null : (error ?? this.error),
+      errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+      profile: profile ?? this.profile,
       id: id ?? this.id,
       email: email ?? this.email,
       firstName: firstName ?? this.firstName,
