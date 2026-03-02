@@ -1,7 +1,6 @@
 import '../../domain/entities/song.dart' as domain;
 import 'search_album_model.dart';
 import 'search_artist_model.dart';
-import 'thumbnail_model.dart';
 
 /// Modelo de datos para una canción en los resultados de búsqueda
 class SongModel extends domain.Song {
@@ -28,9 +27,10 @@ class SongModel extends domain.Song {
       album = domain.SearchAlbum(
         id: albumModel.id,
         name: albumModel.name,
+        artists: albumModel.artists.map((a) => domain.SearchArtist(id: a.id, name: a.name)).toList(),
       );
     } else {
-      album = const domain.SearchAlbum(id: '', name: '');
+      album = const domain.SearchAlbum(id: '', name: '', artists: []);
     }
 
     // Parse artists
