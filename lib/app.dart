@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:music_app/core/app_router/app_routes.dart';
 import 'package:music_app/core/bloc/locale_cubit.dart';
 import 'package:music_app/core/theme/app_theme.dart';
 import 'package:music_app/core/theme/theme_cubit.dart';
+import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
+import 'package:music_app/features/downloads/presentation/cubit/downloads_cubit.dart';
 import 'package:music_app/l10n/app_localizations.dart';
 import 'package:music_app/main.dart';
 
@@ -18,6 +21,8 @@ class _AppState extends State<App> {
   final _router = getIt<AppRouter>();
   ThemeCubit? _themeCubit;
   LocaleCubit? _localeCubit;
+  PlayerBlocBloc? _playerBlocBloc;
+  DownloadsCubit? _downloadsCubit;
   bool _isInitialized = false;
 
   @override
@@ -30,16 +35,37 @@ class _AppState extends State<App> {
   void dispose() {
     _themeCubit?.close();
     _localeCubit?.close();
+    _playerBlocBloc?.close();
+    _downloadsCubit?.close();
     super.dispose();
   }
 
   Future<void> _initApp() async {
     try {
+      // CRITICAL: Must wait for all async singletons to be ready first
+      // This ensures ThemeCubit, LocaleCubit, DownloadsCubit are fully initialized
+      print('[App] Waiting for getIt.allReady()...');
+      await getIt.allReady();
+      print('[App] getIt.allReady() completed');
+      
+      // Now safe to get async singletons
       _themeCubit = await getIt.getAsync<ThemeCubit>();
+      print('[App] ThemeCubit resolved: $_themeCubit');
+      
       _localeCubit = await getIt.getAsync<LocaleCubit>();
-      debugPrint('App._initApp: App inicializada correctamente');
-    } catch (e) {
-      debugPrint('App._initApp: Error inicializando app: $e');
+      print('[App] LocaleCubit resolved: $_localeCubit');
+      
+      _playerBlocBloc = getIt<PlayerBlocBloc>();
+      print('[App] PlayerBlocBloc resolved: $_playerBlocBloc');
+      
+      // DownloadsCubit es lazy singleton async
+      _downloadsCubit = await getIt.getAsync<DownloadsCubit>();
+      print('[App] DownloadsCubit resolved: $_downloadsCubit');
+      
+      print('[App] All cubits initialized successfully');
+    } catch (e, stack) {
+      print('[App] ERROR in _initApp(): $e');
+      print('[App] Stack trace: $stack');
     } finally {
       if (mounted) {
         setState(() {
@@ -51,18 +77,19 @@ class _AppState extends State<App> {
 
   @override
   Widget build(BuildContext context) {
-    if (!_isInitialized || _themeCubit == null || _localeCubit == null) {
+    if (!_isInitialized || _themeCubit == null || _localeCubit == null || _playerBlocBloc == null || _downloadsCubit == null) {
       return MaterialApp(
         title: 'Music App',
         theme: AppTheme.dark(),
         home: const Scaffold(
           body: Center(
-            child: const CircularProgressIndicator(),
+            child:  CircularProgressIndicator(),
           ),
         ),
         debugShowCheckedModeBanner: false,
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
+     
       );
     }
 
@@ -70,22 +97,25 @@ class _AppState extends State<App> {
       providers: [
         BlocProvider.value(value: _themeCubit!),
         BlocProvider.value(value: _localeCubit!),
+        BlocProvider.value(value: _playerBlocBloc!),
+        BlocProvider.value(value: _downloadsCubit!),
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(
         builder: (context, themeState) {
           return BlocBuilder<LocaleCubit, LocaleState>(
             builder: (context, localeState) {
-              return MaterialApp.router(
-                title: 'Music App',
-                theme: AppTheme.light(),
-                darkTheme: AppTheme.dark(),
-                themeMode: themeState.themeMode,
-                routerConfig: _router.config(),
-                debugShowCheckedModeBanner: false,
-                localizationsDelegates: AppLocalizations.localizationsDelegates,
-                supportedLocales: AppLocalizations.supportedLocales,
-                locale: localeState.isLoading ? null : localeState.locale,
-              );
+            return MaterialApp.router(
+              title: 'Music App',
+              theme: AppTheme.light(),
+              darkTheme: AppTheme.dark(),
+              themeMode: themeState.themeMode,
+              routerConfig: _router.config(),
+         
+              debugShowCheckedModeBanner: false,
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              locale: localeState.isLoading ? null : localeState.locale,
+            );
             },
           );
         },
@@ -93,3 +123,4 @@ class _AppState extends State<App> {
     );
   }
 }
+
