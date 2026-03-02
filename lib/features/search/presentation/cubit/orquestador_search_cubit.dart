@@ -3,7 +3,8 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../cubit/recent_searches_cubit.dart' show RecentSearchesCubit, RecentSearchesState;
+import '../cubit/recent_searches_cubit.dart'
+    show RecentSearchesCubit, RecentSearchesState;
 import '../cubit/search_cubit.dart' show SearchCubit, SearchStatus, SearchState;
 
 part 'orquestador_search_effect.dart';
@@ -21,9 +22,9 @@ class OrquestadorSearchCubit extends Cubit<OrquestadorSearchState> {
   OrquestadorSearchCubit({
     required SearchCubit searchCubit,
     required RecentSearchesCubit recentSearchesCubit,
-  })  : _searchCubit = searchCubit,
-        _recentSearchesCubit = recentSearchesCubit,
-        super(OrquestadorSearchState.initial()) {
+  }) : _searchCubit = searchCubit,
+       _recentSearchesCubit = recentSearchesCubit,
+       super(OrquestadorSearchState.initial()) {
     _startListening();
   }
 
@@ -32,8 +33,9 @@ class OrquestadorSearchCubit extends Cubit<OrquestadorSearchState> {
     _searchSubscription = _searchCubit.stream.listen(_updateSearchState);
 
     // Escuchar cambios del RecentSearchesCubit
-    _recentSearchesSubscription =
-        _recentSearchesCubit.stream.listen(_updateRecentSearchesState);
+    _recentSearchesSubscription = _recentSearchesCubit.stream.listen(
+      _updateRecentSearchesState,
+    );
   }
 
   void _updateSearchState(SearchState state) {

@@ -22,10 +22,7 @@ class ArtistRepositoryImpl implements ArtistRepository {
         description: data['description'],
       );
     } catch (e) {
-      return Artist(
-        id: artistId,
-        name: 'Unknown Artist',
-      );
+      return Artist(id: artistId, name: 'Unknown Artist');
     }
   }
 
@@ -36,13 +33,17 @@ class ArtistRepositoryImpl implements ArtistRepository {
       final data = response is Response ? response.data : response;
       final List<dynamic> songs = data['songs'] ?? [];
 
-      return songs.map((song) => ArtistSong(
-        videoId: song['videoId'] ?? '',
-        title: song['title'] ?? 'Unknown',
-        thumbnail: song['thumbnail'],
-        durationSeconds: song['durationSeconds'] ?? 0,
-        views: song['views'] ?? 0,
-      )).toList();
+      return songs
+          .map(
+            (song) => ArtistSong(
+              videoId: song['videoId'] ?? '',
+              title: song['title'] ?? 'Unknown',
+              thumbnail: song['thumbnail'],
+              durationSeconds: song['durationSeconds'] ?? 0,
+              views: song['views'] ?? 0,
+            ),
+          )
+          .toList();
     } catch (e) {
       return [];
     }
@@ -55,13 +56,17 @@ class ArtistRepositoryImpl implements ArtistRepository {
       final data = response is Response ? response.data : response;
       final List<dynamic> albums = data['albums'] ?? [];
 
-      return albums.map((album) => ArtistAlbum(
-        id: album['id'] ?? '',
-        title: album['title'] ?? 'Unknown',
-        thumbnail: album['thumbnail'],
-        year: album['year'] ?? 2024,
-        songCount: album['songCount'] ?? 0,
-      )).toList();
+      return albums
+          .map(
+            (album) => ArtistAlbum(
+              id: album['id'] ?? '',
+              title: album['title'] ?? 'Unknown',
+              thumbnail: album['thumbnail'],
+              year: album['year'] ?? 2024,
+              songCount: album['songCount'] ?? 0,
+            ),
+          )
+          .toList();
     } catch (e) {
       return [];
     }

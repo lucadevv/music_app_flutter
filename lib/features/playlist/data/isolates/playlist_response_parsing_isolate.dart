@@ -2,14 +2,14 @@ import 'package:flutter/foundation.dart';
 import '../models/playlist_response_model.dart';
 
 /// Helper para parsear PlaylistResponse grandes en isolates
-/// 
+///
 /// Útil cuando una playlist tiene muchos tracks (>100) y el parsing
 /// podría bloquear el hilo principal
 class PlaylistResponseParsingIsolate {
   /// Parsea un PlaylistResponse en un isolate si es grande
-  /// 
+  ///
   /// [json] El JSON a parsear
-  /// 
+  ///
   /// Retorna [PlaylistResponseModel]
   static Future<PlaylistResponseModel> parseInIsolate(
     Map<String, dynamic> json,
@@ -29,7 +29,9 @@ class PlaylistResponseParsingIsolate {
     } catch (e) {
       // Si falla el isolate, usar el método síncrono como fallback
       if (kDebugMode) {
-        debugPrint('PlaylistResponse isolate falló, usando método síncrono: $e');
+        debugPrint(
+          'PlaylistResponse isolate falló, usando método síncrono: $e',
+        );
       }
       return PlaylistResponseModel.fromJson(json);
     }

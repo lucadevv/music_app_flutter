@@ -24,7 +24,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   void _sendResetEmail() {
     if (_formKey.currentState!.validate()) {
-      
       setState(() {
         _emailSent = true;
       });
@@ -98,15 +97,22 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     decoration: InputDecoration(
                       labelText: 'Email',
                       hintText: 'tu@email.com',
-                      prefixIcon: const Icon(Icons.email, color: AppColorsDark.primary),
+                      prefixIcon: const Icon(
+                        Icons.email,
+                        color: AppColorsDark.primary,
+                      ),
                       filled: true,
                       fillColor: AppColorsDark.surfaceContainerHigh,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20),
                         borderSide: BorderSide.none,
                       ),
-                      labelStyle: const TextStyle(color: AppColorsDark.onSurfaceVariant),
-                      hintStyle: const TextStyle(color: AppColorsDark.onSurfaceVariant),
+                      labelStyle: const TextStyle(
+                        color: AppColorsDark.onSurfaceVariant,
+                      ),
+                      hintStyle: const TextStyle(
+                        color: AppColorsDark.onSurfaceVariant,
+                      ),
                     ),
                     style: const TextStyle(color: AppColorsDark.onSurface),
                     validator: (value) {

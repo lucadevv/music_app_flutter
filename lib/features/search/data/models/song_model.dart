@@ -23,7 +23,9 @@ class SongModel extends domain.Song {
     // Parse album
     domain.SearchAlbum album;
     if (json['album'] != null) {
-      final albumModel = SearchAlbumModel.fromJson(json['album'] as Map<String, dynamic>);
+      final albumModel = SearchAlbumModel.fromJson(
+        json['album'] as Map<String, dynamic>,
+      );
       album = domain.SearchAlbum(
         id: albumModel.id,
         name: albumModel.name,
@@ -36,12 +38,12 @@ class SongModel extends domain.Song {
     // Parse artists
     List<domain.SearchArtist> artists = [];
     if (json['artists'] != null) {
-      artists = (json['artists'] as List<dynamic>)
-          .map((artist) {
-            final model = SearchArtistModel.fromJson(artist as Map<String, dynamic>);
-            return domain.SearchArtist(id: model.id, name: model.name);
-          })
-          .toList();
+      artists = (json['artists'] as List<dynamic>).map((artist) {
+        final model = SearchArtistModel.fromJson(
+          artist as Map<String, dynamic>,
+        );
+        return domain.SearchArtist(id: model.id, name: model.name);
+      }).toList();
     }
 
     // Parse thumbnails
@@ -49,11 +51,13 @@ class SongModel extends domain.Song {
     if (json['thumbnails'] != null) {
       thumbnails = (json['thumbnails'] as List<dynamic>)
           .whereType<Map<String, dynamic>>()
-          .map((thumb) => domain.Thumbnail(
-                url: thumb['url'] as String? ?? '',
-                width: thumb['width'] as int?,
-                height: thumb['height'] as int?,
-              ))
+          .map(
+            (thumb) => domain.Thumbnail(
+              url: thumb['url'] as String? ?? '',
+              width: thumb['width'] as int?,
+              height: thumb['height'] as int?,
+            ),
+          )
           .toList();
     }
 
@@ -97,9 +101,16 @@ class SongModel extends domain.Song {
       'views': views,
       'isExplicit': isExplicit,
       'inLibrary': inLibrary,
-      'thumbnails': thumbnails.map((t) => {'url': t.url, 'width': t.width, 'height': t.height}).toList(),
+      'thumbnails': thumbnails
+          .map((t) => {'url': t.url, 'width': t.width, 'height': t.height})
+          .toList(),
       if (streamUrl != null) 'stream_url': streamUrl,
-      if (thumbnail != null) 'thumbnail': {'url': thumbnail!.url, 'width': thumbnail!.width, 'height': thumbnail!.height},
+      if (thumbnail != null)
+        'thumbnail': {
+          'url': thumbnail!.url,
+          'width': thumbnail!.width,
+          'height': thumbnail!.height,
+        },
     };
   }
 }

@@ -125,13 +125,13 @@ class OfflinePlaylist extends HiveObject {
 
   /// Convierte a JSON para sincronización
   Map<String, dynamic> toJson() => {
-        'playlistId': playlistId,
-        'externalPlaylistId': externalPlaylistId,
-        'name': name,
-        'description': description,
-        'thumbnail': thumbnail,
-        'videoIds': videoIds,
-        'trackCount': trackCount,
-        'createdAt': createdAt.toIso8601String(),
-      };
+    'playlistId': playlistId,
+    'externalPlaylistId': externalPlaylistId,
+    'name': name,
+    'description': description,
+    'thumbnail': thumbnail,
+    'videoIds': videoIds,
+    'trackCount': trackCount,
+    'createdAt': createdAt.toIso8601String(),
+  };
 }

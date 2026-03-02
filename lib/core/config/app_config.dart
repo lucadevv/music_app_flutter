@@ -14,7 +14,7 @@ class AppConfig {
   /// URL base de la API
   /// Se obtiene de la variable de entorno 'base_url'
   static const String baseUrl = String.fromEnvironment('base_url');
-
+  
   /// Token de acceso para la API
   /// Se obtiene de la variable de entorno 'access_token'
   static const String accessToken = String.fromEnvironment(

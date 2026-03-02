@@ -17,7 +17,10 @@ class DownloadParams {
     required this.videoId,
     required this.title,
     required this.artist,
-    required this.streamUrl, required this.duration, required this.onProgress, this.album,
+    required this.streamUrl,
+    required this.duration,
+    required this.onProgress,
+    this.album,
     this.thumbnail,
   });
 }
@@ -43,9 +46,6 @@ class DownloadSongUseCase {
       onProgress: params.onProgress,
     );
 
-    return result.fold(
-      (error) => (error, null),
-      (song) => (null, song),
-    );
+    return result.fold((error) => (error, null), (song) => (null, song));
   }
 }

@@ -54,7 +54,9 @@ class TokenManager {
         if (email != null) _prefs.setString(_userEmailKey, email),
       ]);
       if (kDebugMode) {
-        debugPrint('TokenManager.saveToken: ✅ Guardado en fallback (SharedPreferences)');
+        debugPrint(
+          'TokenManager.saveToken: ✅ Guardado en fallback (SharedPreferences)',
+        );
       }
     }
   }
@@ -124,7 +126,7 @@ class TokenManager {
         _secureStorage.delete(key: _accessTokenKey),
         _secureStorage.delete(key: _refreshTokenKey),
       ]);
-      
+
       // Eliminar de SharedPreferences
       await Future.wait([
         _prefs.remove(_accessTokenKey),
@@ -132,23 +134,27 @@ class TokenManager {
         _prefs.remove(_isEmailVerifiedKey),
         _prefs.remove(_userEmailKey),
       ]);
-      
+
       // Verificar que se eliminaron correctamente
       final accessToken = await getAccessToken();
       final refreshToken = await getResfreshToken();
-      
+
       if (kDebugMode) {
         debugPrint(
           'TokenManager: Tokens eliminados. Verificación - accessToken: ${accessToken == null ? "null" : "existe"}, refreshToken: ${refreshToken == null ? "null" : "existe"}',
         );
-        
+
         if (accessToken != null || refreshToken != null) {
-          debugPrint('TokenManager: ADVERTENCIA - Algunos tokens no se eliminaron correctamente');
+          debugPrint(
+            'TokenManager: ADVERTENCIA - Algunos tokens no se eliminaron correctamente',
+          );
         }
       }
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('TokenManager: Error eliminando tokens, usando fallback: $e');
+        debugPrint(
+          'TokenManager: Error eliminando tokens, usando fallback: $e',
+        );
       }
       // Si flutter_secure_storage falla, eliminar de SharedPreferences
       await Future.wait([
@@ -157,11 +163,11 @@ class TokenManager {
         _prefs.remove(_isEmailVerifiedKey),
         _prefs.remove(_userEmailKey),
       ]);
-      
+
       // Verificar que se eliminaron correctamente
       final accessToken = await getAccessToken();
       final refreshToken = await getResfreshToken();
-      
+
       if (kDebugMode) {
         debugPrint(
           'TokenManager: Tokens eliminados usando fallback. Verificación - accessToken: ${accessToken == null ? "null" : "existe"}, refreshToken: ${refreshToken == null ? "null" : "existe"}',

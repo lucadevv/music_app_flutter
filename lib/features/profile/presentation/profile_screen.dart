@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
-import 'package:music_app/features/profile/profile_cubit.dart';
+import 'package:music_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:music_app/l10n/app_localizations.dart';
 import 'package:music_app/main.dart';
 
@@ -27,7 +27,7 @@ class _ProfileView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     return Scaffold(
       backgroundColor: const Color(0xFF0D0D0D),
       appBar: AppBar(
@@ -83,7 +83,10 @@ class _ProfileView extends StatelessWidget {
                             const SizedBox(height: 4),
                             Text(
                               state.email,
-                              style: const TextStyle(color: Colors.white, fontSize: 14),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                              ),
                             ),
                           ],
                         ),
@@ -200,14 +203,12 @@ class _SettingsSection extends StatelessWidget {
 class _SettingsItem extends StatelessWidget {
   final IconData icon;
   final String title;
-  final Widget? trailing;
   final VoidCallback onTap;
 
   const _SettingsItem({
     required this.icon,
     required this.title,
     required this.onTap,
-    this.trailing,
   });
 
   @override
@@ -219,9 +220,10 @@ class _SettingsItem extends StatelessWidget {
         title,
         style: const TextStyle(color: Colors.white, fontSize: 16),
       ),
-      trailing:
-          trailing ??
-          Icon(Icons.chevron_right, color: Colors.white.withValues(alpha: 0.6)),
+      trailing: Icon(
+        Icons.chevron_right,
+        color: Colors.white.withValues(alpha: 0.6),
+      ),
       onTap: onTap,
     );
   }

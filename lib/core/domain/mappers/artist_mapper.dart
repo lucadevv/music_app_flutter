@@ -1,5 +1,6 @@
 import 'package:music_app/core/domain/entities/artist.dart' as core;
-import 'package:music_app/features/artist/domain/entities/artist.dart' as artist_feature;
+import 'package:music_app/features/artist/domain/entities/artist.dart'
+    as artist_feature;
 
 /// Mappers para convertir entre las entidades de Artist y la entidad centralizada.
 class ArtistMapper {
@@ -38,7 +39,9 @@ class ArtistMapper {
   }
 
   /// Convierte una lista
-  static List<core.Artist> fromFeatureArtistList(List<artist_feature.Artist> artists) {
+  static List<core.Artist> fromFeatureArtistList(
+    List<artist_feature.Artist> artists,
+  ) {
     return artists.map(fromFeatureArtist).toList();
   }
 }

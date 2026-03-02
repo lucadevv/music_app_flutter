@@ -9,7 +9,6 @@ import '../../domain/entities/register_response.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../data_sources/auth_remote_data_source.dart';
 
-
 /// Implementación del repositorio de autenticación
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource _remoteDataSource;

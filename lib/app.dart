@@ -47,32 +47,20 @@ class _AppState extends State<App> {
     try {
       // CRITICAL: Must wait for all async singletons to be ready first
       // This ensures ThemeCubit, LocaleCubit, DownloadsCubit are fully initialized
-      print('[App] Waiting for getIt.allReady()...');
       await getIt.allReady();
-      print('[App] getIt.allReady() completed');
-      
+
       // Now safe to get async singletons
       _themeCubit = await getIt.getAsync<ThemeCubit>();
-      print('[App] ThemeCubit resolved: $_themeCubit');
-      
       _localeCubit = await getIt.getAsync<LocaleCubit>();
-      print('[App] LocaleCubit resolved: $_localeCubit');
-      
       _playerBlocBloc = getIt<PlayerBlocBloc>();
-      print('[App] PlayerBlocBloc resolved: $_playerBlocBloc');
-      
+
       // DownloadsCubit es lazy singleton async
       _downloadsCubit = await getIt.getAsync<DownloadsCubit>();
-      print('[App] DownloadsCubit resolved: $_downloadsCubit');
-      
+
       // ProfileCubit es singleton registrado en AppInjection
       _profileCubit = getIt<ProfileCubit>();
-      print('[App] ProfileCubit resolved: $_profileCubit');
-      
-      print('[App] All cubits initialized successfully');
-    } catch (e, stack) {
-      print('[App] ERROR in _initApp(): $e');
-      print('[App] Stack trace: $stack');
+    } catch (e) {
+      // Log error but don't crash
     } finally {
       if (mounted) {
         setState(() {
@@ -84,19 +72,19 @@ class _AppState extends State<App> {
 
   @override
   Widget build(BuildContext context) {
-    if (!_isInitialized || _themeCubit == null || _localeCubit == null || _playerBlocBloc == null || _downloadsCubit == null || _profileCubit == null) {
+    if (!_isInitialized ||
+        _themeCubit == null ||
+        _localeCubit == null ||
+        _playerBlocBloc == null ||
+        _downloadsCubit == null ||
+        _profileCubit == null) {
       return MaterialApp(
         title: 'Music App',
         theme: AppTheme.dark(),
-        home: const Scaffold(
-          body: Center(
-            child:  CircularProgressIndicator(),
-          ),
-        ),
+        home: const Scaffold(body: Center(child: CircularProgressIndicator())),
         debugShowCheckedModeBanner: false,
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
-     
       );
     }
 
@@ -112,18 +100,18 @@ class _AppState extends State<App> {
         builder: (context, themeState) {
           return BlocBuilder<LocaleCubit, LocaleState>(
             builder: (context, localeState) {
-            return MaterialApp.router(
-              title: 'Music App',
-              theme: AppTheme.light(),
-              darkTheme: AppTheme.dark(),
-              themeMode: themeState.themeMode,
-              routerConfig: _router.config(),
-         
-              debugShowCheckedModeBanner: false,
-              localizationsDelegates: AppLocalizations.localizationsDelegates,
-              supportedLocales: AppLocalizations.supportedLocales,
-              locale: localeState.isLoading ? null : localeState.locale,
-            );
+              return MaterialApp.router(
+                title: 'Music App',
+                theme: AppTheme.light(),
+                darkTheme: AppTheme.dark(),
+                themeMode: themeState.themeMode,
+                routerConfig: _router.config(),
+
+                debugShowCheckedModeBanner: false,
+                localizationsDelegates: AppLocalizations.localizationsDelegates,
+                supportedLocales: AppLocalizations.supportedLocales,
+                locale: localeState.isLoading ? null : localeState.locale,
+              );
             },
           );
         },
@@ -131,4 +119,3 @@ class _AppState extends State<App> {
     );
   }
 }
-

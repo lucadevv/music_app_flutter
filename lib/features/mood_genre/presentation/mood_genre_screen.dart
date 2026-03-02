@@ -20,9 +20,7 @@ class MoodGenreScreen extends StatefulWidget implements AutoRouteWrapper {
   Widget wrappedRoute(BuildContext context) {
     return BlocProvider<MoodGenreCubit>(
       create: (context) {
-        return MoodGenreCubit(
-          getIt<GetMoodPlaylistsUseCase>(),
-        );
+        return MoodGenreCubit(getIt<GetMoodPlaylistsUseCase>());
       },
       child: this,
     );

@@ -11,7 +11,10 @@ import 'package:music_app/main.dart';
 /// 3. Estado de verificación de email
 class InitialRouteGuard extends AutoRouteGuard {
   @override
-  Future<void> onNavigation(NavigationResolver resolver, StackRouter router) async {
+  Future<void> onNavigation(
+    NavigationResolver resolver,
+    StackRouter router,
+  ) async {
     if (kDebugMode) {
       debugPrint('InitialRouteGuard: Verificando navegación inicial');
     }
@@ -19,12 +22,15 @@ class InitialRouteGuard extends AutoRouteGuard {
     try {
       // 1. Verificar si ya completó el onboarding
       final onboardingService = await getIt.getAsync<OnboardingService>();
-      final isOnboardingCompleted = await onboardingService.isOnboardingCompleted();
-      
+      final isOnboardingCompleted = await onboardingService
+          .isOnboardingCompleted();
+
       if (kDebugMode) {
-        debugPrint('InitialRouteGuard: onboardingCompleted = $isOnboardingCompleted');
+        debugPrint(
+          'InitialRouteGuard: onboardingCompleted = $isOnboardingCompleted',
+        );
       }
-      
+
       if (!isOnboardingCompleted) {
         // Onboarding NO completado - ir a onboarding
         if (kDebugMode) {
@@ -33,23 +39,25 @@ class InitialRouteGuard extends AutoRouteGuard {
         resolver.redirectUntil(const OnboardingRoute());
         return;
       }
-      
+
       // 2. Verificar si el usuario está autenticado
       final authManager = await getIt.getAsync<AuthManager>();
       final refreshToken = await authManager.getCurrentRefreshToken();
-      
+
       if (kDebugMode) {
-        debugPrint('InitialRouteGuard: refreshToken = ${refreshToken != null ? "existe" : "null"}');
+        debugPrint(
+          'InitialRouteGuard: refreshToken = ${refreshToken != null ? "existe" : "null"}',
+        );
       }
-      
+
       if (refreshToken != null) {
         // Usuario autenticado - verificar email
         final isEmailVerified = await authManager.isEmailVerified();
-        
+
         if (kDebugMode) {
           debugPrint('InitialRouteGuard: isEmailVerified = $isEmailVerified');
         }
-        
+
         if (isEmailVerified == true) {
           // Email verificado - ir a dashboard
           if (kDebugMode) {

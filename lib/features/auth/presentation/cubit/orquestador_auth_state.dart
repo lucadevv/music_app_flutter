@@ -58,10 +58,10 @@ class OrquestadorAuthState extends Equatable {
 
   @override
   List<Object?> get props => [
-        registerState,
-        loginState,
-        hasError,
-        errorMessage,
-        effect,
-      ];
+    registerState,
+    loginState,
+    hasError,
+    errorMessage,
+    effect,
+  ];
 }

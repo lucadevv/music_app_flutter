@@ -1,11 +1,6 @@
 part of 'search_cubit.dart';
 
-enum SearchStatus {
-  initial,
-  loading,
-  success,
-  failure,
-}
+enum SearchStatus { initial, loading, success, failure }
 
 class SearchState extends Equatable {
   final SearchStatus status;
@@ -35,11 +30,11 @@ class SearchState extends Equatable {
   }
 
   factory SearchState.initial() => const SearchState(
-        status: SearchStatus.initial,
-        errorMessage: null,
-        responseEntity: null,
-        query: '',
-      );
+    status: SearchStatus.initial,
+    errorMessage: null,
+    responseEntity: null,
+    query: '',
+  );
 
   @override
   List<Object?> get props => [status, errorMessage, responseEntity, query];

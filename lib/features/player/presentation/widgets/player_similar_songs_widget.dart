@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:music_app/core/presentation/widgets/song_list_item.dart';
-import 'package:music_app/core/services/network/api_services.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/favorites/presentation/cubit/favorite_cubit.dart';
 import 'package:music_app/features/favorites/presentation/widgets/favorite_button.dart';
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
+import 'package:music_app/features/player/domain/usecases/get_radio_playlist_usecase.dart';
 import 'package:music_app/l10n/app_localizations.dart';
-import 'package:music_app/main.dart';
 
 /// Widget para mostrar canciones de radio (similares)
 ///
@@ -17,16 +17,15 @@ import 'package:music_app/main.dart';
 class PlayerSimilarSongsWidget extends StatefulWidget {
   final String videoId;
 
-  const PlayerSimilarSongsWidget({
-    super.key,
-    required this.videoId,
-  });
+  const PlayerSimilarSongsWidget({super.key, required this.videoId});
 
   @override
-  State<PlayerSimilarSongsWidget> createState() => _PlayerSimilarSongsWidgetState();
+  State<PlayerSimilarSongsWidget> createState() =>
+      _PlayerSimilarSongsWidgetState();
 }
 
 class _PlayerSimilarSongsWidgetState extends State<PlayerSimilarSongsWidget> {
+  late final GetRadioPlaylistUseCase _getRadioPlaylistUseCase;
   List<dynamic> _radioTracks = [];
   bool _isLoading = true;
   String? _error;
@@ -35,6 +34,7 @@ class _PlayerSimilarSongsWidgetState extends State<PlayerSimilarSongsWidget> {
   @override
   void initState() {
     super.initState();
+    _getRadioPlaylistUseCase = GetIt.I<GetRadioPlaylistUseCase>();
     _loadRadioPlaylist();
   }
 
@@ -54,7 +54,7 @@ class _PlayerSimilarSongsWidgetState extends State<PlayerSimilarSongsWidget> {
 
   Future<void> _loadRadioPlaylist() async {
     if (_isDisposed) return;
-    
+
     if (mounted) {
       setState(() {
         _isLoading = true;
@@ -63,15 +63,9 @@ class _PlayerSimilarSongsWidgetState extends State<PlayerSimilarSongsWidget> {
     }
 
     try {
-      final apiServices = getIt<ApiServices>();
-      final response = await apiServices.get(
-        '/music/radio/${widget.videoId}',
-        queryParameters: {'limit': 10},
-      );
+      final tracks = await _getRadioPlaylistUseCase(widget.videoId, limit: 10);
 
       if (_isDisposed) return;
-      
-      final tracks = response.data['tracks'] as List<dynamic>? ?? [];
 
       if (mounted) {
         setState(() {
@@ -81,7 +75,7 @@ class _PlayerSimilarSongsWidgetState extends State<PlayerSimilarSongsWidget> {
       }
     } catch (e) {
       if (_isDisposed) return;
-      
+
       if (mounted) {
         setState(() {
           _error = e.toString();
@@ -167,8 +161,11 @@ class _PlayerSimilarSongsWidgetState extends State<PlayerSimilarSongsWidget> {
       children: _radioTracks.map((track) {
         final title = track['title'] ?? 'Unknown';
         final videoId = track['videoId'] ?? '';
-        final artist = track['artists'] != null && (track['artists'] as List).isNotEmpty
-            ? (track['artists'] as List).map((a) => a['name'] ?? 'Unknown').join(', ')
+        final artist =
+            track['artists'] != null && (track['artists'] as List).isNotEmpty
+            ? (track['artists'] as List)
+                  .map((a) => a['name'] ?? 'Unknown')
+                  .join(', ')
             : track['artist'] ?? 'Unknown Artist';
         final thumbnailUrl = track['thumbnail'];
         final streamUrl = track['stream_url'];

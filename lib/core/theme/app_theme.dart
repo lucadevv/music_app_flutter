@@ -72,8 +72,7 @@ class AppTheme {
 
       bannerTheme: MaterialBannerThemeData(
         backgroundColor: colorScheme.surfaceContainerHigh,
-        contentTextStyle:
-            TextStyle(color: colorScheme.onSurface, fontSize: 14),
+        contentTextStyle: TextStyle(color: colorScheme.onSurface, fontSize: 14),
       ),
 
       bottomAppBarTheme: BottomAppBarThemeData(
@@ -104,8 +103,7 @@ class AppTheme {
         color: colorScheme.surfaceContainer,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
 
       checkboxTheme: CheckboxThemeData(
@@ -117,8 +115,7 @@ class AppTheme {
         }),
         checkColor: WidgetStatePropertyAll(colorScheme.onPrimary),
         side: BorderSide(color: colorScheme.outline),
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       ),
 
       chipTheme: ChipThemeData(
@@ -140,8 +137,7 @@ class AppTheme {
         backgroundColor: colorScheme.surfaceContainerHigh,
         surfaceTintColor: Colors.transparent,
         elevation: 24,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
       ),
 
       dividerTheme: DividerThemeData(
@@ -194,8 +190,7 @@ class AppTheme {
         collapsedBackgroundColor: colorScheme.surfaceContainer,
         textColor: colorScheme.onSurface,
         iconColor: colorScheme.onSurfaceVariant,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         collapsedShape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -248,10 +243,8 @@ class AppTheme {
         selectedTileColor: colorScheme.primaryContainer,
         iconColor: colorScheme.onSurfaceVariant,
         textColor: colorScheme.onSurface,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         titleTextStyle: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w500,
@@ -294,10 +287,8 @@ class AppTheme {
       navigationRailTheme: NavigationRailThemeData(
         backgroundColor: colorScheme.surfaceContainer,
         indicatorColor: colorScheme.primaryContainer,
-        selectedIconTheme:
-            IconThemeData(color: colorScheme.onPrimaryContainer),
-        unselectedIconTheme:
-            IconThemeData(color: colorScheme.onSurfaceVariant),
+        selectedIconTheme: IconThemeData(color: colorScheme.onPrimaryContainer),
+        unselectedIconTheme: IconThemeData(color: colorScheme.onSurfaceVariant),
         selectedLabelTextStyle: TextStyle(
           color: colorScheme.onPrimaryContainer,
           fontSize: 12,
@@ -334,8 +325,7 @@ class AppTheme {
         color: colorScheme.surfaceContainerHigh,
         surfaceTintColor: Colors.transparent,
         elevation: 8,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
 
       progressIndicatorTheme: ProgressIndicatorThemeData(
@@ -363,8 +353,7 @@ class AppTheme {
           TextStyle(color: colorScheme.onSurface, fontFamily: 'Poppins'),
         ),
         hintStyle: WidgetStatePropertyAll(
-          TextStyle(
-              color: colorScheme.onSurfaceVariant, fontFamily: 'Poppins'),
+          TextStyle(color: colorScheme.onSurfaceVariant, fontFamily: 'Poppins'),
         ),
       ),
 
@@ -380,8 +369,7 @@ class AppTheme {
         backgroundColor: colorScheme.inverseSurface,
         contentTextStyle: TextStyle(color: colorScheme.onInverseSurface),
         actionTextColor: colorScheme.inversePrimary,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
 
       switchTheme: SwitchThemeData(
@@ -522,8 +510,7 @@ class AppTheme {
 
       bannerTheme: MaterialBannerThemeData(
         backgroundColor: colorScheme.surfaceContainerHigh,
-        contentTextStyle:
-            TextStyle(color: colorScheme.onSurface, fontSize: 14),
+        contentTextStyle: TextStyle(color: colorScheme.onSurface, fontSize: 14),
       ),
 
       bottomAppBarTheme: BottomAppBarThemeData(
@@ -554,8 +541,7 @@ class AppTheme {
         color: colorScheme.surfaceContainer,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
 
       checkboxTheme: CheckboxThemeData(
@@ -567,8 +553,7 @@ class AppTheme {
         }),
         checkColor: WidgetStatePropertyAll(colorScheme.onPrimary),
         side: BorderSide(color: colorScheme.outline),
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       ),
 
       chipTheme: ChipThemeData(
@@ -590,8 +575,7 @@ class AppTheme {
         backgroundColor: colorScheme.surfaceContainerHigh,
         surfaceTintColor: Colors.transparent,
         elevation: 24,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
       ),
 
       dividerTheme: DividerThemeData(
@@ -644,8 +628,7 @@ class AppTheme {
         collapsedBackgroundColor: colorScheme.surfaceContainer,
         textColor: colorScheme.onSurface,
         iconColor: colorScheme.onSurfaceVariant,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         collapsedShape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -698,10 +681,8 @@ class AppTheme {
         selectedTileColor: colorScheme.primaryContainer,
         iconColor: colorScheme.onSurfaceVariant,
         textColor: colorScheme.onSurface,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         titleTextStyle: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w500,
@@ -744,10 +725,8 @@ class AppTheme {
       navigationRailTheme: NavigationRailThemeData(
         backgroundColor: colorScheme.surfaceContainer,
         indicatorColor: colorScheme.primaryContainer,
-        selectedIconTheme:
-            IconThemeData(color: colorScheme.onPrimaryContainer),
-        unselectedIconTheme:
-            IconThemeData(color: colorScheme.onSurfaceVariant),
+        selectedIconTheme: IconThemeData(color: colorScheme.onPrimaryContainer),
+        unselectedIconTheme: IconThemeData(color: colorScheme.onSurfaceVariant),
         selectedLabelTextStyle: TextStyle(
           color: colorScheme.onPrimaryContainer,
           fontSize: 12,
@@ -784,8 +763,7 @@ class AppTheme {
         color: colorScheme.surfaceContainerHigh,
         surfaceTintColor: Colors.transparent,
         elevation: 8,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
 
       progressIndicatorTheme: ProgressIndicatorThemeData(
@@ -813,8 +791,7 @@ class AppTheme {
           TextStyle(color: colorScheme.onSurface, fontFamily: 'Poppins'),
         ),
         hintStyle: WidgetStatePropertyAll(
-          TextStyle(
-              color: colorScheme.onSurfaceVariant, fontFamily: 'Poppins'),
+          TextStyle(color: colorScheme.onSurfaceVariant, fontFamily: 'Poppins'),
         ),
       ),
 
@@ -830,8 +807,7 @@ class AppTheme {
         backgroundColor: colorScheme.inverseSurface,
         contentTextStyle: TextStyle(color: colorScheme.onInverseSurface),
         actionTextColor: colorScheme.inversePrimary,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
 
       switchTheme: SwitchThemeData(

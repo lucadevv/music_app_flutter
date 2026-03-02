@@ -1,10 +1,7 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
-import 'package:music_app/core/theme/app_colors_dark.dart';
-import 'package:music_app/features/home/domain/entities/chart_song.dart';
 import 'package:music_app/features/home/domain/entities/home_content_item.dart';
 import 'package:music_app/features/home/presentation/cubit/home_cubit.dart'
     show HomeCubit, HomeStatus;
@@ -69,8 +66,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         onSongTap: _playSong,
                         onPlaylistTap: (item) {
                           // Navegar a la playlist si tiene ID
-                          if (item.playlistId != null && item.playlistId!.isNotEmpty) {
-                            context.router.push(PlaylistRoute(id: item.playlistId!));
+                          if (item.playlistId != null &&
+                              item.playlistId!.isNotEmpty) {
+                            context.router.push(
+                              PlaylistRoute(id: item.playlistId!),
+                            );
                           }
                         },
                       ),
@@ -95,96 +95,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// Reproduce una canción usando el OrquestadorHomeCubit
   void _playSong(HomeContentItem item) {
-    final nowPlayingData = context.read<OrquestadorHomeCubit>().playContentItemAsSingle(item);
+    final nowPlayingData = context
+        .read<OrquestadorHomeCubit>()
+        .playContentItemAsSingle(item);
     if (nowPlayingData != null) {
       context.router.push(PlayerRoute(nowPlayingData: nowPlayingData));
     }
-  }
-
-}
-
-/// Widget para mostrar una canción de chart
-class _ChartSongCard extends StatelessWidget {
-  final ChartSong song;
-  final VoidCallback onTap;
-
-  const _ChartSongCard({
-    required this.song,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 160,
-        height: 200,
-        margin: const EdgeInsets.only(right: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Thumbnail
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: CachedNetworkImage(
-                imageUrl: song.thumbnail,
-                width: 160,
-                height: 160,
-                fit: BoxFit.cover,
-                placeholder: (context, url) => Container(
-                  width: 160,
-                  height: 160,
-                  color: AppColorsDark.primaryContainer,
-                  child: const Center(
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
-                  ),
-                ),
-                errorWidget: (context, url, error) => Container(
-                  width: 160,
-                  height: 160,
-                  color: AppColorsDark.primaryContainer,
-                  child: const Icon(
-                    Icons.music_note,
-                    color: Colors.white,
-                    size: 60,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            // Title
-            Expanded(
-              child: Text(
-                song.title,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            const SizedBox(height: 4),
-            // Artist
-            Expanded(
-              child: Text(
-                song.artist,
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.6),
-                  fontSize: 12,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }

@@ -13,7 +13,7 @@ class OldDownloadsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     return Scaffold(
       backgroundColor: const Color(0xFF0D0D0D),
       appBar: AppBar(
@@ -78,10 +78,7 @@ class _DownloadItem extends StatelessWidget {
           color: AppColorsDark.primaryContainer,
           borderRadius: BorderRadius.circular(8),
         ),
-        child: const Icon(
-          Icons.music_note,
-          color: AppColorsDark.primary,
-        ),
+        child: const Icon(Icons.music_note, color: AppColorsDark.primary),
       ),
       title: Text(
         title,
@@ -102,11 +99,7 @@ class _DownloadItem extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (isDownloaded)
-            Icon(
-              Icons.check_circle,
-              color: AppColorsDark.primary,
-              size: 20,
-            ),
+            Icon(Icons.check_circle, color: AppColorsDark.primary, size: 20),
           const SizedBox(width: 8),
           IconButton(
             icon: Icon(

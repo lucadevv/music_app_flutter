@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/bloc/locale_cubit.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
-import 'package:music_app/features/profile/profile_cubit.dart';
+import 'package:music_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:music_app/l10n/app_localizations.dart';
 import 'package:music_app/main.dart';
 
@@ -29,7 +29,7 @@ class _LanguageView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     return Scaffold(
       backgroundColor: const Color(0xFF0D0D0D),
       appBar: AppBar(
@@ -56,9 +56,12 @@ class _LanguageView extends StatelessWidget {
                 itemCount: LocaleCubit.supportedLocales.length,
                 itemBuilder: (context, index) {
                   final locale = LocaleCubit.supportedLocales[index];
-                  final isSelected = localeState.locale.languageCode == locale.languageCode;
-                  final localeName = LocaleCubit.localeNames[locale.languageCode] ?? locale.languageCode;
-                  
+                  final isSelected =
+                      localeState.locale.languageCode == locale.languageCode;
+                  final localeName =
+                      LocaleCubit.localeNames[locale.languageCode] ??
+                      locale.languageCode;
+
                   return RadioListTile<String>(
                     value: locale.languageCode,
                     groupValue: localeState.locale.languageCode,

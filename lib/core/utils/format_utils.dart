@@ -11,10 +11,7 @@ class FormatUtils {
 
   /// Formats a DateTime to a localized date string
   /// Uses the provided month names for localization
-  static String date(
-    DateTime date,
-    List<String> months,
-  ) {
+  static String date(DateTime date, List<String> months) {
     return '${months[date.month - 1]} ${date.day}, ${date.year}';
   }
 

@@ -3,8 +3,5 @@ class SearchRequest {
   final String query;
   final String filter; // 'songs', 'artists', 'albums', etc.
 
-  const SearchRequest({
-    required this.query,
-    this.filter = 'songs',
-  });
+  const SearchRequest({required this.query, this.filter = 'songs'});
 }

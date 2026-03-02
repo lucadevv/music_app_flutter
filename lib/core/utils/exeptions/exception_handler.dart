@@ -16,10 +16,7 @@ class ExceptionHandler {
     } else if (error is AppException) {
       return error;
     } else {
-      return UnknownException(
-        'Error inesperado',
-        details: error.toString(),
-      );
+      return UnknownException('Error inesperado', details: error.toString());
     }
   }
 
@@ -28,10 +25,7 @@ class ExceptionHandler {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
-        return NetworkException(
-          'Tiempo de conexión agotado',
-          code: 408,
-        );
+        return NetworkException('Tiempo de conexión agotado', code: 408);
 
       case DioExceptionType.badResponse:
         return _handleResponseError(error);
@@ -40,10 +34,7 @@ class ExceptionHandler {
         return NetworkException('Solicitud cancelada');
 
       case DioExceptionType.unknown:
-        return NetworkException(
-          'Error de conexión',
-          details: error.message,
-        );
+        return NetworkException('Error de conexión', details: error.message);
 
       case DioExceptionType.badCertificate:
         return NetworkException('Error de certificado SSL');

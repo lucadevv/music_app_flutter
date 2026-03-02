@@ -1,23 +1,23 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/bloc/base_bloc_mixin.dart';
-import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
-import 'package:music_app/core/services/network/api_services.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 import 'package:music_app/features/recently_played/domain/entities/recently_played_song.dart';
+import 'package:music_app/features/recently_played/domain/usecases/get_recently_played_usecase.dart';
 
 part 'recently_played_state.dart';
 
 /// Cubit for recently played songs
-class RecentlyPlayedCubit extends Cubit<RecentlyPlayedState> with BaseBlocMixin {
-  final ApiServices _apiServices;
+class RecentlyPlayedCubit extends Cubit<RecentlyPlayedState>
+    with BaseBlocMixin {
+  final GetRecentlyPlayedUseCase _getRecentlyPlayedUseCase;
   final PlayerBlocBloc _playerBloc;
 
   RecentlyPlayedCubit({
-    required ApiServices apiServices,
+    required GetRecentlyPlayedUseCase getRecentlyPlayedUseCase,
     required PlayerBlocBloc playerBloc,
-  })  : _apiServices = apiServices,
+  })  : _getRecentlyPlayedUseCase = getRecentlyPlayedUseCase,
         _playerBloc = playerBloc,
         super(const RecentlyPlayedState());
 
@@ -25,36 +25,28 @@ class RecentlyPlayedCubit extends Cubit<RecentlyPlayedState> with BaseBlocMixin 
   Future<void> loadRecentlyPlayed() async {
     if (state.status == RecentlyPlayedStatus.loading) return;
 
-    emit(state.copyWith(
-      status: RecentlyPlayedStatus.loading,
-      clearError: true,
-    ));
+    emit(
+      state.copyWith(status: RecentlyPlayedStatus.loading, clearError: true),
+    );
 
-    try {
-      final response = await _apiServices.get('/music/recently-listened');
-      // Robust extraction depending on the shape of the response
-      final List<dynamic> songsData = (
-            response is Map<String, dynamic> && response['songs'] is List
-          ) ? (response['songs'] as List<dynamic>) : [];
+    final result = await _getRecentlyPlayedUseCase();
 
-      final songs = songsData
-          .map((json) => RecentlyPlayedSong.fromJson(json as Map<String, dynamic>))
-          .toList();
-
-      if (isClosed) return;
-
-      emit(state.copyWith(
-        status: RecentlyPlayedStatus.success,
-        songs: songs,
-      ));
-    } catch (e) {
-      if (isClosed) return;
-      final errorMessage = e is AppException ? getErrorMessage(e) : e.toString();
-      emit(state.copyWith(
-        status: RecentlyPlayedStatus.failure,
-        errorMessage: errorMessage,
-      ));
-    }
+    result.fold(
+      (error) {
+        if (isClosed) return;
+        final errorMessage = getErrorMessage(error);
+        emit(
+          state.copyWith(
+            status: RecentlyPlayedStatus.failure,
+            errorMessage: errorMessage,
+          ),
+        );
+      },
+      (songs) {
+        if (isClosed) return;
+        emit(state.copyWith(status: RecentlyPlayedStatus.success, songs: songs));
+      },
+    );
   }
 
   /// Play a specific song

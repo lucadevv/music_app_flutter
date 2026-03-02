@@ -9,7 +9,11 @@ class DownloadedSongModel extends DownloadedSong {
     required super.videoId,
     required super.title,
     required super.artist,
-    required super.localPath, required super.fileSize, required super.duration, required super.downloadedAt, super.album,
+    required super.localPath,
+    required super.fileSize,
+    required super.duration,
+    required super.downloadedAt,
+    super.album,
     super.thumbnail,
   });
 

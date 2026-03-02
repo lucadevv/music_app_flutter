@@ -1,6 +1,7 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:equatable/equatable.dart';
+
 import 'package:music_app/core/bloc/base_bloc_mixin.dart';
 import 'package:music_app/core/managers/auth/auth_manager.dart';
 import 'package:music_app/features/auth/register/domain/entities/register_response.dart';
@@ -22,10 +23,10 @@ class LoginCubit extends Cubit<LoginState> with BaseBlocMixin {
     required LoginUseCase loginUseCase,
     required GoogleSignInUseCase googleSignInUseCase,
     required AppleSignInUseCase appleSignInUseCase,
-  })  : _loginUseCase = loginUseCase,
-        _googleSignInUseCase = googleSignInUseCase,
-        _appleSignInUseCase = appleSignInUseCase,
-        super(const LoginState());
+  }) : _loginUseCase = loginUseCase,
+       _googleSignInUseCase = googleSignInUseCase,
+       _appleSignInUseCase = appleSignInUseCase,
+       super(const LoginState());
 
   /// Inicia sesión con email y contraseña
   Future<void> login(LoginRequest entity) async {

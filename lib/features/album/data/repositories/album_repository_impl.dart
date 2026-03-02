@@ -23,10 +23,7 @@ class AlbumRepositoryImpl implements AlbumRepository {
         year: data['year'] ?? 2024,
       );
     } catch (e) {
-      return Album(
-        id: albumId,
-        title: 'Unknown Album',
-      );
+      return Album(id: albumId, title: 'Unknown Album');
     }
   }
 
@@ -37,13 +34,17 @@ class AlbumRepositoryImpl implements AlbumRepository {
       final data = response is Response ? response.data : response;
       final List<dynamic> songs = data['songs'] ?? [];
 
-      return songs.map((song) => AlbumSong(
-        videoId: song['videoId'] ?? '',
-        title: song['title'] ?? 'Unknown',
-        thumbnail: song['thumbnail'],
-        durationSeconds: song['durationSeconds'] ?? 0,
-        trackNumber: song['trackNumber'] ?? 0,
-      )).toList();
+      return songs
+          .map(
+            (song) => AlbumSong(
+              videoId: song['videoId'] ?? '',
+              title: song['title'] ?? 'Unknown',
+              thumbnail: song['thumbnail'],
+              durationSeconds: song['durationSeconds'] ?? 0,
+              trackNumber: song['trackNumber'] ?? 0,
+            ),
+          )
+          .toList();
     } catch (e) {
       return [];
     }

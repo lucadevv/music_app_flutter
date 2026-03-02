@@ -15,7 +15,9 @@ class PlaylistItem {
   const PlaylistItem({
     required this.id,
     required this.name,
-    required this.songCount, required this.type, this.thumbnail,
+    required this.songCount,
+    required this.type,
+    this.thumbnail,
     this.externalId,
   });
 }

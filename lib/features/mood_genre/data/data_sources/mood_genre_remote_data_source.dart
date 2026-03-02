@@ -7,12 +7,12 @@ import '../../domain/entities/mood_playlists_response.dart';
 import '../models/mood_playlists_response_model.dart';
 
 /// Data source remoto para operaciones de mood/genre
-/// 
+///
 /// SOLID: Single Responsibility Principle (SRP)
 /// Responsable única: Obtener playlists de mood/genre desde la API
 abstract class MoodGenreRemoteDataSource {
   /// Obtiene las playlists de un mood/genre
-  /// 
+  ///
   /// Endpoint: /api/music/explore/moods/{params}
   Future<Either<AppException, MoodPlaylistsResponse>> getMoodPlaylists(
     String params,

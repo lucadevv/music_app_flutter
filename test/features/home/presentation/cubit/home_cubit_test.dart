@@ -42,8 +42,9 @@ void main() {
     blocTest<HomeCubit, HomeState>(
       'should emit [loading, success] when loadHome succeeds',
       build: () {
-        when(() => mockRepository.getHome())
-            .thenAnswer((_) async => Right(createTestHomeResponse()));
+        when(
+          () => mockRepository.getHome(),
+        ).thenAnswer((_) async => Right(createTestHomeResponse()));
         return homeCubit;
       },
       act: (cubit) => cubit.loadHome(),
@@ -64,14 +65,14 @@ void main() {
     blocTest<HomeCubit, HomeState>(
       'should emit [loading, failure] when loadHome fails with NetworkException',
       build: () {
-        when(() => mockRepository.getHome())
-            .thenAnswer((_) async => Left(createTestNetworkException()));
+        when(
+          () => mockRepository.getHome(),
+        ).thenAnswer((_) async => Left(createTestNetworkException()));
         return homeCubit;
       },
       act: (cubit) => cubit.loadHome(),
       expect: () => [
-        isA<HomeState>()
-            .having((s) => s.status, 'status', HomeStatus.loading),
+        isA<HomeState>().having((s) => s.status, 'status', HomeStatus.loading),
         isA<HomeState>()
             .having((s) => s.status, 'status', HomeStatus.failure)
             .having((s) => s.errorMessage, 'errorMessage', isNotNull),
@@ -81,14 +82,14 @@ void main() {
     blocTest<HomeCubit, HomeState>(
       'should emit [loading, failure] when loadHome fails with ServerException',
       build: () {
-        when(() => mockRepository.getHome())
-            .thenAnswer((_) async => Left(createTestServerException()));
+        when(
+          () => mockRepository.getHome(),
+        ).thenAnswer((_) async => Left(createTestServerException()));
         return homeCubit;
       },
       act: (cubit) => cubit.loadHome(),
       expect: () => [
-        isA<HomeState>()
-            .having((s) => s.status, 'status', HomeStatus.loading),
+        isA<HomeState>().having((s) => s.status, 'status', HomeStatus.loading),
         isA<HomeState>()
             .having((s) => s.status, 'status', HomeStatus.failure)
             .having((s) => s.errorMessage, 'errorMessage', 'Server error'),
@@ -98,8 +99,9 @@ void main() {
     blocTest<HomeCubit, HomeState>(
       'should not emit new state when already loading',
       build: () {
-        when(() => mockRepository.getHome())
-            .thenAnswer((_) async => Right(createTestHomeResponse()));
+        when(
+          () => mockRepository.getHome(),
+        ).thenAnswer((_) async => Right(createTestHomeResponse()));
         return homeCubit;
       },
       act: (cubit) async {
@@ -118,8 +120,9 @@ void main() {
     blocTest<HomeCubit, HomeState>(
       'should reset state to initial when reset is called',
       build: () {
-        when(() => mockRepository.getHome())
-            .thenAnswer((_) async => Right(createTestHomeResponse()));
+        when(
+          () => mockRepository.getHome(),
+        ).thenAnswer((_) async => Right(createTestHomeResponse()));
         return homeCubit;
       },
       act: (cubit) async {
@@ -139,8 +142,9 @@ void main() {
     blocTest<HomeCubit, HomeState>(
       'should clear error message when loading again',
       build: () {
-        when(() => mockRepository.getHome())
-            .thenAnswer((_) async => Left(createTestNetworkException('Error 1')));
+        when(
+          () => mockRepository.getHome(),
+        ).thenAnswer((_) async => Left(createTestNetworkException('Error 1')));
         return homeCubit;
       },
       act: (cubit) => cubit.loadHome(),
@@ -157,8 +161,9 @@ void main() {
     blocTest<HomeCubit, HomeState>(
       'should handle AuthenticationException',
       build: () {
-        when(() => mockRepository.getHome())
-            .thenAnswer((_) async => Left(createTestAuthException('Token expired')));
+        when(() => mockRepository.getHome()).thenAnswer(
+          (_) async => Left(createTestAuthException('Token expired')),
+        );
         return homeCubit;
       },
       act: (cubit) => cubit.loadHome(),

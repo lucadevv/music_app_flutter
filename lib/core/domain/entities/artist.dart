@@ -1,42 +1,42 @@
 import 'package:equatable/equatable.dart';
 
 /// Entidad de dominio unificada para un artista.
-/// 
+///
 /// Esta es la entidad canónica que debe usarse en toda la app.
 class Artist extends Equatable {
   /// ID único del artista
   final String id;
-  
+
   /// Nombre del artista
   final String name;
-  
+
   /// URL de la miniatura
   final String? thumbnail;
-  
+
   /// URL de la miniatura de alta calidad
   final String? highThumbnail;
-  
+
   /// Lista de miniaturas en diferentes tamaños
   final List<ArtistThumbnail> thumbnails;
-  
+
   /// Número de oyentes mensuales
   final int? monthlyListeners;
-  
+
   /// Número de oyentes mensuales formateado
   final String? monthlyListenersFormatted;
-  
+
   /// Descripción del artista
   final String? description;
-  
+
   /// Canciones más populares del artista
   final List<ArtistSong> topSongs;
-  
+
   /// Álbumes del artista
   final List<ArtistAlbum> albums;
-  
+
   /// Géneros musicales
   final List<String> genres;
-  
+
   /// Indica si el artista está verificado
   final bool isVerified;
 
@@ -56,7 +56,10 @@ class Artist extends Equatable {
   });
 
   /// Obtiene la mejor URL de thumbnail disponible
-  String? get bestThumbnail => highThumbnail ?? thumbnail ?? (thumbnails.isNotEmpty ? thumbnails.last.url : null);
+  String? get bestThumbnail =>
+      highThumbnail ??
+      thumbnail ??
+      (thumbnails.isNotEmpty ? thumbnails.last.url : null);
 
   /// Crea una copia con campos modificados
   Artist copyWith({
@@ -80,7 +83,8 @@ class Artist extends Equatable {
       highThumbnail: highThumbnail ?? this.highThumbnail,
       thumbnails: thumbnails ?? this.thumbnails,
       monthlyListeners: monthlyListeners ?? this.monthlyListeners,
-      monthlyListenersFormatted: monthlyListenersFormatted ?? this.monthlyListenersFormatted,
+      monthlyListenersFormatted:
+          monthlyListenersFormatted ?? this.monthlyListenersFormatted,
       description: description ?? this.description,
       topSongs: topSongs ?? this.topSongs,
       albums: albums ?? this.albums,
@@ -156,7 +160,13 @@ class ArtistSong extends Equatable {
   }
 
   @override
-  List<Object?> get props => [videoId, title, thumbnail, durationSeconds, views];
+  List<Object?> get props => [
+    videoId,
+    title,
+    thumbnail,
+    durationSeconds,
+    views,
+  ];
 }
 
 /// Álbum de un artista

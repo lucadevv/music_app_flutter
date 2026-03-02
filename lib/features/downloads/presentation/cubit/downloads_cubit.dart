@@ -8,7 +8,7 @@ import 'package:music_app/features/downloads/domain/use_cases/download_song_use_
 import 'package:music_app/features/downloads/domain/use_cases/get_downloaded_songs_use_case.dart';
 import 'package:music_app/features/downloads/domain/use_cases/remove_download_use_case.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
- // Removed unused import: thumbnail
+// Removed unused import: thumbnail
 
 part 'downloads_state.dart';
 
@@ -40,7 +40,7 @@ class DownloadsCubit extends Cubit<DownloadsState> with BaseBlocMixin {
   /// Carga las canciones descargadas
   Future<void> loadDownloads() async {
     if (isClosed) return;
-    
+
     emit(state.copyWith(status: DownloadsStatus.loading, clearError: true));
 
     final (error, songs) = await _getDownloadedSongsUseCase();
@@ -48,17 +48,21 @@ class DownloadsCubit extends Cubit<DownloadsState> with BaseBlocMixin {
     if (isClosed) return;
 
     if (error != null) {
-      emit(state.copyWith(
-        status: DownloadsStatus.failure,
-        errorMessage: getErrorMessage(error),
-      ));
+      emit(
+        state.copyWith(
+          status: DownloadsStatus.failure,
+          errorMessage: getErrorMessage(error),
+        ),
+      );
       return;
     }
 
-    emit(state.copyWith(
-      status: DownloadsStatus.success,
-      downloadedSongs: songs ?? [],
-    ));
+    emit(
+      state.copyWith(
+        status: DownloadsStatus.success,
+        downloadedSongs: songs ?? [],
+      ),
+    );
   }
 
   /// Descarga una canción
@@ -72,10 +76,12 @@ class DownloadsCubit extends Cubit<DownloadsState> with BaseBlocMixin {
     String? thumbnail,
   }) async {
     // Marcar como descargando
-    emit(state.copyWith(
-      downloadingIds: {...state.downloadingIds, videoId},
-      downloadProgress: {...state.downloadProgress, videoId: 0.0},
-    ));
+    emit(
+      state.copyWith(
+        downloadingIds: {...state.downloadingIds, videoId},
+        downloadProgress: {...state.downloadProgress, videoId: 0.0},
+      ),
+    );
 
     final (error, downloadedSong) = await _downloadSongUseCase(
       DownloadParams(
@@ -88,9 +94,14 @@ class DownloadsCubit extends Cubit<DownloadsState> with BaseBlocMixin {
         duration: duration,
         onProgress: (progress) {
           if (!isClosed) {
-            emit(state.copyWith(
-              downloadProgress: {...state.downloadProgress, videoId: progress},
-            ));
+            emit(
+              state.copyWith(
+                downloadProgress: {
+                  ...state.downloadProgress,
+                  videoId: progress,
+                },
+              ),
+            );
           }
         },
       ),
@@ -105,20 +116,24 @@ class DownloadsCubit extends Cubit<DownloadsState> with BaseBlocMixin {
       ..remove(videoId);
 
     if (error != null) {
-      emit(state.copyWith(
-        downloadingIds: newDownloadingIds,
-        downloadProgress: newProgress,
-        errorMessage: getErrorMessage(error),
-      ));
+      emit(
+        state.copyWith(
+          downloadingIds: newDownloadingIds,
+          downloadProgress: newProgress,
+          errorMessage: getErrorMessage(error),
+        ),
+      );
       return;
     }
 
     if (downloadedSong != null) {
-      emit(state.copyWith(
-        downloadingIds: newDownloadingIds,
-        downloadProgress: newProgress,
-        downloadedSongs: [...state.downloadedSongs, downloadedSong],
-      ));
+      emit(
+        state.copyWith(
+          downloadingIds: newDownloadingIds,
+          downloadProgress: newProgress,
+          downloadedSongs: [...state.downloadedSongs, downloadedSong],
+        ),
+      );
     }
   }
 
@@ -131,11 +146,13 @@ class DownloadsCubit extends Cubit<DownloadsState> with BaseBlocMixin {
       return;
     }
 
-    emit(state.copyWith(
-      downloadedSongs: state.downloadedSongs
-          .where((song) => song.videoId != videoId)
-          .toList(),
-    ));
+    emit(
+      state.copyWith(
+        downloadedSongs: state.downloadedSongs
+            .where((song) => song.videoId != videoId)
+            .toList(),
+      ),
+    );
   }
 
   /// Verifica si una canción está descargada

@@ -15,7 +15,10 @@ abstract class DownloadsRepository {
     required String videoId,
     required String title,
     required String artist,
-    required String streamUrl, required Duration duration, required void Function(double progress) onProgress, String? album,
+    required String streamUrl,
+    required Duration duration,
+    required void Function(double progress) onProgress,
+    String? album,
     String? thumbnail,
   });
 

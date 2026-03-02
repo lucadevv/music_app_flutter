@@ -11,7 +11,7 @@ class SocialLoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     return Scaffold(
       backgroundColor: AppColorsDark.surface,
       body: SafeArea(
@@ -76,15 +76,21 @@ class SocialLoginScreen extends StatelessWidget {
               // Divider
               Row(
                 children: [
-                  const Expanded(child: Divider(color: AppColorsDark.outlineVariant)),
+                  const Expanded(
+                    child: Divider(color: AppColorsDark.outlineVariant),
+                  ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Text(
                       l10n.or,
-                      style: const TextStyle(color: AppColorsDark.onSurfaceVariant),
+                      style: const TextStyle(
+                        color: AppColorsDark.onSurfaceVariant,
+                      ),
                     ),
                   ),
-                  const Expanded(child: Divider(color: AppColorsDark.outlineVariant)),
+                  const Expanded(
+                    child: Divider(color: AppColorsDark.outlineVariant),
+                  ),
                 ],
               ),
               const SizedBox(height: 32),
@@ -165,9 +171,7 @@ class _SocialButton extends StatelessWidget {
         foregroundColor: AppColorsDark.onSurface,
         padding: const EdgeInsets.symmetric(vertical: 16),
         minimumSize: const Size(double.infinity, 56),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -176,10 +180,7 @@ class _SocialButton extends StatelessWidget {
           const SizedBox(width: 12),
           Text(
             label,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
           ),
         ],
       ),

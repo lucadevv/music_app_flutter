@@ -1,7 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/playlist/domain/use_cases/get_playlist_use_case.dart';
 import 'package:music_app/features/playlist/presentation/cubit/playlist_cubit.dart';
@@ -25,9 +24,7 @@ class PlaylistScreen extends StatefulWidget implements AutoRouteWrapper {
   Widget wrappedRoute(BuildContext context) {
     return BlocProvider<PlaylistCubit>(
       create: (context) {
-        return PlaylistCubit(
-          getPlaylistUseCase: getIt<GetPlaylistUseCase>(),
-        );
+        return PlaylistCubit(getPlaylistUseCase: getIt<GetPlaylistUseCase>());
       },
       child: this,
     );
@@ -52,7 +49,7 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
   @override
   Widget build(BuildContext context) {
     final playerBloc = context.read<PlayerBlocBloc>();
-    
+
     return PlaylistListeners(
       child: Scaffold(
         backgroundColor: const Color(0xFF0D0D0D),

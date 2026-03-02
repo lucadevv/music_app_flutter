@@ -24,7 +24,10 @@ class DownloadOptionTile extends StatefulWidget {
   final Color? iconColor;
 
   const DownloadOptionTile({
-    required this.videoId, required this.title, required this.artist, super.key,
+    required this.videoId,
+    required this.title,
+    required this.artist,
+    super.key,
     this.thumbnail,
     this.streamUrl,
     this.durationSeconds,
@@ -61,14 +64,14 @@ class _DownloadOptionTileState extends State<DownloadOptionTile> {
     try {
       // Intentar usar el provider global primero
       _cubit = context.read<DownloadsCubit>();
-      
+
       // Subscribe to stream to keep UI updated
       _subscription = _cubit!.stream.listen((state) {
         if (mounted) {
           setState(() {}); // Rebuild on state changes
         }
       });
-      
+
       if (mounted) {
         setState(() {
           _isInitialized = true;
@@ -78,13 +81,13 @@ class _DownloadOptionTileState extends State<DownloadOptionTile> {
       // Provider no disponible - usar getIt (fallback para backward compatibility)
       try {
         _cubit = await GetIt.I.getAsync<DownloadsCubit>();
-        
+
         _subscription = _cubit!.stream.listen((state) {
           if (mounted) {
             setState(() {});
           }
         });
-        
+
         if (mounted) {
           setState(() {
             _isInitialized = true;
@@ -119,7 +122,7 @@ class _DownloadOptionTileState extends State<DownloadOptionTile> {
       final response = await apiServices.get('/music/stream/${widget.videoId}');
       // ignore: avoid_dynamic_calls
       final data = response is Map ? response : (response.data as Map?);
-      
+
       if (data != null) {
         final streamUrl = data['streamUrl'] as String?;
         if (streamUrl != null && streamUrl.isNotEmpty) {
@@ -142,9 +145,6 @@ class _DownloadOptionTileState extends State<DownloadOptionTile> {
     return null;
   }
 
-
-
-
   @override
   Widget build(BuildContext context) {
     // If not initialized, show loading
@@ -158,17 +158,13 @@ class _DownloadOptionTileState extends State<DownloadOptionTile> {
         title: Text('Cargando...', style: TextStyle(color: Colors.white)),
       );
     }
-    
+
     // Get current state directly from cubit (this is the latest state)
     final state = _cubit!.state;
-    
+
     // Verificar si hay coincidencia exacta (incluyendo espacios)
-    state.downloadedSongs.any((s) => 
-      s.videoId.trim() == widget.videoId.trim()
-    );
-    state.downloadingIds.any((id) => 
-      id.trim() == widget.videoId.trim()
-    );
+    state.downloadedSongs.any((s) => s.videoId.trim() == widget.videoId.trim());
+    state.downloadingIds.any((id) => id.trim() == widget.videoId.trim());
 
     // Listen to stream for real-time updates while bottom sheet is open
     return StreamBuilder<DownloadsState>(
@@ -176,15 +172,16 @@ class _DownloadOptionTileState extends State<DownloadOptionTile> {
       builder: (context, snapshot) {
         // Use latest state from stream if available, otherwise use cached state
         final latestState = snapshot.data ?? state;
-        final currentIsDownloaded = latestState.downloadedSongs.any((s) => 
-          s.videoId.trim() == widget.videoId.trim()
+        final currentIsDownloaded = latestState.downloadedSongs.any(
+          (s) => s.videoId.trim() == widget.videoId.trim(),
         );
-        final currentIsDownloading = latestState.downloadingIds.any((id) => 
-          id.trim() == widget.videoId.trim()
+        final currentIsDownloading = latestState.downloadingIds.any(
+          (id) => id.trim() == widget.videoId.trim(),
         );
-        final currentProgress = latestState.downloadProgress[widget.videoId] ?? 
-                              latestState.downloadProgress[widget.videoId.trim()] ?? 
-                              0.0;
+        final currentProgress =
+            latestState.downloadProgress[widget.videoId] ??
+            latestState.downloadProgress[widget.videoId.trim()] ??
+            0.0;
 
         return _buildTileContent(
           isDownloaded: currentIsDownloaded,
@@ -229,7 +226,8 @@ class _DownloadOptionTileState extends State<DownloadOptionTile> {
       return ListTile(
         leading: const Icon(
           Icons.download_done,
-          color: Colors.purple, // Color morado para indicar que ya está descargado
+          color:
+              Colors.purple, // Color morado para indicar que ya está descargado
         ),
         title: Text(
           widget.label,
@@ -261,10 +259,7 @@ class _DownloadOptionTileState extends State<DownloadOptionTile> {
     }
 
     return ListTile(
-      leading: Icon(
-        widget.icon,
-        color: widget.iconColor ?? Colors.white70,
-      ),
+      leading: Icon(widget.icon, color: widget.iconColor ?? Colors.white70),
       title: Text(widget.label, style: const TextStyle(color: Colors.white)),
       onTap: _startDownload,
     );
@@ -272,7 +267,7 @@ class _DownloadOptionTileState extends State<DownloadOptionTile> {
 
   Future<void> _startDownload() async {
     String? streamUrl = _streamUrl;
-    
+
     if (streamUrl == null || streamUrl.isEmpty) {
       streamUrl = await _getStreamUrl();
     }
@@ -280,7 +275,9 @@ class _DownloadOptionTileState extends State<DownloadOptionTile> {
     if (streamUrl == null || streamUrl.isEmpty) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No se pudo obtener la URL de descarga')),
+          const SnackBar(
+            content: Text('No se pudo obtener la URL de descarga'),
+          ),
         );
       }
       return;
@@ -298,7 +295,7 @@ class _DownloadOptionTileState extends State<DownloadOptionTile> {
 
   void _showDownloadedOptions() {
     if (_cubit == null) return;
-    
+
     BottomSheetVisibility().showBottomSheet(
       context: context,
       builder: (bottomSheetContext) => Container(
@@ -310,15 +307,24 @@ class _DownloadOptionTileState extends State<DownloadOptionTile> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(Icons.play_circle_outline, color: Colors.white),
-              title: const Text('Reproducir offline', style: TextStyle(color: Colors.white)),
+              leading: const Icon(
+                Icons.play_circle_outline,
+                color: Colors.white,
+              ),
+              title: const Text(
+                'Reproducir offline',
+                style: TextStyle(color: Colors.white),
+              ),
               onTap: () {
                 Navigator.pop(bottomSheetContext);
               },
             ),
             ListTile(
               leading: Icon(Icons.delete_outline, color: Colors.red.shade300),
-              title: Text('Eliminar descarga', style: TextStyle(color: Colors.red.shade300)),
+              title: Text(
+                'Eliminar descarga',
+                style: TextStyle(color: Colors.red.shade300),
+              ),
               onTap: () {
                 Navigator.pop(bottomSheetContext);
                 _cubit?.removeDownload(widget.videoId);

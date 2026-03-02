@@ -6,58 +6,58 @@ import 'package:equatable/equatable.dart';
 class Playlist extends Equatable {
   /// ID único de la playlist
   final String id;
-  
+
   /// Título de la playlist
   final String title;
-  
+
   /// Descripción
   final String? description;
-  
+
   /// URL de la miniatura
   final String? thumbnail;
-  
+
   /// URL de la miniatura de alta calidad
   final String? highThumbnail;
-  
+
   /// Lista de miniaturas en diferentes tamaños
   final List<PlaylistThumbnail> thumbnails;
-  
+
   /// Creador/Autor de la playlist
   final PlaylistAuthor? author;
-  
+
   /// Número de vistas
   final int? views;
-  
+
   /// Número de vistas formateado
   final String? viewsFormatted;
-  
+
   /// Duración total en segundos
   final int durationSeconds;
-  
+
   /// Duración formateada
   final String duration;
-  
+
   /// Número de canciones
   final int trackCount;
-  
+
   /// Privacidad (public, private, unlisted)
   final String privacy;
-  
+
   /// Año de creación/actualización
   final String? year;
-  
+
   /// Si el usuario es el owner
   final bool isOwned;
-  
+
   /// Si la playlist está likeada por el usuario
   final bool isLiked;
-  
+
   /// Canciones de la playlist
   final List<PlaylistTrack> tracks;
-  
+
   /// Géneros asociados
   final List<String> genres;
-  
+
   /// Tipo de playlist (playlist, album, mix)
   final String? type;
 
@@ -84,7 +84,10 @@ class Playlist extends Equatable {
   });
 
   /// Obtiene la mejor URL de thumbnail disponible
-  String? get bestThumbnail => highThumbnail ?? thumbnail ?? (thumbnails.isNotEmpty ? thumbnails.last.url : null);
+  String? get bestThumbnail =>
+      highThumbnail ??
+      thumbnail ??
+      (thumbnails.isNotEmpty ? thumbnails.last.url : null);
 
   /// Duración total formateada
   String get formattedDuration {
@@ -190,11 +193,7 @@ class PlaylistAuthor extends Equatable {
   final String? id;
   final String? thumbnail;
 
-  const PlaylistAuthor({
-    required this.name,
-    this.id,
-    this.thumbnail,
-  });
+  const PlaylistAuthor({required this.name, this.id, this.thumbnail});
 
   @override
   List<Object?> get props => [name, id, thumbnail];
@@ -204,49 +203,49 @@ class PlaylistAuthor extends Equatable {
 class PlaylistTrack extends Equatable {
   /// Video ID (YouTube)
   final String? videoId;
-  
+
   /// Título de la canción
   final String title;
-  
+
   /// Artistas
   final List<PlaylistArtist> artists;
-  
+
   /// Álbum
   final PlaylistAlbum? album;
-  
+
   /// Estado de like (LIKE, INDIFFERENT, DISLIKE)
   final String? likeStatus;
-  
+
   /// Si está en la biblioteca
   final bool? inLibrary;
-  
+
   /// Si está fijada para escuchar de nuevo
   final bool? pinnedToListenAgain;
-  
+
   /// Miniaturas
   final List<PlaylistThumbnail> thumbnails;
-  
+
   /// Si está disponible para reproducir
   final bool isAvailable;
-  
+
   /// Si es contenido explícito
   final bool isExplicit;
-  
+
   /// Tipo de video
   final String? videoType;
-  
+
   /// Vistas formateadas
   final String? views;
-  
+
   /// Duración
   final String duration;
-  
+
   /// Duración en segundos
   final int durationSeconds;
-  
+
   /// URL de streaming
   final String? streamUrl;
-  
+
   /// Thumbnail de alta calidad
   final String? thumbnail;
 
@@ -270,13 +269,15 @@ class PlaylistTrack extends Equatable {
   });
 
   /// Nombre del artista principal
-  String get artistName => artists.isNotEmpty ? artists.first.name : 'Unknown Artist';
+  String get artistName =>
+      artists.isNotEmpty ? artists.first.name : 'Unknown Artist';
 
   /// Nombres de todos los artistas
   String get artistNames => artists.map((a) => a.name).join(', ');
 
   /// Mejor thumbnail
-  String? get bestThumbnail => thumbnail ?? (thumbnails.isNotEmpty ? thumbnails.last.url : null);
+  String? get bestThumbnail =>
+      thumbnail ?? (thumbnails.isNotEmpty ? thumbnails.last.url : null);
 
   /// Puede reproducirse
   bool get canPlay => isAvailable && streamUrl != null && streamUrl!.isNotEmpty;
@@ -307,10 +308,7 @@ class PlaylistArtist extends Equatable {
   final String id;
   final String name;
 
-  const PlaylistArtist({
-    required this.id,
-    required this.name,
-  });
+  const PlaylistArtist({required this.id, required this.name});
 
   @override
   List<Object?> get props => [id, name];
@@ -321,10 +319,7 @@ class PlaylistAlbum extends Equatable {
   final String id;
   final String name;
 
-  const PlaylistAlbum({
-    required this.id,
-    required this.name,
-  });
+  const PlaylistAlbum({required this.id, required this.name});
 
   @override
   List<Object?> get props => [id, name];

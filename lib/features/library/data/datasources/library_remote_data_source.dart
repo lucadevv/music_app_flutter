@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:music_app/core/services/network/api_services.dart';
-import 'package:music_app/features/library/library_service.dart';
 
 /// Remote data source for library feature.
 /// Handles all API calls to the backend.
@@ -20,7 +19,10 @@ class LibraryRemoteDataSource {
   }
 
   /// Get favorite songs with pagination
-  Future<Map<String, dynamic>> getFavoriteSongs({int page = 1, int limit = 20}) async {
+  Future<Map<String, dynamic>> getFavoriteSongs({
+    int page = 1,
+    int limit = 20,
+  }) async {
     try {
       final response = await _api.get(
         '/library/songs',
@@ -33,7 +35,10 @@ class LibraryRemoteDataSource {
   }
 
   /// Get favorite playlists
-  Future<Map<String, dynamic>> getFavoritePlaylists({int page = 1, int limit = 20}) async {
+  Future<Map<String, dynamic>> getFavoritePlaylists({
+    int page = 1,
+    int limit = 20,
+  }) async {
     try {
       final response = await _api.get(
         '/library/playlists',
@@ -46,7 +51,10 @@ class LibraryRemoteDataSource {
   }
 
   /// Get favorite genres
-  Future<Map<String, dynamic>> getFavoriteGenres({int page = 1, int limit = 20}) async {
+  Future<Map<String, dynamic>> getFavoriteGenres({
+    int page = 1,
+    int limit = 20,
+  }) async {
     try {
       final response = await _api.get(
         '/library/genres',

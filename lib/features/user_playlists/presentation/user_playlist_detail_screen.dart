@@ -1,5 +1,4 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:get_it/get_it.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,8 +14,11 @@ import 'package:music_app/l10n/app_localizations.dart';
 @RoutePage()
 class UserPlaylistDetailScreen extends StatelessWidget {
   final String playlistId;
-  
-  const UserPlaylistDetailScreen({@PathParam('id') required this.playlistId, super.key});
+
+  const UserPlaylistDetailScreen({
+    @PathParam('id') required this.playlistId,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +51,11 @@ class _UserPlaylistDetailView extends StatelessWidget {
     );
   }
 
-  Widget _buildBody(BuildContext context, UserPlaylistDetailState state, AppLocalizations l10n) {
+  Widget _buildBody(
+    BuildContext context,
+    UserPlaylistDetailState state,
+    AppLocalizations l10n,
+  ) {
     switch (state.status) {
       case UserPlaylistDetailStatus.initial:
       case UserPlaylistDetailStatus.loading:
@@ -68,7 +74,9 @@ class _UserPlaylistDetailView extends StatelessWidget {
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () {
-                  context.read<UserPlaylistDetailCubit>().loadPlaylist(playlistId);
+                  context.read<UserPlaylistDetailCubit>().loadPlaylist(
+                    playlistId,
+                  );
                 },
                 child: Text(l10n.retry),
               ),
@@ -88,7 +96,11 @@ class _UserPlaylistDetailView extends StatelessWidget {
     }
   }
 
-  Widget _buildPlaylistContent(BuildContext context, UserPlaylistDetailState state, AppLocalizations l10n) {
+  Widget _buildPlaylistContent(
+    BuildContext context,
+    UserPlaylistDetailState state,
+    AppLocalizations l10n,
+  ) {
     final playlist = state.playlist!;
     final cubit = context.read<UserPlaylistDetailCubit>();
 
@@ -150,7 +162,10 @@ class _UserPlaylistDetailView extends StatelessWidget {
                     children: [
                       const Icon(Icons.delete, color: Colors.red),
                       const SizedBox(width: 8),
-                      Text(l10n.delete, style: const TextStyle(color: Colors.red)),
+                      Text(
+                        l10n.delete,
+                        style: const TextStyle(color: Colors.red),
+                      ),
                     ],
                   ),
                 ),
@@ -173,7 +188,10 @@ class _UserPlaylistDetailView extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColorsDark.primary,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 32,
+                      vertical: 12,
+                    ),
                   ),
                 ),
               ],
@@ -183,28 +201,29 @@ class _UserPlaylistDetailView extends StatelessWidget {
 
         // Lista de canciones
         SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (context, index) {
-              final song = playlist.songs[index];
-              return _PlaylistSongItem(
-                title: song.title,
-                artist: song.artist,
-                duration: song.duration,
-                thumbnail: song.thumbnail,
-                onTap: () => cubit.playSong(index),
-                onOptionsTap: () {
-                  // TODO: Show song options
-                },
-              );
-            },
-            childCount: playlist.songs.length,
-          ),
+          delegate: SliverChildBuilderDelegate((context, index) {
+            final song = playlist.songs[index];
+            return _PlaylistSongItem(
+              title: song.title,
+              artist: song.artist,
+              duration: song.duration,
+              thumbnail: song.thumbnail,
+              onTap: () => cubit.playSong(index),
+              onOptionsTap: () {
+                // TODO: Show song options
+              },
+            );
+          }, childCount: playlist.songs.length),
         ),
       ],
     );
   }
 
-  void _showEditDialog(BuildContext context, String currentName, AppLocalizations l10n) {
+  void _showEditDialog(
+    BuildContext context,
+    String currentName,
+    AppLocalizations l10n,
+  ) {
     final nameController = TextEditingController(text: currentName);
     final cubit = context.read<UserPlaylistDetailCubit>();
 
@@ -231,7 +250,10 @@ class _UserPlaylistDetailView extends StatelessWidget {
               Navigator.pop(dialogContext);
               cubit.updatePlaylist(playlistId, nameController.text);
             },
-            child: Text(l10n.save, style: const TextStyle(color: AppColorsDark.primary)),
+            child: Text(
+              l10n.save,
+              style: const TextStyle(color: AppColorsDark.primary),
+            ),
           ),
         ],
       ),
@@ -283,15 +305,11 @@ class _PlaylistSongItem extends StatelessWidget {
   const _PlaylistSongItem({
     required this.title,
     required this.artist,
-    required this.onTap, required this.onOptionsTap, this.duration,
+    required this.onTap,
+    required this.onOptionsTap,
+    this.duration,
     this.thumbnail,
   });
-
-  String _formatDuration(int seconds) {
-    final minutes = seconds ~/ 60;
-    final secs = seconds % 60;
-    return '$minutes:${secs.toString().padLeft(2, '0')}';
-  }
 
   @override
   Widget build(BuildContext context) {

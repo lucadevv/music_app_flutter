@@ -6,7 +6,6 @@ import '../../register/domain/entities/register_response.dart';
 import '../../register/presentation/cubit/register_cubit.dart'
     show RegisterStatus, RegisterState;
 
-
 part 'orquestador_auth_state.dart';
 part 'orquestador_auth_effect.dart';
 

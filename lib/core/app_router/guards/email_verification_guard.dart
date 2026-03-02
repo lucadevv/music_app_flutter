@@ -32,7 +32,7 @@ class EmailVerificationGuard extends AutoRouteGuard {
         );
       }
       // Usar replaceAll para limpiar el stack y evitar que haya botón de regresar
-      router.replaceAll([
+      await router.replaceAll([
         const DashboardShell(children: [EmailVerificationRoute()]),
       ]);
       resolver.next(false); // No continuar con la navegación original

@@ -27,18 +27,19 @@ class AlbumCubit extends Cubit<AlbumState> with BaseBlocMixin {
 
       if (isClosed) return;
 
-      emit(AlbumState(
-        status: AlbumStatus.success,
-        album: results[0] as Album,
-        songs: results[1] as List<AlbumSong>,
-        isLiked: results[2] as bool,
-      ));
+      emit(
+        AlbumState(
+          status: AlbumStatus.success,
+          album: results[0] as Album,
+          songs: results[1] as List<AlbumSong>,
+          isLiked: results[2] as bool,
+        ),
+      );
     } catch (e) {
       if (isClosed) return;
-      emit(state.copyWith(
-        status: AlbumStatus.failure,
-        errorMessage: e.toString(),
-      ));
+      emit(
+        state.copyWith(status: AlbumStatus.failure, errorMessage: e.toString()),
+      );
     }
   }
 

@@ -1,11 +1,14 @@
 import 'package:dartz/dartz.dart';
 import 'package:music_app/core/domain/entities/song.dart';
-import 'package:music_app/core/utils/exeptions/app_exception.dart';
+import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
 
 /// Repository interface for Favorites feature.
 abstract class FavoritesRepository {
   /// Get all favorite songs with pagination
-  Future<Either<AppException, List<Song>>> getFavorites({int page = 1, int limit = 20});
+  Future<Either<AppException, List<Song>>> getFavorites({
+    int page = 1,
+    int limit = 20,
+  });
 
   /// Add a song to favorites
   Future<Either<AppException, void>> addFavorite(Song song);

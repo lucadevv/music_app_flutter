@@ -9,13 +9,15 @@ class PlaylistErrorWidget extends StatelessWidget {
   final String playlistId;
 
   const PlaylistErrorWidget({
-    required this.errorMessage, required this.playlistId, super.key,
+    required this.errorMessage,
+    required this.playlistId,
+    super.key,
   });
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -53,7 +55,10 @@ class PlaylistErrorWidget extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
                 foregroundColor: Colors.black,
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 32,
+                  vertical: 16,
+                ),
               ),
               child: Text(l10n.retry),
             ),

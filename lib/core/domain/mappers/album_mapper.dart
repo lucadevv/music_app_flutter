@@ -1,5 +1,6 @@
 import 'package:music_app/core/domain/entities/album.dart' as core;
-import 'package:music_app/features/album/domain/entities/album.dart' as album_feature;
+import 'package:music_app/features/album/domain/entities/album.dart'
+    as album_feature;
 
 /// Mappers para convertir entre las entidades de Album y la entidad centralizada.
 class AlbumMapper {
@@ -28,7 +29,9 @@ class AlbumMapper {
   }
 
   /// Convierte una lista
-  static List<core.Album> fromFeatureAlbumList(List<album_feature.Album> albums) {
+  static List<core.Album> fromFeatureAlbumList(
+    List<album_feature.Album> albums,
+  ) {
     return albums.map(fromFeatureAlbum).toList();
   }
 }

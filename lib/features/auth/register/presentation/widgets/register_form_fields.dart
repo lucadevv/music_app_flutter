@@ -13,7 +13,15 @@ class RegisterFormFields extends StatelessWidget {
   final ValueNotifier<bool> obscureConfirmPassword;
 
   const RegisterFormFields({
-    required this.firstNameController, required this.lastNameController, required this.emailController, required this.passwordController, required this.confirmPasswordController, required this.formNotifier, required this.obscurePassword, required this.obscureConfirmPassword, super.key,
+    required this.firstNameController,
+    required this.lastNameController,
+    required this.emailController,
+    required this.passwordController,
+    required this.confirmPasswordController,
+    required this.formNotifier,
+    required this.obscurePassword,
+    required this.obscureConfirmPassword,
+    super.key,
   });
 
   @override
@@ -47,7 +55,7 @@ class RegisterFormFields extends StatelessWidget {
               hintText: 'Juan',
               prefixIcon: Icons.person,
               errorText: formNotifier.firstNameError,
-              onChanged: (value) => formNotifier.validateFirstName(value),
+              onChanged: formNotifier.validateFirstName,
             );
           },
         ),

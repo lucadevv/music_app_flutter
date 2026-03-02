@@ -14,10 +14,7 @@ class LoginLink extends StatelessWidget {
       },
       child: RichText(
         text: const TextSpan(
-          style: TextStyle(
-            color: AppColorsDark.onSurfaceVariant,
-            fontSize: 14,
-          ),
+          style: TextStyle(color: AppColorsDark.onSurfaceVariant, fontSize: 14),
           children: [
             TextSpan(text: '¿Ya tienes una cuenta? '),
             TextSpan(

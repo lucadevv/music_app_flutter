@@ -2,11 +2,11 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
-import 'package:music_app/core/services/network/api_services.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/core/presentation/widgets/song_list_item.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/recently_played/domain/entities/recently_played_song.dart';
+import 'package:music_app/features/recently_played/domain/usecases/get_recently_played_usecase.dart';
 import 'package:music_app/features/recently_played/presentation/cubit/recently_played_cubit.dart';
 import 'package:music_app/l10n/app_localizations.dart';
 import 'package:music_app/main.dart';
@@ -19,7 +19,7 @@ class RecentlyPlayedScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => RecentlyPlayedCubit(
-        apiServices: getIt<ApiServices>(),
+        getRecentlyPlayedUseCase: getIt<GetRecentlyPlayedUseCase>(),
         playerBloc: context.read<PlayerBlocBloc>(),
       )..loadRecentlyPlayed(),
       child: const _RecentlyPlayedView(),
@@ -44,7 +44,9 @@ class _RecentlyPlayedView extends StatelessWidget {
               if (state.status == RecentlyPlayedStatus.loading)
                 const SliverFillRemaining(
                   child: Center(
-                    child: CircularProgressIndicator(color: AppColorsDark.primary),
+                    child: CircularProgressIndicator(
+                      color: AppColorsDark.primary,
+                    ),
                   ),
                 )
               else if (state.status == RecentlyPlayedStatus.failure)
@@ -52,9 +54,7 @@ class _RecentlyPlayedView extends StatelessWidget {
                   child: _buildError(state.errorMessage, context, l10n),
                 )
               else if (state.songs.isEmpty)
-                SliverFillRemaining(
-                  child: _buildEmpty(l10n),
-                )
+                SliverFillRemaining(child: _buildEmpty(l10n))
               else
                 _buildSongsList(context, state),
             ],
@@ -64,7 +64,11 @@ class _RecentlyPlayedView extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context, RecentlyPlayedState state, AppLocalizations l10n) {
+  Widget _buildHeader(
+    BuildContext context,
+    RecentlyPlayedState state,
+    AppLocalizations l10n,
+  ) {
     return SliverAppBar(
       expandedHeight: 280,
       pinned: true,
@@ -89,10 +93,7 @@ class _RecentlyPlayedView extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [
-                AppColorsDark.primaryContainer,
-                Color(0xFF0D0D0D),
-              ],
+              colors: [AppColorsDark.primaryContainer, Color(0xFF0D0D0D)],
             ),
           ),
           child: SafeArea(
@@ -148,20 +149,18 @@ class _RecentlyPlayedView extends StatelessWidget {
 
   Widget _buildSongsList(BuildContext context, RecentlyPlayedState state) {
     return SliverList(
-      delegate: SliverChildBuilderDelegate(
-        (context, index) {
-          final song = state.songs[index];
-          return _SongItem(
-            song: song,
-            onTap: () => _playSong(context, song),
-          );
-        },
-        childCount: state.songs.length,
-      ),
+      delegate: SliverChildBuilderDelegate((context, index) {
+        final song = state.songs[index];
+        return _SongItem(song: song, onTap: () => _playSong(context, song));
+      }, childCount: state.songs.length),
     );
   }
 
-  Widget _buildError(String? errorMessage, BuildContext context, AppLocalizations l10n) {
+  Widget _buildError(
+    String? errorMessage,
+    BuildContext context,
+    AppLocalizations l10n,
+  ) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -175,7 +174,8 @@ class _RecentlyPlayedView extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           ElevatedButton(
-            onPressed: () => context.read<RecentlyPlayedCubit>().loadRecentlyPlayed(),
+            onPressed: () =>
+                context.read<RecentlyPlayedCubit>().loadRecentlyPlayed(),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColorsDark.primary,
             ),
@@ -228,10 +228,7 @@ class _SongItem extends StatelessWidget {
   final RecentlyPlayedSong song;
   final VoidCallback onTap;
 
-  const _SongItem({
-    required this.song,
-    required this.onTap,
-  });
+  const _SongItem({required this.song, required this.onTap});
 
   @override
   Widget build(BuildContext context) {

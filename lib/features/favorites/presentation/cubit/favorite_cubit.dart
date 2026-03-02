@@ -31,8 +31,10 @@ class FavoriteCubit extends Cubit<FavoriteState> with BaseBlocMixin {
   }
 
   bool isSongFavorite(String videoId) => state.favoriteSongs.contains(videoId);
-  bool isPlaylistFavorite(String playlistId) => state.favoritePlaylists.contains(playlistId);
-  bool isGenreFavorite(String externalParams) => state.favoriteGenres.contains(externalParams);
+  bool isPlaylistFavorite(String playlistId) =>
+      state.favoritePlaylists.contains(playlistId);
+  bool isGenreFavorite(String externalParams) =>
+      state.favoriteGenres.contains(externalParams);
 
   /// Toggle favorito con actualización optimista
   Future<void> toggleFavorite({
@@ -72,11 +74,9 @@ class FavoriteCubit extends Cubit<FavoriteState> with BaseBlocMixin {
     emit(state.copyWith());
 
     // Notificar a otros widgets
-    _favoritesController.add(FavoriteEvent(
-      type: type,
-      id: videoId,
-      isFavorite: !isCurrentlyFavorite,
-    ));
+    _favoritesController.add(
+      FavoriteEvent(type: type, id: videoId, isFavorite: !isCurrentlyFavorite),
+    );
 
     try {
       if (isCurrentlyFavorite) {
@@ -127,19 +127,19 @@ class FavoriteCubit extends Cubit<FavoriteState> with BaseBlocMixin {
       }
     } catch (e) {
       // Rollback en caso de error
-      emit(FavoriteState(
-        favoriteSongs: previousSongs,
-        favoritePlaylists: previousPlaylists,
-        favoriteGenres: previousGenres,
-        error: _parseError(e),
-      ));
+      emit(
+        FavoriteState(
+          favoriteSongs: previousSongs,
+          favoritePlaylists: previousPlaylists,
+          favoriteGenres: previousGenres,
+          error: _parseError(e),
+        ),
+      );
 
       // Notificar rollback
-      _favoritesController.add(FavoriteEvent(
-        type: type,
-        id: videoId,
-        isFavorite: isCurrentlyFavorite,
-      ));
+      _favoritesController.add(
+        FavoriteEvent(type: type, id: videoId, isFavorite: isCurrentlyFavorite),
+      );
 
       if (kDebugMode) {
         debugPrint('Error toggling favorite: $e');
@@ -154,27 +154,39 @@ class FavoriteCubit extends Cubit<FavoriteState> with BaseBlocMixin {
     emit(state.copyWith(isLoading: true));
 
     try {
-      final songsResponse = await _libraryService.getFavoriteSongs(page: 1, limit: 100);
-      final playlistsResponse = await _libraryService.getFavoritePlaylists(page: 1, limit: 100);
-      final genresResponse = await _libraryService.getFavoriteGenres(page: 1, limit: 100);
+      final songsResponse = await _libraryService.getFavoriteSongs(
+        page: 1,
+        limit: 100,
+      );
+      final playlistsResponse = await _libraryService.getFavoritePlaylists(
+        page: 1,
+        limit: 100,
+      );
+      final genresResponse = await _libraryService.getFavoriteGenres(
+        page: 1,
+        limit: 100,
+      );
 
       if (isClosed) return;
 
-      emit(FavoriteState(
-        favoriteSongs: songsResponse.data.map((s) => s.videoId).toSet(),
-        favoritePlaylists: playlistsResponse.data.map((p) => p.externalPlaylistId).toSet(),
-        favoriteGenres: genresResponse.data.map((g) => g.externalParams).toSet(),
-        isLoading: false,
-      ));
+      emit(
+        FavoriteState(
+          favoriteSongs: songsResponse.data.map((s) => s.videoId).toSet(),
+          favoritePlaylists: playlistsResponse.data
+              .map((p) => p.externalPlaylistId)
+              .toSet(),
+          favoriteGenres: genresResponse.data
+              .map((g) => g.externalParams)
+              .toSet(),
+          isLoading: false,
+        ),
+      );
 
       // Sincronizar playlists favoritas con caché offline (fire and forget)
       _syncAllPlaylistsToOfflineCache(playlistsResponse.data);
     } catch (e) {
       if (isClosed) return;
-      emit(state.copyWith(
-        isLoading: false,
-        error: _parseError(e),
-      ));
+      emit(state.copyWith(isLoading: false, error: _parseError(e)));
     }
   }
 
@@ -244,7 +256,9 @@ class FavoriteCubit extends Cubit<FavoriteState> with BaseBlocMixin {
   ///
   /// Este método no bloquea la UI ni causa rollback si falla.
   /// Verifica conexión antes de intentar sincronizar.
-  Future<void> _syncAllPlaylistsToOfflineCache(List<FavoritePlaylist> playlists) async {
+  Future<void> _syncAllPlaylistsToOfflineCache(
+    List<FavoritePlaylist> playlists,
+  ) async {
     try {
       // Verificar conexión antes de sincronizar
       if (!await _offlineService.isOnline) {
@@ -257,7 +271,9 @@ class FavoriteCubit extends Cubit<FavoriteState> with BaseBlocMixin {
       await _playlistOfflineCubit.syncAllFavoritePlaylists(playlists);
 
       if (kDebugMode) {
-        debugPrint('All favorite playlists synced to offline cache: ${playlists.length}');
+        debugPrint(
+          'All favorite playlists synced to offline cache: ${playlists.length}',
+        );
       }
     } catch (e) {
       // Log error pero no propagar - es fire and forget
@@ -297,7 +313,9 @@ class FavoriteCubit extends Cubit<FavoriteState> with BaseBlocMixin {
       title: song.title,
       artistNames: song.artist.split(', '),
       albumName: '',
-      duration: song.duration != null ? _formatDuration(song.duration!) : '0:00',
+      duration: song.duration != null
+          ? _formatDuration(song.duration!)
+          : '0:00',
       durationSeconds: song.duration,
       thumbnailUrl: song.thumbnail,
     );

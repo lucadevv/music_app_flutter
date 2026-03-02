@@ -8,9 +8,7 @@ import 'package:music_app/features/auth/register/presentation/cubit/register_cub
 class RegisterButton extends StatelessWidget {
   final VoidCallback onPressed;
 
-  const RegisterButton({
-    required this.onPressed, super.key,
-  });
+  const RegisterButton({required this.onPressed, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -40,10 +38,7 @@ class RegisterButton extends StatelessWidget {
                 )
               : const Text(
                   'Registrarse',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
         );
       },

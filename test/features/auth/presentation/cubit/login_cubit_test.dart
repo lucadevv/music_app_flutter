@@ -4,14 +4,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:music_app/core/managers/auth/auth_manager.dart';
-import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
 import 'package:music_app/features/auth/data/models/oauth_request.dart';
 import 'package:music_app/features/auth/data/services/oauth_service.dart';
 import 'package:music_app/features/auth/login/domain/entities/login_request.dart';
 import 'package:music_app/features/auth/login/domain/use_cases/login_use_case.dart';
 import 'package:music_app/features/auth/login/domain/use_cases/oauth_sign_in_use_case.dart';
 import 'package:music_app/features/auth/login/presentation/cubit/login_cubit.dart';
-import 'package:music_app/features/auth/register/domain/entities/register_response.dart';
 import 'package:music_app/features/auth/register/domain/repositories/auth_repository.dart';
 
 import '../../../../helpers/test_helpers.dart';
@@ -41,11 +39,11 @@ void main() {
     mockRepository = MockAuthRepository();
     mockAuthManager = MockAuthManager();
     mockOAuthService = MockOAuthService();
-    
+
     loginUseCase = LoginUseCase(mockRepository);
     googleSignInUseCase = GoogleSignInUseCase(mockRepository, mockOAuthService);
     appleSignInUseCase = AppleSignInUseCase(mockRepository, mockOAuthService);
-    
+
     loginCubit = LoginCubit(
       loginUseCase: loginUseCase,
       googleSignInUseCase: googleSignInUseCase,
@@ -76,44 +74,56 @@ void main() {
         }
       },
       build: () {
-        when(() => mockRepository.login(any(that: isA<LoginRequest>())))
-            .thenAnswer((_) async => Right(createTestRegisterResponse()));
-        when(() => mockAuthManager.login(
-              any(),
-              any(),
-              isEmailVerified: any(named: 'isEmailVerified'),
-              email: any(named: 'email'),
-            )).thenAnswer((_) async {});
-        when(() => mockAuthManager.isEmailVerified())
-            .thenAnswer((_) async => true);
+        when(
+          () => mockRepository.login(any(that: isA<LoginRequest>())),
+        ).thenAnswer((_) async => Right(createTestRegisterResponse()));
+        when(
+          () => mockAuthManager.login(
+            any(),
+            any(),
+            isEmailVerified: any(named: 'isEmailVerified'),
+            email: any(named: 'email'),
+          ),
+        ).thenAnswer((_) async {});
+        when(
+          () => mockAuthManager.isEmailVerified(),
+        ).thenAnswer((_) async => true);
         return loginCubit;
       },
       act: (cubit) => cubit.login(createTestLoginRequest()),
       expect: () => [
-        isA<LoginState>()
-            .having((s) => s.status, 'status', LoginStatus.loading),
+        isA<LoginState>().having(
+          (s) => s.status,
+          'status',
+          LoginStatus.loading,
+        ),
         isA<LoginState>()
             .having((s) => s.status, 'status', LoginStatus.success)
             .having((s) => s.responseEntity, 'responseEntity', isNotNull)
             .having((s) => s.errorMessage, 'errorMessage', isNull),
       ],
       verify: (_) {
-        verify(() => mockRepository.login(any(that: isA<LoginRequest>())))
-            .called(1);
+        verify(
+          () => mockRepository.login(any(that: isA<LoginRequest>())),
+        ).called(1);
       },
     );
 
     blocTest<LoginCubit, LoginState>(
       'should emit [loading, failure] when login fails with NetworkException',
       build: () {
-        when(() => mockRepository.login(any(that: isA<LoginRequest>())))
-            .thenAnswer((_) async => Left(createTestNetworkException()));
+        when(
+          () => mockRepository.login(any(that: isA<LoginRequest>())),
+        ).thenAnswer((_) async => Left(createTestNetworkException()));
         return loginCubit;
       },
       act: (cubit) => cubit.login(createTestLoginRequest()),
       expect: () => [
-        isA<LoginState>()
-            .having((s) => s.status, 'status', LoginStatus.loading),
+        isA<LoginState>().having(
+          (s) => s.status,
+          'status',
+          LoginStatus.loading,
+        ),
         isA<LoginState>()
             .having((s) => s.status, 'status', LoginStatus.failure)
             .having((s) => s.errorMessage, 'errorMessage', isNotNull),
@@ -123,25 +133,36 @@ void main() {
     blocTest<LoginCubit, LoginState>(
       'should emit [loading, failure] when login fails with AuthenticationException',
       build: () {
-        when(() => mockRepository.login(any(that: isA<LoginRequest>())))
-            .thenAnswer((_) async => Left(createTestAuthException('Invalid credentials')));
+        when(
+          () => mockRepository.login(any(that: isA<LoginRequest>())),
+        ).thenAnswer(
+          (_) async => Left(createTestAuthException('Invalid credentials')),
+        );
         return loginCubit;
       },
       act: (cubit) => cubit.login(createTestLoginRequest()),
       expect: () => [
-        isA<LoginState>()
-            .having((s) => s.status, 'status', LoginStatus.loading),
+        isA<LoginState>().having(
+          (s) => s.status,
+          'status',
+          LoginStatus.loading,
+        ),
         isA<LoginState>()
             .having((s) => s.status, 'status', LoginStatus.failure)
-            .having((s) => s.errorMessage, 'errorMessage', 'Invalid credentials'),
+            .having(
+              (s) => s.errorMessage,
+              'errorMessage',
+              'Invalid credentials',
+            ),
       ],
     );
 
     blocTest<LoginCubit, LoginState>(
       'should not emit new state when already loading',
       build: () {
-        when(() => mockRepository.login(any(that: isA<LoginRequest>())))
-            .thenAnswer((_) async => Right(createTestRegisterResponse()));
+        when(
+          () => mockRepository.login(any(that: isA<LoginRequest>())),
+        ).thenAnswer((_) async => Right(createTestRegisterResponse()));
         return loginCubit;
       },
       act: (cubit) async {
@@ -149,16 +170,25 @@ void main() {
         cubit.login(createTestLoginRequest());
       },
       expect: () => [
-        isA<LoginState>().having((s) => s.status, 'status', LoginStatus.loading),
-        isA<LoginState>().having((s) => s.status, 'status', LoginStatus.success),
+        isA<LoginState>().having(
+          (s) => s.status,
+          'status',
+          LoginStatus.loading,
+        ),
+        isA<LoginState>().having(
+          (s) => s.status,
+          'status',
+          LoginStatus.success,
+        ),
       ],
     );
 
     blocTest<LoginCubit, LoginState>(
       'should reset state to initial when reset is called',
       build: () {
-        when(() => mockRepository.login(any(that: isA<LoginRequest>())))
-            .thenAnswer((_) async => Right(createTestRegisterResponse()));
+        when(
+          () => mockRepository.login(any(that: isA<LoginRequest>())),
+        ).thenAnswer((_) async => Right(createTestRegisterResponse()));
         return loginCubit;
       },
       act: (cubit) async {
@@ -166,8 +196,16 @@ void main() {
         cubit.reset();
       },
       expect: () => [
-        isA<LoginState>().having((s) => s.status, 'status', LoginStatus.loading),
-        isA<LoginState>().having((s) => s.status, 'status', LoginStatus.success),
+        isA<LoginState>().having(
+          (s) => s.status,
+          'status',
+          LoginStatus.loading,
+        ),
+        isA<LoginState>().having(
+          (s) => s.status,
+          'status',
+          LoginStatus.success,
+        ),
         isA<LoginState>()
             .having((s) => s.status, 'status', LoginStatus.initial)
             .having((s) => s.responseEntity, 'responseEntity', isNull)
@@ -178,13 +216,20 @@ void main() {
     blocTest<LoginCubit, LoginState>(
       'should handle ValidationException',
       build: () {
-        when(() => mockRepository.login(any(that: isA<LoginRequest>())))
-            .thenAnswer((_) async => Left(createTestValidationException('Invalid email')));
+        when(
+          () => mockRepository.login(any(that: isA<LoginRequest>())),
+        ).thenAnswer(
+          (_) async => Left(createTestValidationException('Invalid email')),
+        );
         return loginCubit;
       },
       act: (cubit) => cubit.login(createTestLoginRequest()),
       expect: () => [
-        isA<LoginState>().having((s) => s.status, 'status', LoginStatus.loading),
+        isA<LoginState>().having(
+          (s) => s.status,
+          'status',
+          LoginStatus.loading,
+        ),
         isA<LoginState>()
             .having((s) => s.status, 'status', LoginStatus.failure)
             .having((s) => s.errorMessage, 'errorMessage', 'Invalid email'),
@@ -205,43 +250,56 @@ void main() {
         }
       },
       build: () {
-        when(() => mockOAuthService.signInWithGoogle())
-            .thenAnswer((_) async => createTestOAuthResult());
-        when(() => mockRepository.signInWithGoogle(any(that: isA<OAuthRequest>())))
-            .thenAnswer((_) async => Right(createTestOAuthResponse()));
-        when(() => mockAuthManager.login(
-              any(),
-              any(),
-              isEmailVerified: any(named: 'isEmailVerified'),
-              email: any(named: 'email'),
-            )).thenAnswer((_) async {});
+        when(
+          () => mockOAuthService.signInWithGoogle(),
+        ).thenAnswer((_) async => createTestOAuthResult());
+        when(
+          () => mockRepository.signInWithGoogle(any(that: isA<OAuthRequest>())),
+        ).thenAnswer((_) async => Right(createTestOAuthResponse()));
+        when(
+          () => mockAuthManager.login(
+            any(),
+            any(),
+            isEmailVerified: any(named: 'isEmailVerified'),
+            email: any(named: 'email'),
+          ),
+        ).thenAnswer((_) async {});
         return loginCubit;
       },
       act: (cubit) => cubit.signInWithGoogle(),
       expect: () => [
-        isA<LoginState>()
-            .having((s) => s.status, 'status', LoginStatus.loading),
+        isA<LoginState>().having(
+          (s) => s.status,
+          'status',
+          LoginStatus.loading,
+        ),
         isA<LoginState>()
             .having((s) => s.status, 'status', LoginStatus.success)
             .having((s) => s.responseEntity, 'responseEntity', isNotNull),
       ],
       verify: (_) {
         verify(() => mockOAuthService.signInWithGoogle()).called(1);
-        verify(() => mockRepository.signInWithGoogle(any(that: isA<OAuthRequest>()))).called(1);
+        verify(
+          () => mockRepository.signInWithGoogle(any(that: isA<OAuthRequest>())),
+        ).called(1);
       },
     );
 
     blocTest<LoginCubit, LoginState>(
       'should emit [loading, failure] when Google sign in is cancelled',
       build: () {
-        when(() => mockOAuthService.signInWithGoogle())
-            .thenAnswer((_) async => null);
+        when(
+          () => mockOAuthService.signInWithGoogle(),
+        ).thenAnswer((_) async => null);
         return loginCubit;
       },
       act: (cubit) => cubit.signInWithGoogle(),
       expect: () => [
-        isA<LoginState>()
-            .having((s) => s.status, 'status', LoginStatus.loading),
+        isA<LoginState>().having(
+          (s) => s.status,
+          'status',
+          LoginStatus.loading,
+        ),
         isA<LoginState>()
             .having((s) => s.status, 'status', LoginStatus.failure)
             .having((s) => s.errorMessage, 'errorMessage', isNotNull),
@@ -251,16 +309,23 @@ void main() {
     blocTest<LoginCubit, LoginState>(
       'should emit [loading, failure] when Google sign in fails',
       build: () {
-        when(() => mockOAuthService.signInWithGoogle())
-            .thenAnswer((_) async => createTestOAuthResult());
-        when(() => mockRepository.signInWithGoogle(any(that: isA<OAuthRequest>())))
-            .thenAnswer((_) async => Left(createTestAuthException('Google auth failed')));
+        when(
+          () => mockOAuthService.signInWithGoogle(),
+        ).thenAnswer((_) async => createTestOAuthResult());
+        when(
+          () => mockRepository.signInWithGoogle(any(that: isA<OAuthRequest>())),
+        ).thenAnswer(
+          (_) async => Left(createTestAuthException('Google auth failed')),
+        );
         return loginCubit;
       },
       act: (cubit) => cubit.signInWithGoogle(),
       expect: () => [
-        isA<LoginState>()
-            .having((s) => s.status, 'status', LoginStatus.loading),
+        isA<LoginState>().having(
+          (s) => s.status,
+          'status',
+          LoginStatus.loading,
+        ),
         isA<LoginState>()
             .having((s) => s.status, 'status', LoginStatus.failure)
             .having((s) => s.errorMessage, 'errorMessage', contains('failed')),
@@ -281,43 +346,56 @@ void main() {
         }
       },
       build: () {
-        when(() => mockOAuthService.signInWithApple())
-            .thenAnswer((_) async => createTestOAuthResult(provider: OAuthProvider.apple));
-        when(() => mockRepository.signInWithApple(any(that: isA<OAuthRequest>())))
-            .thenAnswer((_) async => Right(createTestOAuthResponse()));
-        when(() => mockAuthManager.login(
-              any(),
-              any(),
-              isEmailVerified: any(named: 'isEmailVerified'),
-              email: any(named: 'email'),
-            )).thenAnswer((_) async {});
+        when(() => mockOAuthService.signInWithApple()).thenAnswer(
+          (_) async => createTestOAuthResult(provider: OAuthProvider.apple),
+        );
+        when(
+          () => mockRepository.signInWithApple(any(that: isA<OAuthRequest>())),
+        ).thenAnswer((_) async => Right(createTestOAuthResponse()));
+        when(
+          () => mockAuthManager.login(
+            any(),
+            any(),
+            isEmailVerified: any(named: 'isEmailVerified'),
+            email: any(named: 'email'),
+          ),
+        ).thenAnswer((_) async {});
         return loginCubit;
       },
       act: (cubit) => cubit.signInWithApple(),
       expect: () => [
-        isA<LoginState>()
-            .having((s) => s.status, 'status', LoginStatus.loading),
+        isA<LoginState>().having(
+          (s) => s.status,
+          'status',
+          LoginStatus.loading,
+        ),
         isA<LoginState>()
             .having((s) => s.status, 'status', LoginStatus.success)
             .having((s) => s.responseEntity, 'responseEntity', isNotNull),
       ],
       verify: (_) {
         verify(() => mockOAuthService.signInWithApple()).called(1);
-        verify(() => mockRepository.signInWithApple(any(that: isA<OAuthRequest>()))).called(1);
+        verify(
+          () => mockRepository.signInWithApple(any(that: isA<OAuthRequest>())),
+        ).called(1);
       },
     );
 
     blocTest<LoginCubit, LoginState>(
       'should emit [loading, failure] when Apple sign in is cancelled',
       build: () {
-        when(() => mockOAuthService.signInWithApple())
-            .thenAnswer((_) async => null);
+        when(
+          () => mockOAuthService.signInWithApple(),
+        ).thenAnswer((_) async => null);
         return loginCubit;
       },
       act: (cubit) => cubit.signInWithApple(),
       expect: () => [
-        isA<LoginState>()
-            .having((s) => s.status, 'status', LoginStatus.loading),
+        isA<LoginState>().having(
+          (s) => s.status,
+          'status',
+          LoginStatus.loading,
+        ),
         isA<LoginState>()
             .having((s) => s.status, 'status', LoginStatus.failure)
             .having((s) => s.errorMessage, 'errorMessage', isNotNull),
@@ -327,16 +405,21 @@ void main() {
     blocTest<LoginCubit, LoginState>(
       'should emit [loading, failure] when Apple sign in fails',
       build: () {
-        when(() => mockOAuthService.signInWithApple())
-            .thenAnswer((_) async => createTestOAuthResult(provider: OAuthProvider.apple));
-        when(() => mockRepository.signInWithApple(any(that: isA<OAuthRequest>())))
-            .thenAnswer((_) async => Left(createTestNetworkException()));
+        when(() => mockOAuthService.signInWithApple()).thenAnswer(
+          (_) async => createTestOAuthResult(provider: OAuthProvider.apple),
+        );
+        when(
+          () => mockRepository.signInWithApple(any(that: isA<OAuthRequest>())),
+        ).thenAnswer((_) async => Left(createTestNetworkException()));
         return loginCubit;
       },
       act: (cubit) => cubit.signInWithApple(),
       expect: () => [
-        isA<LoginState>()
-            .having((s) => s.status, 'status', LoginStatus.loading),
+        isA<LoginState>().having(
+          (s) => s.status,
+          'status',
+          LoginStatus.loading,
+        ),
         isA<LoginState>()
             .having((s) => s.status, 'status', LoginStatus.failure)
             .having((s) => s.errorMessage, 'errorMessage', isNotNull),

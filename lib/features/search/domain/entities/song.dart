@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 /// Entidad del dominio para una canción en los resultados de búsqueda
-/// 
+///
 /// @deprecated Usar [Song] desde `core/domain/entities/song.dart`
 /// Esta entidad será eliminada en futuras versiones.
 /// Usar [SongMapper] para convertir a la entidad centralizada.
@@ -17,8 +17,10 @@ class Song {
   final bool isExplicit;
   final bool inLibrary;
   final List<Thumbnail> thumbnails;
-  final String? streamUrl; // URL de streaming (viene del endpoint con include_stream_urls=true)
-  final Thumbnail? thumbnail; // Thumbnail de mejor calidad (viene junto con stream_url)
+  final String?
+  streamUrl; // URL de streaming (viene del endpoint con include_stream_urls=true)
+  final Thumbnail?
+  thumbnail; // Thumbnail de mejor calidad (viene junto con stream_url)
 
   const Song({
     required this.title,
@@ -54,10 +56,7 @@ class SearchArtist {
   final String id;
   final String name;
 
-  const SearchArtist({
-    required this.id,
-    required this.name,
-  });
+  const SearchArtist({required this.id, required this.name});
 }
 
 /// Miniaturas en diferentes tamaños
@@ -66,11 +65,7 @@ class Thumbnail extends Equatable {
   final int? width;
   final int? height;
 
-  const Thumbnail({
-    required this.url,
-    this.width,
-    this.height,
-  });
+  const Thumbnail({required this.url, this.width, this.height});
 
   @override
   List<Object?> get props => [url, width, height];

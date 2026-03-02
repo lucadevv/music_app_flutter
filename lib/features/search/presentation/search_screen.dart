@@ -57,7 +57,8 @@ class _SearchScreenState extends State<SearchScreen> {
               final searchState = orquestadorState.searchState;
               final hasQuery = searchState.query.isNotEmpty;
               final isLoading = searchState.status == SearchStatus.loading;
-              final hasResults = searchState.status == SearchStatus.success &&
+              final hasResults =
+                  searchState.status == SearchStatus.success &&
                   searchState.responseEntity != null;
 
               return CustomScrollView(
@@ -80,7 +81,9 @@ class _SearchScreenState extends State<SearchScreen> {
                         padding: EdgeInsets.all(24.0),
                         child: Center(
                           child: CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
                           ),
                         ),
                       ),
@@ -97,14 +100,10 @@ class _SearchScreenState extends State<SearchScreen> {
                   // Mostrar lista y grid cuando no hay búsqueda
                   if (!hasQuery) ...[
                     // Búsquedas recientes
-                    const SliverToBoxAdapter(
-                      child: RecentSearchesWidget(),
-                    ),
+                    const SliverToBoxAdapter(child: RecentSearchesWidget()),
 
                     // Categories grid
-                    const SliverToBoxAdapter(
-                      child: CategoriesGridWidget(),
-                    ),
+                    const SliverToBoxAdapter(child: CategoriesGridWidget()),
                   ],
 
                   const SliverToBoxAdapter(child: SizedBox(height: 100)),

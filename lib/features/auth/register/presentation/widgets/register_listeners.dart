@@ -1,6 +1,7 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:auto_route/auto_route.dart';
+
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/auth/presentation/cubit/orquestador_auth_cubit.dart';
@@ -10,9 +11,7 @@ import 'package:music_app/features/auth/register/presentation/cubit/register_cub
 class RegisterListeners extends StatelessWidget {
   final Widget child;
 
-  const RegisterListeners({
-    required this.child, super.key,
-  });
+  const RegisterListeners({required this.child, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +39,7 @@ class RegisterListeners extends StatelessWidget {
           listener: (context, state) {
             final effect = state.effect;
             if (effect == null) return;
-            
+
             if (effect is NavigateToDashboardEffect) {
               context.read<OrquestadorAuthCubit>().clearEffect();
               if (!context.mounted) return;

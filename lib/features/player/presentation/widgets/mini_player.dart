@@ -17,7 +17,7 @@ class MiniPlayer extends StatelessWidget {
     // QUITAR buildWhen temporalmente para debug - reconstruir en cada cambio de estado
     // Obtener el bloc del provider
     final playerBloc = context.read<PlayerBlocBloc>();
-    
+
     return BlocBuilder<PlayerBlocBloc, PlayerBlocState>(
       bloc: playerBloc,
       builder: (context, state) {
@@ -28,8 +28,8 @@ class MiniPlayer extends StatelessWidget {
         final track = state.currentTrack!;
         final isPlaying = state.isPlaying;
         final position = state.position;
-        final duration = state.duration.inSeconds > 0 
-            ? state.duration 
+        final duration = state.duration.inSeconds > 0
+            ? state.duration
             : Duration(seconds: track.durationSeconds);
 
         return GestureDetector(
@@ -75,12 +75,13 @@ class MiniPlayer extends StatelessWidget {
                             duration: track.durationSeconds,
                           ),
                         ),
-                          _PlayerControls(
+                        _PlayerControls(
                           isPlaying: isPlaying,
                           canPlayNext: state.canPlayNext,
-                          onPlayPause: () => playerBloc.add(const PlayPauseToggleEvent()),
-                          onNext: state.canPlayNext 
-                              ? () => playerBloc.add(const NextTrackEvent()) 
+                          onPlayPause: () =>
+                              playerBloc.add(const PlayPauseToggleEvent()),
+                          onNext: state.canPlayNext
+                              ? () => playerBloc.add(const NextTrackEvent())
                               : null,
                         ),
                       ],
@@ -104,15 +105,12 @@ class _ProgressBar extends StatelessWidget {
   final Duration position;
   final Duration duration;
 
-  const _ProgressBar({
-    required this.position,
-    required this.duration,
-  });
+  const _ProgressBar({required this.position, required this.duration});
 
   @override
   Widget build(BuildContext context) {
-    final progress = duration.inSeconds > 0 
-        ? position.inSeconds / duration.inSeconds 
+    final progress = duration.inSeconds > 0
+        ? position.inSeconds / duration.inSeconds
         : 0.0;
 
     return SizedBox(
@@ -182,10 +180,7 @@ class _TrackInfo extends StatelessWidget {
   final String title;
   final String artist;
 
-  const _TrackInfo({
-    required this.title,
-    required this.artist,
-  });
+  const _TrackInfo({required this.title, required this.artist});
 
   @override
   Widget build(BuildContext context) {
@@ -248,7 +243,9 @@ class _PlayerControls extends StatelessWidget {
           onPressed: onNext,
           icon: Icon(
             Icons.skip_next,
-            color: onNext != null ? Colors.white : Colors.white.withValues(alpha: 0.3),
+            color: onNext != null
+                ? Colors.white
+                : Colors.white.withValues(alpha: 0.3),
             size: 28,
           ),
         ),

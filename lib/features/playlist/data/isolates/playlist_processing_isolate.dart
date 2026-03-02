@@ -2,16 +2,15 @@ import 'package:flutter/foundation.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 import 'package:music_app/features/playlist/domain/entities/playlist_track.dart';
 
-
 /// Helper para procesar playlists grandes en un isolate
-/// 
+///
 /// Útil cuando una playlist tiene muchas canciones (>50) y la conversión
 /// podría bloquear el hilo principal
 class PlaylistProcessingIsolate {
   /// Procesa una lista de tracks y los convierte a NowPlayingData en un isolate
-  /// 
+  ///
   /// [tracks] Lista de PlaylistTrack a convertir
-  /// 
+  ///
   /// Retorna [List<NowPlayingData>]
   static Future<List<NowPlayingData>> processPlaylistInIsolate(
     List<PlaylistTrack> tracks,
@@ -38,29 +37,31 @@ class PlaylistProcessingIsolate {
   }
 
   /// Procesa la playlist de forma síncrona (para listas pequeñas)
-  static List<NowPlayingData> _processPlaylistSync(
-    List<PlaylistTrack> tracks,
-  ) {
+  static List<NowPlayingData> _processPlaylistSync(List<PlaylistTrack> tracks) {
     return tracks
-        .where((track) =>
-            track.videoId != null &&
-            track.videoId!.isNotEmpty &&
-            track.isAvailable)
+        .where(
+          (track) =>
+              track.videoId != null &&
+              track.videoId!.isNotEmpty &&
+              track.isAvailable,
+        )
         .map(NowPlayingData.fromPlaylistTrack)
         .toList();
   }
 }
 
 /// Función top-level para procesar playlist en isolate
-/// 
+///
 /// Esta función debe ser top-level para poder usarse con compute()
 List<NowPlayingData> _processPlaylistInIsolate(List<PlaylistTrack> tracks) {
   // Procesar los tracks en el isolate
   return tracks
-      .where((track) =>
-          track.videoId != null &&
-          track.videoId!.isNotEmpty &&
-          track.isAvailable)
+      .where(
+        (track) =>
+            track.videoId != null &&
+            track.videoId!.isNotEmpty &&
+            track.isAvailable,
+      )
       .map(NowPlayingData.fromPlaylistTrack)
       .toList();
 }

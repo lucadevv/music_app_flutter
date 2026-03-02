@@ -52,15 +52,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   Future<void> _completeOnboardingAndNavigate() async {
     if (_isCompleting) return;
-    
+
     setState(() => _isCompleting = true);
-    
+
     try {
       final onboardingService = getIt<OnboardingService>();
       await onboardingService.setOnboardingCompleted(true);
-      
+
       if (mounted) {
-        context.router.push(const SocialLoginRoute());
+        await context.router.push(const SocialLoginRoute());
       }
     } catch (e) {
       if (mounted) {
@@ -87,7 +87,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     return Scaffold(
       backgroundColor: AppColorsDark.surface,
       body: SafeArea(
@@ -103,8 +103,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   child: Text(
                     l10n.skip,
                     style: TextStyle(
-                      color: _isCompleting 
-                          ? AppColorsDark.onSurfaceVariant.withValues(alpha: 0.5)
+                      color: _isCompleting
+                          ? AppColorsDark.onSurfaceVariant.withValues(
+                              alpha: 0.5,
+                            )
                           : AppColorsDark.onSurfaceVariant,
                       fontSize: 16,
                     ),

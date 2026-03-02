@@ -71,11 +71,7 @@ void main() {
     });
 
     test('canPlay should return false when streamUrl is null', () {
-      const song = Song(
-        videoId: 'test',
-        title: 'Test',
-        artist: 'Artist',
-      );
+      const song = Song(videoId: 'test', title: 'Test', artist: 'Artist');
       expect(song.canPlay, false);
     });
 

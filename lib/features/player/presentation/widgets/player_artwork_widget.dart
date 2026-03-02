@@ -14,7 +14,9 @@ class PlayerArtworkWidget extends StatelessWidget {
   final bool isBuffering;
 
   const PlayerArtworkWidget({
-    required this.thumbnail, required this.videoId, super.key,
+    required this.thumbnail,
+    required this.videoId,
+    super.key,
     this.isLoading = false,
     this.isBuffering = false,
   });
@@ -71,7 +73,11 @@ class _ErrorWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: AppColorsDark.primaryContainer,
-      child: const Icon(Icons.music_note, size: 120, color: AppColorsDark.primary),
+      child: const Icon(
+        Icons.music_note,
+        size: 120,
+        color: AppColorsDark.primary,
+      ),
     );
   }
 }

@@ -24,7 +24,7 @@ class RecentlyPlayedSong extends Equatable {
   factory RecentlyPlayedSong.fromJson(Map<String, dynamic> json) {
     final durationStr = json['duration'] ?? '0:00';
     int durationSeconds = 0;
-    
+
     try {
       final parts = durationStr.toString().split(':');
       if (parts.length == 2) {
@@ -43,5 +43,12 @@ class RecentlyPlayedSong extends Equatable {
   }
 
   @override
-  List<Object?> get props => [videoId, title, artist, thumbnail, duration, durationSeconds];
+  List<Object?> get props => [
+    videoId,
+    title,
+    artist,
+    thumbnail,
+    duration,
+    durationSeconds,
+  ];
 }

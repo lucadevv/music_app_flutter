@@ -6,14 +6,13 @@ import '../../domain/use_cases/get_mood_playlists_use_case.dart';
 part 'mood_genre_state.dart';
 
 /// Cubit para gestionar el estado de mood/genre
-/// 
+///
 /// SOLID: Single Responsibility Principle (SRP)
 /// Responsable única: Gestionar el estado de las playlists de mood/genre
 class MoodGenreCubit extends Cubit<MoodGenreState> with BaseBlocMixin {
   final GetMoodPlaylistsUseCase _getMoodPlaylistsUseCase;
 
-  MoodGenreCubit(this._getMoodPlaylistsUseCase)
-      : super(const MoodGenreState());
+  MoodGenreCubit(this._getMoodPlaylistsUseCase) : super(const MoodGenreState());
 
   /// Carga las playlists de un mood/genre
   Future<void> loadMoodPlaylists(String params) async {
@@ -21,10 +20,7 @@ class MoodGenreCubit extends Cubit<MoodGenreState> with BaseBlocMixin {
       return;
     }
 
-    emit(state.copyWith(
-      status: MoodGenreStatus.loading,
-      errorMessage: null,
-    ));
+    emit(state.copyWith(status: MoodGenreStatus.loading, errorMessage: null));
 
     final result = await _getMoodPlaylistsUseCase(params);
 
@@ -33,17 +29,21 @@ class MoodGenreCubit extends Cubit<MoodGenreState> with BaseBlocMixin {
     result.fold(
       (failure) {
         final errorMessage = getErrorMessage(failure);
-        emit(state.copyWith(
-          status: MoodGenreStatus.failure,
-          errorMessage: errorMessage,
-        ));
+        emit(
+          state.copyWith(
+            status: MoodGenreStatus.failure,
+            errorMessage: errorMessage,
+          ),
+        );
       },
       (response) {
-        emit(state.copyWith(
-          status: MoodGenreStatus.success,
-          response: response,
-          errorMessage: null,
-        ));
+        emit(
+          state.copyWith(
+            status: MoodGenreStatus.success,
+            response: response,
+            errorMessage: null,
+          ),
+        );
       },
     );
   }

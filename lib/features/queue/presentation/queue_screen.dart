@@ -35,9 +35,7 @@ class QueueScreen extends StatelessWidget {
               _buildUpNextHeader(context, l10n),
 
               // Queue list
-              Expanded(
-                child: _buildQueueList(context, state, l10n),
-              ),
+              Expanded(child: _buildQueueList(context, state, l10n)),
             ],
           );
         },
@@ -55,7 +53,11 @@ class QueueScreen extends StatelessWidget {
       ),
       title: Text(
         l10n.queue,
-        style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
       ),
       actions: [
         TextButton(
@@ -79,18 +81,29 @@ class QueueScreen extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.queue_music, size: 64, color: Colors.white.withValues(alpha: 0.3)),
+          Icon(
+            Icons.queue_music,
+            size: 64,
+            color: Colors.white.withValues(alpha: 0.3),
+          ),
           const SizedBox(height: 16),
           Text(
             'No hay canciones en cola',
-            style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 18),
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.7),
+              fontSize: 18,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildNowPlaying(BuildContext context, PlayerBlocLoaded state, AppLocalizations l10n) {
+  Widget _buildNowPlaying(
+    BuildContext context,
+    PlayerBlocLoaded state,
+    AppLocalizations l10n,
+  ) {
     final track = state.currentTrack;
     if (track == null) return const SizedBox.shrink();
 
@@ -110,12 +123,15 @@ class QueueScreen extends StatelessWidget {
               width: 56,
               height: 56,
               color: AppColorsDark.primaryContainer,
-            child: track.bestThumbnail != null
-              ? CachedNetworkImage(
-                  imageUrl: track.bestThumbnail!.url,
-                  fit: BoxFit.cover,
-                  errorWidget: (_, _, _) => const Icon(Icons.music_note, color: AppColorsDark.primary),
-                )
+              child: track.bestThumbnail != null
+                  ? CachedNetworkImage(
+                      imageUrl: track.bestThumbnail!.url,
+                      fit: BoxFit.cover,
+                      errorWidget: (_, _, _) => const Icon(
+                        Icons.music_note,
+                        color: AppColorsDark.primary,
+                      ),
+                    )
                   : const Icon(Icons.music_note, color: AppColorsDark.primary),
             ),
           ),
@@ -128,12 +144,20 @@ class QueueScreen extends StatelessWidget {
               children: [
                 Text(
                   l10n.nowPlaying,
-                  style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 12, fontWeight: FontWeight.w500),
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.6),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   track.title,
-                  style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -149,8 +173,13 @@ class QueueScreen extends StatelessWidget {
 
           // Play/Pause button
           IconButton(
-            icon: Icon(state.isPlaying ? Icons.pause : Icons.play_arrow, color: Colors.white),
-            onPressed: () => context.read<PlayerBlocBloc>().add(const PlayPauseToggleEvent()),
+            icon: Icon(
+              state.isPlaying ? Icons.pause : Icons.play_arrow,
+              color: Colors.white,
+            ),
+            onPressed: () => context.read<PlayerBlocBloc>().add(
+              const PlayPauseToggleEvent(),
+            ),
           ),
         ],
       ),
@@ -164,19 +193,30 @@ class QueueScreen extends StatelessWidget {
         children: [
           Text(
             l10n.upNext,
-            style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 14, fontWeight: FontWeight.w600),
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.6),
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
           ),
           const Spacer(),
           TextButton(
             onPressed: () {},
-            child: Text(l10n.autoRecommendations, style: const TextStyle(color: Colors.white, fontSize: 12)),
+            child: Text(
+              l10n.autoRecommendations,
+              style: const TextStyle(color: Colors.white, fontSize: 12),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildQueueList(BuildContext context, PlayerBlocLoaded state, AppLocalizations l10n) {
+  Widget _buildQueueList(
+    BuildContext context,
+    PlayerBlocLoaded state,
+    AppLocalizations l10n,
+  ) {
     final queue = state.playlist;
 
     if (queue.isEmpty) {
@@ -243,11 +283,18 @@ class _QueueItemWidget extends StatelessWidget {
         children: [
           Text(
             track.formattedDuration,
-            style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 12),
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.6),
+              fontSize: 12,
+            ),
           ),
           const SizedBox(width: 8),
           IconButton(
-            icon: Icon(Icons.close, color: Colors.white.withValues(alpha: 0.6), size: 20),
+            icon: Icon(
+              Icons.close,
+              color: Colors.white.withValues(alpha: 0.6),
+              size: 20,
+            ),
             onPressed: onRemove,
           ),
         ],

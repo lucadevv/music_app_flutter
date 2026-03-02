@@ -16,10 +16,7 @@ import 'package:music_app/l10n/app_localizations.dart';
 class AlbumScreen extends StatelessWidget {
   final String albumId;
 
-  const AlbumScreen({
-    super.key,
-    @PathParam('id') required this.albumId,
-  });
+  const AlbumScreen({super.key, @PathParam('id') required this.albumId});
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +59,8 @@ class _AlbumView extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
-                    onPressed: () => context.read<AlbumCubit>().loadAlbum(albumId),
+                    onPressed: () =>
+                        context.read<AlbumCubit>().loadAlbum(albumId),
                     child: Text(l10n.retry),
                   ),
                 ],
@@ -78,7 +76,7 @@ class _AlbumView extends StatelessWidget {
           return RefreshIndicator(
             color: AppColorsDark.primary,
             onRefresh: () async {
-              context.read<AlbumCubit>().loadAlbum(albumId);
+              await context.read<AlbumCubit>().loadAlbum(albumId);
             },
             child: CustomScrollView(
               slivers: [
@@ -92,16 +90,13 @@ class _AlbumView extends StatelessWidget {
 
                 // Songs list
                 SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final song = state.songs[index];
-                      return _AlbumSongItem(
-                        song: song,
-                        onTap: () => _playSong(context, song, state.songs),
-                      );
-                    },
-                    childCount: state.songs.length,
-                  ),
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    final song = state.songs[index];
+                    return _AlbumSongItem(
+                      song: song,
+                      onTap: () => _playSong(context, song, state.songs),
+                    );
+                  }, childCount: state.songs.length),
                 ),
 
                 const SliverToBoxAdapter(child: SizedBox(height: 100)),
@@ -138,10 +133,7 @@ class _AlbumView extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [
-                AppColorsDark.primaryContainer,
-                Color(0xFF0D0D0D),
-              ],
+              colors: [AppColorsDark.primaryContainer, Color(0xFF0D0D0D)],
             ),
           ),
           child: Padding(
@@ -161,7 +153,7 @@ class _AlbumView extends StatelessWidget {
                         ? CachedNetworkImage(
                             imageUrl: album.thumbnail!,
                             fit: BoxFit.cover,
-                            errorWidget: (_, __, ___) => const Icon(
+                            errorWidget: (_, _, _) => const Icon(
                               Icons.album,
                               size: 80,
                               color: Colors.white,
@@ -253,7 +245,11 @@ class _AlbumView extends StatelessWidget {
     );
   }
 
-  void _playSong(BuildContext context, AlbumSong song, List<AlbumSong> allSongs) {
+  void _playSong(
+    BuildContext context,
+    AlbumSong song,
+    List<AlbumSong> allSongs,
+  ) {
     final nowPlayingData = NowPlayingData.fromBasic(
       videoId: song.videoId,
       title: song.title,
@@ -271,17 +267,23 @@ class _AlbumView extends StatelessWidget {
   void _playAllSongs(BuildContext context, List<AlbumSong> songs) {
     if (songs.isEmpty) return;
 
-    final playlist = songs.map((song) => NowPlayingData.fromBasic(
-      videoId: song.videoId,
-      title: song.title,
-      artistNames: [],
-      albumName: '',
-      duration: song.formattedDuration,
-      durationSeconds: song.durationSeconds,
-      thumbnailUrl: song.thumbnail,
-    )).toList();
+    final playlist = songs
+        .map(
+          (song) => NowPlayingData.fromBasic(
+            videoId: song.videoId,
+            title: song.title,
+            artistNames: [],
+            albumName: '',
+            duration: song.formattedDuration,
+            durationSeconds: song.durationSeconds,
+            thumbnailUrl: song.thumbnail,
+          ),
+        )
+        .toList();
 
-    context.read<PlayerBlocBloc>().add(LoadPlaylistEvent(playlist: playlist, startIndex: 0));
+    context.read<PlayerBlocBloc>().add(
+      LoadPlaylistEvent(playlist: playlist, startIndex: 0),
+    );
 
     context.router.push(PlayerRoute(nowPlayingData: playlist.first));
   }
@@ -291,10 +293,7 @@ class _AlbumSongItem extends StatelessWidget {
   final AlbumSong song;
   final VoidCallback onTap;
 
-  const _AlbumSongItem({
-    required this.song,
-    required this.onTap,
-  });
+  const _AlbumSongItem({required this.song, required this.onTap});
 
   @override
   Widget build(BuildContext context) {

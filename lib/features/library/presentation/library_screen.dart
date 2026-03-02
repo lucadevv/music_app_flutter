@@ -7,7 +7,7 @@ import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/library/presentation/cubit/library_cubit.dart';
 import 'package:music_app/features/library/presentation/widgets/library_widgets.dart';
-import 'package:music_app/features/profile/profile_cubit.dart';
+import 'package:music_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:music_app/features/song_options/presentation/widgets/song_options_bottom_sheet.dart';
 import 'package:music_app/l10n/app_localizations.dart';
 import 'package:music_app/main.dart';
@@ -49,7 +49,9 @@ class _LibraryView extends StatelessWidget {
                 if (state.status == LibraryStatus.loading)
                   const SliverFillRemaining(
                     child: Center(
-                      child: CircularProgressIndicator(color: AppColorsDark.primary),
+                      child: CircularProgressIndicator(
+                        color: AppColorsDark.primary,
+                      ),
                     ),
                   )
                 else if (state.status == LibraryStatus.failure)
@@ -97,7 +99,11 @@ class _LibraryView extends StatelessWidget {
       ),
       title: Text(
         l10n.yourLibrary,
-        style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+        ),
       ),
       actions: [
         PopupMenuButton<String>(
@@ -113,9 +119,15 @@ class _LibraryView extends StatelessWidget {
               value: 'create_playlist',
               child: Row(
                 children: [
-                  Icon(Icons.playlist_add, color: Colors.white.withValues(alpha: 0.8)),
+                  Icon(
+                    Icons.playlist_add,
+                    color: Colors.white.withValues(alpha: 0.8),
+                  ),
                   const SizedBox(width: 12),
-                  Text(l10n.createPlaylist, style: const TextStyle(color: Colors.white)),
+                  Text(
+                    l10n.createPlaylist,
+                    style: const TextStyle(color: Colors.white),
+                  ),
                 ],
               ),
             ),
@@ -125,7 +137,11 @@ class _LibraryView extends StatelessWidget {
     );
   }
 
-  Widget _buildError(String? errorMessage, BuildContext context, AppLocalizations l10n) {
+  Widget _buildError(
+    String? errorMessage,
+    BuildContext context,
+    AppLocalizations l10n,
+  ) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -205,12 +221,23 @@ class _LibraryView extends StatelessWidget {
               children: [
                 Text(
                   l10n.playlists,
-                  style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 if (state.totalPlaylists > 5)
                   TextButton(
-                    onPressed: () => context.router.push(const UserPlaylistsRoute()),
-                    child: Text(l10n.seeAll, style: const TextStyle(color: AppColorsDark.primary, fontSize: 14)),
+                    onPressed: () =>
+                        context.router.push(const UserPlaylistsRoute()),
+                    child: Text(
+                      l10n.seeAll,
+                      style: const TextStyle(
+                        color: AppColorsDark.primary,
+                        fontSize: 14,
+                      ),
+                    ),
                   ),
               ],
             ),
@@ -220,7 +247,9 @@ class _LibraryView extends StatelessWidget {
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: state.allPlaylists.length > 10 ? 10 : state.allPlaylists.length,
+              itemCount: state.allPlaylists.length > 10
+                  ? 10
+                  : state.allPlaylists.length,
               itemBuilder: (context, index) {
                 final playlist = state.allPlaylists[index];
                 return Padding(
@@ -229,9 +258,13 @@ class _LibraryView extends StatelessWidget {
                     playlist: playlist,
                     onTap: () {
                       if (playlist.isUserCreated) {
-                        context.router.push(UserPlaylistDetailRoute(playlistId: playlist.id));
+                        context.router.push(
+                          UserPlaylistDetailRoute(playlistId: playlist.id),
+                        );
                       } else if (playlist.externalPlaylistId != null) {
-                        context.router.push(PlaylistRoute(id: playlist.externalPlaylistId!));
+                        context.router.push(
+                          PlaylistRoute(id: playlist.externalPlaylistId!),
+                        );
                       }
                     },
                   ),
@@ -260,12 +293,23 @@ class _LibraryView extends StatelessWidget {
               children: [
                 Text(
                   l10n.likedSongs,
-                  style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 if (state.totalSongs > 5)
                   TextButton(
-                    onPressed: () => context.router.push(const LikedSongsRoute()),
-                    child: Text(l10n.seeAll, style: const TextStyle(color: AppColorsDark.primary, fontSize: 14)),
+                    onPressed: () =>
+                        context.router.push(const LikedSongsRoute()),
+                    child: Text(
+                      l10n.seeAll,
+                      style: const TextStyle(
+                        color: AppColorsDark.primary,
+                        fontSize: 14,
+                      ),
+                    ),
                   ),
               ],
             ),
@@ -274,14 +318,20 @@ class _LibraryView extends StatelessWidget {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             padding: const EdgeInsets.symmetric(horizontal: 8),
-            itemCount: state.favoriteSongs.length > 10 ? 10 : state.favoriteSongs.length,
+            itemCount: state.favoriteSongs.length > 10
+                ? 10
+                : state.favoriteSongs.length,
             itemBuilder: (context, index) {
               final song = state.favoriteSongs[index];
               return SongListItemWidget(
                 song: song,
                 onTap: () {
-                  final nowPlayingData = context.read<LibraryCubit>().playSong(song);
-                  context.router.push(PlayerRoute(nowPlayingData: nowPlayingData));
+                  final nowPlayingData = context.read<LibraryCubit>().playSong(
+                    song,
+                  );
+                  context.router.push(
+                    PlayerRoute(nowPlayingData: nowPlayingData),
+                  );
                 },
                 onOptionsTap: () => _showSongOptions(context, song, l10n),
               );
@@ -292,7 +342,11 @@ class _LibraryView extends StatelessWidget {
     );
   }
 
-  void _showSongOptions(BuildContext context, FavoriteSong song, AppLocalizations l10n) {
+  void _showSongOptions(
+    BuildContext context,
+    FavoriteSong song,
+    AppLocalizations l10n,
+  ) {
     SongOptionsBottomSheet.show(
       context: context,
       song: SongOptionsData(
@@ -314,7 +368,10 @@ class _LibraryView extends StatelessWidget {
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: AppColorsDark.surfaceContainerHigh,
-        title: Text(l10n.createPlaylist, style: const TextStyle(color: Colors.white)),
+        title: Text(
+          l10n.createPlaylist,
+          style: const TextStyle(color: Colors.white),
+        ),
         content: TextField(
           controller: nameController,
           style: const TextStyle(color: Colors.white),
@@ -322,7 +379,9 @@ class _LibraryView extends StatelessWidget {
             hintText: l10n.playlistName,
             hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.5)),
             enabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
+              borderSide: BorderSide(
+                color: Colors.white.withValues(alpha: 0.3),
+              ),
             ),
             focusedBorder: const UnderlineInputBorder(
               borderSide: BorderSide(color: AppColorsDark.primary),
@@ -337,7 +396,10 @@ class _LibraryView extends StatelessWidget {
           ),
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, nameController.text),
-            child: Text(l10n.createPlaylist, style: const TextStyle(color: AppColorsDark.primary)),
+            child: Text(
+              l10n.createPlaylist,
+              style: const TextStyle(color: AppColorsDark.primary),
+            ),
           ),
         ],
       ),

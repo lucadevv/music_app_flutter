@@ -28,7 +28,8 @@ class HistoryCubit extends Cubit<HistoryState> with BaseBlocMixin {
   final OfflineService _offlineService;
   final PlayerBlocBloc _playerBloc;
 
-  HistoryCubit(this._offlineService, this._playerBloc) : super(const HistoryState());
+  HistoryCubit(this._offlineService, this._playerBloc)
+    : super(const HistoryState());
 
   /// Carga el historial de reproducción desde Hive
   ///
@@ -41,17 +42,16 @@ class HistoryCubit extends Cubit<HistoryState> with BaseBlocMixin {
 
       if (isClosed) return;
 
-      emit(state.copyWith(
-        status: HistoryStatus.success,
-        history: history,
-      ));
+      emit(state.copyWith(status: HistoryStatus.success, history: history));
     } catch (e) {
       if (isClosed) return;
 
-      emit(state.copyWith(
-        status: HistoryStatus.failure,
-        errorMessage: _getErrorMessage(e),
-      ));
+      emit(
+        state.copyWith(
+          status: HistoryStatus.failure,
+          errorMessage: _getErrorMessage(e),
+        ),
+      );
     }
   }
 
@@ -95,18 +95,15 @@ class HistoryCubit extends Cubit<HistoryState> with BaseBlocMixin {
 
       // Actualizar el estado con la nueva entrada al inicio de la lista
       final updatedHistory = [historyEntry, ...state.history];
-      emit(state.copyWith(
-        history: updatedHistory,
-        currentHistoryId: historyId,
-      ));
+      emit(
+        state.copyWith(history: updatedHistory, currentHistoryId: historyId),
+      );
 
       return historyId;
     } catch (e) {
       if (isClosed) return null;
 
-      emit(state.copyWith(
-        errorMessage: _getErrorMessage(e),
-      ));
+      emit(state.copyWith(errorMessage: _getErrorMessage(e)));
       return null;
     }
   }
@@ -140,9 +137,7 @@ class HistoryCubit extends Cubit<HistoryState> with BaseBlocMixin {
     } catch (e) {
       if (isClosed) return;
 
-      emit(state.copyWith(
-        errorMessage: _getErrorMessage(e),
-      ));
+      emit(state.copyWith(errorMessage: _getErrorMessage(e)));
     }
   }
 
@@ -155,19 +150,23 @@ class HistoryCubit extends Cubit<HistoryState> with BaseBlocMixin {
 
       if (isClosed) return;
 
-      emit(state.copyWith(
-        status: HistoryStatus.success,
-        history: [],
-        stats: null,
-        currentHistoryId: null,
-      ));
+      emit(
+        state.copyWith(
+          status: HistoryStatus.success,
+          history: [],
+          stats: null,
+          currentHistoryId: null,
+        ),
+      );
     } catch (e) {
       if (isClosed) return;
 
-      emit(state.copyWith(
-        status: HistoryStatus.failure,
-        errorMessage: _getErrorMessage(e),
-      ));
+      emit(
+        state.copyWith(
+          status: HistoryStatus.failure,
+          errorMessage: _getErrorMessage(e),
+        ),
+      );
     }
   }
 
@@ -188,9 +187,7 @@ class HistoryCubit extends Cubit<HistoryState> with BaseBlocMixin {
     } catch (e) {
       if (isClosed) return;
 
-      emit(state.copyWith(
-        errorMessage: _getErrorMessage(e),
-      ));
+      emit(state.copyWith(errorMessage: _getErrorMessage(e)));
     }
   }
 
@@ -239,7 +236,9 @@ class HistoryCubit extends Cubit<HistoryState> with BaseBlocMixin {
       title: historyItem.title,
       artistNames: [historyItem.artist],
       albumName: '',
-      duration: historyItem.duration != null ? _formatDuration(historyItem.duration!) : '0:00',
+      duration: historyItem.duration != null
+          ? _formatDuration(historyItem.duration!)
+          : '0:00',
       durationSeconds: historyItem.duration,
       thumbnailUrl: historyItem.thumbnail,
     );

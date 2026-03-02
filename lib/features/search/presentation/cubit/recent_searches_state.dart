@@ -1,11 +1,6 @@
 part of 'recent_searches_cubit.dart';
 
-enum RecentSearchesStatus {
-  initial,
-  loading,
-  success,
-  failure,
-}
+enum RecentSearchesStatus { initial, loading, success, failure }
 
 class RecentSearchesState extends Equatable {
   final RecentSearchesStatus status;
@@ -31,10 +26,10 @@ class RecentSearchesState extends Equatable {
   }
 
   factory RecentSearchesState.initial() => const RecentSearchesState(
-        status: RecentSearchesStatus.initial,
-        errorMessage: null,
-        recentSearches: [],
-      );
+    status: RecentSearchesStatus.initial,
+    errorMessage: null,
+    recentSearches: [],
+  );
 
   @override
   List<Object?> get props => [status, errorMessage, recentSearches];

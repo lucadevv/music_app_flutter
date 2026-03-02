@@ -1,5 +1,5 @@
 /// Entity representing an album
-/// 
+///
 /// @deprecated Usar [Album] desde `core/domain/entities/album.dart`
 /// Esta entidad será eliminada en futuras versiones.
 @Deprecated('Usar Album desde core/domain/entities/album.dart')
@@ -26,7 +26,8 @@ class Album {
 
   int get songCount => songs.length;
 
-  int get totalDurationSeconds => songs.fold(0, (sum, song) => sum + song.durationSeconds);
+  int get totalDurationSeconds =>
+      songs.fold(0, (sum, song) => sum + song.durationSeconds);
 
   String get formattedDuration {
     final totalMinutes = totalDurationSeconds ~/ 60;

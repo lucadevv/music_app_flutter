@@ -2,10 +2,7 @@ import '../../domain/entities/playlist_author.dart';
 
 /// Modelo de datos para el autor de una playlist
 class PlaylistAuthorModel extends PlaylistAuthor {
-  const PlaylistAuthorModel({
-    required super.name,
-    required super.id,
-  });
+  const PlaylistAuthorModel({required super.name, required super.id});
 
   factory PlaylistAuthorModel.fromJson(Map<String, dynamic> json) {
     return PlaylistAuthorModel(
@@ -15,9 +12,6 @@ class PlaylistAuthorModel extends PlaylistAuthor {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'name': name,
-      'id': id,
-    };
+    return {'name': name, 'id': id};
   }
 }

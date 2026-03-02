@@ -1,12 +1,7 @@
 part of 'home_cubit.dart';
 
 /// Estados del home
-enum HomeStatus {
-  initial,
-  loading,
-  success,
-  failure,
-}
+enum HomeStatus { initial, loading, success, failure }
 
 /// Estado del cubit del home
 class HomeState {

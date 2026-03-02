@@ -10,7 +10,10 @@ import 'package:music_app/main.dart';
 class LogoutScreen extends StatelessWidget {
   const LogoutScreen({super.key});
 
-  Future<void> _handleLogout(BuildContext context, AppLocalizations l10n) async {
+  Future<void> _handleLogout(
+    BuildContext context,
+    AppLocalizations l10n,
+  ) async {
     try {
       final authService = getIt<AuthService>();
       await authService.clearAuthData();
@@ -20,7 +23,7 @@ class LogoutScreen extends StatelessWidget {
 
       // Navigate to onboarding after successful logout
       if (context.mounted) {
-        context.router.replaceAll([const OnboardingRoute()]);
+        await context.router.replaceAll([const OnboardingRoute()]);
       }
     } catch (e) {
       if (context.mounted) {
@@ -37,7 +40,7 @@ class LogoutScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     return Scaffold(
       backgroundColor: const Color(0xFF0D0D0D),
       body: SafeArea(
@@ -46,11 +49,7 @@ class LogoutScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
-                Icons.logout,
-                size: 80,
-                color: Colors.red,
-              ),
+              const Icon(Icons.logout, size: 80, color: Colors.red),
               const SizedBox(height: 24),
               Text(
                 l10n.logout,

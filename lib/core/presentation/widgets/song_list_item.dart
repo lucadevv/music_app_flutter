@@ -8,16 +8,16 @@ import 'package:music_app/core/theme/app_colors_dark.dart';
 class SongListItem extends StatelessWidget {
   /// Título de la canción
   final String title;
-  
+
   /// Nombre del artista
   final String artist;
-  
+
   /// URL de la miniatura (opcional)
   final String? thumbnail;
-  
+
   /// Widget que se muestra a la derecha (opcional)
   final Widget? trailing;
-  
+
   /// Callback cuando se toca el item
   final VoidCallback? onTap;
 
@@ -44,12 +44,10 @@ class SongListItem extends StatelessWidget {
               ? CachedNetworkImage(
                   imageUrl: thumbnail!,
                   fit: BoxFit.cover,
-                  errorWidget: (_, __, ___) => Icon(
-                    Icons.music_note,
-                    color: AppColorsDark.primary,
-                  ),
+                  errorWidget: (_, _, _) =>
+                      const Icon(Icons.music_note, color: AppColorsDark.primary),
                 )
-              : Icon(Icons.music_note, color: AppColorsDark.primary),
+              : const Icon(Icons.music_note, color: AppColorsDark.primary),
         ),
       ),
       title: Text(
@@ -202,7 +200,9 @@ class SongListItemFromEntity extends StatelessWidget {
   Widget build(BuildContext context) {
     return SongListItem(
       title: song.title,
-      artist: song.artistNames.isNotEmpty ? song.artistNames.join(', ') : song.artist,
+      artist: song.artistNames.isNotEmpty
+          ? song.artistNames.join(', ')
+          : song.artist,
       thumbnail: song.bestThumbnail,
       trailing: trailing,
       onTap: onTap,
@@ -229,7 +229,9 @@ class SongListItemWithFavoriteFromEntity extends StatelessWidget {
   Widget build(BuildContext context) {
     return SongListItemWithFavorite(
       title: song.title,
-      artist: song.artistNames.isNotEmpty ? song.artistNames.join(', ') : song.artist,
+      artist: song.artistNames.isNotEmpty
+          ? song.artistNames.join(', ')
+          : song.artist,
       thumbnail: song.bestThumbnail,
       isFavorite: isFavorite,
       onTap: onTap,
@@ -255,7 +257,9 @@ class SongListItemWithRemoveFromEntity extends StatelessWidget {
   Widget build(BuildContext context) {
     return SongListItemWithRemove(
       title: song.title,
-      artist: song.artistNames.isNotEmpty ? song.artistNames.join(', ') : song.artist,
+      artist: song.artistNames.isNotEmpty
+          ? song.artistNames.join(', ')
+          : song.artist,
       thumbnail: song.bestThumbnail,
       onTap: onTap,
       onRemove: onRemove,

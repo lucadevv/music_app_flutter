@@ -4,21 +4,18 @@ import 'package:music_app/l10n/app_localizations.dart';
 import '../cubit/home_cubit.dart';
 
 /// Widget para mostrar el estado de error del home
-/// 
+///
 /// SOLID: Single Responsibility Principle (SRP)
 /// Responsable única: Mostrar el estado de error y permitir reintentar
 class HomeErrorWidget extends StatelessWidget {
   final String? errorMessage;
 
-  const HomeErrorWidget({
-    super.key,
-    this.errorMessage,
-  });
+  const HomeErrorWidget({super.key, this.errorMessage});
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

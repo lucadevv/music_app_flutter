@@ -4,7 +4,7 @@ import 'package:music_app/features/home/domain/entities/home_section.dart';
 import 'home_content_widgets.dart';
 
 /// Widget para mostrar una sección del home
-/// 
+///
 /// SOLID: Single Responsibility Principle (SRP)
 /// Responsable única: Mostrar una sección con su título y contenido
 class HomeSectionWidget extends StatelessWidget {
@@ -58,10 +58,7 @@ class HomeSectionWidget extends StatelessWidget {
           itemCount: section.contents.length,
           itemBuilder: (context, index) {
             final item = section.contents[index];
-            return SongCardWidget(
-              item: item,
-              onTap: () => onSongTap(item),
-            );
+            return SongCardWidget(item: item, onTap: () => onSongTap(item));
           },
         ),
       );
@@ -95,10 +92,7 @@ class HomeSectionWidget extends StatelessWidget {
       itemBuilder: (context, index) {
         final item = section.contents[index];
         if (item.isSong) {
-          return SongListItemWidget(
-            item: item,
-            onTap: () => onSongTap(item),
-          );
+          return SongListItemWidget(item: item, onTap: () => onSongTap(item));
         } else if (item.isPlaylist) {
           return PlaylistListItemWidget(
             item: item,

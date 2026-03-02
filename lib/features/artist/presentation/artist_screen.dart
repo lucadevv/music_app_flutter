@@ -16,9 +16,7 @@ import 'package:music_app/l10n/app_localizations.dart';
 class ArtistScreen extends StatelessWidget {
   final String artistId;
 
-  const ArtistScreen({
-    @PathParam('id') required this.artistId, super.key,
-  });
+  const ArtistScreen({@PathParam('id') required this.artistId, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +59,8 @@ class _ArtistView extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
-                    onPressed: () => context.read<ArtistCubit>().loadArtist(artistId),
+                    onPressed: () =>
+                        context.read<ArtistCubit>().loadArtist(artistId),
                     child: Text(l10n.retry),
                   ),
                 ],
@@ -77,7 +76,7 @@ class _ArtistView extends StatelessWidget {
           return RefreshIndicator(
             color: AppColorsDark.primary,
             onRefresh: () async {
-              context.read<ArtistCubit>().loadArtist(artistId);
+              await context.read<ArtistCubit>().loadArtist(artistId);
             },
             child: CustomScrollView(
               slivers: [
@@ -115,17 +114,14 @@ class _ArtistView extends StatelessWidget {
                 // Songs list
                 if (state.topSongs.isNotEmpty)
                   SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        final song = state.topSongs[index];
-                        return _ArtistSongItem(
-                          song: song,
-                          index: index + 1,
-                          onTap: () => _playSong(context, song, state.topSongs),
-                        );
-                      },
-                      childCount: state.topSongs.length,
-                    ),
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final song = state.topSongs[index];
+                      return _ArtistSongItem(
+                        song: song,
+                        index: index + 1,
+                        onTap: () => _playSong(context, song, state.topSongs),
+                      );
+                    }, childCount: state.topSongs.length),
                   ),
 
                 // Albums
@@ -154,7 +150,9 @@ class _ArtistView extends StatelessWidget {
                           final album = state.albums[index];
                           return _ArtistAlbumCard(
                             album: album,
-                            onTap: () => context.router.push(AlbumRoute(albumId: album.id)),
+                            onTap: () => context.router.push(
+                              AlbumRoute(albumId: album.id),
+                            ),
                           );
                         },
                       ),
@@ -192,10 +190,7 @@ class _ArtistView extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [
-                AppColorsDark.primaryContainer,
-                Color(0xFF0D0D0D),
-              ],
+              colors: [AppColorsDark.primaryContainer, Color(0xFF0D0D0D)],
             ),
           ),
           child: artist.thumbnail != null
@@ -264,7 +259,11 @@ class _ArtistView extends StatelessWidget {
     );
   }
 
-  void _playSong(BuildContext context, ArtistSong song, List<ArtistSong> allSongs) {
+  void _playSong(
+    BuildContext context,
+    ArtistSong song,
+    List<ArtistSong> allSongs,
+  ) {
     final nowPlayingData = NowPlayingData.fromBasic(
       videoId: song.videoId,
       title: song.title,
@@ -282,17 +281,23 @@ class _ArtistView extends StatelessWidget {
   void _playAllTopSongs(BuildContext context, List<ArtistSong> songs) {
     if (songs.isEmpty) return;
 
-    final playlist = songs.map((song) => NowPlayingData.fromBasic(
-      videoId: song.videoId,
-      title: song.title,
-      artistNames: const [],
-      albumName: '',
-      duration: song.formattedDuration,
-      durationSeconds: song.durationSeconds,
-      thumbnailUrl: song.thumbnail,
-    )).toList();
+    final playlist = songs
+        .map(
+          (song) => NowPlayingData.fromBasic(
+            videoId: song.videoId,
+            title: song.title,
+            artistNames: const [],
+            albumName: '',
+            duration: song.formattedDuration,
+            durationSeconds: song.durationSeconds,
+            thumbnailUrl: song.thumbnail,
+          ),
+        )
+        .toList();
 
-    context.read<PlayerBlocBloc>().add(LoadPlaylistEvent(playlist: playlist, startIndex: 0));
+    context.read<PlayerBlocBloc>().add(
+      LoadPlaylistEvent(playlist: playlist, startIndex: 0),
+    );
 
     context.router.push(PlayerRoute(nowPlayingData: playlist.first));
   }
@@ -345,10 +350,7 @@ class _ArtistAlbumCard extends StatelessWidget {
   final ArtistAlbum album;
   final VoidCallback onTap;
 
-  const _ArtistAlbumCard({
-    required this.album,
-    required this.onTap,
-  });
+  const _ArtistAlbumCard({required this.album, required this.onTap});
 
   @override
   Widget build(BuildContext context) {

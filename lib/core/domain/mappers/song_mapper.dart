@@ -1,8 +1,9 @@
-import 'package:music_app/core/domain/entities/song.dart' as core;
-import 'package:music_app/features/search/domain/entities/song.dart' as search;
 import 'package:music_app/features/downloads/domain/entities/downloaded_song.dart';
 import 'package:music_app/features/home/domain/entities/chart_song.dart';
 import 'package:music_app/features/library/library_service.dart';
+
+import 'package:music_app/core/domain/entities/song.dart' as core;
+import 'package:music_app/features/search/domain/entities/song.dart' as search;
 
 /// Entidad para canciones reproducidas recientemente (usada en recently_played)
 class RecentSong {
@@ -27,7 +28,7 @@ class RecentSong {
   factory RecentSong.fromJson(Map<String, dynamic> json) {
     final durationStr = json['duration'] ?? '0:00';
     int durationSeconds = 0;
-    
+
     try {
       final parts = durationStr.toString().split(':');
       if (parts.length == 2) {
@@ -62,7 +63,13 @@ class SongMapper {
       thumbnail: song.thumbnails.isNotEmpty ? song.thumbnails.first.url : null,
       highThumbnail: song.thumbnail?.url ?? song.thumbnails.lastOrNull?.url,
       thumbnails: song.thumbnails
-          .map((t) => core.Thumbnail(url: t.url, width: t.width ?? 0, height: t.height ?? 0))
+          .map(
+            (t) => core.Thumbnail(
+              url: t.url,
+              width: t.width ?? 0,
+              height: t.height ?? 0,
+            ),
+          )
           .toList(),
       streamUrl: song.streamUrl,
       durationSeconds: song.durationSeconds,
@@ -117,8 +124,8 @@ class SongMapper {
   static core.Song fromFavoriteSong(FavoriteSong song) {
     return core.Song(
       videoId: song.videoId,
-      title: song.title ?? 'Unknown',
-      artist: song.artist ?? 'Unknown',
+      title: song.title,
+      artist: song.artist,
       thumbnail: song.thumbnail,
       durationSeconds: song.duration ?? 0,
       duration: _formatDuration(song.duration ?? 0),
@@ -130,8 +137,8 @@ class SongMapper {
   static core.Song fromUserPlaylistSong(UserPlaylistSong song) {
     return core.Song(
       videoId: song.videoId,
-      title: song.title ?? 'Unknown',
-      artist: song.artist ?? 'Unknown',
+      title: song.title,
+      artist: song.artist,
       thumbnail: song.thumbnail,
       durationSeconds: song.duration ?? 0,
       duration: _formatDuration(song.duration ?? 0),
@@ -142,8 +149,8 @@ class SongMapper {
   static core.Song fromRecentSong(RecentSong song) {
     return core.Song(
       videoId: song.videoId,
-      title: song.title ?? 'Unknown',
-      artist: song.artist ?? 'Unknown',
+      title: song.title,
+      artist: song.artist,
       thumbnail: song.thumbnail,
       durationSeconds: song.durationSeconds,
       duration: _formatDuration(song.durationSeconds),

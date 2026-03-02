@@ -1,13 +1,10 @@
 import '../../domain/entities/mood_genre.dart';
 
 /// Modelo para MoodGenre
-/// 
+///
 /// La API retorna 'title' en lugar de 'name'
 class MoodGenreModel extends MoodGenre {
-  const MoodGenreModel({
-    required super.name,
-    required super.params,
-  });
+  const MoodGenreModel({required super.name, required super.params});
 
   factory MoodGenreModel.fromJson(Map<String, dynamic> json) {
     return MoodGenreModel(

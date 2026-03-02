@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:music_app/core/domain/entities/song.dart';
-import 'package:music_app/core/utils/exeptions/app_exception.dart';
+import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
 import 'package:music_app/features/dashboard/domain/entities/player_entities.dart';
 import 'package:music_app/features/dashboard/domain/repositories/dashboard_repository.dart';
 

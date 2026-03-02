@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 
 /// Widget para mostrar errores en el reproductor
-/// 
+///
 /// SOLID: Single Responsibility Principle (SRP)
 /// Responsable única: Mostrar mensajes de error
 class PlayerErrorWidget extends StatelessWidget {
   final String message;
 
-  const PlayerErrorWidget({
-    required this.message, super.key,
-  });
+  const PlayerErrorWidget({required this.message, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -22,19 +20,12 @@ class PlayerErrorWidget extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(
-            Icons.error_outline,
-            color: Colors.red,
-            size: 20,
-          ),
+          const Icon(Icons.error_outline, color: Colors.red, size: 20),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               message,
-              style: const TextStyle(
-                color: Colors.red,
-                fontSize: 12,
-              ),
+              style: const TextStyle(color: Colors.red, fontSize: 12),
             ),
           ),
         ],

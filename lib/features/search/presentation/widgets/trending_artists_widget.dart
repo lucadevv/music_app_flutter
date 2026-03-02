@@ -11,9 +11,7 @@ import 'package:music_app/features/search/domain/entities/recent_search.dart';
 import 'package:music_app/features/song_options/presentation/widgets/song_options_bottom_sheet.dart';
 
 import '../cubit/orquestador_search_cubit.dart';
-import '../cubit/recent_searches_cubit.dart'
-    show RecentSearchesStatus;
-
+import '../cubit/recent_searches_cubit.dart' show RecentSearchesStatus;
 
 class RecentSearchesWidget extends StatelessWidget {
   const RecentSearchesWidget({super.key});
@@ -54,7 +52,10 @@ class RecentSearchesWidget extends StatelessWidget {
               )
             else if (hasResults)
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 16,
+                ),
                 child: ListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
@@ -100,9 +101,7 @@ class _RecentSearchItem extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         context.router.push(
-          PlayerRoute(
-            nowPlayingData: NowPlayingData.fromSong(song),
-          ),
+          PlayerRoute(nowPlayingData: NowPlayingData.fromSong(song)),
         );
       },
       child: Container(

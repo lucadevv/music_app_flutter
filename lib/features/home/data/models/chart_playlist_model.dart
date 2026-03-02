@@ -1,5 +1,5 @@
-import '../../domain/entities/chart_playlist.dart';
 import '../../../search/data/models/thumbnail_model.dart';
+import '../../domain/entities/chart_playlist.dart';
 
 /// Modelo para ChartPlaylist
 class ChartPlaylistModel extends ChartPlaylist {
@@ -13,8 +13,11 @@ class ChartPlaylistModel extends ChartPlaylist {
     return ChartPlaylistModel(
       title: json['title'] as String? ?? '',
       playlistId: json['playlistId'] as String? ?? '',
-      thumbnails: (json['thumbnails'] as List<dynamic>?)
-              ?.map((item) => ThumbnailModel.fromJson(item as Map<String, dynamic>))
+      thumbnails:
+          (json['thumbnails'] as List<dynamic>?)
+              ?.map(
+                (item) => ThumbnailModel.fromJson(item as Map<String, dynamic>),
+              )
               .toList() ??
           [],
     );
@@ -24,7 +27,9 @@ class ChartPlaylistModel extends ChartPlaylist {
     return {
       'title': title,
       'playlistId': playlistId,
-      'thumbnails': thumbnails.map((t) => (t as ThumbnailModel).toJson()).toList(),
+      'thumbnails': thumbnails
+          .map((t) => (t as ThumbnailModel).toJson())
+          .toList(),
     };
   }
 }

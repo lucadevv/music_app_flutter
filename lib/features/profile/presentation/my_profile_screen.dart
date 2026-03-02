@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/core/utils/format_utils.dart';
-import 'package:music_app/features/profile/profile_cubit.dart';
+import 'package:music_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:music_app/l10n/app_localizations.dart';
 
 @RoutePage()
@@ -45,15 +45,13 @@ class _MyProfileScreenState extends State<MyProfileScreen>
       ),
     );
 
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.3),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: const Interval(0.2, 0.8, curve: Curves.easeOutCubic),
-      ),
-    );
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _animationController,
+            curve: const Interval(0.2, 0.8, curve: Curves.easeOutCubic),
+          ),
+        );
 
     _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
       CurvedAnimation(
@@ -71,7 +69,10 @@ class _MyProfileScreenState extends State<MyProfileScreen>
     super.dispose();
   }
 
-  Future<void> _handleLogout(BuildContext context, AppLocalizations l10n) async {
+  Future<void> _handleLogout(
+    BuildContext context,
+    AppLocalizations l10n,
+  ) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -91,10 +92,7 @@ class _MyProfileScreenState extends State<MyProfileScreen>
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text(
-              l10n.logout,
-              style: const TextStyle(color: Colors.red),
-            ),
+            child: Text(l10n.logout, style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -121,9 +119,7 @@ class _MyProfileScreenState extends State<MyProfileScreen>
         builder: (context, state) {
           if (state.isLoading) {
             return const Center(
-              child: CircularProgressIndicator(
-                color: AppColorsDark.primary,
-              ),
+              child: CircularProgressIndicator(color: AppColorsDark.primary),
             );
           }
 
@@ -203,10 +199,7 @@ class _MyProfileScreenState extends State<MyProfileScreen>
         builder: (context, child) {
           return FadeTransition(
             opacity: _fadeAnimation,
-            child: SlideTransition(
-              position: _slideAnimation,
-              child: child,
-            ),
+            child: SlideTransition(position: _slideAnimation, child: child),
           );
         },
         child: SingleChildScrollView(
@@ -260,9 +253,18 @@ class _MyProfileScreenState extends State<MyProfileScreen>
     ProfileState state,
   ) {
     final months = [
-      l10n.monthsJan, l10n.monthsFeb, l10n.monthsMar, l10n.monthsApr,
-      l10n.monthsMay, l10n.monthsJun, l10n.monthsJul, l10n.monthsAug,
-      l10n.monthsSep, l10n.monthsOct, l10n.monthsNov, l10n.monthsDec,
+      l10n.monthsJan,
+      l10n.monthsFeb,
+      l10n.monthsMar,
+      l10n.monthsApr,
+      l10n.monthsMay,
+      l10n.monthsJun,
+      l10n.monthsJul,
+      l10n.monthsAug,
+      l10n.monthsSep,
+      l10n.monthsOct,
+      l10n.monthsNov,
+      l10n.monthsDec,
     ];
 
     return Column(
@@ -408,10 +410,7 @@ class _ProfileAvatar extends StatelessWidget {
   final String? avatarUrl;
   final String initials;
 
-  const _ProfileAvatar({
-    required this.avatarUrl,
-    required this.initials,
-  });
+  const _ProfileAvatar({required this.avatarUrl, required this.initials});
 
   @override
   Widget build(BuildContext context) {
@@ -439,8 +438,8 @@ class _ProfileAvatar extends StatelessWidget {
         child: CachedNetworkImage(
           imageUrl: avatarUrl!,
           fit: BoxFit.cover,
-          placeholder: (_, __) => _buildInitialsAvatar(),
-          errorWidget: (_, __, ___) => _buildInitialsAvatar(),
+          placeholder: (_, _) => _buildInitialsAvatar(),
+          errorWidget: (_, _, _) => _buildInitialsAvatar(),
         ),
       ),
     );
@@ -519,10 +518,7 @@ class _ProfileField extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   value,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                  ),
+                  style: const TextStyle(color: Colors.white, fontSize: 16),
                 ),
               ],
             ),
@@ -634,7 +630,10 @@ class _QuickActionCard extends StatelessWidget {
                 ],
               ),
             ),
-            Icon(Icons.chevron_right, color: Colors.white.withValues(alpha: 0.3)),
+            Icon(
+              Icons.chevron_right,
+              color: Colors.white.withValues(alpha: 0.3),
+            ),
           ],
         ),
       ),
@@ -647,10 +646,7 @@ class _AnimatedProfileField extends StatefulWidget {
   final double delay;
   final Widget child;
 
-  const _AnimatedProfileField({
-    required this.delay,
-    required this.child,
-  });
+  const _AnimatedProfileField({required this.delay, required this.child});
 
   @override
   State<_AnimatedProfileField> createState() => _AnimatedProfileFieldState();
@@ -670,16 +666,15 @@ class _AnimatedProfileFieldState extends State<_AnimatedProfileField>
       vsync: this,
     );
 
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
 
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.3),
       end: Offset.zero,
-    ).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
-    );
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
 
     Future.delayed(Duration(milliseconds: (widget.delay * 1000).toInt()), () {
       if (mounted) _controller.forward();
@@ -706,10 +701,7 @@ class _AnimatedStatCard extends StatefulWidget {
   final double delay;
   final Widget child;
 
-  const _AnimatedStatCard({
-    required this.delay,
-    required this.child,
-  });
+  const _AnimatedStatCard({required this.delay, required this.child});
 
   @override
   State<_AnimatedStatCard> createState() => _AnimatedStatCardState();
@@ -728,12 +720,10 @@ class _AnimatedStatCardState extends State<_AnimatedStatCard>
       vsync: this,
     );
 
-    _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.elasticOut,
-      ),
-    );
+    _scaleAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.elasticOut));
 
     Future.delayed(Duration(milliseconds: (widget.delay * 1000).toInt()), () {
       if (mounted) _controller.forward();
@@ -757,10 +747,7 @@ class _AnimatedQuickAction extends StatefulWidget {
   final double delay;
   final Widget child;
 
-  const _AnimatedQuickAction({
-    required this.delay,
-    required this.child,
-  });
+  const _AnimatedQuickAction({required this.delay, required this.child});
 
   @override
   State<_AnimatedQuickAction> createState() => _AnimatedQuickActionState();
@@ -780,16 +767,15 @@ class _AnimatedQuickActionState extends State<_AnimatedQuickAction>
       vsync: this,
     );
 
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
 
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0.3, 0),
       end: Offset.zero,
-    ).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
-    );
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
 
     Future.delayed(Duration(milliseconds: (widget.delay * 1000).toInt()), () {
       if (mounted) _controller.forward();

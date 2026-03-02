@@ -102,15 +102,15 @@ class OfflineQueueItem extends HiveObject {
 
   /// Convierte a JSON
   Map<String, dynamic> toJson() => {
-        'queueId': queueId,
-        'videoId': videoId,
-        'title': title,
-        'artist': artist,
-        'thumbnail': thumbnail,
-        'duration': duration,
-        'position': position,
-        'localAudioPath': localAudioPath,
-      };
+    'queueId': queueId,
+    'videoId': videoId,
+    'title': title,
+    'artist': artist,
+    'thumbnail': thumbnail,
+    'duration': duration,
+    'position': position,
+    'localAudioPath': localAudioPath,
+  };
 
   /// Crea una copia con campos modificados
   OfflineQueueItem copyWith({
@@ -182,13 +182,13 @@ class OfflineQueueState {
 
   /// Convierte a JSON para almacenamiento
   Map<String, dynamic> toJson() => {
-        'currentIndex': currentIndex,
-        'positionSeconds': positionSeconds,
-        'shuffleMode': shuffleMode,
-        'repeatMode': repeatMode,
-        'items': items,
-        'savedAt': savedAt.toIso8601String(),
-      };
+    'currentIndex': currentIndex,
+    'positionSeconds': positionSeconds,
+    'shuffleMode': shuffleMode,
+    'repeatMode': repeatMode,
+    'items': items,
+    'savedAt': savedAt.toIso8601String(),
+  };
 
   /// Crea desde JSON
   factory OfflineQueueState.fromJson(Map<String, dynamic> json) {

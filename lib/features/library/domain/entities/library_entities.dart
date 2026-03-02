@@ -42,7 +42,14 @@ class FavoriteSongEntity extends Equatable {
   });
 
   @override
-  List<Object?> get props => [videoId, title, artist, thumbnail, duration, addedAt];
+  List<Object?> get props => [
+    videoId,
+    title,
+    artist,
+    thumbnail,
+    duration,
+    addedAt,
+  ];
 }
 
 /// Domain entity for a favorite playlist
@@ -71,11 +78,7 @@ class FavoriteGenreEntity extends Equatable {
   final String? name;
   final String? params;
 
-  const FavoriteGenreEntity({
-    required this.id,
-    this.name,
-    this.params,
-  });
+  const FavoriteGenreEntity({required this.id, this.name, this.params});
 
   @override
   List<Object?> get props => [id, name, params];

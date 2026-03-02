@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:music_app/core/domain/entities/song.dart';
-import 'package:music_app/core/utils/exeptions/app_exception.dart';
+import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
 import 'package:music_app/features/dashboard/domain/entities/player_entities.dart';
 
 /// Repository interface for Dashboard/Player feature.
@@ -15,7 +15,10 @@ abstract class DashboardRepository {
   Future<Either<AppException, void>> playSong(Song song);
 
   /// Play a list of songs starting from index
-  Future<Either<AppException, void>> playQueue(List<Song> songs, int startIndex);
+  Future<Either<AppException, void>> playQueue(
+    List<Song> songs,
+    int startIndex,
+  );
 
   /// Pause playback
   Future<Either<AppException, void>> pause();

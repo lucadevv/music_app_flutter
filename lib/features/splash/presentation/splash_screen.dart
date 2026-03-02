@@ -13,7 +13,6 @@ class SplashScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('[DEBUG] SplashScreen: building');
     return const Scaffold(
       backgroundColor: AppColorsDark.surface,
       body: Center(
@@ -21,10 +20,8 @@ class SplashScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // Logo o indicador de carga
-             CircularProgressIndicator(
-              color: AppColorsDark.primary,
-            ),
-             SizedBox(height: 24),
+            CircularProgressIndicator(color: AppColorsDark.primary),
+            SizedBox(height: 24),
             Text(
               'Cargando...',
               style: TextStyle(

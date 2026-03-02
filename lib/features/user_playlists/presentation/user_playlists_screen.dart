@@ -16,9 +16,9 @@ class UserPlaylistsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => UserPlaylistsCubit(
-        libraryService: context.read<LibraryService>(),
-      )..loadAllPlaylists(),
+      create: (context) =>
+          UserPlaylistsCubit(libraryService: context.read<LibraryService>())
+            ..loadAllPlaylists(),
       child: const _UserPlaylistsView(),
     );
   }
@@ -63,7 +63,11 @@ class _UserPlaylistsView extends StatelessWidget {
     );
   }
 
-  Widget _buildBody(BuildContext context, UserPlaylistsState state, AppLocalizations l10n) {
+  Widget _buildBody(
+    BuildContext context,
+    UserPlaylistsState state,
+    AppLocalizations l10n,
+  ) {
     switch (state.status) {
       case UserPlaylistsStatus.initial:
       case UserPlaylistsStatus.loading:
@@ -75,10 +79,10 @@ class _UserPlaylistsView extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-          Text(
-            state.errorMessage ?? l10n.errorUnknown,
-            style: const TextStyle(color: Colors.white),
-          ),
+              Text(
+                state.errorMessage ?? l10n.errorUnknown,
+                style: const TextStyle(color: Colors.white),
+              ),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () {
@@ -102,22 +106,18 @@ class _UserPlaylistsView extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.playlist_play,
-            size: 64,
-            color: Colors.white24,
-          ),
+          Icon(Icons.playlist_play, size: 64, color: Colors.white24),
           SizedBox(height: 16),
-          Text(
-            'No playlists',
-            style: TextStyle(color: Colors.white54),
-          ),
+          Text('No playlists', style: TextStyle(color: Colors.white54)),
         ],
       ),
     );
   }
 
-  Widget _buildPlaylistGrid(BuildContext context, List<PlaylistItem> playlists) {
+  Widget _buildPlaylistGrid(
+    BuildContext context,
+    List<PlaylistItem> playlists,
+  ) {
     return GridView.builder(
       padding: const EdgeInsets.all(16),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -135,9 +135,13 @@ class _UserPlaylistsView extends StatelessWidget {
           songCount: playlist.songCount,
           onTap: () {
             if (playlist.type == PlaylistType.user) {
-              context.router.push(UserPlaylistDetailRoute(playlistId: playlist.id));
+              context.router.push(
+                UserPlaylistDetailRoute(playlistId: playlist.id),
+              );
             } else {
-              context.router.push(PlaylistRoute(id: playlist.externalId ?? playlist.id));
+              context.router.push(
+                PlaylistRoute(id: playlist.externalId ?? playlist.id),
+              );
             }
           },
         );
@@ -145,7 +149,10 @@ class _UserPlaylistsView extends StatelessWidget {
     );
   }
 
-  Future<void> _createPlaylist(BuildContext context, AppLocalizations l10n) async {
+  Future<void> _createPlaylist(
+    BuildContext context,
+    AppLocalizations l10n,
+  ) async {
     final nameController = TextEditingController();
 
     final result = await showDialog<String>(
@@ -163,7 +170,9 @@ class _UserPlaylistsView extends StatelessWidget {
             hintText: l10n.playlistName,
             hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.5)),
             enabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
+              borderSide: BorderSide(
+                color: Colors.white.withValues(alpha: 0.3),
+              ),
             ),
             focusedBorder: const UnderlineInputBorder(
               borderSide: BorderSide(color: AppColorsDark.primary),
@@ -247,10 +256,7 @@ class _PlaylistCard extends StatelessWidget {
           ),
           Text(
             '$songCount songs',
-            style: const TextStyle(
-              color: Colors.white54,
-              fontSize: 12,
-            ),
+            style: const TextStyle(color: Colors.white54, fontSize: 12),
           ),
         ],
       ),

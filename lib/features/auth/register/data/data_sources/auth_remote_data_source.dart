@@ -79,10 +79,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     try {
       final response = await _apiServices.post(
         '/auth/login',
-        data: {
-          'email': request.email,
-          'password': request.password,
-        },
+        data: {'email': request.email, 'password': request.password},
       );
 
       // Dio devuelve Response, necesitamos acceder a response.data
@@ -111,9 +108,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     try {
       final response = await _apiServices.post(
         '/auth/refresh',
-        data: {
-          'refreshToken': request.refreshToken,
-        },
+        data: {'refreshToken': request.refreshToken},
       );
 
       // Dio devuelve Response, necesitamos acceder a response.data

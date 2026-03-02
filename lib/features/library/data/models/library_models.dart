@@ -1,5 +1,5 @@
 /// Modelos de datos para la feature Library.
-/// 
+///
 /// Estos modelos representan las respuestas de la API y se convierten
 /// a entidades de dominio en la capa de presentación.
 ///

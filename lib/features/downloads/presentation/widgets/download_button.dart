@@ -20,7 +20,12 @@ class DownloadButton extends StatefulWidget {
   final Color? inactiveColor;
 
   const DownloadButton({
-    required this.videoId, required this.title, required this.artist, required this.streamUrl, required this.durationSeconds, super.key,
+    required this.videoId,
+    required this.title,
+    required this.artist,
+    required this.streamUrl,
+    required this.durationSeconds,
+    super.key,
     this.thumbnail,
     this.size = 24,
     this.activeColor,
@@ -55,14 +60,16 @@ class _DownloadButtonState extends State<DownloadButton> {
       // Intentar usar el provider global primero
       _downloadsCubit = context.read<DownloadsCubit>();
       await _checkDownloadStatus();
-      
+
       // Listen to state changes
       _subscription = _downloadsCubit!.stream.listen((state) {
         if (!mounted) return;
-        
+
         final progress = state.downloadProgress[widget.videoId];
         final isDownloading = state.downloadingIds.contains(widget.videoId);
-        final isDownloaded = state.downloadedSongs.any((s) => s.videoId == widget.videoId);
+        final isDownloaded = state.downloadedSongs.any(
+          (s) => s.videoId == widget.videoId,
+        );
 
         setState(() {
           _progress = progress ?? 0.0;
@@ -75,13 +82,15 @@ class _DownloadButtonState extends State<DownloadButton> {
       try {
         _downloadsCubit = await GetIt.I.getAsync<DownloadsCubit>();
         await _checkDownloadStatus();
-        
+
         _subscription = _downloadsCubit!.stream.listen((state) {
           if (!mounted) return;
-          
+
           final progress = state.downloadProgress[widget.videoId];
           final isDownloading = state.downloadingIds.contains(widget.videoId);
-          final isDownloaded = state.downloadedSongs.any((s) => s.videoId == widget.videoId);
+          final isDownloaded = state.downloadedSongs.any(
+            (s) => s.videoId == widget.videoId,
+          );
 
           setState(() {
             _progress = progress ?? 0.0;
@@ -97,7 +106,7 @@ class _DownloadButtonState extends State<DownloadButton> {
 
   Future<void> _checkDownloadStatus() async {
     if (_downloadsCubit == null) return;
-    
+
     final isDownloaded = await _downloadsCubit!.isDownloaded(widget.videoId);
     if (mounted) {
       setState(() {
@@ -169,15 +178,16 @@ class _DownloadButtonState extends State<DownloadButton> {
                 ),
                 backgroundColor: Colors.white.withValues(alpha: 0.2),
               ),
-            
+
             // Icon
             Icon(
-              _isDownloaded 
-                  ? Icons.download_done 
+              _isDownloaded
+                  ? Icons.download_done
                   : (_isDownloading ? Icons.close : Icons.download_outlined),
               color: _isDownloaded
                   ? (widget.activeColor ?? AppColorsDark.primary)
-                  : (widget.inactiveColor ?? Colors.white.withValues(alpha: 0.6)),
+                  : (widget.inactiveColor ??
+                        Colors.white.withValues(alpha: 0.6)),
               size: widget.size,
             ),
           ],
@@ -197,7 +207,12 @@ class DownloadIconButton extends StatelessWidget {
   final int durationSeconds;
 
   const DownloadIconButton({
-    required this.videoId, required this.title, required this.artist, required this.streamUrl, required this.durationSeconds, super.key,
+    required this.videoId,
+    required this.title,
+    required this.artist,
+    required this.streamUrl,
+    required this.durationSeconds,
+    super.key,
     this.thumbnail,
   });
 

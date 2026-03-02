@@ -6,13 +6,10 @@ import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/player/domain/entities/lyric_line.dart';
 import 'package:music_app/main.dart';
 
-
 class LyricsWidget extends StatefulWidget {
   final String videoId;
 
-  const LyricsWidget({
-    required this.videoId, super.key,
-  });
+  const LyricsWidget({required this.videoId, super.key});
 
   @override
   State<LyricsWidget> createState() => _LyricsWidgetState();
@@ -24,7 +21,7 @@ class _LyricsWidgetState extends State<LyricsWidget> {
   String? _source;
   bool _hasTimestamps = false;
   List<LyricLine> _parsedLyrics = [];
-  
+
   // Para auto-scroll
   final ScrollController _scrollController = ScrollController();
   int _currentLineIndex = -1;
@@ -53,8 +50,9 @@ class _LyricsWidgetState extends State<LyricsWidget> {
     if (_currentLineIndex >= 0 && _scrollController.hasClients) {
       // Calcular posición aproximada de la línea
       const lineHeight = 50.0; // Altura estimada por línea
-      final targetOffset = _currentLineIndex * lineHeight - 100; // Centrar un poco
-      
+      final targetOffset =
+          _currentLineIndex * lineHeight - 100; // Centrar un poco
+
       if (_scrollController.position.maxScrollExtent >= targetOffset) {
         _scrollController.animateTo(
           targetOffset.clamp(0, _scrollController.position.maxScrollExtent),
@@ -79,14 +77,16 @@ class _LyricsWidgetState extends State<LyricsWidget> {
       if (mounted) {
         // Parsear lyrics
         final lyricsText = response.lyrics;
-        
+
         setState(() {
           _isLoading = false;
           _lyrics = lyricsText;
           _source = response.source;
           // Detectar timestamps de forma más flexible: [MM:SS] o [MM:SS.xx]
-          _hasTimestamps = lyricsText != null && RegExp(r'\[\d{1,2}:\d{2}').hasMatch(lyricsText);
-          
+          _hasTimestamps =
+              lyricsText != null &&
+              RegExp(r'\[\d{1,2}:\d{2}').hasMatch(lyricsText);
+
           // Parsear lyrics con timestamps
           _parsedLyrics = LyricLine.parseLyrics(lyricsText);
         });
@@ -114,8 +114,11 @@ class _LyricsWidgetState extends State<LyricsWidget> {
       builder: (context, playerState) {
         if (playerState is PlayerBlocLoaded) {
           // Calcular índice de línea actual
-          final newIndex = LyricLine.getCurrentLineIndex(_parsedLyrics, playerState.position);
-          
+          final newIndex = LyricLine.getCurrentLineIndex(
+            _parsedLyrics,
+            playerState.position,
+          );
+
           // Solo actualizar y hacer scroll si cambió la línea
           if (newIndex != _currentLineIndex) {
             _currentLineIndex = newIndex;
@@ -136,9 +139,7 @@ class _LyricsWidgetState extends State<LyricsWidget> {
       return Container(
         padding: const EdgeInsets.all(24),
         child: const Center(
-          child: CircularProgressIndicator(
-            color: AppColorsDark.primary,
-          ),
+          child: CircularProgressIndicator(color: AppColorsDark.primary),
         ),
       );
     }
@@ -166,10 +167,7 @@ class _LyricsWidgetState extends State<LyricsWidget> {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
-              TextButton(
-                onPressed: _loadLyrics,
-                child: const Text('Retry'),
-              ),
+              TextButton(onPressed: _loadLyrics, child: const Text('Retry')),
             ],
           ),
         ),
@@ -192,10 +190,7 @@ class _LyricsWidgetState extends State<LyricsWidget> {
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [
-            Colors.black.withValues(alpha: 0.3),
-            Colors.transparent,
-          ],
+          colors: [Colors.black.withValues(alpha: 0.3), Colors.transparent],
         ),
       ),
       child: ListView.builder(
@@ -215,11 +210,11 @@ class _LyricsWidgetState extends State<LyricsWidget> {
               style: TextStyle(
                 fontSize: isCurrentLine ? 20 : 16,
                 fontWeight: isCurrentLine ? FontWeight.bold : FontWeight.normal,
-                color: isCurrentLine 
-                    ? AppColorsDark.primary 
+                color: isCurrentLine
+                    ? AppColorsDark.primary
                     : (isPastLine
-                        ? Colors.white.withValues(alpha: 0.5)
-                        : Colors.white.withValues(alpha: 0.8)),
+                          ? Colors.white.withValues(alpha: 0.5)
+                          : Colors.white.withValues(alpha: 0.8)),
                 height: 1.4,
               ),
               child: Text(

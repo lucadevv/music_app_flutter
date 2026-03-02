@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:music_app/core/domain/entities/song.dart';
-import 'package:music_app/core/utils/exeptions/app_exception.dart';
+import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
 import 'package:music_app/features/favorites/domain/repositories/favorites_repository.dart';
 
 /// Use case for getting favorite songs
@@ -9,7 +9,10 @@ class GetFavoritesUseCase {
 
   GetFavoritesUseCase(this.repository);
 
-  Future<Either<AppException, List<Song>>> call({int page = 1, int limit = 20}) {
+  Future<Either<AppException, List<Song>>> call({
+    int page = 1,
+    int limit = 20,
+  }) {
     return repository.getFavorites(page: page, limit: limit);
   }
 }

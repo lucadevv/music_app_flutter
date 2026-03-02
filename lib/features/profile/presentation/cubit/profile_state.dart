@@ -3,7 +3,7 @@ part of 'profile_cubit.dart';
 class ProfileState {
   final bool isLoading;
   final String? errorMessage;
-  final UserProfile? profile;
+  final UserProfileEntity? profile;
   final String id;
   final String email;
   final String? firstName;
@@ -13,9 +13,9 @@ class ProfileState {
   final String role;
   final bool isEmailVerified;
   final DateTime? createdAt;
-  
+
   // Settings
-  final UserSettings? settings;
+  final UserSettingsEntity? settings;
   final bool isSettingsLoading;
   final String? settingsError;
 
@@ -54,7 +54,7 @@ class ProfileState {
   String get displayName {
     final name = profile?.displayName;
     if (name != null && name.isNotEmpty) return name;
-    
+
     if (firstName != null && firstName!.isNotEmpty) {
       if (lastName != null && lastName!.isNotEmpty) {
         return '$firstName $lastName';
@@ -62,15 +62,21 @@ class ProfileState {
       return firstName!;
     }
     // Fallback al email
-    return email.split('@')[0].split('.').map((part) => 
-      part.isEmpty ? '' : '${part[0].toUpperCase()}${part.substring(1)}'
-    ).join(' ');
+    return email
+        .split('@')[0]
+        .split('.')
+        .map(
+          (part) => part.isEmpty
+              ? ''
+              : '${part[0].toUpperCase()}${part.substring(1)}',
+        )
+        .join(' ');
   }
 
   String get initials {
     final init = profile?.initials;
     if (init != null && init.isNotEmpty) return init;
-    
+
     if (firstName != null && firstName!.isNotEmpty) {
       if (lastName != null && lastName!.isNotEmpty) {
         return '${firstName![0]}${lastName![0]}'.toUpperCase();
@@ -88,7 +94,7 @@ class ProfileState {
   ProfileState copyWith({
     bool? isLoading,
     String? errorMessage,
-    UserProfile? profile,
+    UserProfileEntity? profile,
     String? id,
     String? email,
     String? firstName,
@@ -98,7 +104,7 @@ class ProfileState {
     String? role,
     bool? isEmailVerified,
     DateTime? createdAt,
-    UserSettings? settings,
+    UserSettingsEntity? settings,
     bool? isSettingsLoading,
     String? settingsError,
     // Library Stats
@@ -124,11 +130,14 @@ class ProfileState {
       createdAt: createdAt ?? this.createdAt,
       settings: settings ?? this.settings,
       isSettingsLoading: isSettingsLoading ?? this.isSettingsLoading,
-      settingsError: clearSettingsError ? null : (settingsError ?? this.settingsError),
+      settingsError: clearSettingsError
+          ? null
+          : (settingsError ?? this.settingsError),
       // Library Stats
       isLoadingStats: isLoadingStats ?? this.isLoadingStats,
       favoriteSongsCount: favoriteSongsCount ?? this.favoriteSongsCount,
-      favoritePlaylistsCount: favoritePlaylistsCount ?? this.favoritePlaylistsCount,
+      favoritePlaylistsCount:
+          favoritePlaylistsCount ?? this.favoritePlaylistsCount,
       favoriteGenresCount: favoriteGenresCount ?? this.favoriteGenresCount,
     );
   }

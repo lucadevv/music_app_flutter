@@ -1,9 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:music_app/core/domain/entities/song.dart';
 import 'package:music_app/core/domain/mappers/song_mapper.dart';
 import 'package:music_app/features/search/domain/entities/song.dart' as search;
-import 'package:music_app/features/search/domain/entities/album.dart';
-import 'package:music_app/features/search/domain/entities/artist.dart';
 import 'package:music_app/features/downloads/domain/entities/downloaded_song.dart';
 import 'package:music_app/features/home/domain/entities/chart_song.dart';
 
@@ -23,16 +20,20 @@ void main() {
           album: search.SearchAlbum(
             id: 'album1',
             name: 'Test Album',
-            artists: [
-              search.SearchArtist(id: 'artist1', name: 'Test Artist'),
-            ],
+            artists: [search.SearchArtist(id: 'artist1', name: 'Test Artist')],
           ),
-          artists: [
-            search.SearchArtist(id: 'artist1', name: 'Test Artist'),
-          ],
+          artists: [search.SearchArtist(id: 'artist1', name: 'Test Artist')],
           thumbnails: [
-            search.Thumbnail(url: 'https://example.com/thumb1.jpg', width: 100, height: 100),
-            search.Thumbnail(url: 'https://example.com/thumb2.jpg', width: 300, height: 300),
+            search.Thumbnail(
+              url: 'https://example.com/thumb1.jpg',
+              width: 100,
+              height: 100,
+            ),
+            search.Thumbnail(
+              url: 'https://example.com/thumb2.jpg',
+              width: 300,
+              height: 300,
+            ),
           ],
           streamUrl: 'https://stream.url',
         );

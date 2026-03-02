@@ -81,7 +81,9 @@ class _SongItem extends StatelessWidget {
                               height: 20,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(AppColorsDark.primary),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  AppColorsDark.primary,
+                                ),
                               ),
                             ),
                           ),
@@ -90,14 +92,20 @@ class _SongItem extends StatelessWidget {
                           width: 60,
                           height: 60,
                           color: AppColorsDark.primaryContainer,
-                          child: const Icon(Icons.music_note, color: AppColorsDark.primary),
+                          child: const Icon(
+                            Icons.music_note,
+                            color: AppColorsDark.primary,
+                          ),
                         ),
                       )
                     : Container(
                         width: 60,
                         height: 60,
                         color: AppColorsDark.primaryContainer,
-                        child: const Icon(Icons.music_note, color: AppColorsDark.primary),
+                        child: const Icon(
+                          Icons.music_note,
+                          color: AppColorsDark.primary,
+                        ),
                       ),
               ),
             ),

@@ -68,14 +68,16 @@ class HomeCubit extends Cubit<HomeState> with BaseBlocMixin {
     final nowPlaying = _mapContentItemToNowPlaying(item);
     if (nowPlaying == null) return;
     final playlist = [nowPlaying];
-    _playerBloc.add(LoadPlaylistEvent(playlist: playlist, startIndex: trackIndex));
+    _playerBloc.add(
+      LoadPlaylistEvent(playlist: playlist, startIndex: trackIndex),
+    );
   }
 
   /// Reproduce un HomeContentItem como una sola canción (primer track o videoId directo)
   /// Retorna el NowPlayingData para navegación
   NowPlayingData? playContentItemAsSingle(HomeContentItem item) {
     NowPlayingData? nowPlayingData;
-    
+
     // Si tiene videoId directo, usarlo
     if (item.videoId != null && item.videoId!.isNotEmpty) {
       nowPlayingData = NowPlayingData.fromBasic(
@@ -117,6 +119,7 @@ class HomeCubit extends Cubit<HomeState> with BaseBlocMixin {
     _playerBloc.add(LoadTrackEvent(nowPlayingData));
     return nowPlayingData;
   }
+
   NowPlayingData? _mapContentItemToNowPlaying(HomeContentItem item) {
     // Si ya tiene videoId, mapear ese item directamente como canción
     if (item.videoId != null && item.videoId!.isNotEmpty) {

@@ -32,7 +32,7 @@ class _LikedSongsScreenView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     return BlocBuilder<LibraryCubit, LibraryState>(
       builder: (context, state) {
         return CustomScrollView(
@@ -41,7 +41,9 @@ class _LikedSongsScreenView extends StatelessWidget {
             if (state.status == LibraryStatus.loading)
               const SliverFillRemaining(
                 child: Center(
-                  child: CircularProgressIndicator(color: AppColorsDark.primary),
+                  child: CircularProgressIndicator(
+                    color: AppColorsDark.primary,
+                  ),
                 ),
               )
             else if (state.status == LibraryStatus.failure)
@@ -58,9 +60,13 @@ class _LikedSongsScreenView extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context, LibraryState state, AppLocalizations l10n) {
-    final totalText = state.totalSongs > 0 
-        ? '${state.totalSongs} ${l10n.likedSongsCount}' 
+  Widget _buildHeader(
+    BuildContext context,
+    LibraryState state,
+    AppLocalizations l10n,
+  ) {
+    final totalText = state.totalSongs > 0
+        ? '${state.totalSongs} ${l10n.likedSongsCount}'
         : l10n.likedSongs;
 
     return SliverAppBar(
@@ -87,10 +93,7 @@ class _LikedSongsScreenView extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [
-                AppColorsDark.primaryContainer,
-                Color(0xFF0D0D0D),
-              ],
+              colors: [AppColorsDark.primaryContainer, Color(0xFF0D0D0D)],
             ),
           ),
           child: Padding(
@@ -104,10 +107,7 @@ class _LikedSongsScreenView extends StatelessWidget {
                   height: 180,
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [
-                        AppColorsDark.primary,
-                        AppColorsDark.secondary,
-                      ],
+                      colors: [AppColorsDark.primary, AppColorsDark.secondary],
                     ),
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -143,7 +143,8 @@ class _LikedSongsScreenView extends StatelessWidget {
   }
 
   Widget _buildPlayButton(BuildContext context, LibraryState state) {
-    if (state.favoriteSongs.isEmpty) return const SliverToBoxAdapter(child: SizedBox.shrink());
+    if (state.favoriteSongs.isEmpty)
+      return const SliverToBoxAdapter(child: SizedBox.shrink());
 
     return SliverToBoxAdapter(
       child: Padding(
@@ -177,7 +178,11 @@ class _LikedSongsScreenView extends StatelessWidget {
     );
   }
 
-  Widget _buildSongsList(BuildContext context, LibraryState state, AppLocalizations l10n) {
+  Widget _buildSongsList(
+    BuildContext context,
+    LibraryState state,
+    AppLocalizations l10n,
+  ) {
     if (state.favoriteSongs.isEmpty) {
       return SliverFillRemaining(
         child: Center(
@@ -212,23 +217,24 @@ class _LikedSongsScreenView extends StatelessWidget {
     }
 
     return SliverList(
-      delegate: SliverChildBuilderDelegate(
-        (context, index) {
-          final song = state.favoriteSongs[index];
-          return SongListItemWithRemove(
-            title: song.title,
-            artist: song.artist,
-            thumbnail: song.thumbnail,
-            onTap: () => _playSong(context, song),
-            onRemove: () => _removeSong(context, song),
-          );
-        },
-        childCount: state.favoriteSongs.length,
-      ),
+      delegate: SliverChildBuilderDelegate((context, index) {
+        final song = state.favoriteSongs[index];
+        return SongListItemWithRemove(
+          title: song.title,
+          artist: song.artist,
+          thumbnail: song.thumbnail,
+          onTap: () => _playSong(context, song),
+          onRemove: () => _removeSong(context, song),
+        );
+      }, childCount: state.favoriteSongs.length),
     );
   }
 
-  Widget _buildError(String? errorMessage, BuildContext context, AppLocalizations l10n) {
+  Widget _buildError(
+    String? errorMessage,
+    BuildContext context,
+    AppLocalizations l10n,
+  ) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -257,7 +263,9 @@ class _LikedSongsScreenView extends StatelessWidget {
     if (songs.isEmpty) return;
 
     // Usar el método del Cubit
-    final nowPlayingData = context.read<LibraryCubit>().playAllFavoriteSongs(songs);
+    final nowPlayingData = context.read<LibraryCubit>().playAllFavoriteSongs(
+      songs,
+    );
     if (nowPlayingData != null) {
       // Navegar al reproductor
       context.router.push(PlayerRoute(nowPlayingData: nowPlayingData));

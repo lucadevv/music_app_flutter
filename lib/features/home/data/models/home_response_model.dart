@@ -1,11 +1,12 @@
 import 'package:flutter/foundation.dart';
+
 import '../../domain/entities/home_response.dart';
 import 'chart_song_model.dart';
-import 'mood_genre_model.dart';
 import 'home_section_model.dart';
+import 'mood_genre_model.dart';
 
 /// Modelo para HomeResponse
-/// 
+///
 /// Actualizado según nueva estructura de API:
 /// - moods: Array de moods
 /// - genres: Array de géneros
@@ -25,7 +26,7 @@ class HomeResponseModel extends HomeResponse {
     final moodsGenresList = (json['moods_genres'] as List<dynamic>?) ?? [];
     final moods = <MoodGenreModel>[];
     final genres = <MoodGenreModel>[];
-    
+
     // Separar moods y genres (primeros 12 son moods según el ejemplo del API)
     // Solo incluir items con params válido (no vacío)
     // Nota: Esto es una aproximación. Si la API cambia, necesitaremos otro criterio
@@ -36,7 +37,7 @@ class HomeResponseModel extends HomeResponse {
           final moodGenre = MoodGenreModel.fromJson(item);
           // Solo agregar si tiene params válido
           if (moodGenre.params.isEmpty) continue;
-          
+
           // Los primeros 12 son moods, el resto son genres
           if (i < 12) {
             moods.add(moodGenre);
@@ -54,19 +55,25 @@ class HomeResponseModel extends HomeResponse {
 
     // Parsear charts
     final chartsData = json['charts'] as Map<String, dynamic>? ?? {};
-    final topSongs = (chartsData['top_songs'] as List<dynamic>?)
-            ?.map((item) => ChartSongModel.fromJson(item as Map<String, dynamic>))
+    final topSongs =
+        (chartsData['top_songs'] as List<dynamic>?)
+            ?.map(
+              (item) => ChartSongModel.fromJson(item as Map<String, dynamic>),
+            )
             .toList() ??
         [];
-    final trending = (chartsData['trending'] as List<dynamic>?)
-            ?.map((item) => ChartSongModel.fromJson(item as Map<String, dynamic>))
+    final trending =
+        (chartsData['trending'] as List<dynamic>?)
+            ?.map(
+              (item) => ChartSongModel.fromJson(item as Map<String, dynamic>),
+            )
             .toList() ??
         [];
 
     // La API retorna 'home' como array de secciones, no 'sections'
     final sectionsList = json['home'] as List<dynamic>?;
     final sections = <HomeSectionModel>[];
-    
+
     if (sectionsList != null) {
       for (var i = 0; i < sectionsList.length; i++) {
         try {
@@ -74,7 +81,10 @@ class HomeResponseModel extends HomeResponse {
           if (sectionItem is Map<String, dynamic>) {
             sections.add(HomeSectionModel.fromJson(sectionItem));
           } else {
-            if (kDebugMode) debugPrint('HomeResponseModel: Section $i no es Map, tipo: ${sectionItem.runtimeType}');
+            if (kDebugMode)
+              debugPrint(
+                'HomeResponseModel: Section $i no es Map, tipo: ${sectionItem.runtimeType}',
+              );
           }
         } catch (e, stackTrace) {
           if (kDebugMode) {
@@ -86,26 +96,32 @@ class HomeResponseModel extends HomeResponse {
     }
 
     if (kDebugMode) {
-      debugPrint('HomeResponseModel: Parseado - moods: ${moods.length}, genres: ${genres.length}, sections: ${sections.length}');
+      debugPrint(
+        'HomeResponseModel: Parseado - moods: ${moods.length}, genres: ${genres.length}, sections: ${sections.length}',
+      );
     }
 
     return HomeResponseModel(
       moods: moods,
       genres: genres,
-      charts: Charts(
-        topSongs: topSongs,
-        trending: trending,
-      ),
+      charts: Charts(topSongs: topSongs, trending: trending),
       sections: sections,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'moods_genres': [...moods, ...genres].map((e) => (e as MoodGenreModel).toJson()).toList(),
+      'moods_genres': [
+        ...moods,
+        ...genres,
+      ].map((e) => (e as MoodGenreModel).toJson()).toList(),
       'charts': {
-        'top_songs': charts.topSongs.map((e) => (e as ChartSongModel).toJson()).toList(),
-        'trending': charts.trending.map((e) => (e as ChartSongModel).toJson()).toList(),
+        'top_songs': charts.topSongs
+            .map((e) => (e as ChartSongModel).toJson())
+            .toList(),
+        'trending': charts.trending
+            .map((e) => (e as ChartSongModel).toJson())
+            .toList(),
       },
       'home': sections.map((e) => (e as HomeSectionModel).toJson()).toList(),
     };

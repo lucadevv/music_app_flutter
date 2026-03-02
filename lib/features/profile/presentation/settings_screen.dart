@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/bloc/locale_cubit.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
-import 'package:music_app/features/profile/profile_cubit.dart';
+import 'package:music_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:music_app/l10n/app_localizations.dart';
 import 'package:music_app/main.dart';
 
@@ -17,7 +17,11 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (_) => getIt<ProfileCubit>()..loadProfile()..loadSettings()),
+        BlocProvider(
+          create: (_) => getIt<ProfileCubit>()
+            ..loadProfile()
+            ..loadSettings(),
+        ),
         BlocProvider(create: (_) => getIt<LocaleCubit>()),
       ],
       child: const _SettingsView(),
@@ -74,7 +78,7 @@ class _SettingsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     return Scaffold(
       backgroundColor: const Color(0xFF0D0D0D),
       appBar: AppBar(
@@ -110,7 +114,10 @@ class _SettingsView extends StatelessWidget {
                         icon: Icons.language,
                         title: l10n.musicLanguages,
                         trailing: Text(
-                          _getLanguageName(localeState.locale.languageCode, l10n),
+                          _getLanguageName(
+                            localeState.locale.languageCode,
+                            l10n,
+                          ),
                           style: const TextStyle(color: Colors.white70),
                         ),
                         onTap: () => context.router.push(const LanguageRoute()),
@@ -119,28 +126,43 @@ class _SettingsView extends StatelessWidget {
                         icon: Icons.high_quality,
                         title: l10n.streamingQuality,
                         trailing: Text(
-                          _getQualityName(profileState.settings?.streamingQuality ?? 'high'),
+                          _getQualityName(
+                            profileState.settings?.streamingQuality ?? 'high',
+                          ),
                           style: const TextStyle(color: Colors.white70),
                         ),
-                        onTap: () => _showQualityPicker(context, 'streaming', profileState.settings?.streamingQuality ?? 'high'),
+                        onTap: () => _showQualityPicker(
+                          context,
+                          'streaming',
+                          profileState.settings?.streamingQuality ?? 'high',
+                        ),
                       ),
                       _SettingsItem(
                         icon: Icons.download,
                         title: l10n.downloadQuality,
                         trailing: Text(
-                          _getQualityName(profileState.settings?.downloadQuality ?? 'high'),
+                          _getQualityName(
+                            profileState.settings?.downloadQuality ?? 'high',
+                          ),
                           style: const TextStyle(color: Colors.white70),
                         ),
-                        onTap: () => _showQualityPicker(context, 'download', profileState.settings?.downloadQuality ?? 'high'),
+                        onTap: () => _showQualityPicker(
+                          context,
+                          'download',
+                          profileState.settings?.downloadQuality ?? 'high',
+                        ),
                       ),
                       _SettingsItem(
                         icon: Icons.equalizer,
                         title: l10n.equalizer,
                         trailing: Text(
-                          _getEqualizerName(profileState.settings?.equalizerPreset ?? 'flat'),
+                          _getEqualizerName(
+                            profileState.settings?.equalizerPreset ?? 'flat',
+                          ),
                           style: const TextStyle(color: Colors.white70),
                         ),
-                        onTap: () => context.router.push(const EqualizerRoute()),
+                        onTap: () =>
+                            context.router.push(const EqualizerRoute()),
                       ),
                     ],
                   ),
@@ -153,9 +175,13 @@ class _SettingsView extends StatelessWidget {
     );
   }
 
-  void _showQualityPicker(BuildContext context, String type, String currentQuality) {
+  void _showQualityPicker(
+    BuildContext context,
+    String type,
+    String currentQuality,
+  ) {
     final qualities = ['low', 'medium', 'high', 'hd', 'uhd'];
-    
+
     showModalBottomSheet(
       context: context,
       backgroundColor: const Color(0xFF1A1A1A),
@@ -165,7 +191,7 @@ class _SettingsView extends StatelessWidget {
         itemBuilder: (context, index) {
           final quality = qualities[index];
           final isSelected = quality == currentQuality;
-          
+
           return RadioListTile<String>(
             value: quality,
             groupValue: currentQuality,
@@ -179,7 +205,10 @@ class _SettingsView extends StatelessWidget {
                 Navigator.pop(ctx);
               }
             },
-            title: Text(_getQualityName(quality), style: const TextStyle(color: Colors.white)),
+            title: Text(
+              _getQualityName(quality),
+              style: const TextStyle(color: Colors.white),
+            ),
             activeColor: AppColorsDark.primary,
             selected: isSelected,
           );
@@ -336,8 +365,13 @@ class _SettingsItem extends StatelessWidget {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
       leading: Icon(icon, color: Colors.white),
-      title: Text(title, style: const TextStyle(color: Colors.white, fontSize: 16)),
-      trailing: trailing ?? Icon(Icons.chevron_right, color: Colors.white.withValues(alpha: 0.6)),
+      title: Text(
+        title,
+        style: const TextStyle(color: Colors.white, fontSize: 16),
+      ),
+      trailing:
+          trailing ??
+          Icon(Icons.chevron_right, color: Colors.white.withValues(alpha: 0.6)),
       onTap: onTap,
     );
   }

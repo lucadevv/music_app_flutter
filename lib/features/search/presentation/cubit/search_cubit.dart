@@ -83,7 +83,7 @@ class SearchCubit extends Cubit<SearchState> with BaseBlocMixin {
       (failure) {
         // Verificar nuevamente antes de emitir
         if (isClosed) return;
-        
+
         final String errorMessage = getErrorMessage(failure);
         if (kDebugMode) {
           debugPrint('SearchCubit: errorMessage $errorMessage');
@@ -98,7 +98,7 @@ class SearchCubit extends Cubit<SearchState> with BaseBlocMixin {
       (responseEntity) {
         // Verificar nuevamente antes de emitir
         if (isClosed) return;
-        
+
         emit(
           state.copyWith(
             status: SearchStatus.success,

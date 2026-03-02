@@ -4,7 +4,7 @@ import 'package:music_app/core/services/local/local_storage_service.dart';
 /// Servicio para manejar la autenticación y almacenamiento de tokens
 class AuthService {
   final LocalStorageService _localStorage;
-  
+
   static const String _accessTokenKey = 'access_token';
   static const String _refreshTokenKey = 'refresh_token';
   static const String _isEmailVerifiedKey = 'is_email_verified';
@@ -34,27 +34,27 @@ class AuthService {
 
   /// Obtiene el access token
   Future<String?> getAccessToken() async {
-    return await _localStorage.getString(_accessTokenKey);
+    return _localStorage.getString(_accessTokenKey);
   }
 
   /// Obtiene el refresh token
   Future<String?> getRefreshToken() async {
-    return await _localStorage.getString(_refreshTokenKey);
+    return _localStorage.getString(_refreshTokenKey);
   }
 
   /// Verifica si el email está verificado
   Future<bool?> isEmailVerified() async {
-    return await _localStorage.getBool(_isEmailVerifiedKey);
+    return _localStorage.getBool(_isEmailVerifiedKey);
   }
 
   /// Obtiene el email del usuario
   Future<String?> getUserEmail() async {
-    return await _localStorage.getString(_userEmailKey);
+    return _localStorage.getString(_userEmailKey);
   }
 
   /// Actualiza el estado de verificación de email
   Future<bool> updateEmailVerificationStatus(bool isVerified) async {
-    return await _localStorage.setBool(_isEmailVerifiedKey, isVerified);
+    return _localStorage.setBool(_isEmailVerifiedKey, isVerified);
   }
 
   /// Elimina todos los tokens y datos de autenticación
@@ -69,7 +69,9 @@ class AuthService {
       final success = results.every((result) => result == true);
       if (kDebugMode) {
         if (success) {
-          debugPrint('AuthService: Datos de autenticación eliminados correctamente de LocalStorageService');
+          debugPrint(
+            'AuthService: Datos de autenticación eliminados correctamente de LocalStorageService',
+          );
         } else {
           debugPrint('AuthService: Algunos datos no se pudieron eliminar');
         }

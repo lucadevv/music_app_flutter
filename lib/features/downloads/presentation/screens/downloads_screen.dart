@@ -9,7 +9,6 @@ import 'package:music_app/l10n/app_localizations.dart';
 
 import '../../domain/entities/downloaded_song.dart';
 
-
 /// Pantalla de descargas
 ///
 /// SOLID: Single Responsibility Principle (SRP)
@@ -35,10 +34,11 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     return BlocBuilder<DownloadsCubit, DownloadsState>(
       builder: (context, state) {
-        if (state.status == DownloadsStatus.initial || state.status == DownloadsStatus.loading) {
+        if (state.status == DownloadsStatus.initial ||
+            state.status == DownloadsStatus.loading) {
           return Scaffold(
             appBar: AppBar(title: Text(l10n.downloads)),
             body: const Center(child: CircularProgressIndicator()),
@@ -58,7 +58,9 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
                     builder: (dialogContext) {
                       return AlertDialog(
                         title: const Text('Settings'),
-                        content: const Text('Downloading settings screen is not implemented yet.'),
+                        content: const Text(
+                          'Downloading settings screen is not implemented yet.',
+                        ),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.of(dialogContext).pop(),
@@ -74,8 +76,8 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
           ),
           body: _DownloadsBody(l10n: l10n),
         );
-        } // end of builder
-      );
+      }, // end of builder
+    );
   }
 }
 
@@ -112,11 +114,7 @@ class _DownloadsBody extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.download_done,
-            size: 80,
-            color: colorScheme.outline,
-          ),
+          Icon(Icons.download_done, size: 80, color: colorScheme.outline),
           const SizedBox(height: 16),
           Text(
             l10n.noDownloadsYet,
@@ -126,8 +124,8 @@ class _DownloadsBody extends StatelessWidget {
           Text(
             l10n.downloadsWillAppearHere,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
+              color: colorScheme.onSurfaceVariant,
+            ),
             textAlign: TextAlign.center,
           ),
         ],
@@ -142,11 +140,7 @@ class _DownloadsBody extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.error_outline,
-            size: 80,
-            color: colorScheme.error,
-          ),
+          Icon(Icons.error_outline, size: 80, color: colorScheme.error),
           const SizedBox(height: 16),
           Text(
             l10n.errorOccurred,
@@ -156,8 +150,8 @@ class _DownloadsBody extends StatelessWidget {
           Text(
             state.errorMessage ?? l10n.errorUnknown,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
+              color: colorScheme.onSurfaceVariant,
+            ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
@@ -217,8 +211,12 @@ class _DownloadsBody extends StatelessWidget {
                 progress: progress,
                 onTap: () {
                   // Usar el método del Cubit para reproducir
-                  final nowPlayingData = context.read<DownloadsCubit>().playDownloadedSong(song);
-                  context.router.push(PlayerRoute(nowPlayingData: nowPlayingData));
+                  final nowPlayingData = context
+                      .read<DownloadsCubit>()
+                      .playDownloadedSong(song);
+                  context.router.push(
+                    PlayerRoute(nowPlayingData: nowPlayingData),
+                  );
                 },
                 onDelete: () {
                   _showDeleteConfirmationDialog(context, song);
@@ -232,15 +230,15 @@ class _DownloadsBody extends StatelessWidget {
   }
 
   void _showDeleteConfirmationDialog(
-      BuildContext context, DownloadedSong song) {
+    BuildContext context,
+    DownloadedSong song,
+  ) {
     showDialog<void>(
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
           title: Text(l10n.deleteDownloadConfirmation),
-          content: Text(
-            l10n.deleteDownloadMessage(song.title),
-          ),
+          content: Text(l10n.deleteDownloadMessage(song.title)),
           actions: [
             TextButton(
               onPressed: () {

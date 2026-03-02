@@ -8,12 +8,14 @@ import '../../domain/use_cases/get_recent_searches_use_case.dart';
 part 'recent_searches_state.dart';
 
 /// Cubit para manejar el estado de las búsquedas recientes
-class RecentSearchesCubit extends Cubit<RecentSearchesState> with BaseBlocMixin {
+class RecentSearchesCubit extends Cubit<RecentSearchesState>
+    with BaseBlocMixin {
   final GetRecentSearchesUseCase _getRecentSearchesUseCase;
 
-  RecentSearchesCubit({required GetRecentSearchesUseCase getRecentSearchesUseCase})
-      : _getRecentSearchesUseCase = getRecentSearchesUseCase,
-        super(const RecentSearchesState());
+  RecentSearchesCubit({
+    required GetRecentSearchesUseCase getRecentSearchesUseCase,
+  }) : _getRecentSearchesUseCase = getRecentSearchesUseCase,
+       super(const RecentSearchesState());
 
   /// Obtiene las búsquedas recientes
   Future<void> getRecentSearches({int limit = 10}) async {
@@ -38,7 +40,7 @@ class RecentSearchesCubit extends Cubit<RecentSearchesState> with BaseBlocMixin 
     response.fold(
       (failure) {
         if (isClosed) return;
-        
+
         final String errorMessage = getErrorMessage(failure);
         if (kDebugMode) {
           debugPrint('RecentSearchesCubit: errorMessage $errorMessage');
@@ -52,7 +54,7 @@ class RecentSearchesCubit extends Cubit<RecentSearchesState> with BaseBlocMixin 
       },
       (recentSearches) {
         if (isClosed) return;
-        
+
         emit(
           state.copyWith(
             status: RecentSearchesStatus.success,

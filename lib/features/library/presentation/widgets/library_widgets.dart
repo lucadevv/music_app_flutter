@@ -18,7 +18,11 @@ class QuickAccessChip extends StatelessWidget {
   final VoidCallback onTap;
 
   const QuickAccessChip({
-    required this.icon, required this.label, required this.count, required this.onTap, super.key,
+    required this.icon,
+    required this.label,
+    required this.count,
+    required this.onTap,
+    super.key,
   });
 
   @override
@@ -36,12 +40,18 @@ class QuickAccessChip extends StatelessWidget {
           children: [
             Icon(icon, color: AppColorsDark.primary, size: 18),
             const SizedBox(width: 8),
-            Text(label, style: const TextStyle(color: Colors.white, fontSize: 14)),
+            Text(
+              label,
+              style: const TextStyle(color: Colors.white, fontSize: 14),
+            ),
             if (count > 0) ...[
               const SizedBox(width: 4),
               Text(
                 '($count)',
-                style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 12),
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.6),
+                  fontSize: 12,
+                ),
               ),
             ],
           ],
@@ -59,9 +69,7 @@ class PlaylistCard extends StatelessWidget {
   final PlaylistItem playlist;
   final VoidCallback onTap;
 
-  const PlaylistCard({
-    required this.playlist, required this.onTap, super.key,
-  });
+  const PlaylistCard({required this.playlist, required this.onTap, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -91,14 +99,21 @@ class PlaylistCard extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               playlist.name,
-              style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+              ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
             if (playlist.songCount > 0)
               Text(
                 '${playlist.songCount} songs',
-                style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 11),
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.6),
+                  fontSize: 11,
+                ),
               ),
           ],
         ),
@@ -107,7 +122,11 @@ class PlaylistCard extends StatelessWidget {
   }
 
   Widget _buildPlaceholder() {
-    return const Icon(Icons.playlist_play, size: 48, color: AppColorsDark.primary);
+    return const Icon(
+      Icons.playlist_play,
+      size: 48,
+      color: AppColorsDark.primary,
+    );
   }
 }
 
@@ -121,7 +140,10 @@ class SongListItemWidget extends StatelessWidget {
   final VoidCallback onOptionsTap;
 
   const SongListItemWidget({
-    required this.song, required this.onTap, required this.onOptionsTap, super.key,
+    required this.song,
+    required this.onTap,
+    required this.onOptionsTap,
+    super.key,
   });
 
   @override
@@ -138,20 +160,30 @@ class SongListItemWidget extends StatelessWidget {
               ? CachedNetworkImage(
                   imageUrl: song.thumbnail!,
                   fit: BoxFit.cover,
-                  errorWidget: (_, _, _) => const Icon(Icons.music_note, color: AppColorsDark.primary),
+                  errorWidget: (_, _, _) => const Icon(
+                    Icons.music_note,
+                    color: AppColorsDark.primary,
+                  ),
                 )
               : const Icon(Icons.music_note, color: AppColorsDark.primary),
         ),
       ),
       title: Text(
         song.title,
-        style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w500),
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 15,
+          fontWeight: FontWeight.w500,
+        ),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
       subtitle: Text(
         song.artist,
-        style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 13),
+        style: TextStyle(
+          color: Colors.white.withValues(alpha: 0.6),
+          fontSize: 13,
+        ),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
@@ -171,7 +203,10 @@ class SongListItemWidget extends StatelessWidget {
             onToggle: () => context.read<LibraryCubit>().loadLibrary(),
           ),
           IconButton(
-            icon: Icon(Icons.more_vert, color: Colors.white.withValues(alpha: 0.6)),
+            icon: Icon(
+              Icons.more_vert,
+              color: Colors.white.withValues(alpha: 0.6),
+            ),
             onPressed: onOptionsTap,
           ),
         ],
@@ -190,7 +225,9 @@ class LibraryEmptyState extends StatelessWidget {
   final VoidCallback onExplore;
 
   const LibraryEmptyState({
-    required this.l10n, required this.onExplore, super.key,
+    required this.l10n,
+    required this.onExplore,
+    super.key,
   });
 
   @override
@@ -199,16 +236,26 @@ class LibraryEmptyState extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.library_music, size: 64, color: Colors.white.withValues(alpha: 0.3)),
+          Icon(
+            Icons.library_music,
+            size: 64,
+            color: Colors.white.withValues(alpha: 0.3),
+          ),
           const SizedBox(height: 16),
           Text(
             l10n.yourLibraryIsEmpty,
-            style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 18),
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.7),
+              fontSize: 18,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
             l10n.songsAndPlaylistsWillAppearHere,
-            style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 14),
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.5),
+              fontSize: 14,
+            ),
           ),
           const SizedBox(height: 24),
           ElevatedButton.icon(
@@ -234,10 +281,7 @@ class ProfileAvatar extends StatelessWidget {
   final String? avatarUrl;
   final String initials;
 
-  const ProfileAvatar({
-    required this.initials, super.key,
-    this.avatarUrl,
-  });
+  const ProfileAvatar({required this.initials, super.key, this.avatarUrl});
 
   @override
   Widget build(BuildContext context) {
@@ -250,8 +294,8 @@ class ProfileAvatar extends StatelessWidget {
           child: CachedNetworkImage(
             imageUrl: avatarUrl!,
             fit: BoxFit.cover,
-            placeholder: (_, __) => _buildInitials(32),
-            errorWidget: (_, __, ___) => _buildInitials(32),
+            placeholder: (_, _) => _buildInitials(32),
+            errorWidget: (_, _, _) => _buildInitials(32),
           ),
         ),
       );
@@ -267,14 +311,21 @@ class ProfileAvatar extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [AppColorsDark.primary, AppColorsDark.primary.withValues(alpha: 0.7)],
+          colors: [
+            AppColorsDark.primary,
+            AppColorsDark.primary.withValues(alpha: 0.7),
+          ],
         ),
         shape: BoxShape.circle,
       ),
       child: Center(
         child: Text(
           initials,
-          style: TextStyle(color: Colors.white, fontSize: size * 0.4, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: size * 0.4,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );

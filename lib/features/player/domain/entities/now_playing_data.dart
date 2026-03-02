@@ -1,14 +1,18 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:equatable/equatable.dart';
+
 import 'package:music_app/features/playlist/domain/entities/playlist_track.dart';
+import 'package:music_app/features/search/domain/entities/album.dart'
+    as search_album;
+import 'package:music_app/features/search/domain/entities/artist.dart'
+    as search_artist;
 import 'package:music_app/features/search/domain/entities/song.dart' as search;
-import 'package:music_app/features/search/domain/entities/album.dart' as search_album;
-import 'package:music_app/features/search/domain/entities/artist.dart' as search_artist;
-import 'package:music_app/features/search/domain/entities/thumbnail.dart' as search_thumb;
+import 'package:music_app/features/search/domain/entities/thumbnail.dart'
+    as search_thumb;
 
 /// Entidad genérica para datos de reproducción actual
 /// Puede ser construida desde Song o con datos individuales
-/// 
+///
 /// Esta entidad sigue el principio de Single Responsibility (SOLID):
 /// - Responsable única: Representar los datos necesarios para reproducir una canción
 /// - Inmutable: Todos los campos son final para garantizar inmutabilidad
@@ -24,8 +28,10 @@ class NowPlayingData extends Equatable {
   final bool isExplicit;
   final bool inLibrary;
   final List<search_thumb.Thumbnail> thumbnails;
-  final String? streamUrl; // URL de streaming (viene del endpoint con include_stream_urls=true)
-  final search_thumb.Thumbnail? thumbnail; // Thumbnail de mejor calidad (viene junto con stream_url)
+  final String?
+  streamUrl; // URL de streaming (viene del endpoint con include_stream_urls=true)
+  final search_thumb.Thumbnail?
+  thumbnail; // Thumbnail de mejor calidad (viene junto con stream_url)
 
   const NowPlayingData({
     required this.videoId,
@@ -45,31 +51,34 @@ class NowPlayingData extends Equatable {
   /// Constructor desde Song
   factory NowPlayingData.fromSong(search.Song song) {
     // Map search.Song properties to now_playing_data types
-    final searchThumbnails = song.thumbnails.map((t) => 
-      search_thumb.Thumbnail(url: t.url, width: t.width ?? 0, height: t.height ?? 0)
-    ).toList();
-    
+    final searchThumbnails = song.thumbnails
+        .map(
+          (t) => search_thumb.Thumbnail(
+            url: t.url,
+            width: t.width ?? 0,
+            height: t.height ?? 0,
+          ),
+        )
+        .toList();
+
     search_thumb.Thumbnail? bestThumb;
     if (song.thumbnail != null) {
       bestThumb = search_thumb.Thumbnail(
-        url: song.thumbnail!.url, 
-        width: song.thumbnail!.width ?? 0, 
-        height: song.thumbnail!.height ?? 0
+        url: song.thumbnail!.url,
+        width: song.thumbnail!.width ?? 0,
+        height: song.thumbnail!.height ?? 0,
       );
     } else if (searchThumbnails.isNotEmpty) {
       bestThumb = searchThumbnails.last;
     }
-    
+
     return NowPlayingData(
       videoId: song.videoId,
       title: song.title,
-      artists: song.artists.map((a) => 
-        search_artist.SearchArtist(id: a.id, name: a.name)
-      ).toList(),
-      album: search_album.SearchAlbum(
-        id: song.album.id, 
-        name: song.album.name
-      ),
+      artists: song.artists
+          .map((a) => search_artist.SearchArtist(id: a.id, name: a.name))
+          .toList(),
+      album: search_album.SearchAlbum(id: song.album.id, name: song.album.name),
       duration: song.duration,
       durationSeconds: song.durationSeconds,
       views: song.views,
@@ -85,9 +94,10 @@ class NowPlayingData extends Equatable {
   factory NowPlayingData.fromPlaylistTrack(PlaylistTrack track) {
     // Si no hay videoId, usar un valor por defecto (no debería pasar en producción)
     final videoId = track.videoId ?? 'unknown';
-    
-      // Crear un SearchAlbum si no existe
-    final album = track.album ??
+
+    // Crear un SearchAlbum si no existe
+    final album =
+        track.album ??
         const search_album.SearchAlbum(name: 'Unknown Album', id: '');
 
     return NowPlayingData(
@@ -102,7 +112,8 @@ class NowPlayingData extends Equatable {
       inLibrary: track.inLibrary ?? false,
       thumbnails: track.thumbnails,
       streamUrl: track.streamUrl,
-      thumbnail: track.thumbnail, // Usar thumbnail de mejor calidad si está disponible
+      thumbnail:
+          track.thumbnail, // Usar thumbnail de mejor calidad si está disponible
     );
   }
 
@@ -112,31 +123,53 @@ class NowPlayingData extends Equatable {
     required String title,
     required List<String> artistNames,
     required String albumName,
-    required String duration, String? albumId,
+    required String duration,
+    String? albumId,
     int? durationSeconds,
     String views = '0',
     bool isExplicit = false,
     bool inLibrary = false,
     List<String>? thumbnailUrls,
-    List<search_thumb.Thumbnail>? thumbnails, // Lista de thumbnails con dimensiones reales
-    String? streamUrl, // URL de streaming (viene del endpoint con include_stream_urls=true)
+    List<search_thumb.Thumbnail>?
+    thumbnails, // Lista de thumbnails con dimensiones reales
+    String?
+    streamUrl, // URL de streaming (viene del endpoint con include_stream_urls=true)
     String? thumbnailUrl, // Thumbnail de mejor calidad (URL string - fallback)
-    search_thumb.Thumbnail? thumbnail, // Thumbnail de mejor calidad (objeto completo con dimensiones reales)
+    search_thumb.Thumbnail?
+    thumbnail, // Thumbnail de mejor calidad (objeto completo con dimensiones reales)
   }) {
     // Priorizar thumbnail completo si está disponible, luego thumbnailUrl, luego thumbnails
-    final bestThumbnail = thumbnail ?? 
-        (thumbnailUrl != null 
-            ? search_thumb.Thumbnail(url: thumbnailUrl, width: 544, height: 544) // Dimensiones típicas de mejor calidad
-            : null);
-    
-    // Crear lista de thumbnails: priorizar thumbnails con dimensiones reales
-    final thumbnailsList = thumbnails ?? 
+    final bestThumbnail =
+        thumbnail ??
         (thumbnailUrl != null
-            ? [search_thumb.Thumbnail(url: thumbnailUrl, width: 544, height: 544)]
+            ? search_thumb.Thumbnail(
+                url: thumbnailUrl,
+                width: 544,
+                height: 544,
+              ) // Dimensiones típicas de mejor calidad
+            : null);
+
+    // Crear lista de thumbnails: priorizar thumbnails con dimensiones reales
+    final thumbnailsList =
+        thumbnails ??
+        (thumbnailUrl != null
+            ? [
+                search_thumb.Thumbnail(
+                  url: thumbnailUrl,
+                  width: 544,
+                  height: 544,
+                ),
+              ]
             : (thumbnailUrls
-                    ?.map((url) => search_thumb.Thumbnail(url: url, width: 120, height: 120))
-                    .toList() ??
-                []));
+                      ?.map(
+                        (url) => search_thumb.Thumbnail(
+                          url: url,
+                          width: 120,
+                          height: 120,
+                        ),
+                      )
+                      .toList() ??
+                  []));
 
     return NowPlayingData(
       videoId: videoId,
@@ -157,7 +190,7 @@ class NowPlayingData extends Equatable {
   }
 
   /// Obtener nombres de artistas como string
-  /// 
+  ///
   /// Utiliza un getter computado para evitar duplicación de lógica
   String get artistsNames => artists.map((a) => a.name).join(', ');
 
@@ -165,23 +198,23 @@ class NowPlayingData extends Equatable {
   String get formattedDuration => duration;
 
   /// Obtener la mejor thumbnail disponible
-  /// 
+  ///
   /// Prioridad:
   /// 1. thumbnail (de mejor calidad, viene con stream_url)
   /// 2. La más grande de thumbnails
-  /// 
+  ///
   /// Retorna null si no hay thumbnails disponibles
   search_thumb.Thumbnail? get bestThumbnail {
     // Priorizar thumbnail de mejor calidad si está disponible
     if (thumbnail != null) return thumbnail;
-    
+
     // Si no, usar la más grande de thumbnails
     if (thumbnails.isEmpty) return null;
     return thumbnails.last; // La última suele ser la más grande
   }
 
   /// Convierte NowPlayingData a MediaItem para notificaciones
-  /// 
+  ///
   /// Esto es necesario para que las notificaciones y controles
   /// en pantalla de bloqueo muestren la información correcta
   MediaItem toMediaItem() {
@@ -192,15 +225,12 @@ class NowPlayingData extends Equatable {
       artist: artistsNames,
       duration: durationSeconds > 0 ? Duration(seconds: durationSeconds) : null,
       artUri: bestThumbnail != null ? Uri.tryParse(bestThumbnail!.url) : null,
-      extras: {
-        'videoId': videoId,
-        'streamUrl': streamUrl,
-      },
+      extras: {'videoId': videoId, 'streamUrl': streamUrl},
     );
   }
 
   /// Verifica si tiene información completa
-  /// 
+  ///
   /// Útil para validar que la entidad tiene todos los datos necesarios
   bool get hasCompleteData {
     return videoId.isNotEmpty &&
@@ -212,17 +242,17 @@ class NowPlayingData extends Equatable {
 
   @override
   List<Object?> get props => [
-        videoId,
-        title,
-        artists,
-        album,
-        duration,
-        durationSeconds,
-        views,
-        isExplicit,
-        inLibrary,
-        thumbnails,
-        streamUrl,
-        thumbnail,
-      ];
+    videoId,
+    title,
+    artists,
+    album,
+    duration,
+    durationSeconds,
+    views,
+    isExplicit,
+    inLibrary,
+    thumbnails,
+    streamUrl,
+    thumbnail,
+  ];
 }

@@ -22,10 +22,7 @@ class PlaylistLoadingWidget extends StatelessWidget {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.grey[800]!,
-                    const Color(0xFF0D0D0D),
-                  ],
+                  colors: [Colors.grey[800]!, const Color(0xFF0D0D0D)],
                 ),
               ),
               child: Padding(
@@ -43,17 +40,9 @@ class PlaylistLoadingWidget extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    Container(
-                      width: 250,
-                      height: 28,
-                      color: Colors.white,
-                    ),
+                    Container(width: 250, height: 28, color: Colors.white),
                     const SizedBox(height: 8),
-                    Container(
-                      width: 200,
-                      height: 14,
-                      color: Colors.white,
-                    ),
+                    Container(width: 200, height: 14, color: Colors.white),
                   ],
                 ),
               ),
@@ -75,56 +64,51 @@ class PlaylistLoadingWidget extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 16),
-                ...List.generate(4, (index) => Padding(
-                      padding: const EdgeInsets.only(right: 8.0),
-                      child: Container(
-                        width: 40,
-                        height: 40,
-                        decoration: const BoxDecoration(
-                          color: Colors.grey,
-                          shape: BoxShape.circle,
-                        ),
+                ...List.generate(
+                  4,
+                  (index) => Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: const BoxDecoration(
+                        color: Colors.grey,
+                        shape: BoxShape.circle,
                       ),
-                    )),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
         ),
         // Songs list shimmer
         SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (context, index) {
-              return Shimmer.fromColors(
-                baseColor: Colors.grey[800]!,
-                highlightColor: Colors.grey[700]!,
-                child: ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                  leading: Container(
-                    width: 40,
-                    height: 20,
-                    color: Colors.white,
-                  ),
-                  title: Container(
-                    width: double.infinity,
-                    height: 16,
-                    color: Colors.white,
-                  ),
-                  subtitle: Container(
-                    width: 150,
-                    height: 14,
-                    color: Colors.white,
-                    margin: const EdgeInsets.only(top: 8),
-                  ),
-                  trailing: Container(
-                    width: 40,
-                    height: 14,
-                    color: Colors.white,
-                  ),
+          delegate: SliverChildBuilderDelegate((context, index) {
+            return Shimmer.fromColors(
+              baseColor: Colors.grey[800]!,
+              highlightColor: Colors.grey[700]!,
+              child: ListTile(
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 8,
                 ),
-              );
-            },
-            childCount: 10,
-          ),
+                leading: Container(width: 40, height: 20, color: Colors.white),
+                title: Container(
+                  width: double.infinity,
+                  height: 16,
+                  color: Colors.white,
+                ),
+                subtitle: Container(
+                  width: 150,
+                  height: 14,
+                  color: Colors.white,
+                  margin: const EdgeInsets.only(top: 8),
+                ),
+                trailing: Container(width: 40, height: 14, color: Colors.white),
+              ),
+            );
+          }, childCount: 10),
         ),
       ],
     );

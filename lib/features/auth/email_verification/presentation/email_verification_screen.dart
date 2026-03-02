@@ -1,11 +1,13 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+
 import 'package:music_app/core/app_router/app_routes.gr.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:music_app/core/services/auth/auth_service.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/l10n/app_localizations.dart';
 import 'package:music_app/main.dart';
+
+import 'package:url_launcher/url_launcher.dart';
 
 @RoutePage()
 class EmailVerificationScreen extends StatefulWidget {
@@ -107,7 +109,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
       await _authService.clearAuthData();
       // Navigate to login after clearing auth
       if (mounted) {
-        context.router.replaceAll([const LoginRoute()]);
+        await context.router.replaceAll([const LoginRoute()]);
       }
     }
   }
@@ -115,7 +117,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     return Scaffold(
       backgroundColor: AppColorsDark.surface,
       body: SafeArea(

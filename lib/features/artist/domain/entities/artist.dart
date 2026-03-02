@@ -1,5 +1,5 @@
 /// Entity representing an artist
-/// 
+///
 /// @deprecated Usar [Artist] desde `core/domain/entities/artist.dart`
 /// Esta entidad será eliminada en futuras versiones.
 @Deprecated('Usar Artist desde core/domain/entities/artist.dart')

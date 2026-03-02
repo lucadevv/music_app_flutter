@@ -2,7 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
-import 'package:music_app/features/profile/profile_cubit.dart';
+import 'package:music_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:music_app/main.dart';
 
 @RoutePage()
@@ -26,10 +26,18 @@ class _EqualizerView extends StatelessWidget {
     {'id': 'rock', 'name': 'Rock', 'description': 'Enhanced bass and treble'},
     {'id': 'pop', 'name': 'Pop', 'description': 'Balanced for vocals'},
     {'id': 'jazz', 'name': 'Jazz', 'description': 'Warm and smooth'},
-    {'id': 'classical', 'name': 'Classical', 'description': 'Clear and detailed'},
+    {
+      'id': 'classical',
+      'name': 'Classical',
+      'description': 'Clear and detailed',
+    },
     {'id': 'electronic', 'name': 'Electronic', 'description': 'Punchy bass'},
     {'id': 'bass_boost', 'name': 'Bass Boost', 'description': 'Maximum bass'},
-    {'id': 'treble_boost', 'name': 'Treble Boost', 'description': 'Enhanced highs'},
+    {
+      'id': 'treble_boost',
+      'name': 'Treble Boost',
+      'description': 'Enhanced highs',
+    },
     {'id': 'vocal', 'name': 'Vocal', 'description': 'Clear voice'},
     {'id': 'custom', 'name': 'Custom', 'description': 'Your settings'},
   ];
@@ -39,7 +47,7 @@ class _EqualizerView extends StatelessWidget {
     return BlocBuilder<ProfileCubit, ProfileState>(
       builder: (context, state) {
         final selectedPreset = state.settings?.equalizerPreset ?? 'flat';
-        
+
         return Scaffold(
           backgroundColor: const Color(0xFF0D0D0D),
           appBar: AppBar(
@@ -73,7 +81,9 @@ class _EqualizerView extends StatelessWidget {
                   preset['name'],
                   style: TextStyle(
                     color: isSelected ? AppColorsDark.primary : Colors.white,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    fontWeight: isSelected
+                        ? FontWeight.bold
+                        : FontWeight.normal,
                   ),
                 ),
                 subtitle: Text(
@@ -100,9 +110,9 @@ class _EqualizerView extends StatelessWidget {
       await context.read<ProfileCubit>().updateEqualizerPreset(presetId);
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error saving preset: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error saving preset: $e')));
       }
     }
   }

@@ -6,23 +6,24 @@ import 'package:music_app/features/player/domain/entities/now_playing_data.dart'
 import 'package:music_app/features/user_playlists/presentation/cubit/user_playlist_detail_state.dart';
 
 /// Cubit para manejar el detalle de playlist de usuario
-/// 
+///
 /// Responsibilities:
 /// - Cargar playlist
 /// - Reproducir canciones
 /// - Editar playlist
 /// - Eliminar playlist
 /// - Eliminar canción de playlist
-class UserPlaylistDetailCubit extends Cubit<UserPlaylistDetailState> with BaseBlocMixin {
+class UserPlaylistDetailCubit extends Cubit<UserPlaylistDetailState>
+    with BaseBlocMixin {
   final LibraryService _libraryService;
   final PlayerBlocBloc _playerBloc;
-  
+
   UserPlaylistDetailCubit({
     required LibraryService libraryService,
     required PlayerBlocBloc playerBloc,
-  })  : _libraryService = libraryService,
-        _playerBloc = playerBloc,
-        super(const UserPlaylistDetailState());
+  }) : _libraryService = libraryService,
+       _playerBloc = playerBloc,
+       super(const UserPlaylistDetailState());
 
   /// Carga una playlist por ID
   Future<void> loadPlaylist(String playlistId) async {
@@ -30,15 +31,19 @@ class UserPlaylistDetailCubit extends Cubit<UserPlaylistDetailState> with BaseBl
 
     try {
       final response = await _libraryService.getUserPlaylist(playlistId);
-      emit(state.copyWith(
-        status: UserPlaylistDetailStatus.success,
-        playlist: response,
-      ));
+      emit(
+        state.copyWith(
+          status: UserPlaylistDetailStatus.success,
+          playlist: response,
+        ),
+      );
     } catch (e) {
-      emit(state.copyWith(
-        status: UserPlaylistDetailStatus.failure,
-        errorMessage: e.toString(),
-      ));
+      emit(
+        state.copyWith(
+          status: UserPlaylistDetailStatus.failure,
+          errorMessage: e.toString(),
+        ),
+      );
     }
   }
 
@@ -46,20 +51,23 @@ class UserPlaylistDetailCubit extends Cubit<UserPlaylistDetailState> with BaseBl
   void playSong(int index) {
     if (state.playlist == null || state.playlist!.songs.isEmpty) return;
 
-    final playlist = state.playlist!.songs.map((s) => NowPlayingData.fromBasic(
-      videoId: s.videoId,
-      title: s.title,
-      artistNames: [s.artist],
-      albumName: '',
-      duration: s.duration != null ? _formatDuration(s.duration!) : '0:00',
-      durationSeconds: s.duration,
-      thumbnailUrl: s.thumbnail,
-    )).toList();
+    final playlist = state.playlist!.songs
+        .map(
+          (s) => NowPlayingData.fromBasic(
+            videoId: s.videoId,
+            title: s.title,
+            artistNames: [s.artist],
+            albumName: '',
+            duration: s.duration != null
+                ? _formatDuration(s.duration!)
+                : '0:00',
+            durationSeconds: s.duration,
+            thumbnailUrl: s.thumbnail,
+          ),
+        )
+        .toList();
 
-    _playerBloc.add(LoadPlaylistEvent(
-      playlist: playlist,
-      startIndex: index,
-    ));
+    _playerBloc.add(LoadPlaylistEvent(playlist: playlist, startIndex: index));
   }
 
   /// Reproduce todas las canciones desde el inicio

@@ -6,43 +6,43 @@ import 'package:equatable/equatable.dart';
 class Album extends Equatable {
   /// ID único del álbum
   final String id;
-  
+
   /// Título del álbum
   final String title;
-  
+
   /// URL de la miniatura
   final String? thumbnail;
-  
+
   /// URL de la miniatura de alta calidad
   final String? highThumbnail;
-  
+
   /// Lista de miniaturas en diferentes tamaños
   final List<AlbumThumbnail> thumbnails;
-  
+
   /// Nombre del artista principal
   final String? artistName;
-  
+
   /// ID del artista principal
   final String? artistId;
-  
+
   /// Lista de artistas
   final List<AlbumArtist> artists;
-  
+
   /// Año de lanzamiento
   final int year;
-  
+
   /// Género musical
   final String? genre;
-  
+
   /// Canciones del álbum
   final List<AlbumSong> songs;
-  
+
   /// Tipo de lanzamiento (album, single, ep)
   final String? type;
-  
+
   /// Número de Likes
   final int? likeCount;
-  
+
   /// Descripción
   final String? description;
 
@@ -64,13 +64,17 @@ class Album extends Equatable {
   });
 
   /// Obtiene la mejor URL de thumbnail disponible
-  String? get bestThumbnail => highThumbnail ?? thumbnail ?? (thumbnails.isNotEmpty ? thumbnails.last.url : null);
+  String? get bestThumbnail =>
+      highThumbnail ??
+      thumbnail ??
+      (thumbnails.isNotEmpty ? thumbnails.last.url : null);
 
   /// Número de canciones
   int get songCount => songs.isNotEmpty ? songs.length : 0;
 
   /// Duración total en segundos
-  int get totalDurationSeconds => songs.fold(0, (sum, song) => sum + song.durationSeconds);
+  int get totalDurationSeconds =>
+      songs.fold(0, (sum, song) => sum + song.durationSeconds);
 
   /// Duración total formateada
   String get formattedDuration {
@@ -153,10 +157,7 @@ class AlbumArtist extends Equatable {
   final String id;
   final String name;
 
-  const AlbumArtist({
-    required this.id,
-    required this.name,
-  });
+  const AlbumArtist({required this.id, required this.name});
 
   @override
   List<Object?> get props => [id, name];

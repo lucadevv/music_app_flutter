@@ -6,16 +6,12 @@ class SocialButtons extends StatelessWidget {
   final VoidCallback? onGooglePressed;
   final VoidCallback? onApplePressed;
 
-  const SocialButtons({
-    super.key,
-    this.onGooglePressed,
-    this.onApplePressed,
-  });
+  const SocialButtons({super.key, this.onGooglePressed, this.onApplePressed});
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     return Row(
       children: [
         Expanded(
@@ -40,10 +36,7 @@ class SocialButtons extends StatelessWidget {
         Expanded(
           child: OutlinedButton.icon(
             onPressed: onApplePressed,
-            icon: const Icon(
-              Icons.apple,
-              color: AppColorsDark.onSurface,
-            ),
+            icon: const Icon(Icons.apple, color: AppColorsDark.onSurface),
             label: Text(l10n.apple),
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColorsDark.onSurface,

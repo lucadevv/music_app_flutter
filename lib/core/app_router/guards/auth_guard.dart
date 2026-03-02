@@ -26,7 +26,7 @@ class AuthGuard extends AutoRouteGuard {
 
     // Obtener AuthManager de forma async
     final authManager = await getIt.getAsync<AuthManager>();
-    
+
     // Configurar listener reactivo solo una vez
     if (!_listenerSetup) {
       _setupAuthListener(authManager);

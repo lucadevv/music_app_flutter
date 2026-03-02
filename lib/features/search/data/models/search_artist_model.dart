@@ -2,10 +2,7 @@ import '../../domain/entities/artist.dart';
 
 /// Modelo de datos para el artista en los resultados de búsqueda
 class SearchArtistModel extends SearchArtist {
-  const SearchArtistModel({
-    required super.name,
-    required super.id,
-  });
+  const SearchArtistModel({required super.name, required super.id});
 
   factory SearchArtistModel.fromJson(Map<String, dynamic> json) {
     return SearchArtistModel(
@@ -15,9 +12,6 @@ class SearchArtistModel extends SearchArtist {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'name': name,
-      'id': id,
-    };
+    return {'name': name, 'id': id};
   }
 }

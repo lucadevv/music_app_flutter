@@ -1,55 +1,71 @@
-import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/bloc/base_bloc_mixin.dart';
 import 'package:music_app/core/managers/auth/auth_manager.dart';
-import 'package:music_app/core/services/network/api_services.dart';
-import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
-import 'package:music_app/features/profile/data/services/profile_service.dart';
+import 'package:music_app/features/profile/domain/entities/entities.dart';
+import 'package:music_app/features/profile/domain/use_cases/use_cases.dart';
 
 part 'profile_state.dart';
 
 class ProfileCubit extends Cubit<ProfileState> with BaseBlocMixin {
-  final ProfileService _profileService;
-  final ApiServices _apiServices;
+  final GetProfileUseCase _getProfileUseCase;
+  final UpdateProfileUseCase _updateProfileUseCase;
+  final GetSettingsUseCase _getSettingsUseCase;
+  final UpdateSettingsUseCase _updateSettingsUseCase;
+  final GetLibraryStatsUseCase _getLibraryStatsUseCase;
+  final LogoutUseCase _logoutUseCase;
   final AuthManager _authManager;
 
-  ProfileCubit(
-    this._profileService,
-    this._apiServices,
-    this._authManager,
-  ) : super(const ProfileState());
+  ProfileCubit({
+    required GetProfileUseCase getProfileUseCase,
+    required UpdateProfileUseCase updateProfileUseCase,
+    required GetSettingsUseCase getSettingsUseCase,
+    required UpdateSettingsUseCase updateSettingsUseCase,
+    required GetLibraryStatsUseCase getLibraryStatsUseCase,
+    required LogoutUseCase logoutUseCase,
+    required AuthManager authManager,
+  })  : _getProfileUseCase = getProfileUseCase,
+        _updateProfileUseCase = updateProfileUseCase,
+        _getSettingsUseCase = getSettingsUseCase,
+        _updateSettingsUseCase = updateSettingsUseCase,
+        _getLibraryStatsUseCase = getLibraryStatsUseCase,
+        _logoutUseCase = logoutUseCase,
+        _authManager = authManager,
+        super(const ProfileState());
 
   Future<void> loadProfile() async {
     if (state.isLoading) return;
 
     emit(state.copyWith(isLoading: true, clearError: true));
 
-    try {
-      final profile = await _profileService.getProfile();
+    final result = await _getProfileUseCase();
 
-      if (isClosed) return;
-
-      emit(state.copyWith(
-        isLoading: false,
-        profile: profile,
-        id: profile.id,
-        email: profile.email,
-        firstName: profile.firstName,
-        lastName: profile.lastName,
-        avatarUrl: profile.avatar,
-        provider: profile.provider,
-        role: profile.role,
-        isEmailVerified: profile.isEmailVerified,
-        createdAt: profile.createdAt,
-      ));
-    } catch (e) {
-      if (isClosed) return;
-      final message = e is AppException ? getErrorMessage(e) : e.toString();
-      emit(state.copyWith(
-        isLoading: false,
-        errorMessage: message,
-      ));
-    }
+    result.fold(
+      (error) {
+        if (isClosed) return;
+        emit(state.copyWith(
+          isLoading: false,
+          errorMessage: getErrorMessage(error),
+        ));
+      },
+      (profile) {
+        if (isClosed) return;
+        emit(
+          state.copyWith(
+            isLoading: false,
+            profile: profile,
+            id: profile.id,
+            email: profile.email,
+            firstName: profile.firstName,
+            lastName: profile.lastName,
+            avatarUrl: profile.avatar,
+            provider: profile.provider,
+            role: profile.role,
+            isEmailVerified: profile.isEmailVerified,
+            createdAt: profile.createdAt,
+          ),
+        );
+      },
+    );
   }
 
   Future<void> loadSettings() async {
@@ -57,69 +73,68 @@ class ProfileCubit extends Cubit<ProfileState> with BaseBlocMixin {
 
     emit(state.copyWith(isSettingsLoading: true, clearSettingsError: true));
 
-    try {
-      final settings = await _profileService.getSettings();
+    final result = await _getSettingsUseCase();
 
-      if (isClosed) return;
-
-      emit(state.copyWith(
-        isSettingsLoading: false,
-        settings: settings,
-      ));
-    } catch (e) {
-      if (isClosed) return;
-      final message = e is AppException ? getErrorMessage(e) : e.toString();
-      emit(state.copyWith(
-        isSettingsLoading: false,
-        settingsError: message,
-      ));
-    }
+    result.fold(
+      (error) {
+        if (isClosed) return;
+        emit(state.copyWith(
+          isSettingsLoading: false,
+          settingsError: getErrorMessage(error),
+        ));
+      },
+      (settings) {
+        if (isClosed) return;
+        emit(state.copyWith(isSettingsLoading: false, settings: settings));
+      },
+    );
   }
 
-  Future<void> updateSettings(UserSettings settings) async {
+  Future<void> updateSettings(UserSettingsEntity settings) async {
     if (state.isSettingsLoading) return;
 
     emit(state.copyWith(isSettingsLoading: true, clearSettingsError: true));
 
-    try {
-      final updatedSettings = await _profileService.updateSettings(settings);
+    final result = await _updateSettingsUseCase(settings);
 
-      if (isClosed) return;
-
-      emit(state.copyWith(
-        isSettingsLoading: false,
-        settings: updatedSettings,
-      ));
-    } catch (e) {
-      if (isClosed) return;
-      final message = e is AppException ? getErrorMessage(e) : e.toString();
-      emit(state.copyWith(
-        isSettingsLoading: false,
-        settingsError: message,
-      ));
-    }
+    result.fold(
+      (error) {
+        if (isClosed) return;
+        emit(state.copyWith(
+          isSettingsLoading: false,
+          settingsError: getErrorMessage(error),
+        ));
+      },
+      (updatedSettings) {
+        if (isClosed) return;
+        emit(state.copyWith(
+          isSettingsLoading: false,
+          settings: updatedSettings,
+        ));
+      },
+    );
   }
 
   Future<void> updateLanguage(String language) async {
-    final currentSettings = state.settings ?? const UserSettings();
+    final currentSettings = state.settings ?? const UserSettingsEntity();
     final newSettings = currentSettings.copyWith(language: language);
     await updateSettings(newSettings);
   }
 
   Future<void> updateStreamingQuality(String quality) async {
-    final currentSettings = state.settings ?? const UserSettings();
+    final currentSettings = state.settings ?? const UserSettingsEntity();
     final newSettings = currentSettings.copyWith(streamingQuality: quality);
     await updateSettings(newSettings);
   }
 
   Future<void> updateDownloadQuality(String quality) async {
-    final currentSettings = state.settings ?? const UserSettings();
+    final currentSettings = state.settings ?? const UserSettingsEntity();
     final newSettings = currentSettings.copyWith(downloadQuality: quality);
     await updateSettings(newSettings);
   }
 
   Future<void> updateEqualizerPreset(String preset) async {
-    final currentSettings = state.settings ?? const UserSettings();
+    final currentSettings = state.settings ?? const UserSettingsEntity();
     final newSettings = currentSettings.copyWith(equalizerPreset: preset);
     await updateSettings(newSettings);
   }
@@ -129,24 +144,25 @@ class ProfileCubit extends Cubit<ProfileState> with BaseBlocMixin {
 
     emit(state.copyWith(isLoadingStats: true));
 
-    try {
-      final summary = await _profileService.getLibrarySummary();
+    final result = await _getLibraryStatsUseCase();
 
-      if (isClosed) return;
-
-      emit(state.copyWith(
-        isLoadingStats: false,
-        favoriteSongsCount: summary.favoriteSongsCount,
-        favoritePlaylistsCount: summary.favoritePlaylistsCount,
-        favoriteGenresCount: summary.favoriteGenresCount,
-      ));
-    } catch (e) {
-      if (isClosed) return;
-
-      emit(state.copyWith(
-        isLoadingStats: false,
-      ));
-    }
+    result.fold(
+      (error) {
+        if (isClosed) return;
+        emit(state.copyWith(isLoadingStats: false));
+      },
+      (stats) {
+        if (isClosed) return;
+        emit(
+          state.copyWith(
+            isLoadingStats: false,
+            favoriteSongsCount: stats.favoriteSongsCount,
+            favoritePlaylistsCount: stats.favoritePlaylistsCount,
+            favoriteGenresCount: stats.favoriteGenresCount,
+          ),
+        );
+      },
+    );
   }
 
   Future<void> updateProfile({
@@ -158,30 +174,33 @@ class ProfileCubit extends Cubit<ProfileState> with BaseBlocMixin {
 
     emit(state.copyWith(isLoading: true, clearError: true));
 
-    try {
-      final updatedProfile = await _profileService.updateProfile(
-        name: name,
-        email: email,
-        avatar: avatar,
-      );
+    final result = await _updateProfileUseCase(UpdateProfileParams(
+      name: name,
+      email: email,
+      avatar: avatar,
+    ));
 
-      if (isClosed) return;
-
-      emit(state.copyWith(
-        isLoading: false,
-        profile: updatedProfile,
-        firstName: updatedProfile.firstName,
-        lastName: updatedProfile.lastName,
-        avatarUrl: updatedProfile.avatar,
-      ));
-    } catch (e) {
-      if (isClosed) return;
-      final message = e is AppException ? getErrorMessage(e) : e.toString();
-      emit(state.copyWith(
-        isLoading: false,
-        errorMessage: message,
-      ));
-    }
+    result.fold(
+      (error) {
+        if (isClosed) return;
+        emit(state.copyWith(
+          isLoading: false,
+          errorMessage: getErrorMessage(error),
+        ));
+      },
+      (updatedProfile) {
+        if (isClosed) return;
+        emit(
+          state.copyWith(
+            isLoading: false,
+            profile: updatedProfile,
+            firstName: updatedProfile.firstName,
+            lastName: updatedProfile.lastName,
+            avatarUrl: updatedProfile.avatar,
+          ),
+        );
+      },
+    );
   }
 
   Future<void> logout() async {
@@ -189,28 +208,30 @@ class ProfileCubit extends Cubit<ProfileState> with BaseBlocMixin {
 
     emit(state.copyWith(isLoading: true, clearError: true));
 
-    try {
-      await _profileService.logout();
-      await _authManager.logout();
+    final result = await _logoutUseCase();
 
-      if (isClosed) return;
+    await _authManager.logout();
 
-      emit(const ProfileState());
-    } catch (e) {
-      if (isClosed) return;
-      final message = e is AppException ? getErrorMessage(e) : e.toString();
-      emit(state.copyWith(
-        isLoading: false,
-        errorMessage: message,
-      ));
-    }
+    result.fold(
+      (error) {
+        if (isClosed) return;
+        emit(state.copyWith(
+          isLoading: false,
+          errorMessage: getErrorMessage(error),
+        ));
+      },
+      (_) {
+        if (isClosed) return;
+        emit(const ProfileState());
+      },
+    );
   }
 
   Future<bool> isLoggedIn() async {
-    return await _authManager.isUserLoggedIn();
+    return _authManager.isUserLoggedIn();
   }
 
   Future<String?> getToken() async {
-    return await _authManager.getCurrentAccessToken();
+    return _authManager.getCurrentAccessToken();
   }
 }

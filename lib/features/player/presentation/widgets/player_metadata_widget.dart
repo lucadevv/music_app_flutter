@@ -3,7 +3,7 @@ import 'package:music_app/features/player/domain/entities/now_playing_data.dart'
 import 'player_shimmer_widgets.dart';
 
 /// Widget para mostrar metadata de la canción (views, explicit)
-/// 
+///
 /// SOLID: Single Responsibility Principle (SRP)
 /// Responsable única: Mostrar metadata de la canción
 class PlayerMetadataWidget extends StatelessWidget {
@@ -11,7 +11,8 @@ class PlayerMetadataWidget extends StatelessWidget {
   final bool isLoading;
 
   const PlayerMetadataWidget({
-    required this.track, super.key,
+    required this.track,
+    super.key,
     this.isLoading = false,
   });
 
@@ -46,10 +47,7 @@ class PlayerMetadataWidget extends StatelessWidget {
           if (track.isExplicit) ...[
             const SizedBox(width: 16),
             Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 6,
-                vertical: 2,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(4),

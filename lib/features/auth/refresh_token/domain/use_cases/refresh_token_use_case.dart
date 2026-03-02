@@ -15,6 +15,6 @@ class RefreshTokenUseCase {
   Future<Either<AppException, RefreshTokenResponse>> call(
     RefreshTokenRequest request,
   ) async {
-    return await _repository.refreshToken(request);
+    return _repository.refreshToken(request);
   }
 }

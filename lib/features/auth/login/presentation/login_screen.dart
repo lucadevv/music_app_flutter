@@ -69,7 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     return LoginListeners(
       child: Scaffold(
         backgroundColor: AppColorsDark.surface,
@@ -253,7 +253,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
                         l10n.or,
-                        style: const TextStyle(color: AppColorsDark.onSurfaceVariant),
+                        style: const TextStyle(
+                          color: AppColorsDark.onSurfaceVariant,
+                        ),
                       ),
                     ),
                     const Expanded(
@@ -285,7 +287,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             label: Text(l10n.google),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: AppColorsDark.onSurface,
-                              side: const BorderSide(color: AppColorsDark.outline),
+                              side: const BorderSide(
+                                color: AppColorsDark.outline,
+                              ),
                               padding: const EdgeInsets.symmetric(vertical: 12),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20),
@@ -308,12 +312,16 @@ class _LoginScreenState extends State<LoginScreen> {
                                         .read<LoginCubit>()
                                         .signInWithApple();
                                   },
-                            icon: const Icon(Icons.apple,
-                                color: AppColorsDark.onSurface),
+                            icon: const Icon(
+                              Icons.apple,
+                              color: AppColorsDark.onSurface,
+                            ),
                             label: Text(l10n.apple),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: AppColorsDark.onSurface,
-                              side: const BorderSide(color: AppColorsDark.outline),
+                              side: const BorderSide(
+                                color: AppColorsDark.outline,
+                              ),
                               padding: const EdgeInsets.symmetric(vertical: 12),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20),

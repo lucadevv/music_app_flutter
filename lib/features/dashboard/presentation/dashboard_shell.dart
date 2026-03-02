@@ -59,7 +59,7 @@ class _DashboardShellState extends State<DashboardShell> {
     // Obtener la ruta actual
     final currentPath = context.router.currentPath;
     final isEmailVerificationRoute = currentPath.contains('email-verification');
-    
+
     // Si estamos en la ruta de verificación de email, mostrar solo el AutoRouter sin tabs
     if (isEmailVerificationRoute) {
       return const Scaffold(
@@ -81,7 +81,8 @@ class _DashboardShellState extends State<DashboardShell> {
             // Rebuild cuando cambia la canción actual O la presencia de canción
             // IMPORTANTE: Necesitamos rebuild en cada cambio para que el MiniPlayer se actualice
             if (previous is PlayerBlocLoaded && current is PlayerBlocLoaded) {
-              return previous.currentTrack?.videoId != current.currentTrack?.videoId ||
+              return previous.currentTrack?.videoId !=
+                      current.currentTrack?.videoId ||
                   previous.playbackState != current.playbackState ||
                   previous.position != current.position ||
                   previous.duration != current.duration;
@@ -90,17 +91,19 @@ class _DashboardShellState extends State<DashboardShell> {
             return true;
           },
           builder: (context, playerState) {
-            final hasTrack = playerState is PlayerBlocLoaded && playerState.currentTrack != null;
+            final hasTrack =
+                playerState is PlayerBlocLoaded &&
+                playerState.currentTrack != null;
             final isBottomSheetOpen = BottomSheetVisibility().isBottomSheetOpen;
-            
+
             // Posición del miniplayer:
             // - Normal: 119
             // - Con bottom sheet abierto: 512 (para que no tape el bottom sheet)
             final miniPlayerBottom = isBottomSheetOpen ? 512 : 119;
-            
+
             // Obtener el bloc para pasar al MiniPlayer
             final playerBloc = context.read<PlayerBlocBloc>();
-            
+
             return Scaffold(
               backgroundColor: AppColorsDark.surface,
               body: Stack(

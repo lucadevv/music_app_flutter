@@ -16,7 +16,8 @@ class HomeShell extends StatelessWidget implements AutoRouteWrapper {
     return MultiBlocProvider(
       providers: [
         BlocProvider<HomeCubit>(
-          create: (context) => HomeCubit(getIt<GetHomeUseCase>(), getIt<PlayerBlocBloc>()),
+          create: (context) =>
+              HomeCubit(getIt<GetHomeUseCase>(), getIt<PlayerBlocBloc>()),
         ),
         BlocProvider<OrquestadorHomeCubit>(
           create: (context) {

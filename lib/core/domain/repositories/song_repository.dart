@@ -7,7 +7,7 @@ import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
 ///
 /// Esta es la interfaz de dominio que debe ser implementada
 /// por la capa de datos.
-/// 
+///
 /// Principios:
 /// - SOLID: Interface Segregation - interfaz específica para canciones
 /// - Clean Architecture: Esta interfaz vive en dominio, no tiene dependencias externas
@@ -46,7 +46,10 @@ abstract class SongRepository {
   Future<Either<AppException, Song>> getSongById(String videoId);
 
   /// Obtiene songs relacionados/Recomendadas
-  Future<Either<AppException, List<Song>>> getRelatedSongs(String videoId, {int limit = 20});
+  Future<Either<AppException, List<Song>>> getRelatedSongs(
+    String videoId, {
+    int limit = 20,
+  });
 }
 
 /// Entidad Song importada desde el dominio

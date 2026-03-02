@@ -26,7 +26,7 @@ class OfflineService {
   late Box<OfflineSong> _songsBox;
   late Box<OfflinePlaylist> _playlistsBox;
   late Box<OfflineHistory> _historyBox;
-  
+
   final Dio _dio;
   final Connectivity _connectivity;
   late AudioDownloadService _downloadService;
@@ -55,7 +55,7 @@ class OfflineService {
 
     // Inicializar Hive
     await Hive.initFlutter();
-    
+
     // Registrar adaptadores
     if (!Hive.isAdapterRegistered(0)) {
       Hive.registerAdapter(OfflineSongAdapter());
@@ -66,15 +66,15 @@ class OfflineService {
     if (!Hive.isAdapterRegistered(2)) {
       Hive.registerAdapter(OfflineHistoryAdapter());
     }
-    
+
     // Abrir cajas
     _songsBox = await Hive.openBox<OfflineSong>(HiveBoxes.songsBox);
     _playlistsBox = await Hive.openBox<OfflinePlaylist>(HiveBoxes.playlistsBox);
     _historyBox = await Hive.openBox<OfflineHistory>(HiveBoxes.historyBox);
-    
+
     // Inicializar servicio de descarga
     await _downloadService.init();
-    
+
     _isInitialized = true;
   }
 
@@ -120,9 +120,11 @@ class OfflineService {
   Future<List<OfflineSong>> searchSongs(String query) async {
     final lowerQuery = query.toLowerCase();
     return _songsBox.values
-        .where((song) =>
-            song.title.toLowerCase().contains(lowerQuery) ||
-            song.artist.toLowerCase().contains(lowerQuery))
+        .where(
+          (song) =>
+              song.title.toLowerCase().contains(lowerQuery) ||
+              song.artist.toLowerCase().contains(lowerQuery),
+        )
         .toList();
   }
 
@@ -221,8 +223,9 @@ class OfflineService {
   /// Obtiene una playlist por su ID
   OfflinePlaylist? getPlaylistById(String playlistId) {
     try {
-      return _playlistsBox.values
-          .firstWhere((playlist) => playlist.playlistId == playlistId);
+      return _playlistsBox.values.firstWhere(
+        (playlist) => playlist.playlistId == playlistId,
+      );
     } catch (e) {
       return null;
     }
@@ -276,13 +279,15 @@ class OfflineService {
 
     final int totalPlayed = allHistory.length;
     final int totalCompleted = allHistory.where((h) => h.isCompleted).length;
-    final int totalDuration = allHistory.fold(0, (sum, h) => sum + h.playedDuration);
+    final int totalDuration = allHistory.fold(
+      0,
+      (sum, h) => sum + h.playedDuration,
+    );
 
     // Artistas más escuchados
     final artistCounts = <String, int>{};
     for (final history in allHistory) {
-      artistCounts[history.artist] =
-          (artistCounts[history.artist] ?? 0) + 1;
+      artistCounts[history.artist] = (artistCounts[history.artist] ?? 0) + 1;
     }
     final topArtists = artistCounts.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
@@ -310,7 +315,8 @@ class OfflineService {
         ..artist = song['artist'] ?? ''
         ..thumbnail = song['thumbnail']
         ..duration = song['duration']
-        ..addedAt = DateTime.tryParse(songData['createdAt'] ?? '') ?? DateTime.now()
+        ..addedAt =
+            DateTime.tryParse(songData['createdAt'] ?? '') ?? DateTime.now()
         ..lastSyncedAt = DateTime.now();
 
       // Mantener la ruta de audio local si existe
@@ -331,7 +337,8 @@ class OfflineService {
     int synced = 0;
     for (final playlistData in serverPlaylists) {
       final playlist = playlistData['playlist'] as Map<String, dynamic>;
-      final videoIds = (playlist['songs'] as List?)
+      final videoIds =
+          (playlist['songs'] as List?)
               ?.map((s) => s['videoId'] as String)
               .toList() ??
           [];
@@ -344,7 +351,8 @@ class OfflineService {
         ..thumbnail = playlist['thumbnail']
         ..videoIds = videoIds
         ..trackCount = videoIds.length
-        ..createdAt = DateTime.tryParse(playlistData['createdAt'] ?? '') ?? DateTime.now()
+        ..createdAt =
+            DateTime.tryParse(playlistData['createdAt'] ?? '') ?? DateTime.now()
         ..lastSyncedAt = DateTime.now();
 
       // Mantener la ruta de miniatura local si existe
@@ -380,13 +388,13 @@ class OfflineService {
   Future<void> cleanOldSyncData() async {
     final threshold = DateTime.now().subtract(const Duration(days: 30));
     final keysToDelete = <String>[];
-    
+
     for (final history in _historyBox.values) {
       if (history.playedAt.isBefore(threshold)) {
         keysToDelete.add(history.historyId);
       }
     }
-    
+
     await _historyBox.deleteAll(keysToDelete);
   }
 }

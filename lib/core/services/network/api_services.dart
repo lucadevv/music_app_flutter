@@ -1,5 +1,5 @@
 /// SOLID: Dependency Inversion Principle (DIP)
-/// 
+///
 /// Esta interfaz abstracta define el contrato para servicios de red.
 /// Las clases de alto nivel (repositorios, use cases) dependen de esta abstracción,
 /// no de implementaciones concretas (como DioApiServicesImpl).

@@ -108,7 +108,10 @@ class RegisterFormNotifier extends ChangeNotifier {
     final lastNameValid = validateLastName(lastName);
     final emailValid = validateEmail(email);
     final passwordValid = validatePassword(password);
-    final confirmPasswordValid = validateConfirmPassword(confirmPassword, password ?? '');
+    final confirmPasswordValid = validateConfirmPassword(
+      confirmPassword,
+      password ?? '',
+    );
 
     return firstNameValid &&
         lastNameValid &&

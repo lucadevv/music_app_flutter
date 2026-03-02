@@ -20,22 +20,20 @@ import 'package:music_app/main.dart';
 class DioApiServicesImpl implements ApiServices {
   final Dio _dio;
   final String? _accessToken;
-  final String _baseUrl;
   bool _isRefreshing = false;
   Completer<bool>? _refreshTokenCompleter;
   bool _isHandlingAuthError = false;
   Completer<void>? _handleAuthErrorCompleter;
 
   DioApiServicesImpl(String baseUrl, {String? accessToken})
-      : _baseUrl = baseUrl,
-        _accessToken = accessToken,
-        _dio = Dio(
-          BaseOptions(
-            baseUrl: baseUrl,
-            connectTimeout: const Duration(seconds: 10),
-            receiveTimeout: const Duration(seconds: 10),
-          ),
-        ) {
+    : _accessToken = accessToken,
+      _dio = Dio(
+        BaseOptions(
+          baseUrl: baseUrl,
+          connectTimeout: const Duration(seconds: 10),
+          receiveTimeout: const Duration(seconds: 10),
+        ),
+      ) {
     _setupInterceptors();
   }
 
@@ -56,7 +54,8 @@ class DioApiServicesImpl implements ApiServices {
           // Obtener el access token actual del AuthManager
           try {
             final authManager = await getIt.getAsync<AuthManager>();
-            final currentAccessToken = await authManager.getCurrentAccessToken();
+            final currentAccessToken = await authManager
+                .getCurrentAccessToken();
             if (currentAccessToken != null && currentAccessToken.isNotEmpty) {
               options.headers['Authorization'] = 'Bearer $currentAccessToken';
             } else if (_accessToken != null && _accessToken.isNotEmpty) {
@@ -64,7 +63,9 @@ class DioApiServicesImpl implements ApiServices {
             }
           } catch (e) {
             if (kDebugMode) {
-              debugPrint('DioApiServicesImpl: Error obteniendo access token: $e');
+              debugPrint(
+                'DioApiServicesImpl: Error obteniendo access token: $e',
+              );
             }
             // Si falla, usar el token inicial si existe
             if (_accessToken != null && _accessToken.isNotEmpty) {
@@ -79,7 +80,8 @@ class DioApiServicesImpl implements ApiServices {
 
           // Solo considerar errores de token para códigos específicos
           // 404, 400, etc. NO son errores de autenticación
-          final isTokenError = (statusCode == 401 || statusCode == 403) ||
+          final isTokenError =
+              (statusCode == 401 || statusCode == 403) ||
               (statusCode == 500 && _isTokenRelatedError(e));
 
           if (isTokenError) {
@@ -102,7 +104,8 @@ class DioApiServicesImpl implements ApiServices {
                   return handler.resolve(response);
                 } catch (retryError) {
                   // Si el reintento falla después del refresh, verificar si es un error de token
-                  final retryStatusCode = (retryError as DioException?)?.response?.statusCode;
+                  final retryStatusCode =
+                      (retryError as DioException?)?.response?.statusCode;
                   if (retryStatusCode == 401 || retryStatusCode == 403) {
                     // Solo hacer logout si sigue siendo un error de autenticación
                     await _handleAuthTokenError();
@@ -119,7 +122,7 @@ class DioApiServicesImpl implements ApiServices {
               // Si no existe, significa que el usuario realmente no está autenticado
               final authManager = await getIt.getAsync<AuthManager>();
               final refreshToken = await authManager.getCurrentRefreshToken();
-              
+
               if (refreshToken == null || refreshToken.isEmpty) {
                 // No hay refresh token, hacer logout
                 await _handleAuthTokenError();
@@ -333,10 +336,11 @@ class DioApiServicesImpl implements ApiServices {
     }
 
     // Si llegamos aquí, todos los retries fallaron
-    throw lastError ?? DioException(
-      requestOptions: RequestOptions(path: ''),
-      error: 'Max retries exceeded',
-    );
+    throw lastError ??
+        DioException(
+          requestOptions: RequestOptions(path: ''),
+          error: 'Max retries exceeded',
+        );
   }
 
   @override

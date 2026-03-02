@@ -19,7 +19,11 @@ class DownloadedSong extends Equatable {
     required this.videoId,
     required this.title,
     required this.artist,
-    required this.localPath, required this.fileSize, required this.duration, required this.downloadedAt, this.album,
+    required this.localPath,
+    required this.fileSize,
+    required this.duration,
+    required this.downloadedAt,
+    this.album,
     this.thumbnail,
   });
 
@@ -38,14 +42,14 @@ class DownloadedSong extends Equatable {
 
   @override
   List<Object?> get props => [
-        videoId,
-        title,
-        artist,
-        album,
-        thumbnail,
-        localPath,
-        fileSize,
-        duration,
-        downloadedAt,
-      ];
+    videoId,
+    title,
+    artist,
+    album,
+    thumbnail,
+    localPath,
+    fileSize,
+    duration,
+    downloadedAt,
+  ];
 }

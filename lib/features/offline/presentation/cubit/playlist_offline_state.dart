@@ -1,12 +1,7 @@
 part of 'playlist_offline_cubit.dart';
 
 /// Estados del status para las operaciones de playlists offline
-enum PlaylistOfflineStatus {
-  idle,
-  loading,
-  success,
-  failure,
-}
+enum PlaylistOfflineStatus { idle, loading, success, failure }
 
 /// Estado del PlaylistOfflineCubit
 ///
@@ -72,5 +67,6 @@ class PlaylistOfflineState {
   bool get isLoading => status == PlaylistOfflineStatus.loading;
 
   /// Indica si el estado tiene un error
-  bool get hasError => status == PlaylistOfflineStatus.failure && errorMessage != null;
+  bool get hasError =>
+      status == PlaylistOfflineStatus.failure && errorMessage != null;
 }

@@ -17,7 +17,8 @@ class PlaylistTrackItemWidget extends StatelessWidget {
 
   const PlaylistTrackItemWidget({
     required this.track, // ignore: always_put_required_named_parameters_first
-    required this.allTracks, super.key,
+    required this.allTracks,
+    super.key,
   });
 
   String _getArtistsNames() {
@@ -29,15 +30,20 @@ class PlaylistTrackItemWidget extends StatelessWidget {
     return NowPlayingData.fromPlaylistTrack(track);
   }
 
-  bool _isPlaylistLoaded(PlayerBlocState playerState, List<PlaylistTrack> allTracks) {
+  bool _isPlaylistLoaded(
+    PlayerBlocState playerState,
+    List<PlaylistTrack> allTracks,
+  ) {
     if (playerState is! PlayerBlocLoaded) return false;
     if (playerState.playlist.isEmpty) return false;
 
     final currentPlaylistVideoIds = allTracks
-        .where((track) =>
-            track.videoId != null &&
-            track.videoId!.isNotEmpty &&
-            track.isAvailable)
+        .where(
+          (track) =>
+              track.videoId != null &&
+              track.videoId!.isNotEmpty &&
+              track.isAvailable,
+        )
         .map((track) => track.videoId!)
         .toList();
 
@@ -61,7 +67,8 @@ class PlaylistTrackItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final thumbnail = track.thumbnail ??
+    final thumbnail =
+        track.thumbnail ??
         (track.thumbnails.isNotEmpty ? track.thumbnails.last : null);
 
     final isDisabled =
@@ -78,7 +85,6 @@ class PlaylistTrackItemWidget extends StatelessWidget {
             playerState.currentTrack!.videoId == track.videoId &&
             playerState.isPlaying;
 
-
         final isPlaylistLoaded = _isPlaylistLoaded(playerState, allTracks);
 
         return Opacity(
@@ -94,8 +100,18 @@ class PlaylistTrackItemWidget extends StatelessWidget {
                 SizedBox(
                   width: 24,
                   child: isCurrentlyPlaying
-                      ? const Icon(Icons.equalizer, color: AppColorsDark.primary, size: 20)
-                      : Icon(Icons.play_arrow, color: Colors.white.withValues(alpha: isDisabled ? 0.3 : 0.6), size: 20),
+                      ? const Icon(
+                          Icons.equalizer,
+                          color: AppColorsDark.primary,
+                          size: 20,
+                        )
+                      : Icon(
+                          Icons.play_arrow,
+                          color: Colors.white.withValues(
+                            alpha: isDisabled ? 0.3 : 0.6,
+                          ),
+                          size: 20,
+                        ),
                 ),
                 const SizedBox(width: 8),
                 // Botón de favorito
@@ -113,10 +129,14 @@ class PlaylistTrackItemWidget extends StatelessWidget {
                 IconButton(
                   icon: Icon(
                     Icons.more_vert,
-                    color: Colors.white.withValues(alpha: isDisabled ? 0.3 : 0.6),
+                    color: Colors.white.withValues(
+                      alpha: isDisabled ? 0.3 : 0.6,
+                    ),
                     size: 20,
                   ),
-                  onPressed: isDisabled ? null : () => _showTrackOptionsBottomSheet(context),
+                  onPressed: isDisabled
+                      ? null
+                      : () => _showTrackOptionsBottomSheet(context),
                 ),
               ],
             ),
@@ -133,7 +153,9 @@ class PlaylistTrackItemWidget extends StatelessWidget {
                         }
                       }
                     } else {
-                      context.router.push(PlayerRoute(nowPlayingData: _toNowPlayingData()));
+                      context.router.push(
+                        PlayerRoute(nowPlayingData: _toNowPlayingData()),
+                      );
                     }
                   },
           ),
@@ -149,7 +171,9 @@ class PlaylistTrackItemWidget extends StatelessWidget {
         videoId: track.videoId ?? '',
         title: track.title,
         artist: _getArtistsNames(),
-        thumbnail: track.thumbnail?.url ?? (track.thumbnails.isNotEmpty ? track.thumbnails.last.url : null),
+        thumbnail:
+            track.thumbnail?.url ??
+            (track.thumbnails.isNotEmpty ? track.thumbnails.last.url : null),
         streamUrl: track.streamUrl,
         durationSeconds: track.durationSeconds,
         isFavorite: track.inLibrary ?? false,

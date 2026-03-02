@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:music_app/core/domain/entities/song.dart';
-import 'package:music_app/core/utils/exeptions/app_exception.dart';
+import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
 import 'package:music_app/features/library/domain/entities/library_entities.dart';
 import 'package:music_app/features/library/domain/repositories/library_repository.dart';
 
@@ -21,7 +21,10 @@ class GetFavoriteSongsUseCase {
 
   GetFavoriteSongsUseCase(this.repository);
 
-  Future<Either<AppException, List<Song>>> call({int page = 1, int limit = 20}) {
+  Future<Either<AppException, List<Song>>> call({
+    int page = 1,
+    int limit = 20,
+  }) {
     return repository.getFavoriteSongs(page: page, limit: limit);
   }
 }
@@ -32,7 +35,10 @@ class GetFavoritePlaylistsUseCase {
 
   GetFavoritePlaylistsUseCase(this.repository);
 
-  Future<Either<AppException, List<FavoritePlaylistEntity>>> call({int page = 1, int limit = 20}) {
+  Future<Either<AppException, List<FavoritePlaylistEntity>>> call({
+    int page = 1,
+    int limit = 20,
+  }) {
     return repository.getFavoritePlaylists(page: page, limit: limit);
   }
 }
@@ -43,7 +49,10 @@ class GetFavoriteGenresUseCase {
 
   GetFavoriteGenresUseCase(this.repository);
 
-  Future<Either<AppException, List<FavoriteGenreEntity>>> call({int page = 1, int limit = 20}) {
+  Future<Either<AppException, List<FavoriteGenreEntity>>> call({
+    int page = 1,
+    int limit = 20,
+  }) {
     return repository.getFavoriteGenres(page: page, limit: limit);
   }
 }

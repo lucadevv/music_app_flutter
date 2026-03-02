@@ -8,7 +8,7 @@ import 'package:music_app/features/downloads/data/models/downloaded_song_model.d
 ///
 /// SOLID: Single Responsibility Principle (SRP)
 /// Responsable única: Operaciones locales de descargas
-/// 
+///
 /// Delega todas las operaciones a OfflineService (Hive) para
 /// persistencia de datos y gestión de descargas.
 abstract class DownloadsLocalDataSource {
@@ -75,7 +75,8 @@ class DownloadsLocalDataSourceImpl implements DownloadsLocalDataSource {
   Future<void> saveDownloadedSong(DownloadedSongModel song) async {
     // Convertir DownloadedSongModel a OfflineSong
     final offlineSong = OfflineSong()
-      ..songId = song.videoId // Usamos videoId como songId si no tenemos uno
+      ..songId = song
+          .videoId // Usamos videoId como songId si no tenemos uno
       ..videoId = song.videoId
       ..title = song.title
       ..artist = song.artist
@@ -91,7 +92,7 @@ class DownloadsLocalDataSourceImpl implements DownloadsLocalDataSource {
   @override
   Future<List<DownloadedSongModel>> getDownloadedSongs() async {
     final offlineSongs = await _offlineService.getOfflineSongs();
-    
+
     // Filtrar solo las que tienen audio descargado (localAudioPath no nulo)
     final downloadedSongs = offlineSongs
         .where((song) => song.localAudioPath != null)

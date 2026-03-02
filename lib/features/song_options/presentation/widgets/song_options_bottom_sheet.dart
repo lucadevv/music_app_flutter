@@ -40,7 +40,8 @@ class SongOptionsBottomSheet extends StatelessWidget {
   final VoidCallback? onRemoveDownload;
 
   const SongOptionsBottomSheet({
-    required this.song, super.key,
+    required this.song,
+    super.key,
     this.onPlayOffline,
     this.onRemoveDownload,
   });
@@ -64,31 +65,34 @@ class SongOptionsBottomSheet extends StatelessWidget {
 
   /// Comparte la canción
   void _shareSong(BuildContext context, SongOptionsData song) {
-    final shareText = '🎵 ${song.title} - ${song.artist}\n\n'
+    final shareText =
+        '🎵 ${song.title} - ${song.artist}\n\n'
         'Listen to this song on Music App!\n'
         'https://music.youtube.com/watch?v=${song.videoId}';
 
-    
     // Share.share(shareText, subject: song.title);
-    
+
     // For now, show a snackbar as fallback
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Share: $shareText')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Share: $shareText')));
     }
   }
 
   /// Muestra el diálogo para agregar a playlist
-  Future<void> _showAddToPlaylistDialog(BuildContext context, SongOptionsData song) async {
+  Future<void> _showAddToPlaylistDialog(
+    BuildContext context,
+    SongOptionsData song,
+  ) async {
     final l10n = AppLocalizations.of(context)!;
-    
+
     // Load user's playlists
     List<UserPlaylist> playlists = [];
     bool isLoading = true;
     String? error;
 
-      try {
+    try {
       final libraryService = getIt<LibraryService>();
       final response = await libraryService.getUserPlaylists();
       playlists = response.data;
@@ -138,16 +142,15 @@ class SongOptionsBottomSheet extends StatelessWidget {
               const Padding(
                 padding: EdgeInsets.all(32),
                 child: Center(
-                  child: CircularProgressIndicator(color: AppColorsDark.primary),
+                  child: CircularProgressIndicator(
+                    color: AppColorsDark.primary,
+                  ),
                 ),
               )
             else if (error != null)
               Padding(
                 padding: const EdgeInsets.all(16),
-                child: Text(
-                  error,
-                  style: const TextStyle(color: Colors.red),
-                ),
+                child: Text(error, style: const TextStyle(color: Colors.red)),
               )
             else if (playlists.isEmpty)
               Padding(
@@ -223,16 +226,22 @@ class SongOptionsBottomSheet extends StatelessWidget {
                           );
                           if (bottomSheetContext.mounted) {
                             Navigator.pop(bottomSheetContext);
-                            ScaffoldMessenger.of(bottomSheetContext).showSnackBar(
+                            ScaffoldMessenger.of(
+                              bottomSheetContext,
+                            ).showSnackBar(
                               SnackBar(
-                                content: Text('${song.title} added to ${playlist.name}'),
+                                content: Text(
+                                  '${song.title} added to ${playlist.name}',
+                                ),
                                 backgroundColor: AppColorsDark.primary,
                               ),
                             );
                           }
                         } catch (e) {
                           if (bottomSheetContext.mounted) {
-                            ScaffoldMessenger.of(bottomSheetContext).showSnackBar(
+                            ScaffoldMessenger.of(
+                              bottomSheetContext,
+                            ).showSnackBar(
                               SnackBar(
                                 content: Text('Error: $e'),
                                 backgroundColor: Colors.red,
@@ -384,7 +393,8 @@ class _FavoriteOptionTile extends StatelessWidget {
     required this.videoId,
     required this.title,
     required this.artist,
-    required this.isFavorite, this.thumbnail,
+    required this.isFavorite,
+    this.thumbnail,
     this.duration,
   });
 

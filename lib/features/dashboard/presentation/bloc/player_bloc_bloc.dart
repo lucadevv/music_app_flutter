@@ -11,18 +11,18 @@ import 'package:music_app/core/services/network/api_services.dart';
 import 'package:music_app/data/offline/models/offline_history.dart';
 import 'package:music_app/data/offline/services/offline_service.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
-import 'package:music_app/features/profile/profile_cubit.dart';
+import 'package:music_app/features/profile/presentation/cubit/profile_cubit.dart';
 
 part 'player_bloc_event.dart';
 part 'player_bloc_state.dart';
 
 class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
   final ApiServices _apiServices;
-  
+
   // AudioPlayer se obtiene de forma lazy para evitar dependencia circular
   // AudioPlayerHandler se registra en main.dart después de AudioService.init()
   AudioPlayer? _audioPlayerInstance;
-  
+
   /// Obtiene el player, creando uno nuevo si no está disponible del handler
   AudioPlayer get _audioPlayer {
     if (_audioPlayerInstance == null) {
@@ -60,7 +60,6 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
   // ==================== Historial de reproducción ====================
   /// ID de la entrada de historial actual
   String? _currentHistoryId;
-
 
   /// Última posición guardada en el historial (en segundos)
   /// Se usa para evitar guardar en cada cambio de posición
@@ -101,14 +100,18 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     if (_currentHistoryId == null) return;
 
     // Evitar guardar si la posición no cambió significativamente
-    if (positionSeconds - _lastSavedPositionSeconds < _historyUpdateIntervalSeconds) {
+    if (positionSeconds - _lastSavedPositionSeconds <
+        _historyUpdateIntervalSeconds) {
       return;
     }
 
     _lastSavedPositionSeconds = positionSeconds;
 
     // Fire and forget - no esperamos el resultado
-    await _saveHistoryPlayedDurationInternal(_currentHistoryId!, positionSeconds);
+    await _saveHistoryPlayedDurationInternal(
+      _currentHistoryId!,
+      positionSeconds,
+    );
   }
 
   /// Implementación interna del guardado de historial
@@ -119,7 +122,10 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     try {
       final offlineService = await _getOfflineService();
       if (offlineService != null && offlineService.isInitialized) {
-        await offlineService.updateHistoryPlayedDuration(historyId, positionSeconds);
+        await offlineService.updateHistoryPlayedDuration(
+          historyId,
+          positionSeconds,
+        );
       }
     } catch (e) {
       // No propagar el error - el historial no debe afectar la reproducción
@@ -211,24 +217,20 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     if (_isPlayerInitialized) {
       return;
     }
-    
-    _playerStateSubscription = _audioPlayer.playerStateStream.listen(
-      (playerState) {
-        add(AudioPlayerStateChangedEvent(playerState));
-      },
-    );
 
-    _positionSubscription = _audioPlayer.positionStream.listen(
-      (position) {
-        add(PositionChangedEvent(position));
-      },
-    );
+    _playerStateSubscription = _audioPlayer.playerStateStream.listen((
+      playerState,
+    ) {
+      add(AudioPlayerStateChangedEvent(playerState));
+    });
 
-    _durationSubscription = _audioPlayer.durationStream.listen(
-      (duration) {
-        add(DurationChangedEvent(duration ?? Duration.zero));
-      },
-    );
+    _positionSubscription = _audioPlayer.positionStream.listen((position) {
+      add(PositionChangedEvent(position));
+    });
+
+    _durationSubscription = _audioPlayer.durationStream.listen((duration) {
+      add(DurationChangedEvent(duration ?? Duration.zero));
+    });
 
     _bufferedPositionSubscription = _audioPlayer.bufferedPositionStream.listen(
       (bufferedPosition) => add(BufferedPositionChangedEvent(bufferedPosition)),
@@ -237,7 +239,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     _currentIndexSubscription = _audioPlayer.currentIndexStream.listen(
       (index) => add(CurrentIndexChangedEvent(index)),
     );
-    
+
     _isPlayerInitialized = true;
   }
 
@@ -276,20 +278,24 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
   Future<void> _onPlay(PlayEvent event, Emitter<PlayerBlocState> emit) async {
     try {
       await _audioPlayer.play();
-      
+
       // IMPORTANTE: Emitir estado inmediatamente para actualizar la UI
       // No depender solo del stream, ya que puede no estar inicializado
       if (state is PlayerBlocLoaded) {
-        emit((state as PlayerBlocLoaded).copyWith(
-          playbackState: PlaybackState.playing,
-          processingState: ProcessingState.ready,
-        ));
+        emit(
+          (state as PlayerBlocLoaded).copyWith(
+            playbackState: PlaybackState.playing,
+            processingState: ProcessingState.ready,
+          ),
+        );
       } else {
-        emit(const PlayerBlocLoaded(
-          playbackState: PlaybackState.playing,
-          processingState: ProcessingState.ready,
-          connectionState: AudioConnectionState.connected,
-        ));
+        emit(
+          const PlayerBlocLoaded(
+            playbackState: PlaybackState.playing,
+            processingState: ProcessingState.ready,
+            connectionState: AudioConnectionState.connected,
+          ),
+        );
       }
     } catch (e) {
       add(AudioErrorEvent('Error al reproducir: $e'));
@@ -299,17 +305,21 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
   Future<void> _onPause(PauseEvent event, Emitter<PlayerBlocState> emit) async {
     try {
       await _audioPlayer.pause();
-      
+
       // IMPORTANTE: Emitir estado inmediatamente para actualizar la UI
       if (state is PlayerBlocLoaded) {
-        emit((state as PlayerBlocLoaded).copyWith(
-          playbackState: PlaybackState.paused,
-        ));
+        emit(
+          (state as PlayerBlocLoaded).copyWith(
+            playbackState: PlaybackState.paused,
+          ),
+        );
       } else {
-        emit(const PlayerBlocLoaded(
-          playbackState: PlaybackState.paused,
-          connectionState: AudioConnectionState.connected,
-        ));
+        emit(
+          const PlayerBlocLoaded(
+            playbackState: PlaybackState.paused,
+            connectionState: AudioConnectionState.connected,
+          ),
+        );
       }
     } catch (e) {
       add(AudioErrorEvent('Error al pausar: $e'));
@@ -411,8 +421,10 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
       // PRIMERO: Verificar si la canción está descargada localmente
       final offlineService = await _getOfflineService();
       if (offlineService != null && offlineService.isInitialized) {
-        final localPath = await offlineService.getLocalAudioPath(event.track.videoId);
-        
+        final localPath = await offlineService.getLocalAudioPath(
+          event.track.videoId,
+        );
+
         if (localPath != null && localPath.isNotEmpty) {
           streamUrl = 'file://$localPath';
         }
@@ -455,10 +467,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     try {
       // Usar setAudioSource con MediaItem para notificaciones
       await _audioPlayer.setAudioSource(
-        AudioSource.uri(
-          Uri.parse(streamUrl),
-          tag: track.toMediaItem(),
-        ),
+        AudioSource.uri(Uri.parse(streamUrl), tag: track.toMediaItem()),
       );
 
       // Esperar a que el audio esté listo (processingState ready)
@@ -489,7 +498,8 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
                   return Duration(seconds: track.durationSeconds);
                 },
               );
-          actualDuration = durationValue ?? Duration(seconds: track.durationSeconds);
+          actualDuration =
+              durationValue ?? Duration(seconds: track.durationSeconds);
         } catch (e) {
           // Usar la duración de los metadatos como fallback
           actualDuration = Duration(seconds: track.durationSeconds);
@@ -514,7 +524,6 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
 
       await _audioPlayer.play();
     } catch (e) {
-
       emit(
         PlayerBlocLoaded(
           playlist: [track],
@@ -534,7 +543,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
   /// Obtiene una URL de streaming fresca del backend.
   /// Las URLs de YouTube expiran y están vinculadas a la IP del servidor,
   /// por lo que necesitamos obtener una URL fresca cada vez que reproducimos.
-  /// 
+  ///
   /// Usa el endpoint de proxy (/music/stream-proxy/:videoId) que reenvía
   /// el audio desde el servidor, evitando el problema de IP restriction.
   /// El token se pasa como query parameter para validación.
@@ -543,11 +552,11 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
       // Obtener el token de acceso
       final authManager = await GetIt.I.getAsync<AuthManager>();
       final accessToken = await authManager.getCurrentAccessToken();
-      
+
       if (accessToken == null || accessToken.isEmpty) {
         return null;
       }
-      
+
       // Obtener la URL directa del stream desde el backend
       // El endpoint /music/stream devuelve JSON con streamUrl (URL directa de YouTube)
       // y proxyUrl (proxy de NestJS - causa problemas con duration/position)
@@ -560,7 +569,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
         if (directUrl != null && directUrl.isNotEmpty) {
           return directUrl;
         }
-        
+
         // Fallback al proxy solo si no hay URL directa
         String? proxyUrl = data['proxyUrl'] as String?;
         if (proxyUrl != null && proxyUrl.isNotEmpty) {
@@ -647,7 +656,8 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
                   return Duration(seconds: firstTrack.durationSeconds);
                 },
               );
-          actualDuration = durationValue ?? Duration(seconds: firstTrack.durationSeconds);
+          actualDuration =
+              durationValue ?? Duration(seconds: firstTrack.durationSeconds);
         } catch (e) {
           actualDuration = Duration(seconds: firstTrack.durationSeconds);
         }
@@ -691,7 +701,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     final offlineService = await _getOfflineService();
     if (offlineService != null && offlineService.isInitialized) {
       final localPath = await offlineService.getLocalAudioPath(track.videoId);
-      
+
       if (localPath != null && localPath.isNotEmpty) {
         streamUrl = 'file://$localPath';
       }
@@ -742,7 +752,6 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
               currentStreamUrl: streamUrl,
             ),
           );
-
         }
       }
     } catch (e) {
@@ -882,12 +891,14 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
       final playbackState = event.playerState.playing
           ? PlaybackState.playing
           : PlaybackState.paused;
-      
-      emit(PlayerBlocLoaded(
-        playbackState: playbackState,
-        processingState: event.playerState.processingState,
-        connectionState: AudioConnectionState.connected,
-      ));
+
+      emit(
+        PlayerBlocLoaded(
+          playbackState: playbackState,
+          processingState: event.playerState.processingState,
+          connectionState: AudioConnectionState.connected,
+        ),
+      );
       return;
     }
 
@@ -896,7 +907,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     final playbackState = event.playerState.playing
         ? PlaybackState.playing
         : PlaybackState.paused;
-    
+
     emit(
       currentState.copyWith(
         playbackState: playbackState,
@@ -909,7 +920,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     // 1. La canción actual terminó (processingState changed to completed)
     // 2. No es el modo loop.one (repetir una)
     // 3. Auto-play está habilitado en settings
-    if (previousProcessingState != ProcessingState.completed && 
+    if (previousProcessingState != ProcessingState.completed &&
         event.playerState.processingState == ProcessingState.completed) {
       await _handleAutoPlay();
     }
@@ -929,7 +940,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
       // Verificar el modo de repetición actual
       if (state is PlayerBlocLoaded) {
         final currentState = state as PlayerBlocLoaded;
-        
+
         // Si está en modo loop.one, no necesitamos avanzar automáticamente
         if (currentState.loopMode == LoopMode.one) {
           return;
@@ -938,7 +949,8 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
         // Verificar si hay siguiente canción
         if (currentState.canPlayNext) {
           add(const NextTrackEvent());
-        } else if (currentState.loopMode == LoopMode.all && currentState.playlist.isNotEmpty) {
+        } else if (currentState.loopMode == LoopMode.all &&
+            currentState.playlist.isNotEmpty) {
           // Si está en modo loop all y es la última canción, volver al inicio
           add(const PlayTrackAtIndexEvent(0));
         }
@@ -1063,7 +1075,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
           }
         }
       }
-      
+
       if (state is PlayerBlocLoaded) {
         emit(
           (state as PlayerBlocLoaded).copyWith(
@@ -1072,7 +1084,9 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
         );
       } else {
         emit(
-          const PlayerBlocLoaded(connectionState: AudioConnectionState.connected),
+          const PlayerBlocLoaded(
+            connectionState: AudioConnectionState.connected,
+          ),
         );
       }
     } catch (e) {

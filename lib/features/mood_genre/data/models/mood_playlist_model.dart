@@ -19,9 +19,10 @@ class MoodPlaylistModel extends MoodPlaylist {
       itemCount: json['itemCount'] as String? ?? '0',
       author: json['author'] as String? ?? '',
       // La API puede retornar 'playlistId' o 'browseId'
-      browseId: json['browseId'] as String? ?? 
-                json['playlistId'] as String? ?? '',
-      thumbnails: (json['thumbnails'] as List<dynamic>?)
+      browseId:
+          json['browseId'] as String? ?? json['playlistId'] as String? ?? '',
+      thumbnails:
+          (json['thumbnails'] as List<dynamic>?)
               ?.map((e) => ThumbnailModel.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
@@ -36,7 +37,9 @@ class MoodPlaylistModel extends MoodPlaylist {
       'itemCount': itemCount,
       'author': author,
       'browseId': browseId,
-      'thumbnails': thumbnails.map((t) => (t as ThumbnailModel).toJson()).toList(),
+      'thumbnails': thumbnails
+          .map((t) => (t as ThumbnailModel).toJson())
+          .toList(),
       'category': category,
       'resultType': resultType,
     };

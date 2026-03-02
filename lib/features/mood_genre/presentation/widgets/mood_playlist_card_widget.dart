@@ -4,7 +4,7 @@ import 'package:music_app/core/theme/app_colors_dark.dart';
 import '../../domain/entities/mood_playlist.dart';
 
 /// Widget para mostrar una playlist de mood/genre en formato card
-/// 
+///
 /// SOLID: Single Responsibility Principle (SRP)
 /// Responsable única: Mostrar una card de playlist
 class MoodPlaylistCardWidget extends StatelessWidget {
@@ -12,7 +12,9 @@ class MoodPlaylistCardWidget extends StatelessWidget {
   final VoidCallback onTap;
 
   const MoodPlaylistCardWidget({
-    required this.playlist, required this.onTap, super.key,
+    required this.playlist,
+    required this.onTap,
+    super.key,
   });
 
   @override
@@ -37,9 +39,7 @@ class MoodPlaylistCardWidget extends StatelessWidget {
               child: Container(
                 decoration: const BoxDecoration(
                   color: AppColorsDark.primaryContainer,
-                  borderRadius: BorderRadius.vertical(
-                    top: Radius.circular(12),
-                  ),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
                 ),
                 child: thumbnail != null
                     ? ClipRRect(

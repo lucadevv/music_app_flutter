@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
-import 'package:music_app/features/profile/profile_cubit.dart';
-
+import 'package:music_app/features/profile/presentation/cubit/profile_cubit.dart';
 
 @RoutePage()
 class PlayerScreen extends StatefulWidget {
@@ -17,7 +16,6 @@ class PlayerScreen extends StatefulWidget {
 }
 
 class _PlayerScreenState extends State<PlayerScreen> {
-
   @override
   void initState() {
     super.initState();
@@ -26,8 +24,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ProfileCubit>();
       if (mounted) {
-        setState(() {
-        });
+        setState(() {});
       }
     });
 
@@ -35,7 +32,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
       final bloc = context.read<PlayerBlocBloc>();
       final state = bloc.state;
 
-      // Si la canción actual ya es la que se quiere reproducir, 
+      // Si la canción actual ya es la que se quiere reproducir,
       // solo reanudar si está pausada
       if (state is PlayerBlocLoaded &&
           state.currentTrack?.videoId == widget.nowPlayingData.videoId) {
@@ -71,5 +68,4 @@ class _PlayerScreenState extends State<PlayerScreen> {
       body: Center(child: Text('Player screen')),
     );
   }
-
 }

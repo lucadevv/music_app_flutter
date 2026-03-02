@@ -5,7 +5,7 @@ import '../../domain/repositories/home_repository.dart';
 import '../data_sources/home_remote_data_source.dart';
 
 /// Implementación del repositorio del home
-/// 
+///
 /// SOLID: Single Responsibility Principle (SRP)
 /// Responsable única: Coordinar entre data source y domain
 class HomeRepositoryImpl implements HomeRepository {
@@ -15,6 +15,6 @@ class HomeRepositoryImpl implements HomeRepository {
 
   @override
   Future<Either<AppException, HomeResponse>> getHome() async {
-    return await _remoteDataSource.getHome();
+    return _remoteDataSource.getHome();
   }
 }

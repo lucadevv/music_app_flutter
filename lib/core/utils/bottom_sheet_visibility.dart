@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 /// Provider global para controlar el estado del bottom sheet
 /// Esto permite que el miniplayer se mueva cuando se abre un bottom sheet
 class BottomSheetVisibility extends ChangeNotifier {
-  static final BottomSheetVisibility _instance = BottomSheetVisibility._internal();
+  static final BottomSheetVisibility _instance =
+      BottomSheetVisibility._internal();
   factory BottomSheetVisibility() => _instance;
   BottomSheetVisibility._internal();
 

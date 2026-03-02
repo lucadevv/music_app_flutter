@@ -14,7 +14,8 @@ class LibraryCubit extends Cubit<LibraryState> with BaseBlocMixin {
   final OfflineService _offlineService;
   final PlayerBlocBloc _playerBloc;
 
-  LibraryCubit(this._libraryService, this._offlineService, this._playerBloc) : super(const LibraryState());
+  LibraryCubit(this._libraryService, this._offlineService, this._playerBloc)
+    : super(const LibraryState());
 
   Future<void> loadLibrary() async {
     if (state.status == LibraryStatus.loading) return;
@@ -32,62 +33,85 @@ class LibraryCubit extends Cubit<LibraryState> with BaseBlocMixin {
       }
 
       // Modo online: comportamiento normal
-      final songsResponse = await _libraryService.getFavoriteSongs(page: 1, limit: 10);
-      final playlistsResponse = await _libraryService.getFavoritePlaylists(page: 1, limit: 10);
-      final userPlaylistsResponse = await _libraryService.getUserPlaylists(page: 1, limit: 20);
-      final genresResponse = await _libraryService.getFavoriteGenres(page: 1, limit: 10);
+      final songsResponse = await _libraryService.getFavoriteSongs(
+        page: 1,
+        limit: 10,
+      );
+      final playlistsResponse = await _libraryService.getFavoritePlaylists(
+        page: 1,
+        limit: 10,
+      );
+      final userPlaylistsResponse = await _libraryService.getUserPlaylists(
+        page: 1,
+        limit: 20,
+      );
+      final genresResponse = await _libraryService.getFavoriteGenres(
+        page: 1,
+        limit: 10,
+      );
       final summary = await _libraryService.getLibrarySummary();
 
       // Combinar playlists del usuario + playlists favoritas de YouTube
       final allPlaylists = <PlaylistItem>[];
-      
+
       // Agregar playlists creadas por el usuario
       for (final userPlaylist in userPlaylistsResponse.data) {
-        allPlaylists.add(PlaylistItem(
-          id: userPlaylist.id,
-          name: userPlaylist.name,
-          description: userPlaylist.description,
-          thumbnail: userPlaylist.thumbnail,
-          songCount: userPlaylist.songCount,
-          isUserCreated: true,
-        ));
+        allPlaylists.add(
+          PlaylistItem(
+            id: userPlaylist.id,
+            name: userPlaylist.name,
+            description: userPlaylist.description,
+            thumbnail: userPlaylist.thumbnail,
+            songCount: userPlaylist.songCount,
+            isUserCreated: true,
+          ),
+        );
       }
-      
+
       // Agregar playlists favoritas de YouTube
       for (final favPlaylist in playlistsResponse.data) {
-        allPlaylists.add(PlaylistItem(
-          id: favPlaylist.playlistId,
-          externalPlaylistId: favPlaylist.externalPlaylistId,
-          name: favPlaylist.name,
-          description: favPlaylist.description,
-          thumbnail: favPlaylist.thumbnail,
-          songCount: favPlaylist.cachedTrackCount ?? favPlaylist.trackCount ?? 0,
-          isUserCreated: false,
-        ));
+        allPlaylists.add(
+          PlaylistItem(
+            id: favPlaylist.playlistId,
+            externalPlaylistId: favPlaylist.externalPlaylistId,
+            name: favPlaylist.name,
+            description: favPlaylist.description,
+            thumbnail: favPlaylist.thumbnail,
+            songCount:
+                favPlaylist.cachedTrackCount ?? favPlaylist.trackCount ?? 0,
+            isUserCreated: false,
+          ),
+        );
       }
 
       if (isClosed) return;
 
-      emit(state.copyWith(
-        status: LibraryStatus.success,
-        favoriteSongs: songsResponse.data,
-        favoritePlaylists: playlistsResponse.data,
-        userPlaylists: userPlaylistsResponse.data,
-        allPlaylists: allPlaylists,
-        favoriteGenres: genresResponse.data,
-        totalSongs: songsResponse.total,
-        totalPlaylists: userPlaylistsResponse.total + playlistsResponse.total, // Todas las playlists
-        totalGenres: genresResponse.total,
-        summary: summary,
-        clearError: true,
-        isOffline: false,
-      ));
+      emit(
+        state.copyWith(
+          status: LibraryStatus.success,
+          favoriteSongs: songsResponse.data,
+          favoritePlaylists: playlistsResponse.data,
+          userPlaylists: userPlaylistsResponse.data,
+          allPlaylists: allPlaylists,
+          favoriteGenres: genresResponse.data,
+          totalSongs: songsResponse.total,
+          totalPlaylists:
+              userPlaylistsResponse.total +
+              playlistsResponse.total, // Todas las playlists
+          totalGenres: genresResponse.total,
+          summary: summary,
+          clearError: true,
+          isOffline: false,
+        ),
+      );
     } catch (e) {
       if (isClosed) return;
-      emit(state.copyWith(
-        status: LibraryStatus.failure,
-        errorMessage: _parseError(e),
-      ));
+      emit(
+        state.copyWith(
+          status: LibraryStatus.failure,
+          errorMessage: _parseError(e),
+        ),
+      );
     }
   }
 
@@ -103,29 +127,33 @@ class LibraryCubit extends Cubit<LibraryState> with BaseBlocMixin {
 
       if (isClosed) return;
 
-      emit(state.copyWith(
-        status: LibraryStatus.success,
-        favoriteSongs: const [], // No hay canciones offline en este flujo
-        favoritePlaylists: favoritePlaylists,
-        favoriteGenres: const [], // No hay géneros offline
-        totalSongs: 0,
-        totalPlaylists: favoritePlaylists.length,
-        totalGenres: 0,
-        summary: LibrarySummary(
-          favoriteSongs: 0,
-          favoritePlaylists: favoritePlaylists.length,
-          favoriteGenres: 0,
+      emit(
+        state.copyWith(
+          status: LibraryStatus.success,
+          favoriteSongs: const [], // No hay canciones offline en este flujo
+          favoritePlaylists: favoritePlaylists,
+          favoriteGenres: const [], // No hay géneros offline
+          totalSongs: 0,
+          totalPlaylists: favoritePlaylists.length,
+          totalGenres: 0,
+          summary: LibrarySummary(
+            favoriteSongs: 0,
+            favoritePlaylists: favoritePlaylists.length,
+            favoriteGenres: 0,
+          ),
+          clearError: true,
+          isOffline: true,
         ),
-        clearError: true,
-        isOffline: true,
-      ));
+      );
     } catch (e) {
       if (isClosed) return;
-      emit(state.copyWith(
-        status: LibraryStatus.failure,
-        errorMessage: _parseError(e),
-        isOffline: true,
-      ));
+      emit(
+        state.copyWith(
+          status: LibraryStatus.failure,
+          errorMessage: _parseError(e),
+          isOffline: true,
+        ),
+      );
     }
   }
 
@@ -137,7 +165,8 @@ class LibraryCubit extends Cubit<LibraryState> with BaseBlocMixin {
       externalPlaylistId: offlinePlaylist.externalPlaylistId,
       name: offlinePlaylist.name,
       description: offlinePlaylist.description,
-      thumbnail: offlinePlaylist.thumbnail ?? offlinePlaylist.localThumbnailPath,
+      thumbnail:
+          offlinePlaylist.thumbnail ?? offlinePlaylist.localThumbnailPath,
       trackCount: offlinePlaylist.trackCount,
       createdAt: offlinePlaylist.createdAt,
     );
@@ -150,22 +179,31 @@ class LibraryCubit extends Cubit<LibraryState> with BaseBlocMixin {
 
     try {
       final nextPage = (state.favoriteSongs.length ~/ 20) + 1;
-      final response = await _libraryService.getFavoriteSongs(page: nextPage, limit: 20);
+      final response = await _libraryService.getFavoriteSongs(
+        page: nextPage,
+        limit: 20,
+      );
 
       if (isClosed) return;
 
-      emit(state.copyWith(
-        favoriteSongs: [...state.favoriteSongs, ...response.data],
-        totalSongs: response.total,
-        isLoadingMoreSongs: false,
-      ));
+      emit(
+        state.copyWith(
+          favoriteSongs: [...state.favoriteSongs, ...response.data],
+          totalSongs: response.total,
+          isLoadingMoreSongs: false,
+        ),
+      );
     } catch (e) {
       if (isClosed) return;
       emit(state.copyWith(isLoadingMoreSongs: false));
     }
   }
 
-  Future<void> toggleFavoriteSong(String videoId, String songIdOrVideoId, {bool currentlyFavorite = false}) async {
+  Future<void> toggleFavoriteSong(
+    String videoId,
+    String songIdOrVideoId, {
+    bool currentlyFavorite = false,
+  }) async {
     try {
       if (currentlyFavorite) {
         // El backend ahora acepta videoId directamente
@@ -208,7 +246,9 @@ class LibraryCubit extends Cubit<LibraryState> with BaseBlocMixin {
       title: song.title,
       artistNames: song.artist.split(', '),
       albumName: '',
-      duration: song.duration != null ? _formatDuration(song.duration!) : '0:00',
+      duration: song.duration != null
+          ? _formatDuration(song.duration!)
+          : '0:00',
       durationSeconds: song.duration,
       thumbnailUrl: song.thumbnail,
     );

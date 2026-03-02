@@ -14,9 +14,6 @@ class GetDownloadedSongsUseCase {
   Future<(AppException?, List<DownloadedSong>?)> call() async {
     final result = await _repository.getDownloadedSongs();
 
-    return result.fold(
-      (error) => (error, null),
-      (songs) => (null, songs),
-    );
+    return result.fold((error) => (error, null), (songs) => (null, songs));
   }
 }

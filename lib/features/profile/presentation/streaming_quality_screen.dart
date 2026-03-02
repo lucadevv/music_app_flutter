@@ -48,9 +48,7 @@ class StreamingQualityScreen extends StatelessWidget {
             ),
             subtitle: Text(
               quality['description']!,
-              style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.6),
-              ),
+              style: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
             ),
             activeColor: AppColorsDark.primary,
             selected: isSelected,

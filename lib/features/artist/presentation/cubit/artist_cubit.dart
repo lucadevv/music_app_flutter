@@ -28,19 +28,23 @@ class ArtistCubit extends Cubit<ArtistState> with BaseBlocMixin {
 
       if (isClosed) return;
 
-      emit(ArtistState(
-        status: ArtistStatus.success,
-        artist: results[0] as Artist,
-        topSongs: results[1] as List<ArtistSong>,
-        albums: results[2] as List<ArtistAlbum>,
-        isFollowing: results[3] as bool,
-      ));
+      emit(
+        ArtistState(
+          status: ArtistStatus.success,
+          artist: results[0] as Artist,
+          topSongs: results[1] as List<ArtistSong>,
+          albums: results[2] as List<ArtistAlbum>,
+          isFollowing: results[3] as bool,
+        ),
+      );
     } catch (e) {
       if (isClosed) return;
-      emit(state.copyWith(
-        status: ArtistStatus.failure,
-        errorMessage: e.toString(),
-      ));
+      emit(
+        state.copyWith(
+          status: ArtistStatus.failure,
+          errorMessage: e.toString(),
+        ),
+      );
     }
   }
 

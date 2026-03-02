@@ -5,8 +5,5 @@ class SearchResponse {
   final List<Song> results;
   final String query;
 
-  const SearchResponse({
-    required this.results,
-    required this.query,
-  });
+  const SearchResponse({required this.results, required this.query});
 }

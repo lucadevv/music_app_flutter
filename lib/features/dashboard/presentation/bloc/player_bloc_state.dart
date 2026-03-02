@@ -1,7 +1,7 @@
 part of 'player_bloc_bloc.dart';
 
 /// Estados del reproductor
-/// 
+///
 /// SOLID: Single Responsibility Principle (SRP)
 /// Responsable única: Representar el estado del reproductor
 sealed class PlayerBlocState extends Equatable {
@@ -111,10 +111,12 @@ class PlayerBlocLoaded extends PlayerBlocState {
       processingState: processingState ?? this.processingState,
       connectionState: connectionState ?? this.connectionState,
       playlist: playlist ?? this.playlist,
-      currentIndex:
-          clearCurrentIndex ? null : (currentIndex ?? this.currentIndex),
-      currentTrack:
-          clearCurrentTrack ? null : (currentTrack ?? this.currentTrack),
+      currentIndex: clearCurrentIndex
+          ? null
+          : (currentIndex ?? this.currentIndex),
+      currentTrack: clearCurrentTrack
+          ? null
+          : (currentTrack ?? this.currentTrack),
       currentStreamUrl: clearCurrentStreamUrl
           ? null
           : (currentStreamUrl ?? this.currentStreamUrl),
@@ -132,23 +134,23 @@ class PlayerBlocLoaded extends PlayerBlocState {
 
   @override
   List<Object?> get props => [
-        playbackState,
-        processingState,
-        connectionState,
-        playlist,
-        currentIndex,
-        currentTrack,
-        currentStreamUrl,
-        position,
-        duration,
-        bufferedPosition,
-        volume,
-        speed,
-        loopMode,
-        isShuffleEnabled,
-        error,
-        isLoading,
-      ];
+    playbackState,
+    processingState,
+    connectionState,
+    playlist,
+    currentIndex,
+    currentTrack,
+    currentStreamUrl,
+    position,
+    duration,
+    bufferedPosition,
+    volume,
+    speed,
+    loopMode,
+    isShuffleEnabled,
+    error,
+    isLoading,
+  ];
 }
 
 /// Enums para el estado del reproductor

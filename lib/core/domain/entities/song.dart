@@ -1,11 +1,11 @@
 import 'package:equatable/equatable.dart';
 
 /// Entidad de dominio unificada para una canción.
-/// 
+///
 /// Esta es la entidad canónica que debe usarse en toda la app.
 /// Las diferentes fuentes de datos (search, downloads, library, etc.)
 /// deben mapear a esta entidad.
-/// 
+///
 /// Usar esta entidad en:
 /// - Presentación (UI)
 /// - Casos de uso (Use Cases)
@@ -13,52 +13,52 @@ import 'package:equatable/equatable.dart';
 class Song extends Equatable {
   /// Identificador único del video (YouTube videoId)
   final String videoId;
-  
+
   /// Título de la canción
   final String title;
-  
+
   /// Nombre del artista principal
   final String artist;
-  
+
   /// Lista de nombres de artistas
   final List<String> artistNames;
-  
+
   /// Nombre del álbum (opcional)
   final String? album;
-  
+
   /// URL de la miniatura (thumbnail)
   final String? thumbnail;
-  
+
   /// URL de la miniatura de alta calidad
   final String? highThumbnail;
-  
+
   /// Lista de miniaturas en diferentes tamaños
   final List<Thumbnail> thumbnails;
-  
+
   /// URL de streaming (puede ser null si no se ha obtenido)
   final String? streamUrl;
-  
+
   /// Duración en segundos
   final int durationSeconds;
-  
+
   /// Duración formateada (ej: "3:45")
   final String duration;
-  
+
   /// Número de vistas (string formateado)
   final String? views;
-  
+
   /// Indica si el contenido es explícito
   final bool isExplicit;
-  
+
   /// Indica si la canción está en la biblioteca del usuario
   final bool inLibrary;
-  
+
   /// Ruta local (para canciones descargadas)
   final String? localPath;
-  
+
   /// Tamaño del archivo en bytes (para descargas)
   final int? fileSize;
-  
+
   /// Fecha de descarga (para canciones descargadas)
   final DateTime? downloadedAt;
 
@@ -124,7 +124,10 @@ class Song extends Equatable {
   }
 
   /// Obtiene la mejor URL de thumbnail disponible
-  String? get bestThumbnail => highThumbnail ?? thumbnail ?? (thumbnails.isNotEmpty ? thumbnails.last.url : null);
+  String? get bestThumbnail =>
+      highThumbnail ??
+      thumbnail ??
+      (thumbnails.isNotEmpty ? thumbnails.last.url : null);
 
   /// Indica si la canción tiene URL de streaming
   bool get canPlay => streamUrl != null && streamUrl!.isNotEmpty;

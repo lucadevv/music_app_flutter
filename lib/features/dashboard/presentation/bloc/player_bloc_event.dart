@@ -1,7 +1,7 @@
 part of 'player_bloc_bloc.dart';
 
 /// Eventos del reproductor
-/// 
+///
 /// SOLID: Open/Closed Principle (OCP)
 /// Fácil de extender con nuevos eventos sin modificar código existente
 sealed class PlayerBlocEvent extends Equatable {
@@ -72,10 +72,7 @@ class LoadPlaylistEvent extends PlayerBlocEvent {
   final List<NowPlayingData> playlist;
   final int? startIndex;
 
-  const LoadPlaylistEvent({
-    required this.playlist,
-    this.startIndex,
-  });
+  const LoadPlaylistEvent({required this.playlist, this.startIndex});
 
   @override
   List<Object?> get props => [playlist, startIndex];

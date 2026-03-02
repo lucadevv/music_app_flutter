@@ -1,9 +1,11 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:equatable/equatable.dart';
+
 import 'package:music_app/core/bloc/base_bloc_mixin.dart';
 import 'package:music_app/core/managers/auth/auth_manager.dart';
 import 'package:music_app/main.dart';
+
 import '../../domain/entities/register_request.dart';
 import '../../domain/entities/register_response.dart';
 import '../../domain/use_cases/register_use_case.dart';
