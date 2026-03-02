@@ -12,8 +12,7 @@ class PlayerBackdropWidget extends StatelessWidget {
   final Thumbnail? thumbnail;
 
   const PlayerBackdropWidget({
-    super.key,
-    required this.thumbnail,
+    required this.thumbnail, super.key,
   });
 
   @override

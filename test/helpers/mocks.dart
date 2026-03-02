@@ -3,11 +3,12 @@ import 'package:mocktail/mocktail.dart';
 import 'package:music_app/core/managers/auth/auth_manager.dart';
 import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
 import 'package:music_app/features/auth/login/domain/entities/login_request.dart';
+import 'package:music_app/features/auth/refresh_token/domain/entities/refresh_token_request.dart';
+import 'package:music_app/features/auth/refresh_token/domain/entities/refresh_token_response.dart';
 import 'package:music_app/features/auth/register/domain/entities/register_request.dart';
 import 'package:music_app/features/auth/register/domain/entities/register_response.dart';
 import 'package:music_app/features/auth/register/domain/repositories/auth_repository.dart';
-import 'package:music_app/features/auth/refresh_token/domain/entities/refresh_token_request.dart';
-import 'package:music_app/features/auth/refresh_token/domain/entities/refresh_token_response.dart';
+
 import 'package:music_app/features/downloads/domain/entities/downloaded_song.dart';
 import 'package:music_app/features/downloads/domain/repositories/downloads_repository.dart';
 import 'package:music_app/features/home/domain/entities/home_response.dart';

@@ -4,8 +4,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/bloc/base_bloc_mixin.dart';
 import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
 import 'package:music_app/data/offline/services/offline_service.dart';
+import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/offline/presentation/cubit/playlist_offline_cubit.dart';
+import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 
 part 'favorite_state.dart';
 
@@ -14,6 +16,7 @@ class FavoriteCubit extends Cubit<FavoriteState> with BaseBlocMixin {
   final LibraryService _libraryService;
   final PlaylistOfflineCubit _playlistOfflineCubit;
   final OfflineService _offlineService;
+  final PlayerBlocBloc _playerBloc;
 
   final _favoritesController = StreamController<FavoriteEvent>.broadcast();
   Stream<FavoriteEvent> get favoritesStream => _favoritesController.stream;
@@ -22,6 +25,7 @@ class FavoriteCubit extends Cubit<FavoriteState> with BaseBlocMixin {
     this._libraryService,
     this._playlistOfflineCubit,
     this._offlineService,
+    this._playerBloc,
   ) : super(const FavoriteState()) {
     loadFavorites();
   }
@@ -261,6 +265,48 @@ class FavoriteCubit extends Cubit<FavoriteState> with BaseBlocMixin {
         debugPrint('Error syncing all playlists to offline cache: $e');
       }
     }
+  }
+
+  /// Reproduce una canción específica
+  void playSong(FavoriteSong song) {
+    final nowPlayingData = _mapToNowPlaying(song);
+    _playerBloc.add(LoadTrackEvent(nowPlayingData));
+  }
+
+  /// Reproduce todas las canciones
+  void playAllSongs(List<FavoriteSong> songs) {
+    if (songs.isEmpty) return;
+
+    final playlist = songs.map(_mapToNowPlaying).toList();
+    _playerBloc.add(LoadPlaylistEvent(playlist: playlist, startIndex: 0));
+  }
+
+  /// Elimina una canción de favoritos
+  void removeSong(FavoriteSong song) {
+    toggleFavorite(
+      videoId: song.videoId,
+      songId: song.songId,
+      type: FavoriteType.song,
+      isCurrentlyFavorite: true,
+    );
+  }
+
+  NowPlayingData _mapToNowPlaying(FavoriteSong song) {
+    return NowPlayingData.fromBasic(
+      videoId: song.videoId,
+      title: song.title,
+      artistNames: song.artist.split(', '),
+      albumName: '',
+      duration: song.duration != null ? _formatDuration(song.duration!) : '0:00',
+      durationSeconds: song.duration,
+      thumbnailUrl: song.thumbnail,
+    );
+  }
+
+  String _formatDuration(int seconds) {
+    final minutes = seconds ~/ 60;
+    final secs = seconds % 60;
+    return '$minutes:${secs.toString().padLeft(2, '0')}';
   }
 
   String _parseError(dynamic error) {

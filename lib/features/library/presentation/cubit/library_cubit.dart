@@ -3,15 +3,18 @@ import 'package:music_app/core/bloc/base_bloc_mixin.dart';
 import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
 import 'package:music_app/data/offline/models/offline_playlist.dart';
 import 'package:music_app/data/offline/services/offline_service.dart';
+import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/library/library_service.dart';
+import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 
 part 'library_state.dart';
 
 class LibraryCubit extends Cubit<LibraryState> with BaseBlocMixin {
   final LibraryService _libraryService;
   final OfflineService _offlineService;
+  final PlayerBlocBloc _playerBloc;
 
-  LibraryCubit(this._libraryService, this._offlineService) : super(const LibraryState());
+  LibraryCubit(this._libraryService, this._offlineService, this._playerBloc) : super(const LibraryState());
 
   Future<void> loadLibrary() async {
     if (state.status == LibraryStatus.loading) return;
@@ -95,7 +98,7 @@ class LibraryCubit extends Cubit<LibraryState> with BaseBlocMixin {
 
       // Convertir OfflinePlaylist a FavoritePlaylist
       final favoritePlaylists = offlinePlaylists
-          .map((offlinePlaylist) => _convertToFavoritePlaylist(offlinePlaylist))
+          .map(_convertToFavoritePlaylist)
           .toList();
 
       if (isClosed) return;
@@ -177,6 +180,54 @@ class LibraryCubit extends Cubit<LibraryState> with BaseBlocMixin {
       if (isClosed) return;
       emit(state.copyWith(errorMessage: _parseError(e)));
     }
+  }
+
+  /// Reproduce una canción específica
+  /// Retorna el NowPlayingData para navegación
+  NowPlayingData playSong(FavoriteSong song) {
+    final nowPlayingData = _mapFavoriteSongToNowPlaying(song);
+    _playerBloc.add(LoadTrackEvent(nowPlayingData));
+    return nowPlayingData;
+  }
+
+  /// Reproduce todas las canciones de favoritos
+  /// Retorna el primer NowPlayingData para navegación
+  NowPlayingData? playAllFavoriteSongs(List<FavoriteSong> songs) {
+    if (songs.isEmpty) return null;
+
+    final playlist = songs.map(_mapFavoriteSongToNowPlaying).toList();
+
+    _playerBloc.add(LoadPlaylistEvent(playlist: playlist, startIndex: 0));
+    return playlist.first;
+  }
+
+  /// Helper: map a FavoriteSong to NowPlayingData using existing fields
+  NowPlayingData _mapFavoriteSongToNowPlaying(FavoriteSong song) {
+    return NowPlayingData.fromBasic(
+      videoId: song.videoId,
+      title: song.title,
+      artistNames: song.artist.split(', '),
+      albumName: '',
+      duration: song.duration != null ? _formatDuration(song.duration!) : '0:00',
+      durationSeconds: song.duration,
+      thumbnailUrl: song.thumbnail,
+    );
+  }
+
+  /// Crea una nueva playlist
+  Future<void> createPlaylist(String name) async {
+    try {
+      await _libraryService.createUserPlaylist(name: name);
+      await loadLibrary();
+    } catch (e) {
+      emit(state.copyWith(errorMessage: _parseError(e)));
+    }
+  }
+
+  String _formatDuration(int seconds) {
+    final minutes = seconds ~/ 60;
+    final secs = seconds % 60;
+    return '$minutes:${secs.toString().padLeft(2, '0')}';
   }
 
   void reset() {

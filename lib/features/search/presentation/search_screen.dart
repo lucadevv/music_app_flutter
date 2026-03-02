@@ -1,19 +1,17 @@
-import 'dart:async';
-
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:music_app/features/search/presentation/cubit/orquestador_search_cubit.dart';
+import 'package:music_app/features/search/presentation/cubit/recent_searches_cubit.dart';
 import 'package:music_app/features/search/presentation/cubit/search_cubit.dart'
     show SearchCubit, SearchStatus;
-import 'package:music_app/features/search/presentation/cubit/recent_searches_cubit.dart'
-    show RecentSearchesCubit;
-import 'package:music_app/features/search/presentation/cubit/orquestador_search_cubit.dart';
+import 'package:music_app/features/search/presentation/widgets/categories_grid_widget.dart';
+
 import 'package:music_app/features/search/presentation/widgets/search_bar_widget.dart';
 import 'package:music_app/features/search/presentation/widgets/search_listeners.dart';
 import 'package:music_app/features/search/presentation/widgets/search_results_widget.dart';
 import 'package:music_app/features/search/presentation/widgets/trending_artists_widget.dart'
     show RecentSearchesWidget;
-import 'package:music_app/features/search/presentation/widgets/categories_grid_widget.dart';
 
 @RoutePage()
 class SearchScreen extends StatefulWidget {
@@ -25,7 +23,6 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
-  Timer? _debounceTimer;
 
   @override
   void initState() {
@@ -38,29 +35,15 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   void dispose() {
-    _debounceTimer?.cancel();
+    // Cancelar el debounce al salir
+    context.read<SearchCubit>().cancelDebounce();
     _searchController.dispose();
     super.dispose();
   }
 
   void _onSearchChanged(String value) {
-    // Cancelar el timer anterior si existe
-    _debounceTimer?.cancel();
-
-    // Si el campo está vacío, resetear el estado y cargar búsquedas recientes
-    if (value.trim().isEmpty) {
-      context.read<SearchCubit>().search('');
-      // Recargar búsquedas recientes cuando el campo está vacío
-      context.read<RecentSearchesCubit>().getRecentSearches();
-      return;
-    }
-
-    // Crear un nuevo timer con debounce de 800ms
-    _debounceTimer = Timer(const Duration(milliseconds: 800), () {
-      if (mounted) {
-        context.read<SearchCubit>().search(value);
-      }
-    });
+    // Usar el método con debounce del Cubit
+    context.read<SearchCubit>().searchWithDebounce(value);
   }
 
   @override
@@ -114,13 +97,13 @@ class _SearchScreenState extends State<SearchScreen> {
                   // Mostrar lista y grid cuando no hay búsqueda
                   if (!hasQuery) ...[
                     // Búsquedas recientes
-                    SliverToBoxAdapter(
-                      child: const RecentSearchesWidget(),
+                    const SliverToBoxAdapter(
+                      child: RecentSearchesWidget(),
                     ),
 
                     // Categories grid
-                    SliverToBoxAdapter(
-                      child: const CategoriesGridWidget(),
+                    const SliverToBoxAdapter(
+                      child: CategoriesGridWidget(),
                     ),
                   ],
 

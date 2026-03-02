@@ -12,9 +12,7 @@ class PlayerProgressBarWidget extends StatelessWidget {
   final bool isLoading;
 
   const PlayerProgressBarWidget({
-    super.key,
-    required this.position,
-    required this.duration,
+    required this.position, required this.duration, super.key,
     this.onSeek,
     this.isLoading = false,
   });

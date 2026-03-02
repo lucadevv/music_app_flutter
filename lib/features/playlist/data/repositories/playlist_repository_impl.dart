@@ -15,6 +15,6 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
 
   @override
   Future<Either<AppException, PlaylistResponse>> getPlaylist(String id) async {
-    return await _remoteDataSource.getPlaylist(id);
+    return _remoteDataSource.getPlaylist(id);
   }
 }

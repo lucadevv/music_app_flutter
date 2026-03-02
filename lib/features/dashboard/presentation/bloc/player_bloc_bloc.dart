@@ -1,9 +1,7 @@
 import 'dart:async';
 
-import 'package:audio_service/audio_service.dart';
 import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:just_audio/just_audio.dart';
@@ -31,18 +29,15 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
       try {
         if (GetIt.I.isRegistered<AudioPlayerHandler>()) {
           _audioPlayerInstance = GetIt.I<AudioPlayerHandler>().player;
-          debugPrint('PlayerBloc: Using AudioPlayer from AudioPlayerHandler');
         } else {
           // Fallback: crear un AudioPlayer básico si el handler no está disponible
           _audioPlayerInstance = AudioPlayer();
-          debugPrint('PlayerBloc: Using fallback AudioPlayer (AudioPlayerHandler not available)');
           // IMPORTANTE: Inicializar los streams del fallback player
           _initializePlayer();
         }
       } catch (e) {
         // Fallback final
         _audioPlayerInstance = AudioPlayer();
-        debugPrint('PlayerBloc: Using emergency fallback AudioPlayer: $e');
         // IMPORTANTE: Inicializar los streams del fallback player
         _initializePlayer();
       }
@@ -66,8 +61,6 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
   /// ID de la entrada de historial actual
   String? _currentHistoryId;
 
-  /// Momento en que comenzó la reproducción actual
-  DateTime? _playbackStartTime;
 
   /// Última posición guardada en el historial (en segundos)
   /// Se usa para evitar guardar en cada cambio de posición
@@ -95,7 +88,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
         return _offlineService;
       }
     } catch (e) {
-      debugPrint('PlayerBloc: Could not get OfflineService: $e');
+      // Silently fail - no es crítico
     }
     return null;
   }
@@ -115,7 +108,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     _lastSavedPositionSeconds = positionSeconds;
 
     // Fire and forget - no esperamos el resultado
-    _saveHistoryPlayedDurationInternal(_currentHistoryId!, positionSeconds);
+    await _saveHistoryPlayedDurationInternal(_currentHistoryId!, positionSeconds);
   }
 
   /// Implementación interna del guardado de historial
@@ -127,11 +120,9 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
       final offlineService = await _getOfflineService();
       if (offlineService != null && offlineService.isInitialized) {
         await offlineService.updateHistoryPlayedDuration(historyId, positionSeconds);
-        debugPrint('PlayerBloc: Updated history $historyId with duration $positionSeconds');
       }
     } catch (e) {
       // No propagar el error - el historial no debe afectar la reproducción
-      debugPrint('PlayerBloc: Error updating history (non-critical): $e');
     }
   }
 
@@ -142,10 +133,9 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
         final handler = GetIt.I<AudioPlayerHandler>();
         final mediaItem = track.toMediaItem();
         handler.mediaItem.add(mediaItem);
-        debugPrint('PlayerBloc: Updated handler mediaItem for: ${track.title}');
       }
     } catch (e) {
-      debugPrint('PlayerBloc: Error updating handler mediaItem: $e');
+      // Silently fail - no es crítico
     }
   }
 
@@ -157,7 +147,6 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     try {
       final offlineService = await _getOfflineService();
       if (offlineService == null || !offlineService.isInitialized) {
-        debugPrint('PlayerBloc: OfflineService not available for history');
         return;
       }
 
@@ -192,13 +181,9 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
 
       // Actualizar tracking
       _currentHistoryId = history.historyId;
-      _playbackStartTime = DateTime.now();
       _lastSavedPositionSeconds = 0;
-
-      debugPrint('PlayerBloc: Created history entry ${history.historyId} for ${track.title}');
     } catch (e) {
       // No propagar el error - el historial no debe afectar la reproducción
-      debugPrint('PlayerBloc: Error creating history entry (non-critical): $e');
     }
   }
 
@@ -212,14 +197,11 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
         _currentHistoryId!,
         _lastSavedPositionSeconds,
       );
-
-      debugPrint('PlayerBloc: Finalized history entry $_currentHistoryId');
     } catch (e) {
-      debugPrint('PlayerBloc: Error finalizing history (non-critical): $e');
+      // Silently fail
     } finally {
       // Limpiar estado
       _currentHistoryId = null;
-      _playbackStartTime = null;
       _lastSavedPositionSeconds = 0;
     }
   }
@@ -227,34 +209,25 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
   void _initializePlayer() {
     // Evitar inicialización múltiple
     if (_isPlayerInitialized) {
-      debugPrint('PlayerBloc: AudioPlayer streams already initialized, skipping');
       return;
     }
     
-    debugPrint('PlayerBloc: Initializing AudioPlayer streams...');
-    
     _playerStateSubscription = _audioPlayer.playerStateStream.listen(
       (playerState) {
-        debugPrint('PlayerBloc: playerStateStream emit - playing: ${playerState.playing}, processing: ${playerState.processingState}');
         add(AudioPlayerStateChangedEvent(playerState));
       },
-      onError: (e) => debugPrint('PlayerBloc: playerStateStream error: $e'),
     );
 
     _positionSubscription = _audioPlayer.positionStream.listen(
       (position) {
-        debugPrint('PlayerBloc: positionStream emit - position: $position');
         add(PositionChangedEvent(position));
       },
-      onError: (e) => debugPrint('PlayerBloc: positionStream error: $e'),
     );
 
     _durationSubscription = _audioPlayer.durationStream.listen(
       (duration) {
-        debugPrint('PlayerBloc: durationStream emit - duration: $duration');
         add(DurationChangedEvent(duration ?? Duration.zero));
       },
-      onError: (e) => debugPrint('PlayerBloc: durationStream error: $e'),
     );
 
     _bufferedPositionSubscription = _audioPlayer.bufferedPositionStream.listen(
@@ -265,7 +238,6 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
       (index) => add(CurrentIndexChangedEvent(index)),
     );
     
-    debugPrint('PlayerBloc: AudioPlayer streams initialized');
     _isPlayerInitialized = true;
   }
 
@@ -302,11 +274,8 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
   }
 
   Future<void> _onPlay(PlayEvent event, Emitter<PlayerBlocState> emit) async {
-    debugPrint('PlayerBloc: _onPlay called');
     try {
-      debugPrint('PlayerBloc: Calling _audioPlayer.play()...');
       await _audioPlayer.play();
-      debugPrint('PlayerBloc: _audioPlayer.play() completed');
       
       // IMPORTANTE: Emitir estado inmediatamente para actualizar la UI
       // No depender solo del stream, ya que puede no estar inicializado
@@ -316,14 +285,13 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
           processingState: ProcessingState.ready,
         ));
       } else {
-        emit(PlayerBlocLoaded(
+        emit(const PlayerBlocLoaded(
           playbackState: PlaybackState.playing,
           processingState: ProcessingState.ready,
           connectionState: AudioConnectionState.connected,
         ));
       }
     } catch (e) {
-      debugPrint('PlayerBloc: Error al reproducir: $e');
       add(AudioErrorEvent('Error al reproducir: $e'));
     }
   }
@@ -338,7 +306,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
           playbackState: PlaybackState.paused,
         ));
       } else {
-        emit(PlayerBlocLoaded(
+        emit(const PlayerBlocLoaded(
           playbackState: PlaybackState.paused,
           connectionState: AudioConnectionState.connected,
         ));
@@ -426,8 +394,6 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     Emitter<PlayerBlocState> emit,
   ) async {
     try {
-      debugPrint('PlayerBloc: Loading track ${event.track.title} (${event.track.videoId})');
-
       // Crear entrada de historial para el nuevo track (fire and forget)
       // Se hace antes de emitir el estado para que no bloquee la UI
       unawaited(_startNewHistoryEntry(event.track));
@@ -445,21 +411,17 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
       // PRIMERO: Verificar si la canción está descargada localmente
       final offlineService = await _getOfflineService();
       if (offlineService != null && offlineService.isInitialized) {
-        debugPrint('PlayerBloc: Checking for local audio file...');
         final localPath = await offlineService.getLocalAudioPath(event.track.videoId);
         
         if (localPath != null && localPath.isNotEmpty) {
           streamUrl = 'file://$localPath';
-          debugPrint('PlayerBloc: Using local file: $streamUrl');
         }
       }
 
       // SI NO hay archivo local, obtener URL del servidor
       if (streamUrl == null || streamUrl.isEmpty) {
-        debugPrint('PlayerBloc: No local file found, fetching fresh stream URL...');
         final freshStreamUrl = await _fetchFreshStreamUrl(event.track.videoId);
         streamUrl = freshStreamUrl ?? event.track.streamUrl;
-        debugPrint('PlayerBloc: Stream URL obtained: ${streamUrl?.substring(0, (streamUrl?.length ?? 0).clamp(0, 50))}...');
       }
 
       if (streamUrl == null || streamUrl.isEmpty) {
@@ -475,7 +437,6 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
 
       await _loadTrackWithUrl(streamUrl, event.track, emit);
     } catch (e) {
-      debugPrint('PlayerBloc: Error loading track: $e');
       emit(
         PlayerBlocLoaded(
           isLoading: false,
@@ -507,41 +468,33 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
             .timeout(
               const Duration(seconds: 10),
               onTimeout: () {
-                debugPrint(
-                  '_loadTrackWithUrl: Timeout esperando audio ready, continuando...',
-                );
                 return ProcessingState.ready;
               },
             );
       } catch (e) {
-        debugPrint('_loadTrackWithUrl: Error esperando processingState: $e');
+        // Timeout o error - continuamos
       }
 
       // IMPORTANTE: Esperar a que la duración esté disponible
       // El durationStream puede tardar en emitirse mientras se descargan los headers
       Duration actualDuration = _audioPlayer.duration ?? Duration.zero;
       if (actualDuration == Duration.zero) {
-        debugPrint('_loadTrackWithUrl: Duración no disponible inicialmente, esperando...');
         try {
           final durationValue = await _audioPlayer.durationStream
               .firstWhere((d) => d != null && d.inSeconds > 0)
               .timeout(
                 const Duration(seconds: 10),
                 onTimeout: () {
-                  debugPrint('_loadTrackWithUrl: Timeout esperando duration, usando valor por defecto');
                   // Usar la duración de los metadatos de la canción como fallback
-                  return Duration(seconds: track.durationSeconds ?? 180);
+                  return Duration(seconds: track.durationSeconds);
                 },
               );
-          actualDuration = durationValue ?? Duration(seconds: track.durationSeconds ?? 180);
+          actualDuration = durationValue ?? Duration(seconds: track.durationSeconds);
         } catch (e) {
-          debugPrint('_loadTrackWithUrl: Error esperando duration: $e');
           // Usar la duración de los metadatos como fallback
-          actualDuration = Duration(seconds: track.durationSeconds ?? 180);
+          actualDuration = Duration(seconds: track.durationSeconds);
         }
       }
-
-      debugPrint('_loadTrackWithUrl: Duración obtenida: $actualDuration');
 
       // ACTUALIZAR NOTIFICACIONES: Actualizar el mediaItem del handler para que muestre la canción en la notificación
       _updateHandlerMediaItem(track);
@@ -559,11 +512,8 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
         ),
       );
 
-      debugPrint('_loadTrackWithUrl: Calling _audioPlayer.play()...');
       await _audioPlayer.play();
-      debugPrint('_loadTrackWithUrl: _audioPlayer.play() completed');
     } catch (e) {
-      debugPrint('_loadTrackWithUrl: Error cargando audio: $e');
 
       emit(
         PlayerBlocLoaded(
@@ -574,7 +524,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
           currentIndex: 0,
           currentTrack: track,
           currentStreamUrl: streamUrl,
-          duration: Duration(seconds: track.durationSeconds ?? 180),
+          duration: Duration(seconds: track.durationSeconds),
         ),
       );
       rethrow;
@@ -595,7 +545,6 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
       final accessToken = await authManager.getCurrentAccessToken();
       
       if (accessToken == null || accessToken.isEmpty) {
-        debugPrint('PlayerBloc: No access token available');
         return null;
       }
       
@@ -609,7 +558,6 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
         // El proxy causa problemas de buffering y duration/position
         final directUrl = data['streamUrl'] as String?;
         if (directUrl != null && directUrl.isNotEmpty) {
-          debugPrint('PlayerBloc: Using direct stream URL for $videoId');
           return directUrl;
         }
         
@@ -619,14 +567,11 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
           // Añadir token como query parameter para autenticación
           final separator = proxyUrl.contains('?') ? '&' : '?';
           proxyUrl = '$proxyUrl${separator}token=$accessToken';
-          debugPrint('PlayerBloc: Using proxy URL as fallback for $videoId');
           return proxyUrl;
         }
       }
     } catch (e) {
-      debugPrint(
-        'PlayerBloc: Error getting stream URL for $videoId: $e',
-      );
+      // Silently fail - se manejará en el caller
     }
     return null;
   }
@@ -699,18 +644,14 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
               .timeout(
                 const Duration(seconds: 10),
                 onTimeout: () {
-                  debugPrint('_onLoadPlaylist: Timeout esperando duration');
-                  return Duration(seconds: firstTrack.durationSeconds ?? 180);
+                  return Duration(seconds: firstTrack.durationSeconds);
                 },
               );
-          actualDuration = durationValue ?? Duration(seconds: firstTrack.durationSeconds ?? 180);
+          actualDuration = durationValue ?? Duration(seconds: firstTrack.durationSeconds);
         } catch (e) {
-          debugPrint('_onLoadPlaylist: Error esperando duration: $e');
-          actualDuration = Duration(seconds: firstTrack.durationSeconds ?? 180);
+          actualDuration = Duration(seconds: firstTrack.durationSeconds);
         }
       }
-
-      debugPrint('_onLoadPlaylist: Duración inicial: $actualDuration');
 
       emit(
         PlayerBlocLoaded(
@@ -749,12 +690,10 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     // PRIMERO: Verificar si la canción está descargada localmente
     final offlineService = await _getOfflineService();
     if (offlineService != null && offlineService.isInitialized) {
-      debugPrint('PlayerBloc: Checking for local audio file for playlist track...');
       final localPath = await offlineService.getLocalAudioPath(track.videoId);
       
       if (localPath != null && localPath.isNotEmpty) {
         streamUrl = 'file://$localPath';
-        debugPrint('PlayerBloc: Using local file for playlist: $streamUrl');
       }
     }
 
@@ -765,11 +704,6 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     }
 
     if (streamUrl == null || streamUrl.isEmpty) {
-      if (kDebugMode) {
-        debugPrint(
-          'Error: No se pudo obtener stream URL para ${track.videoId}.',
-        );
-      }
       return null;
     }
 
@@ -791,7 +725,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
 
           if (streamUrl == null || streamUrl.isEmpty) {
             add(
-              AudioErrorEvent(
+              const AudioErrorEvent(
                 'La canción no tiene URL de streaming. Asegúrate de usar include_stream_urls=true en el endpoint.',
               ),
             );
@@ -832,7 +766,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
 
         if (streamUrl == null || streamUrl.isEmpty) {
           add(
-            AudioErrorEvent(
+            const AudioErrorEvent(
               'La canción no tiene URL de streaming. Asegúrate de usar include_stream_urls=true en el endpoint.',
             ),
           );
@@ -943,12 +877,8 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     AudioPlayerStateChangedEvent event,
     Emitter<PlayerBlocState> emit,
   ) async {
-    debugPrint('PlayerBloc: _onAudioPlayerStateChanged - playing: ${event.playerState.playing}, processing: ${event.playerState.processingState}');
-    
     // Si el estado no es PlayerBlocLoaded, crear uno nuevo con los datos del player
     if (state is! PlayerBlocLoaded) {
-      debugPrint('PlayerBloc: _onAudioPlayerStateChanged - state is not PlayerBlocLoaded, creating new state');
-      
       final playbackState = event.playerState.playing
           ? PlaybackState.playing
           : PlaybackState.paused;
@@ -966,8 +896,6 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     final playbackState = event.playerState.playing
         ? PlaybackState.playing
         : PlaybackState.paused;
-
-    debugPrint('PlayerBloc: _onAudioPlayerStateChanged - emitting new state with playbackState: $playbackState');
     
     emit(
       currentState.copyWith(
@@ -983,7 +911,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     // 3. Auto-play está habilitado en settings
     if (previousProcessingState != ProcessingState.completed && 
         event.playerState.processingState == ProcessingState.completed) {
-      _handleAutoPlay();
+      await _handleAutoPlay();
     }
   }
 
@@ -995,7 +923,6 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
       final autoPlayEnabled = profileCubit.state.settings?.autoPlay ?? true;
 
       if (!autoPlayEnabled) {
-        debugPrint('PlayerBloc: Auto-play disabled, skipping to next track');
         return;
       }
 
@@ -1005,22 +932,19 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
         
         // Si está en modo loop.one, no necesitamos avanzar automáticamente
         if (currentState.loopMode == LoopMode.one) {
-          debugPrint('PlayerBloc: Loop mode is one, not auto-playing');
           return;
         }
 
         // Verificar si hay siguiente canción
         if (currentState.canPlayNext) {
-          debugPrint('PlayerBloc: Auto-playing next track');
           add(const NextTrackEvent());
         } else if (currentState.loopMode == LoopMode.all && currentState.playlist.isNotEmpty) {
           // Si está en modo loop all y es la última canción, volver al inicio
-          debugPrint('PlayerBloc: Loop all enabled, restarting playlist');
-          add(PlayTrackAtIndexEvent(0));
+          add(const PlayTrackAtIndexEvent(0));
         }
       }
     } catch (e) {
-      debugPrint('PlayerBloc: Error in auto-play: $e');
+      // Silently fail
     }
   }
 
@@ -1028,7 +952,6 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     PositionChangedEvent event,
     Emitter<PlayerBlocState> emit,
   ) async {
-    debugPrint('PlayerBloc: Position changed to ${event.position}');
     if (state is PlayerBlocLoaded) {
       emit((state as PlayerBlocLoaded).copyWith(position: event.position));
 
@@ -1044,7 +967,6 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     DurationChangedEvent event,
     Emitter<PlayerBlocState> emit,
   ) async {
-    debugPrint('PlayerBloc: Duration changed to ${event.duration}');
     if (state is PlayerBlocLoaded) {
       emit((state as PlayerBlocLoaded).copyWith(duration: event.duration));
     } else {
@@ -1125,27 +1047,19 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
         final handler = GetIt.I<AudioPlayerHandler>();
         _audioPlayerInstance = handler.player;
         _initializePlayer();
-        
-        debugPrint('PlayerBloc: AudioPlayerHandler connected successfully');
       } else {
-        debugPrint('PlayerBloc: AudioPlayerHandler not registered yet, will retry...');
         // Reintentar después de un delay
         await Future.delayed(const Duration(seconds: 2));
         if (GetIt.I.isRegistered<AudioPlayerHandler>()) {
           final handler = GetIt.I<AudioPlayerHandler>();
           _audioPlayerInstance = handler.player;
           _initializePlayer();
-          debugPrint('PlayerBloc: AudioPlayerHandler connected on retry');
         } else {
           // FALLBACK: Crear AudioPlayer básico SI NO se ha creado antes
           // Esto asegura que los streams se inicialicen
           if (_audioPlayerInstance == null) {
-            debugPrint('PlayerBloc: Creating fallback AudioPlayer...');
             _audioPlayerInstance = AudioPlayer();
             _initializePlayer();
-            debugPrint('PlayerBloc: Fallback AudioPlayer created and initialized');
-          } else {
-            debugPrint('PlayerBloc: Fallback AudioPlayer already exists, reusing');
           }
         }
       }
@@ -1162,7 +1076,6 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
         );
       }
     } catch (e) {
-      debugPrint('PlayerBloc: Error initializing audio handler: $e');
       add(AudioErrorEvent('Error initializing audio handler: $e'));
     }
   }

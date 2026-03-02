@@ -11,8 +11,7 @@ class PlayerMetadataWidget extends StatelessWidget {
   final bool isLoading;
 
   const PlayerMetadataWidget({
-    super.key,
-    required this.track,
+    required this.track, super.key,
     this.isLoading = false,
   });
 

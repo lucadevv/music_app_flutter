@@ -28,11 +28,11 @@ class PlaylistRemoteDataSourceImpl implements PlaylistRemoteDataSource {
     try {
       // Validar que el ID no esté vacío
       if (id.isEmpty) {
-        final exception = const ValidationException(
+        const exception = ValidationException(
           'El ID de la playlist no puede estar vacío',
         );
         ExceptionHandler.logException(exception, context: 'getPlaylist');
-        return Left(exception);
+        return const Left(exception);
       }
       
       final endpoint = '/music/playlists/$id?include_stream_urls=true';
@@ -52,11 +52,11 @@ class PlaylistRemoteDataSourceImpl implements PlaylistRemoteDataSource {
         );
         return Right(playlist);
       } else {
-        final exception = const ServerException(
+        const exception = ServerException(
           'Respuesta del servidor en formato incorrecto',
         );
         ExceptionHandler.logException(exception, context: 'getPlaylist');
-        return Left(exception);
+        return const Left(exception);
       }
     } catch (e) {
       final appException = ExceptionHandler.handleException(e);

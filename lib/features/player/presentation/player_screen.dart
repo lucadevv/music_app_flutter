@@ -1,36 +1,22 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
-import 'package:music_app/features/player/presentation/widgets/player_backdrop_widget.dart';
-import 'package:music_app/features/player/presentation/widgets/player_header_widget.dart';
-import 'package:music_app/features/player/presentation/widgets/player_error_widget.dart';
-import 'package:music_app/features/player/presentation/widgets/player_artwork_widget.dart';
-import 'package:music_app/features/player/presentation/widgets/player_info_widget.dart';
-import 'package:music_app/features/player/presentation/widgets/player_progress_bar_widget.dart';
-import 'package:music_app/features/player/presentation/widgets/player_metadata_widget.dart';
-import 'package:music_app/features/player/presentation/widgets/player_controls_widget.dart';
-import 'package:music_app/features/player/presentation/widgets/player_shimmer_widgets.dart';
-import 'package:music_app/features/player/presentation/widgets/player_similar_songs_widget.dart';
-import 'package:music_app/features/player/presentation/widgets/lyrics_widget.dart';
 import 'package:music_app/features/profile/profile_cubit.dart';
-import 'package:music_app/l10n/app_localizations.dart';
-import 'package:music_app/main.dart';
+
 
 @RoutePage()
 class PlayerScreen extends StatefulWidget {
   final NowPlayingData nowPlayingData;
 
-  const PlayerScreen({super.key, required this.nowPlayingData});
+  const PlayerScreen({required this.nowPlayingData, super.key});
 
   @override
   State<PlayerScreen> createState() => _PlayerScreenState();
 }
 
 class _PlayerScreenState extends State<PlayerScreen> {
-  bool _showLyrics = false;
 
   @override
   void initState() {
@@ -38,17 +24,15 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
     // Check if user has showLyrics enabled in settings
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final profileCubit = getIt<ProfileCubit>();
-      final showLyrics = profileCubit.state.settings?.showLyrics ?? false;
+      context.read<ProfileCubit>();
       if (mounted) {
         setState(() {
-          _showLyrics = showLyrics;
         });
       }
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final bloc = getIt<PlayerBlocBloc>();
+      final bloc = context.read<PlayerBlocBloc>();
       final state = bloc.state;
 
       // Si la canción actual ya es la que se quiere reproducir, 
@@ -82,213 +66,10 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<PlayerBlocBloc>.value(
-      value: getIt<PlayerBlocBloc>(),
-      child: Scaffold(
-        backgroundColor: const Color(0xFF0D0D0D),
-        body: SafeArea(
-          child: BlocBuilder<PlayerBlocBloc, PlayerBlocState>(
-            // Quitar buildWhen para debug - reconstruir en cada cambio
-            builder: (context, state) {
-              final currentTrack = state is PlayerBlocLoaded
-                  ? (state.currentTrack ?? widget.nowPlayingData)
-                  : widget.nowPlayingData;
-
-              final isLoading = state is PlayerBlocLoaded && state.isLoading;
-              final isBuffering =
-                  state is PlayerBlocLoaded && state.isBuffering;
-              final hasError = state is PlayerBlocLoaded && state.hasError;
-              final errorMessage = state is PlayerBlocLoaded
-                  ? state.error
-                  : null;
-
-              return Stack(
-                children: [
-                  // Backdrop difuminado
-                  PlayerBackdropWidget(thumbnail: currentTrack.bestThumbnail),
-
-                  // Contenido con CustomScrollView
-                  CustomScrollView(
-                    slivers: [
-                      // Header
-                      const SliverToBoxAdapter(child: PlayerHeaderWidget()),
-
-                      // Error message
-                      if (hasError && errorMessage != null)
-                        SliverToBoxAdapter(
-                          child: PlayerErrorWidget(message: errorMessage),
-                        ),
-
-                      // Contenido principal
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Column(
-                            children: [
-                              // Artwork
-                              PlayerArtworkWidget(
-                                thumbnail: currentTrack.bestThumbnail,
-                                videoId: currentTrack.videoId,
-                                isLoading: isLoading,
-                                isBuffering: isBuffering,
-                              ),
-                              const SizedBox(height: 16),
-
-                              // Info (título, artista, álbum)
-                              PlayerInfoWidget(
-                                track: currentTrack,
-                                isLoading: isLoading,
-                              ),
-                              const SizedBox(height: 32),
-
-                              // Progress bar
-                              PlayerProgressBarWidget(
-                                position: state is PlayerBlocLoaded
-                                    ? state.position
-                                    : Duration.zero,
-                                duration:
-                                    state is PlayerBlocLoaded &&
-                                        state.duration.inSeconds > 0
-                                    ? state.duration
-                                    : Duration(
-                                        seconds: currentTrack.durationSeconds,
-                                      ),
-                                onSeek: state is PlayerBlocLoaded
-                                    ? (seekPosition) {
-                                        context.read<PlayerBlocBloc>().add(
-                                          SeekEvent(seekPosition),
-                                        );
-                                      }
-                                    : null,
-                                isLoading: isLoading,
-                              ),
-                              const SizedBox(height: 24),
-
-                              // Metadata
-                              PlayerMetadataWidget(
-                                track: currentTrack,
-                                isLoading: isLoading,
-                              ),
-                              const SizedBox(height: 32),
-
-                              // Controles de reproducción
-                              if (isLoading)
-                                const PlaybackControlsShimmer()
-                              else if (state is PlayerBlocLoaded)
-                                PlayerControlsWidget(
-                                  isPlaying: state.isPlaying,
-                                  canPlayNext: state.canPlayNext,
-                                  canPlayPrevious: state.canPlayPrevious,
-                                  isShuffleEnabled: state.isShuffleEnabled,
-                                  loopMode: state.loopMode,
-                                  onPlayPause: () {
-                                    context.read<PlayerBlocBloc>().add(
-                                      const PlayPauseToggleEvent(),
-                                    );
-                                  },
-                                  onNext: () {
-                                    context.read<PlayerBlocBloc>().add(
-                                      const NextTrackEvent(),
-                                    );
-                                  },
-                                  onPrevious: () {
-                                    context.read<PlayerBlocBloc>().add(
-                                      const PreviousTrackEvent(),
-                                    );
-                                  },
-                                  onShuffle: () {
-                                    context.read<PlayerBlocBloc>().add(
-                                      const ToggleShuffleEvent(),
-                                    );
-                                  },
-                                  onRepeat: () {
-                                    final nextLoopMode = _getNextLoopMode(
-                                      state.loopMode,
-                                    );
-                                    context.read<PlayerBlocBloc>().add(
-                                      SetLoopModeEvent(nextLoopMode),
-                                    );
-                                  },
-                                )
-                              else
-                                PlayerControlsWidget(
-                                  isPlaying: false,
-                                  canPlayNext: false,
-                                  canPlayPrevious: false,
-                                  isShuffleEnabled: false,
-                                  loopMode: LoopMode.off,
-                                  onPlayPause: null,
-                                  onNext: null,
-                                  onPrevious: null,
-                                  onShuffle: null,
-                                  onRepeat: null,
-                                ),
-                              const SizedBox(height: 32),
-
-                              // Toggle lyrics visibility
-                              Builder(
-                                builder: (context) {
-                                  return TextButton.icon(
-                                    onPressed: () {
-                                      setState(() {
-                                        _showLyrics = !_showLyrics;
-                                      });
-                                    },
-                                    icon: Icon(
-                                      _showLyrics ? Icons.lyrics : Icons.lyrics_outlined,
-                                      color: _showLyrics 
-                                          ? Theme.of(context).primaryColor 
-                                          : Colors.white,
-                                    ),
-                                    label: Text(
-                                      _showLyrics ? 'Hide Lyrics' : 'Show Lyrics',
-                                      style: TextStyle(
-                                        color: _showLyrics 
-                                            ? Theme.of(context).primaryColor 
-                                            : Colors.white,
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                              const SizedBox(height: 16),
-
-                              // Lyrics widget
-                              if (_showLyrics)
-                                LyricsWidget(
-                                  videoId: currentTrack.videoId,
-                                ),
-
-                              const SizedBox(height: 32),
-
-                              // Songs similar to this (Radio)
-                              PlayerSimilarSongsWidget(
-                                videoId: currentTrack.videoId,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              );
-            },
-          ),
-        ),
-      ),
+    return const Scaffold(
+      backgroundColor: Color(0xFF0D0D0D),
+      body: Center(child: Text('Player screen')),
     );
   }
 
-  /// Obtiene el siguiente modo de repetición
-  LoopMode _getNextLoopMode(LoopMode current) {
-    switch (current) {
-      case LoopMode.off:
-        return LoopMode.one;
-      case LoopMode.one:
-        return LoopMode.all;
-      case LoopMode.all:
-        return LoopMode.off;
-    }
-  }
 }

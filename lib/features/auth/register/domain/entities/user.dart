@@ -13,8 +13,6 @@ class User {
     required this.email,
     required this.firstName,
     required this.lastName,
-    this.avatar,
-    required this.role,
-    required this.isEmailVerified,
+    required this.role, required this.isEmailVerified, this.avatar,
   });
 }

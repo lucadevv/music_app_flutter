@@ -10,7 +10,7 @@ import 'package:music_app/features/home/domain/entities/mood_genre.dart';
 class MoodGenreCardWidget extends StatelessWidget {
   final MoodGenre moodGenre;
 
-  const MoodGenreCardWidget({super.key, required this.moodGenre});
+  const MoodGenreCardWidget({required this.moodGenre, super.key});
 
   @override
   Widget build(BuildContext context) {

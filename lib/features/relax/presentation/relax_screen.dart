@@ -163,13 +163,13 @@ class _MusicCard extends StatelessWidget {
         children: [
           Expanded(
             child: Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppColorsDark.primaryContainer,
-                borderRadius: const BorderRadius.vertical(
+                borderRadius: BorderRadius.vertical(
                   top: Radius.circular(12),
                 ),
               ),
-              child: Center(
+              child: const Center(
                 child: Icon(
                   Icons.music_note,
                   size: 60,

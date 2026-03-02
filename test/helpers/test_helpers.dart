@@ -1,18 +1,20 @@
 import 'package:dartz/dartz.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
+import 'package:music_app/features/auth/data/models/oauth_request.dart';
+import 'package:music_app/features/auth/data/services/oauth_service.dart';
 import 'package:music_app/features/auth/login/domain/entities/login_request.dart';
+import 'package:music_app/features/auth/login/domain/use_cases/oauth_sign_in_use_case.dart';
 import 'package:music_app/features/auth/register/domain/entities/register_request.dart';
 import 'package:music_app/features/auth/register/domain/entities/register_response.dart';
 import 'package:music_app/features/auth/register/domain/entities/user.dart';
-import 'package:music_app/features/auth/data/models/oauth_request.dart';
-import 'package:music_app/features/auth/data/services/oauth_service.dart';
 import 'package:music_app/features/downloads/domain/entities/downloaded_song.dart';
 import 'package:music_app/features/home/domain/entities/chart_song.dart';
 import 'package:music_app/features/home/domain/entities/home_content_item.dart';
 import 'package:music_app/features/home/domain/entities/home_response.dart';
 import 'package:music_app/features/home/domain/entities/home_section.dart';
 import 'package:music_app/features/home/domain/entities/mood_genre.dart';
+import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 import 'package:music_app/features/search/domain/entities/album.dart';
 import 'package:music_app/features/search/domain/entities/artist.dart';
 import 'package:music_app/features/search/domain/entities/recent_search.dart';
@@ -20,8 +22,6 @@ import 'package:music_app/features/search/domain/entities/search_request.dart';
 import 'package:music_app/features/search/domain/entities/search_response.dart';
 import 'package:music_app/features/search/domain/entities/song.dart';
 import 'package:music_app/features/search/domain/entities/thumbnail.dart';
-import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
-import 'package:music_app/features/auth/login/domain/use_cases/oauth_sign_in_use_case.dart';
 
 // ============ OAuth Mock Classes ============
 
@@ -345,7 +345,7 @@ NowPlayingData createTestNowPlayingData({
   return NowPlayingData.fromBasic(
     videoId: videoId,
     title: title,
-    artistNames: ['Artist 1', 'Artist 2'],
+    artistNames: const ['Artist 1', 'Artist 2'],
     albumName: 'Test Album',
     duration: '3:45',
     durationSeconds: 225,

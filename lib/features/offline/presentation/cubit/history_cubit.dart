@@ -4,6 +4,8 @@ import 'package:music_app/core/bloc/base_bloc_mixin.dart';
 import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
 import 'package:music_app/data/offline/models/offline_history.dart';
 import 'package:music_app/data/offline/services/offline_service.dart';
+import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
+import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 
 part 'history_state.dart';
 
@@ -21,10 +23,12 @@ part 'history_state.dart';
 /// - Actualizar progreso de reproducción
 /// - Limpiar historial
 /// - Cargar estadísticas de reproducción
+/// - Reproducir canciones del historial
 class HistoryCubit extends Cubit<HistoryState> with BaseBlocMixin {
   final OfflineService _offlineService;
+  final PlayerBlocBloc _playerBloc;
 
-  HistoryCubit(this._offlineService) : super(const HistoryState());
+  HistoryCubit(this._offlineService, this._playerBloc) : super(const HistoryState());
 
   /// Carga el historial de reproducción desde Hive
   ///
@@ -200,6 +204,51 @@ class HistoryCubit extends Cubit<HistoryState> with BaseBlocMixin {
   /// Limpia el mensaje de error
   void clearError() {
     emit(state.copyWith(clearError: true));
+  }
+
+  /// Reproduce una canción del historial por índice
+  void playSong(int index) {
+    if (index < 0 || index >= state.history.length) return;
+
+    final historyItem = state.history[index];
+    _playFromHistoryItem(historyItem);
+  }
+
+  /// Reproduce todas las canciones del historial
+  void playAll() {
+    if (state.history.isEmpty) return;
+
+    final playlist = state.history
+        .where((item) => item.videoId.isNotEmpty)
+        .map(_mapToNowPlaying)
+        .toList();
+
+    if (playlist.isNotEmpty) {
+      _playerBloc.add(LoadPlaylistEvent(playlist: playlist, startIndex: 0));
+    }
+  }
+
+  void _playFromHistoryItem(OfflineHistory historyItem) {
+    final nowPlayingData = _mapToNowPlaying(historyItem);
+    _playerBloc.add(LoadTrackEvent(nowPlayingData));
+  }
+
+  NowPlayingData _mapToNowPlaying(OfflineHistory historyItem) {
+    return NowPlayingData.fromBasic(
+      videoId: historyItem.videoId,
+      title: historyItem.title,
+      artistNames: [historyItem.artist],
+      albumName: '',
+      duration: historyItem.duration != null ? _formatDuration(historyItem.duration!) : '0:00',
+      durationSeconds: historyItem.duration,
+      thumbnailUrl: historyItem.thumbnail,
+    );
+  }
+
+  String _formatDuration(int seconds) {
+    final minutes = seconds ~/ 60;
+    final secs = seconds % 60;
+    return '$minutes:${secs.toString().padLeft(2, '0')}';
   }
 
   /// Obtiene un mensaje de error legible desde una excepción

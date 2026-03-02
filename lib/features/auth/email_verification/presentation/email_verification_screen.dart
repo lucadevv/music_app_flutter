@@ -2,7 +2,6 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:music_app/core/managers/auth/auth_manager.dart';
 import 'package:music_app/core/services/auth/auth_service.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/l10n/app_localizations.dart';
@@ -20,6 +19,7 @@ class EmailVerificationScreen extends StatefulWidget {
 class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
   final _authService = getIt<AuthService>();
   String? _userEmail;
+  bool _isLoadingEmail = true;
 
   @override
   void initState() {
@@ -29,21 +29,22 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
 
   Future<void> _loadUserEmail() async {
     final email = await _authService.getUserEmail();
-    setState(() {
-      _userEmail = email;
-    });
+    if (mounted) {
+      setState(() {
+        _userEmail = email;
+        _isLoadingEmail = false;
+      });
+    }
   }
 
   Future<void> _openEmailApp(AppLocalizations l10n) async {
     if (_userEmail == null) return;
 
-    // Intentar abrir la aplicación de correo predeterminada
     final emailUri = Uri.parse('mailto:$_userEmail');
     try {
       if (await canLaunchUrl(emailUri)) {
         await launchUrl(emailUri);
       } else {
-        // Si no se puede abrir mailto, intentar abrir Gmail
         final gmailUri = Uri.parse('https://mail.google.com/mail/u/0/#inbox');
         if (await canLaunchUrl(gmailUri)) {
           await launchUrl(gmailUri, mode: LaunchMode.externalApplication);
@@ -77,25 +78,25 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
         backgroundColor: AppColorsDark.surfaceContainerHigh,
         title: Text(
           l10n.logoutConfirmation,
-          style: TextStyle(color: AppColorsDark.onSurface),
+          style: const TextStyle(color: AppColorsDark.onSurface),
         ),
         content: Text(
           l10n.logoutTokensWarning,
-          style: TextStyle(color: AppColorsDark.onSurfaceVariant),
+          style: const TextStyle(color: AppColorsDark.onSurfaceVariant),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
             child: Text(
               l10n.cancel,
-              style: TextStyle(color: AppColorsDark.onSurfaceVariant),
+              style: const TextStyle(color: AppColorsDark.onSurfaceVariant),
             ),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
             child: Text(
               l10n.logout,
-              style: TextStyle(color: AppColorsDark.error),
+              style: const TextStyle(color: AppColorsDark.error),
             ),
           ),
         ],
@@ -103,32 +104,10 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
     );
 
     if (confirmed == true) {
-      // Limpiar datos de AuthService (LocalStorageService)
       await _authService.clearAuthData();
-
-      // Limpiar datos de TokenManager (FlutterSecureStorage + SharedPreferences)
-      final authManager = await getIt.getAsync<AuthManager>();
-      await authManager.logout();
-
-      // Verificar que se eliminaron correctamente
-      final refreshToken = await authManager.getCurrentRefreshToken();
-      final accessToken = await authManager.getCurrentAccessToken();
-
-      if (refreshToken == null && accessToken == null) {
-        // Navegar a login solo si los tokens fueron eliminados correctamente
-        if (mounted) {
-          context.router.replaceAll([const LoginRoute()]);
-        }
-      } else {
-        // Si aún hay tokens, mostrar error
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.errorClosingSession),
-              backgroundColor: AppColorsDark.error,
-            ),
-          );
-        }
+      // Navigate to login after clearing auth
+      if (mounted) {
+        context.router.replaceAll([const LoginRoute()]);
       }
     }
   }
@@ -147,7 +126,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // Icono de verificación
-              Icon(
+              const Icon(
                 Icons.mark_email_unread,
                 size: 80,
                 color: AppColorsDark.primary,
@@ -158,7 +137,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
               Text(
                 l10n.verifyYourEmail,
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
                   color: AppColorsDark.onSurface,
@@ -170,17 +149,17 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
               Text(
                 l10n.verificationEmailSent,
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 16,
                   color: AppColorsDark.onSurfaceVariant,
                 ),
               ),
-              if (_userEmail != null) ...[
+              if (_userEmail != null && !_isLoadingEmail) ...[
                 const SizedBox(height: 8),
                 Text(
                   _userEmail!,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: AppColorsDark.primary,
@@ -208,13 +187,13 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
               // Botón de salir
               OutlinedButton.icon(
                 onPressed: () => _logout(l10n),
-                icon: Icon(Icons.logout, color: AppColorsDark.error),
+                icon: const Icon(Icons.logout, color: AppColorsDark.error),
                 label: Text(
                   l10n.logout,
-                  style: TextStyle(color: AppColorsDark.error),
+                  style: const TextStyle(color: AppColorsDark.error),
                 ),
                 style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: AppColorsDark.error),
+                  side: const BorderSide(color: AppColorsDark.error),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
@@ -227,7 +206,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
               Text(
                 l10n.onceVerifiedAccess,
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 14,
                   color: AppColorsDark.onSurfaceVariant,
                 ),

@@ -11,9 +11,7 @@ class MoodGenresGridWidget extends StatelessWidget {
   final List<MoodGenre> genres;
 
   const MoodGenresGridWidget({
-    super.key,
-    required this.moods,
-    required this.genres,
+    required this.moods, required this.genres, super.key,
   });
 
   @override

@@ -29,15 +29,11 @@ class OrquestadorSearchCubit extends Cubit<OrquestadorSearchState> {
 
   void _startListening() {
     // Escuchar cambios del SearchCubit
-    _searchSubscription = _searchCubit.stream.listen((searchState) {
-      _updateSearchState(searchState);
-    });
+    _searchSubscription = _searchCubit.stream.listen(_updateSearchState);
 
     // Escuchar cambios del RecentSearchesCubit
     _recentSearchesSubscription =
-        _recentSearchesCubit.stream.listen((recentSearchesState) {
-      _updateRecentSearchesState(recentSearchesState);
-    });
+        _recentSearchesCubit.stream.listen(_updateRecentSearchesState);
   }
 
   void _updateSearchState(SearchState state) {

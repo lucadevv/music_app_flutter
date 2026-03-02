@@ -4,10 +4,11 @@ import 'package:flutter/foundation.dart';
 import 'package:music_app/core/services/network/api_services.dart';
 import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
 import 'package:music_app/core/utils/exeptions/exception_handler.dart';
+import 'package:music_app/features/search/data/models/recent_search_model.dart';
+import 'package:music_app/features/search/domain/entities/recent_search.dart';
 import '../../domain/entities/search_request.dart';
 import '../models/search_response_model.dart';
-import '../models/recent_search_model.dart';
-import '../../domain/entities/recent_search.dart';
+
 
 /// Data source remoto para operaciones de búsqueda
 abstract class SearchRemoteDataSource {
@@ -96,7 +97,7 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
             // La API puede retornar solo strings o objetos completos
             if (item is String) {
               // Saltar items que son solo strings - la API debería retornar objetos completos
-              debugPrint('getRecentSearches: Item $i es String (solo query), saltando: $item');
+              if (kDebugMode) debugPrint('getRecentSearches: Item $i es String (solo query), saltando: $item');
               continue;
             } 
             // Si el item es un Map, parsearlo normalmente
@@ -105,21 +106,23 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
             }
             // Si el item es otro tipo, intentar convertirlo
             else {
-              debugPrint('getRecentSearches: Item $i tiene tipo inesperado: ${item.runtimeType}, valor: $item');
+              if (kDebugMode) debugPrint('getRecentSearches: Item $i tiene tipo inesperado: ${item.runtimeType}, valor: $item');
               // Intentar convertir a Map si es posible
               try {
                 final itemMap = Map<String, dynamic>.from(item as Map);
                 recentSearches.add(RecentSearchModel.fromJson(itemMap));
               } catch (castError) {
-                debugPrint('getRecentSearches: Error convirtiendo item $i a Map: $castError');
+                if (kDebugMode) debugPrint('getRecentSearches: Error convirtiendo item $i a Map: $castError');
                 continue;
               }
             }
           } catch (e, stackTrace) {
             // Si falla el parseo de un item, loguear y continuar con los demás
-            debugPrint('getRecentSearches: Error parseando item $i: $e');
-            debugPrint('getRecentSearches: Stack trace: $stackTrace');
-            debugPrint('getRecentSearches: Item que causó el error: $item (tipo: ${item.runtimeType})');
+            if (kDebugMode) {
+              debugPrint('getRecentSearches: Error parseando item $i: $e');
+              debugPrint('getRecentSearches: Stack trace: $stackTrace');
+              debugPrint('getRecentSearches: Item que causó el error: $item (tipo: ${item.runtimeType})');
+            }
             continue;
           }
         }
@@ -138,11 +141,11 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
               if (item is Map<String, dynamic>) {
                 recentSearches.add(RecentSearchModel.fromJson(item));
               } else if (item is String) {
-                debugPrint('getRecentSearches: Item $i en data es String, saltando: $item');
+                if (kDebugMode) debugPrint('getRecentSearches: Item $i en data es String, saltando: $item');
                 continue;
               }
             } catch (e) {
-              debugPrint('getRecentSearches: Error parseando item $i en data: $e');
+              if (kDebugMode) debugPrint('getRecentSearches: Error parseando item $i en data: $e');
               continue;
             }
           }

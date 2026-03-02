@@ -13,7 +13,7 @@ class AudioPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler
     // Crear MediaItem para la notificación
     final mediaItem = MediaItem(
       id: track.videoId,
-      album: track.album?.name ?? '',
+      album: track.album.name,
       title: track.title,
       artist: track.artistsNames,
       duration: track.durationSeconds > 0 
@@ -64,7 +64,7 @@ class AudioPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler
   /// Skip to queue item
   @override
   Future<void> skipToQueueItem(int index) async {
-    if (_player.sequence != null && index < _player.sequence!.length) {
+    if (index < _player.sequence.length) {
       await _player.seek(Duration.zero, index: index);
     }
   }

@@ -67,14 +67,18 @@ class AuthService {
         _localStorage.remove(_userEmailKey),
       ]);
       final success = results.every((result) => result == true);
-      if (success) {
-        debugPrint('AuthService: Datos de autenticación eliminados correctamente de LocalStorageService');
-      } else {
-        debugPrint('AuthService: Algunos datos no se pudieron eliminar');
+      if (kDebugMode) {
+        if (success) {
+          debugPrint('AuthService: Datos de autenticación eliminados correctamente de LocalStorageService');
+        } else {
+          debugPrint('AuthService: Algunos datos no se pudieron eliminar');
+        }
       }
       return success;
     } catch (e) {
-      debugPrint('AuthService: Error eliminando datos de autenticación: $e');
+      if (kDebugMode) {
+        debugPrint('AuthService: Error eliminando datos de autenticación: $e');
+      }
       return false;
     }
   }

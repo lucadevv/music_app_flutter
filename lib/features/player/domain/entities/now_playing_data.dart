@@ -91,8 +91,7 @@ class NowPlayingData extends Equatable {
     required String title,
     required List<String> artistNames,
     required String albumName,
-    String? albumId,
-    required String duration,
+    required String duration, String? albumId,
     int? durationSeconds,
     String views = '0',
     bool isExplicit = false,
@@ -140,6 +139,9 @@ class NowPlayingData extends Equatable {
   /// 
   /// Utiliza un getter computado para evitar duplicación de lógica
   String get artistsNames => artists.map((a) => a.name).join(', ');
+
+  /// Simple alias for duration in UI strings
+  String get formattedDuration => duration;
 
   /// Obtener la mejor thumbnail disponible
   /// 

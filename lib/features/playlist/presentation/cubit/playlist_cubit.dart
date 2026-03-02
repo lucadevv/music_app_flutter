@@ -34,7 +34,7 @@ class PlaylistCubit extends Cubit<PlaylistState> with BaseBlocMixin {
 
     result.fold(
       (failure) {
-        String errorMessage = getErrorMessage(failure);
+        final String errorMessage = getErrorMessage(failure);
         emit(
           state.copyWith(
             status: PlaylistStatus.failure,

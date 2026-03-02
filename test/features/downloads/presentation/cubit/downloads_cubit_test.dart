@@ -3,6 +3,7 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
+import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/downloads/domain/entities/downloaded_song.dart';
 import 'package:music_app/features/downloads/domain/repositories/downloads_repository.dart';
 import 'package:music_app/features/downloads/domain/use_cases/check_download_status_use_case.dart';
@@ -14,6 +15,8 @@ import 'package:music_app/features/downloads/presentation/cubit/downloads_cubit.
 import '../../../../helpers/test_helpers.dart';
 
 class MockDownloadsRepository extends Mock implements DownloadsRepository {}
+
+class MockPlayerBlocBloc extends Mock implements PlayerBlocBloc {}
 
 void main() {
   late DownloadsCubit downloadsCubit;
@@ -29,6 +32,7 @@ void main() {
 
   setUp(() {
     mockRepository = MockDownloadsRepository();
+    final mockPlayerBloc = MockPlayerBlocBloc();
     downloadSongUseCase = DownloadSongUseCase(mockRepository);
     getDownloadedSongsUseCase = GetDownloadedSongsUseCase(mockRepository);
     removeDownloadUseCase = RemoveDownloadUseCase(mockRepository);
@@ -38,6 +42,7 @@ void main() {
       getDownloadedSongsUseCase,
       removeDownloadUseCase,
       checkDownloadStatusUseCase,
+      mockPlayerBloc,
     );
   });
 

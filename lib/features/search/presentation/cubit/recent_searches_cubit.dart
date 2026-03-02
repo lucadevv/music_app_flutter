@@ -1,6 +1,6 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:equatable/equatable.dart';
 import 'package:music_app/core/bloc/base_bloc_mixin.dart';
 import '../../domain/entities/recent_search.dart';
 import '../../domain/use_cases/get_recent_searches_use_case.dart';
@@ -39,9 +39,9 @@ class RecentSearchesCubit extends Cubit<RecentSearchesState> with BaseBlocMixin 
       (failure) {
         if (isClosed) return;
         
-        String errorMessage = getErrorMessage(failure);
+        final String errorMessage = getErrorMessage(failure);
         if (kDebugMode) {
-          debugPrint("RecentSearchesCubit: errorMessage $errorMessage");
+          debugPrint('RecentSearchesCubit: errorMessage $errorMessage');
         }
         emit(
           state.copyWith(

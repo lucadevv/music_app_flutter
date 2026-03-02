@@ -15,6 +15,6 @@ class RegisterUseCase {
   Future<Either<AppException, RegisterResponse>> call(
     RegisterRequest request,
   ) async {
-    return await _repository.register(request);
+    return _repository.register(request);
   }
 }

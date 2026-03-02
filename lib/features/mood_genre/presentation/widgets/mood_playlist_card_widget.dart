@@ -12,9 +12,7 @@ class MoodPlaylistCardWidget extends StatelessWidget {
   final VoidCallback onTap;
 
   const MoodPlaylistCardWidget({
-    super.key,
-    required this.playlist,
-    required this.onTap,
+    required this.playlist, required this.onTap, super.key,
   });
 
   @override
@@ -37,9 +35,9 @@ class MoodPlaylistCardWidget extends StatelessWidget {
           children: [
             Expanded(
               child: Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: AppColorsDark.primaryContainer,
-                  borderRadius: const BorderRadius.vertical(
+                  borderRadius: BorderRadius.vertical(
                     top: Radius.circular(12),
                   ),
                 ),
@@ -53,21 +51,21 @@ class MoodPlaylistCardWidget extends StatelessWidget {
                           width: double.infinity,
                           height: double.infinity,
                           fit: BoxFit.cover,
-                          placeholder: (context, url) => Center(
+                          placeholder: (context, url) => const Center(
                             child: CircularProgressIndicator(
                               valueColor: AlwaysStoppedAnimation<Color>(
                                 AppColorsDark.primary,
                               ),
                             ),
                           ),
-                          errorWidget: (context, url, error) => Icon(
+                          errorWidget: (context, url, error) => const Icon(
                             Icons.playlist_play,
                             size: 60,
                             color: AppColorsDark.primary,
                           ),
                         ),
                       )
-                    : Center(
+                    : const Center(
                         child: Icon(
                           Icons.playlist_play,
                           size: 60,

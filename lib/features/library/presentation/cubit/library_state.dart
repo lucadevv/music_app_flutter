@@ -19,12 +19,9 @@ class PlaylistItem {
 
   PlaylistItem({
     required this.id,
-    this.externalPlaylistId,
-    required this.name,
+    required this.name, required this.songCount, required this.isUserCreated, this.externalPlaylistId,
     this.description,
     this.thumbnail,
-    required this.songCount,
-    required this.isUserCreated,
   });
 }
 

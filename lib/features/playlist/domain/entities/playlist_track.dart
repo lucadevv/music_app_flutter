@@ -22,20 +22,13 @@ class PlaylistTrack {
   final Thumbnail? thumbnail; // Thumbnail de mejor calidad (viene junto con stream_url)
 
   const PlaylistTrack({
-    this.videoId,
-    required this.title,
-    required this.artists,
+    required this.title, required this.artists, required this.thumbnails, required this.isAvailable, required this.isExplicit, required this.duration, required this.durationSeconds, this.videoId,
     this.album,
     this.likeStatus,
     this.inLibrary,
     this.pinnedToListenAgain,
-    required this.thumbnails,
-    required this.isAvailable,
-    required this.isExplicit,
     this.videoType,
     this.views,
-    required this.duration,
-    required this.durationSeconds,
     this.streamUrl,
     this.thumbnail,
   });

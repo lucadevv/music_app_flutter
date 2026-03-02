@@ -16,11 +16,10 @@ class OAuthResult {
 
   const OAuthResult({
     required this.accessToken,
-    this.idToken,
+    required this.provider, this.idToken,
     this.email,
     this.name,
     this.photoUrl,
-    required this.provider,
   });
 }
 
@@ -87,10 +86,6 @@ class OAuthServiceImpl implements OAuthService {
       );
 
       final authorizationCode = credential.authorizationCode;
-      if (authorizationCode == null) {
-        AppLogger.error('Apple Sign In: authorization code is null');
-        return null;
-      }
 
       // Construir el nombre completo
       final name =

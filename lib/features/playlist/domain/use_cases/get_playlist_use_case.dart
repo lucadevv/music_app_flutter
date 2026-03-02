@@ -18,6 +18,6 @@ class GetPlaylistUseCase {
   /// 
   /// Retorna [Either<AppException, PlaylistResponse>]
   Future<Either<AppException, PlaylistResponse>> call(String id) async {
-    return await _repository.getPlaylist(id);
+    return _repository.getPlaylist(id);
   }
 }

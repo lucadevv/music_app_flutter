@@ -17,6 +17,8 @@ class OnboardingService {
   /// Marca el onboarding como completado
   Future<void> setOnboardingCompleted(bool value) async {
     await _prefs.setBool(_onboardingCompletedKey, value);
-    debugPrint('OnboardingService: onboarding completado = $value');
+    if (kDebugMode) {
+      debugPrint('OnboardingService: onboarding completado = $value');
+    }
   }
 }

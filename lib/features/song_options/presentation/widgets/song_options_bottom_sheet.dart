@@ -8,8 +8,7 @@ import 'package:music_app/features/favorites/presentation/cubit/favorite_cubit.d
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/l10n/app_localizations.dart';
 import 'package:music_app/main.dart';
-// TODO: Importar share_plus cuando esté disponible
-// import 'package:share_plus/share_plus.dart';
+// Note: Sharing functionality can be wired with 'share_plus' in a future PR
 
 /// Datos de canción para el bottom sheet
 class SongOptionsData {
@@ -41,8 +40,7 @@ class SongOptionsBottomSheet extends StatelessWidget {
   final VoidCallback? onRemoveDownload;
 
   const SongOptionsBottomSheet({
-    super.key,
-    required this.song,
+    required this.song, super.key,
     this.onPlayOffline,
     this.onRemoveDownload,
   });
@@ -65,16 +63,20 @@ class SongOptionsBottomSheet extends StatelessWidget {
   }
 
   /// Comparte la canción
-  void _shareSong(SongOptionsData song) {
+  void _shareSong(BuildContext context, SongOptionsData song) {
     final shareText = '🎵 ${song.title} - ${song.artist}\n\n'
         'Listen to this song on Music App!\n'
         'https://music.youtube.com/watch?v=${song.videoId}';
 
-    // TODO: Descomentar cuando se ejecute flutter pub get
+    
     // Share.share(shareText, subject: song.title);
     
-    // Por ahora mostrar un snackbar
-    debugPrint('Share: $shareText');
+    // For now, show a snackbar as fallback
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Share: $shareText')),
+      );
+    }
   }
 
   /// Muestra el diálogo para agregar a playlist
@@ -86,7 +88,7 @@ class SongOptionsBottomSheet extends StatelessWidget {
     bool isLoading = true;
     String? error;
 
-    try {
+      try {
       final libraryService = getIt<LibraryService>();
       final response = await libraryService.getUserPlaylists();
       playlists = response.data;
@@ -192,7 +194,7 @@ class SongOptionsBottomSheet extends StatelessWidget {
                                   fit: BoxFit.cover,
                                 ),
                               )
-                            : Icon(
+                            : const Icon(
                                 Icons.playlist_play,
                                 color: AppColorsDark.primary,
                               ),
@@ -307,7 +309,7 @@ class SongOptionsBottomSheet extends StatelessWidget {
               label: l10n.share,
               onTap: () {
                 Navigator.pop(context);
-                _shareSong(song);
+                _shareSong(context, song);
               },
             ),
           ],
@@ -342,12 +344,12 @@ class _SongHeader extends StatelessWidget {
               ? CachedNetworkImage(
                   imageUrl: thumbnail!,
                   fit: BoxFit.cover,
-                  errorWidget: (_, __, ___) => Icon(
+                  errorWidget: (_, _, _) => const Icon(
                     Icons.music_note,
                     color: AppColorsDark.primary,
                   ),
                 )
-              : Icon(Icons.music_note, color: AppColorsDark.primary),
+              : const Icon(Icons.music_note, color: AppColorsDark.primary),
         ),
       ),
       title: Text(
@@ -382,9 +384,8 @@ class _FavoriteOptionTile extends StatelessWidget {
     required this.videoId,
     required this.title,
     required this.artist,
-    this.thumbnail,
+    required this.isFavorite, this.thumbnail,
     this.duration,
-    required this.isFavorite,
   });
 
   @override

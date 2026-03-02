@@ -77,7 +77,7 @@ class _LoginScreenState extends State<LoginScreen> {
           backgroundColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: AppColorsDark.onSurface),
+            icon: const Icon(Icons.arrow_back, color: AppColorsDark.onSurface),
             onPressed: () => context.router.pop(),
           ),
         ),
@@ -90,7 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 // Título
                 Text(
                   l10n.loginTitle,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
                     color: AppColorsDark.onSurface,
@@ -99,7 +99,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 8),
                 Text(
                   l10n.enterYourCredentials,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 16,
                     color: AppColorsDark.onSurfaceVariant,
                   ),
@@ -116,7 +116,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       decoration: InputDecoration(
                         labelText: l10n.emailAddress,
                         hintText: l10n.emailHint,
-                        prefixIcon: Icon(
+                        prefixIcon: const Icon(
                           Icons.email,
                           color: AppColorsDark.primary,
                         ),
@@ -126,15 +126,15 @@ class _LoginScreenState extends State<LoginScreen> {
                           borderRadius: BorderRadius.circular(20),
                           borderSide: BorderSide.none,
                         ),
-                        labelStyle: TextStyle(
+                        labelStyle: const TextStyle(
                           color: AppColorsDark.onSurfaceVariant,
                         ),
-                        hintStyle: TextStyle(
+                        hintStyle: const TextStyle(
                           color: AppColorsDark.onSurfaceVariant,
                         ),
                         errorText: _formNotifier.emailError,
                       ),
-                      style: TextStyle(color: AppColorsDark.onSurface),
+                      style: const TextStyle(color: AppColorsDark.onSurface),
                     );
                   },
                 ),
@@ -150,7 +150,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       decoration: InputDecoration(
                         labelText: l10n.passwordLabel,
                         hintText: l10n.passwordHint,
-                        prefixIcon: Icon(
+                        prefixIcon: const Icon(
                           Icons.lock,
                           color: AppColorsDark.primary,
                         ),
@@ -173,15 +173,15 @@ class _LoginScreenState extends State<LoginScreen> {
                           borderRadius: BorderRadius.circular(20),
                           borderSide: BorderSide.none,
                         ),
-                        labelStyle: TextStyle(
+                        labelStyle: const TextStyle(
                           color: AppColorsDark.onSurfaceVariant,
                         ),
-                        hintStyle: TextStyle(
+                        hintStyle: const TextStyle(
                           color: AppColorsDark.onSurfaceVariant,
                         ),
                         errorText: _formNotifier.passwordError,
                       ),
-                      style: TextStyle(color: AppColorsDark.onSurface),
+                      style: const TextStyle(color: AppColorsDark.onSurface),
                     );
                   },
                 ),
@@ -196,7 +196,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                     child: Text(
                       l10n.forgotYourPassword,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: AppColorsDark.primary,
                         fontSize: 14,
                       ),
@@ -246,17 +246,17 @@ class _LoginScreenState extends State<LoginScreen> {
                 // Divider
                 Row(
                   children: [
-                    Expanded(
+                    const Expanded(
                       child: Divider(color: AppColorsDark.outlineVariant),
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
                         l10n.or,
-                        style: TextStyle(color: AppColorsDark.onSurfaceVariant),
+                        style: const TextStyle(color: AppColorsDark.onSurfaceVariant),
                       ),
                     ),
-                    Expanded(
+                    const Expanded(
                       child: Divider(color: AppColorsDark.outlineVariant),
                     ),
                   ],
@@ -278,14 +278,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                         .read<LoginCubit>()
                                         .signInWithGoogle();
                                   },
-                            icon: Icon(
+                            icon: const Icon(
                               Icons.g_mobiledata,
                               color: AppColorsDark.onSurface,
                             ),
                             label: Text(l10n.google),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: AppColorsDark.onSurface,
-                              side: BorderSide(color: AppColorsDark.outline),
+                              side: const BorderSide(color: AppColorsDark.outline),
                               padding: const EdgeInsets.symmetric(vertical: 12),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20),
@@ -308,12 +308,12 @@ class _LoginScreenState extends State<LoginScreen> {
                                         .read<LoginCubit>()
                                         .signInWithApple();
                                   },
-                            icon: Icon(Icons.apple,
+                            icon: const Icon(Icons.apple,
                                 color: AppColorsDark.onSurface),
                             label: Text(l10n.apple),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: AppColorsDark.onSurface,
-                              side: BorderSide(color: AppColorsDark.outline),
+                              side: const BorderSide(color: AppColorsDark.outline),
                               padding: const EdgeInsets.symmetric(vertical: 12),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20),
@@ -334,7 +334,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   },
                   child: RichText(
                     text: TextSpan(
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: AppColorsDark.onSurfaceVariant,
                         fontSize: 14,
                       ),
@@ -342,7 +342,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         TextSpan(text: '${l10n.noAccount} '),
                         TextSpan(
                           text: l10n.register,
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: AppColorsDark.primary,
                             fontWeight: FontWeight.w600,
                           ),

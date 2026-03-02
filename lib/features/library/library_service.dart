@@ -150,10 +150,10 @@ class LibraryService {
         '/library/playlists',
         data: {
           'externalPlaylistId': externalPlaylistId,
-          if (name != null) 'name': name,
-          if (thumbnail != null) 'thumbnail': thumbnail,
-          if (description != null) 'description': description,
-          if (trackCount != null) 'trackCount': trackCount,
+          'name': ?name,
+          'thumbnail': ?thumbnail,
+          'description': ?description,
+          'trackCount': ?trackCount,
         },
       );
     } catch (e) {
@@ -183,7 +183,7 @@ class LibraryService {
     try {
       await _apiServices.post(
         '/library/genres',
-        data: {'externalParams': externalParams, if (name != null) 'name': name},
+        data: {'externalParams': externalParams, 'name': ?name},
       );
     } catch (e) {
       rethrow;
@@ -221,8 +221,8 @@ class LibraryService {
         '/library/user-playlists',
         data: {
           'name': name,
-          if (description != null) 'description': description,
-          if (thumbnail != null) 'thumbnail': thumbnail,
+          'description': ?description,
+          'thumbnail': ?thumbnail,
           'isPublic': isPublic,
         },
       );
@@ -267,10 +267,10 @@ class LibraryService {
       final response = await _apiServices.put(
         '/library/user-playlists/$playlistId',
         data: {
-          if (name != null) 'name': name,
-          if (description != null) 'description': description,
-          if (thumbnail != null) 'thumbnail': thumbnail,
-          if (isPublic != null) 'isPublic': isPublic,
+          'name': ?name,
+          'description': ?description,
+          'thumbnail': ?thumbnail,
+          'isPublic': ?isPublic,
         },
       );
       final data = response is Response ? response.data : response;
@@ -301,10 +301,10 @@ class LibraryService {
         '/library/user-playlists/$playlistId/songs',
         data: {
           'videoId': videoId,
-          if (title != null) 'title': title,
-          if (artist != null) 'artist': artist,
-          if (thumbnail != null) 'thumbnail': thumbnail,
-          if (duration != null) 'duration': duration,
+          'title': ?title,
+          'artist': ?artist,
+          'thumbnail': ?thumbnail,
+          'duration': ?duration,
         },
       );
       final data = response is Response ? response.data : response;
@@ -378,9 +378,8 @@ class FavoriteSong {
     required this.videoId,
     required this.title,
     required this.artist,
-    this.thumbnail,
+    required this.createdAt, this.thumbnail,
     this.duration,
-    required this.createdAt,
   });
 
   factory FavoriteSong.fromJson(Map<String, dynamic> json) {
@@ -433,11 +432,10 @@ class FavoritePlaylist {
     required this.playlistId,
     required this.externalPlaylistId,
     required this.name,
-    this.description,
+    required this.createdAt, this.description,
     this.thumbnail,
     this.trackCount,
     this.cachedTrackCount,
-    required this.createdAt,
   });
 
   factory FavoritePlaylist.fromJson(Map<String, dynamic> json) {
@@ -515,10 +513,8 @@ class UserPlaylist {
   UserPlaylist({
     required this.id,
     required this.name,
-    this.description,
+    required this.songCount, required this.createdAt, this.description,
     this.thumbnail,
-    required this.songCount,
-    required this.createdAt,
   });
 
   factory UserPlaylist.fromJson(Map<String, dynamic> json) {
@@ -545,11 +541,8 @@ class UserPlaylistDetail {
   UserPlaylistDetail({
     required this.id,
     required this.name,
-    this.description,
+    required this.isPublic, required this.songs, required this.createdAt, this.description,
     this.thumbnail,
-    required this.isPublic,
-    required this.songs,
-    required this.createdAt,
   });
 
   factory UserPlaylistDetail.fromJson(Map<String, dynamic> json) {

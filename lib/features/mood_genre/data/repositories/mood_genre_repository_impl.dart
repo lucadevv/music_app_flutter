@@ -17,6 +17,6 @@ class MoodGenreRepositoryImpl implements MoodGenreRepository {
   Future<Either<AppException, MoodPlaylistsResponse>> getMoodPlaylists(
     String params,
   ) async {
-    return await _remoteDataSource.getMoodPlaylists(params);
+    return _remoteDataSource.getMoodPlaylists(params);
   }
 }

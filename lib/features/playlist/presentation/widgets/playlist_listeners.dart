@@ -13,7 +13,7 @@ import '../cubit/playlist_cubit.dart';
 class PlaylistListeners extends StatefulWidget {
   final Widget child;
 
-  const PlaylistListeners({super.key, required this.child});
+  const PlaylistListeners({required this.child, super.key});
 
   @override
   State<PlaylistListeners> createState() => _PlaylistListenersState();

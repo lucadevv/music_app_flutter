@@ -2,11 +2,13 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
-import 'package:music_app/data/offline/services/offline_service.dart';
 import 'package:music_app/core/app_router/app_routes.dart';
 import 'package:music_app/core/bloc/locale_cubit.dart';
 import 'package:music_app/core/managers/auth/auth_manager.dart';
 import 'package:music_app/core/managers/auth/auth_manager_impl.dart';
+import 'package:music_app/core/services/local/onboarding_service.dart';
+import 'package:music_app/data/offline/services/offline_service.dart';
+
 import 'package:music_app/core/managers/auth/storage/token_manager.dart';
 import 'package:music_app/core/services/auth/auth_service.dart';
 import 'package:music_app/core/services/local/local_storage_service.dart';
@@ -14,6 +16,12 @@ import 'package:music_app/core/services/local/shared_preferences_service_impl.da
 import 'package:music_app/core/services/network/api_services.dart';
 import 'package:music_app/core/services/network/dio_services_impl.dart';
 import 'package:music_app/core/theme/theme_cubit.dart';
+import 'package:music_app/features/album/data/repositories/album_repository_impl.dart';
+import 'package:music_app/features/album/domain/repositories/album_repository.dart';
+import 'package:music_app/features/album/presentation/cubit/album_cubit.dart';
+import 'package:music_app/features/artist/data/repositories/artist_repository_impl.dart';
+import 'package:music_app/features/artist/domain/repositories/artist_repository.dart';
+import 'package:music_app/features/artist/presentation/cubit/artist_cubit.dart';
 import 'package:music_app/features/auth/data/services/oauth_service.dart';
 import 'package:music_app/features/auth/register/data/data_sources/auth_remote_data_source.dart';
 import 'package:music_app/features/auth/presentation/cubit/orquestador_auth_cubit.dart';
@@ -25,6 +33,7 @@ import 'package:music_app/features/auth/login/domain/use_cases/login_use_case.da
 import 'package:music_app/features/auth/login/domain/use_cases/oauth_sign_in_use_case.dart';
 import 'package:music_app/features/auth/login/presentation/cubit/login_cubit.dart';
 import 'package:music_app/features/auth/refresh_token/domain/use_cases/refresh_token_use_case.dart';
+import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/downloads/data/data_sources/downloads_local_data_source.dart';
 import 'package:music_app/features/downloads/data/repositories/downloads_repository_impl.dart';
 import 'package:music_app/features/downloads/domain/repositories/downloads_repository.dart';
@@ -33,20 +42,25 @@ import 'package:music_app/features/downloads/domain/use_cases/download_song_use_
 import 'package:music_app/features/downloads/domain/use_cases/get_downloaded_songs_use_case.dart';
 import 'package:music_app/features/downloads/domain/use_cases/remove_download_use_case.dart';
 import 'package:music_app/features/downloads/presentation/cubit/downloads_cubit.dart';
-import 'package:music_app/features/search/data/data_sources/search_remote_data_source.dart';
-import 'package:music_app/features/search/data/repositories/search_repository_impl.dart';
-import 'package:music_app/features/search/domain/repositories/search_repository.dart';
-import 'package:music_app/features/search/domain/use_cases/search_use_case.dart';
-import 'package:music_app/features/search/domain/use_cases/get_recent_searches_use_case.dart';
-import 'package:music_app/features/search/presentation/cubit/search_cubit.dart';
-import 'package:music_app/features/search/presentation/cubit/recent_searches_cubit.dart';
-import 'package:music_app/features/search/presentation/cubit/categories_cubit.dart';
-import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
+import 'package:music_app/features/favorites/presentation/cubit/favorite_cubit.dart';
 import 'package:music_app/features/home/data/data_sources/home_remote_data_source.dart';
-import 'package:music_app/core/services/audio_handler_service.dart';
 import 'package:music_app/features/home/data/repositories/home_repository_impl.dart';
 import 'package:music_app/features/home/domain/repositories/home_repository.dart';
 import 'package:music_app/features/home/domain/use_cases/get_home_use_case.dart';
+import 'package:music_app/features/library/library_service.dart';
+import 'package:music_app/features/library/presentation/cubit/library_cubit.dart';
+import 'package:music_app/features/offline/presentation/cubit/history_cubit.dart';
+import 'package:music_app/features/offline/presentation/cubit/playlist_offline_cubit.dart';
+import 'package:music_app/features/profile/profile_cubit.dart';
+import 'package:music_app/features/search/data/data_sources/search_remote_data_source.dart';
+import 'package:music_app/features/search/data/repositories/search_repository_impl.dart';
+import 'package:music_app/features/search/domain/repositories/search_repository.dart';
+import 'package:music_app/features/search/domain/use_cases/get_recent_searches_use_case.dart';
+import 'package:music_app/features/search/domain/use_cases/search_use_case.dart';
+import 'package:music_app/features/search/presentation/cubit/categories_cubit.dart';
+import 'package:music_app/features/search/presentation/cubit/recent_searches_cubit.dart';
+import 'package:music_app/features/search/presentation/cubit/search_cubit.dart';
+
 import 'package:music_app/features/home/presentation/cubit/home_cubit.dart';
 import 'package:music_app/features/mood_genre/data/data_sources/mood_genre_remote_data_source.dart';
 import 'package:music_app/features/mood_genre/data/repositories/mood_genre_repository_impl.dart';
@@ -57,21 +71,15 @@ import 'package:music_app/features/playlist/data/data_sources/playlist_remote_da
 import 'package:music_app/features/playlist/data/repositories/playlist_repository_impl.dart';
 import 'package:music_app/features/playlist/domain/repositories/playlist_repository.dart';
 import 'package:music_app/features/playlist/domain/use_cases/get_playlist_use_case.dart';
-import 'package:music_app/core/services/local/onboarding_service.dart';
 import 'package:music_app/features/playlist/presentation/cubit/playlist_cubit.dart';
-import 'package:music_app/features/library/library_service.dart';
-import 'package:music_app/features/library/presentation/cubit/library_cubit.dart';
-import 'package:music_app/features/favorites/presentation/cubit/favorite_cubit.dart';
-import 'package:music_app/features/offline/presentation/cubit/playlist_offline_cubit.dart';
-import 'package:music_app/features/offline/presentation/cubit/history_cubit.dart';
 import 'package:music_app/features/profile/profile_service.dart';
-import 'package:music_app/features/profile/profile_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppInjection {
   final GetIt _getIt;
   final String _baseUrl;
   final String _accessToken;
+  bool _isInitialized = false;
 
   AppInjection({
     required GetIt getIt,
@@ -80,24 +88,52 @@ class AppInjection {
   })  : _getIt = getIt,
         _baseUrl = baseUrl,
         _accessToken = accessToken {
-    _init();
+    // Don't call _init() here - call init() explicitly from main.dart
   }
 
-  void _init() {
+  /// Initialize all dependencies asynchronously
+  /// Must be called after construction and BEFORE allReady()
+  Future<void> init() async {
+    if (_isInitialized) {
+      print('[Boot] AppInjection.init() called twice - skipping');
+      return;
+    }
+    
+    print('[Boot] AppInjection.init() starting...');
+    await _registerCoreDependencies();
+    await _registerAuthManager();
+    _registerFeatures();
+    _isInitialized = true;
+    print('[Boot] AppInjection.init() completed');
+  }
+
+  /// Register core synchronous dependencies
+  Future<void> _registerCoreDependencies() async {
+    print('[Boot] _registerCoreDependencies() starting...');
+    
     if (!_getIt.isRegistered<AppRouter>()) {
       _getIt.registerLazySingleton<AppRouter>(() => AppRouter());
+      print('[Boot] AppRouter registered');
+    } else {
+      print('[Boot] AppRouter already registered');
     }
 
     if (!_getIt.isRegistered<ApiServices>()) {
       _getIt.registerLazySingleton<ApiServices>(
         () => DioApiServicesImpl(_baseUrl, accessToken: _accessToken),
       );
+      print('[Boot] ApiServices registered');
+    } else {
+      print('[Boot] ApiServices already registered');
     }
 
     if (!_getIt.isRegistered<LocalStorageService>()) {
       _getIt.registerLazySingleton<LocalStorageService>(
         () => SharedPreferencesServiceImpl(),
       );
+      print('[Boot] LocalStorageService registered');
+    } else {
+      print('[Boot] LocalStorageService already registered');
     }
 
     // FlutterSecureStorage
@@ -105,6 +141,9 @@ class AppInjection {
       _getIt.registerLazySingleton<FlutterSecureStorage>(
         () => const FlutterSecureStorage(),
       );
+      print('[Boot] FlutterSecureStorage registered');
+    } else {
+      print('[Boot] FlutterSecureStorage already registered');
     }
 
     // SharedPreferences - async
@@ -112,6 +151,9 @@ class AppInjection {
       _getIt.registerSingletonAsync<SharedPreferences>(
         () => SharedPreferences.getInstance(),
       );
+      print('[Boot] SharedPreferences singleton registered');
+    } else {
+      print('[Boot] SharedPreferences singleton already registered');
     }
 
     // Dio for downloads
@@ -127,13 +169,27 @@ class AppInjection {
           prefs: await _getIt.getAsync<SharedPreferences>(),
         ),
       );
+      print('[Boot] TokenManager registered (async)');
+    } else {
+      print('[Boot] TokenManager already registered');
     }
 
+    print('[Boot] _registerCoreDependencies() completed');
+  }
+
+  /// Register AuthManager and wait for it to be ready
+  /// This is CRITICAL - ProfileCubit depends on AuthManager
+  Future<void> _registerAuthManager() async {
+    print('[Boot] _registerAuthManager() starting...');
+    
     // AuthManager - lazy pero espera TokenManager cuando se use
     if (!_getIt.isRegistered<AuthManager>()) {
       _getIt.registerLazySingletonAsync<AuthManager>(
         () async => AuthManagerImpl(await _getIt.getAsync<TokenManager>()),
       );
+      print('[Boot] AuthManager registered (async)');
+    } else {
+      print('[Boot] AuthManager already registered');
     }
 
     if (!_getIt.isRegistered<AuthService>()) {
@@ -168,9 +224,21 @@ class AppInjection {
       _getIt.registerLazySingleton<LibraryService>(
         () => LibraryService(_getIt<ApiServices>()),
       );
+      print('[Boot] LibraryService registered');
+    } else {
+      print('[Boot] LibraryService already registered');
     }
+    
+    print('[Boot] _registerAuthManager() completed');
+  }
 
+  /// Register all feature dependencies
+  /// Note: _registerProfileFeature is async and must be awaited
+  Future<void> _registerFeatures() async {
+    print('[Boot] _registerFeatures() starting...');
+    
     _registerAuthFeature();
+    print('[Boot] _registerAuthFeature executed');
     _registerSearchFeature();
     _registerPlayerFeature();
     _registerHomeFeature();
@@ -178,9 +246,15 @@ class AppInjection {
     _registerPlaylistFeature();
     _registerDownloadsFeature();
     _registerLibraryFeature();
+    _registerArtistFeature();
+    _registerAlbumFeature();
     _registerFavoritesFeature();
-    _registerProfileFeature();
+    // CRITICAL: This must be awaited - ProfileCubit depends on AuthManager being ready
+    await _registerProfileFeature();
+    print('[Boot] _registerProfileFeature executed');
     _registerOfflineFeature();
+    
+    print('[Boot] _registerFeatures() completed');
   }
 
   void _registerAuthFeature() {
@@ -356,7 +430,7 @@ class AppInjection {
     // Cubits (factory porque cada pantalla necesita su propia instancia)
     if (!_getIt.isRegistered<HomeCubit>()) {
       _getIt.registerFactory<HomeCubit>(
-        () => HomeCubit(_getIt<GetHomeUseCase>()),
+        () => HomeCubit(_getIt<GetHomeUseCase>(), _getIt<PlayerBlocBloc>()),
       );
     }
   }
@@ -483,6 +557,7 @@ class AppInjection {
           await _getIt.getAsync<GetDownloadedSongsUseCase>(),
           await _getIt.getAsync<RemoveDownloadUseCase>(),
           await _getIt.getAsync<CheckDownloadStatusUseCase>(),
+          _getIt<PlayerBlocBloc>(),
         ),
       );
     }
@@ -491,7 +566,39 @@ class AppInjection {
   void _registerLibraryFeature() {
     if (!_getIt.isRegistered<LibraryCubit>()) {
       _getIt.registerFactory<LibraryCubit>(
-        () => LibraryCubit(_getIt<LibraryService>(), _getIt<OfflineService>()),
+        () => LibraryCubit(_getIt<LibraryService>(), _getIt<OfflineService>(), _getIt<PlayerBlocBloc>()),
+      );
+    }
+  }
+
+  void _registerArtistFeature() {
+    // ArtistRepository
+    if (!_getIt.isRegistered<ArtistRepository>()) {
+      _getIt.registerLazySingleton<ArtistRepository>(
+        () => ArtistRepositoryImpl(_getIt<ApiServices>()),
+      );
+    }
+
+    // ArtistCubit - factory para crear nueva instancia
+    if (!_getIt.isRegistered<ArtistCubit>()) {
+      _getIt.registerFactory<ArtistCubit>(
+        () => ArtistCubit(_getIt<ArtistRepository>()),
+      );
+    }
+  }
+
+  void _registerAlbumFeature() {
+    // AlbumRepository
+    if (!_getIt.isRegistered<AlbumRepository>()) {
+      _getIt.registerLazySingleton<AlbumRepository>(
+        () => AlbumRepositoryImpl(_getIt<ApiServices>()),
+      );
+    }
+
+    // AlbumCubit - factory para crear nueva instancia
+    if (!_getIt.isRegistered<AlbumCubit>()) {
+      _getIt.registerFactory<AlbumCubit>(
+        () => AlbumCubit(_getIt<AlbumRepository>()),
       );
     }
   }
@@ -503,24 +610,52 @@ class AppInjection {
           _getIt<LibraryService>(),
           _getIt<PlaylistOfflineCubit>(),
           _getIt<OfflineService>(),
+          _getIt<PlayerBlocBloc>(),
         ),
       );
     }
   }
 
-  void _registerProfileFeature() {
+  /// Register ProfileFeature - MUST wait for AuthManager to be ready
+  /// This is the CRITICAL fix for the boot order issue
+  Future<void> _registerProfileFeature() async {
+    print('[Boot] _registerProfileFeature() starting...');
+    
     if (!_getIt.isRegistered<ProfileService>()) {
       _getIt.registerLazySingleton<ProfileService>(
         () => ProfileService(_getIt<ApiServices>()),
       );
+      print('[Boot] ProfileService registered');
     }
     
     // Singleton para compartir estado entre pantallas
+    // CRITICAL: Must wait for AuthManager to be ready before creating ProfileCubit
     if (!_getIt.isRegistered<ProfileCubit>()) {
-      _getIt.registerSingleton<ProfileCubit>(
-        ProfileCubit(_getIt<ProfileService>()),
-      );
+      try {
+        print('[Boot] Waiting for AuthManager to be ready...');
+        // Use getAsync to wait for the lazy singleton async to be instantiated
+        final authMgr = await _getIt.getAsync<AuthManager>();
+        print('[Boot] AuthManager is ready, registering ProfileCubit...');
+        
+        _getIt.registerSingleton<ProfileCubit>(
+          ProfileCubit(
+            _getIt<ProfileService>(),
+            _getIt<ApiServices>(),
+            authMgr,
+          ),
+        );
+        print('[Boot] ProfileCubit registered successfully');
+      } catch (e) {
+        // This should NOT happen anymore with proper boot order
+        // But keep as safety net
+        print('[Boot] ERROR: Failed to register ProfileCubit: $e');
+        print('[Boot] WARNING: ProfileCubit registration deferred - will need manual init');
+      }
+    } else {
+      print('[Boot] ProfileCubit already registered');
     }
+    
+    print('[Boot] _registerProfileFeature() completed');
   }
 
   void _registerOfflineFeature() {
@@ -553,7 +688,7 @@ class AppInjection {
     // HistoryCubit - singleton para historial de reproducción offline
     if (!_getIt.isRegistered<HistoryCubit>()) {
       _getIt.registerLazySingleton<HistoryCubit>(
-        () => HistoryCubit(_getIt<OfflineService>()),
+        () => HistoryCubit(_getIt<OfflineService>(), _getIt<PlayerBlocBloc>()),
       );
     }
   }

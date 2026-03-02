@@ -163,12 +163,12 @@ class OfflineCubit extends Cubit<OfflineState> {
 
   /// Obtiene las canciones guardadas offline
   Future<List<OfflineSong>> getOfflineSongs() async {
-    return await _offlineService.getOfflineSongs();
+    return _offlineService.getOfflineSongs();
   }
 
   /// Obtiene las playlists guardadas offline
   Future<List<OfflinePlaylist>> getOfflinePlaylists() async {
-    return await _offlineService.getOfflinePlaylists();
+    return _offlineService.getOfflinePlaylists();
   }
 
   /// Busca canciones offline por título o artista
@@ -209,7 +209,7 @@ class OfflineCubit extends Cubit<OfflineState> {
 
   /// Obtiene estadísticas del historial
   Future<HistoryStats> getHistoryStats() async {
-    return await _offlineService.getHistoryStats();
+    return _offlineService.getHistoryStats();
   }
 
   /// Fuerza la verificación de conectividad

@@ -39,7 +39,7 @@ class LoginCubit extends Cubit<LoginState> with BaseBlocMixin {
 
     await response.fold(
       (failure) {
-        String errorMessage = getErrorMessage(failure);
+        final String errorMessage = getErrorMessage(failure);
         emit(
           state.copyWith(
             status: LoginStatus.failure,
@@ -65,9 +65,9 @@ class LoginCubit extends Cubit<LoginState> with BaseBlocMixin {
 
     if (isClosed) return;
 
-    response.fold(
+    await response.fold(
       (failure) {
-        String errorMessage = getErrorMessage(failure);
+        final String errorMessage = getErrorMessage(failure);
         emit(
           state.copyWith(
             status: LoginStatus.failure,
@@ -136,9 +136,11 @@ class LoginCubit extends Cubit<LoginState> with BaseBlocMixin {
 
       // Verificar que se guardó correctamente
       final savedIsEmailVerified = await authManager.isEmailVerified();
-      debugPrint(
-        'LoginCubit: Tokens guardados. isEmailVerified guardado: $savedIsEmailVerified (esperado: ${responseEntity.user.isEmailVerified})',
-      );
+      if (kDebugMode) {
+        debugPrint(
+          'LoginCubit: Tokens guardados. isEmailVerified guardado: $savedIsEmailVerified (esperado: ${responseEntity.user.isEmailVerified})',
+        );
+      }
 
       emit(
         state.copyWith(
@@ -148,7 +150,9 @@ class LoginCubit extends Cubit<LoginState> with BaseBlocMixin {
         ),
       );
     } catch (e) {
-      debugPrint('LoginCubit: Error guardando tokens: $e');
+      if (kDebugMode) {
+        debugPrint('LoginCubit: Error guardando tokens: $e');
+      }
       emit(
         state.copyWith(
           status: LoginStatus.failure,

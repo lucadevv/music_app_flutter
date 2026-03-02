@@ -19,12 +19,7 @@ class PlayerControlsWidget extends StatelessWidget {
   final VoidCallback? onRepeat;
 
   const PlayerControlsWidget({
-    super.key,
-    required this.isPlaying,
-    required this.canPlayNext,
-    required this.canPlayPrevious,
-    required this.isShuffleEnabled,
-    required this.loopMode,
+    required this.isPlaying, required this.canPlayNext, required this.canPlayPrevious, required this.isShuffleEnabled, required this.loopMode, super.key,
     this.onPlayPause,
     this.onNext,
     this.onPrevious,

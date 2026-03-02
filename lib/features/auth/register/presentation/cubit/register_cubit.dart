@@ -28,9 +28,9 @@ class RegisterCubit extends Cubit<RegisterState> with BaseBlocMixin {
 
     final response = await _registerUseCase(entity);
 
-    response.fold(
+    await response.fold(
       (failure) {
-        String errorMessage = getErrorMessage(failure);
+        final String errorMessage = getErrorMessage(failure);
         emit(
           state.copyWith(
             status: RegisterStatus.failure,
@@ -50,9 +50,11 @@ class RegisterCubit extends Cubit<RegisterState> with BaseBlocMixin {
 
           // Verificar que se guardó correctamente
           final savedIsEmailVerified = await authManager.isEmailVerified();
-          debugPrint(
-            'RegisterCubit: Tokens guardados. isEmailVerified guardado: $savedIsEmailVerified (esperado: ${responseEntity.user.isEmailVerified})',
-          );
+          if (kDebugMode) {
+            debugPrint(
+              'RegisterCubit: Tokens guardados. isEmailVerified guardado: $savedIsEmailVerified (esperado: ${responseEntity.user.isEmailVerified})',
+            );
+          }
 
           emit(
             state.copyWith(
@@ -62,7 +64,9 @@ class RegisterCubit extends Cubit<RegisterState> with BaseBlocMixin {
             ),
           );
         } catch (e) {
-          debugPrint('RegisterCubit: Error guardando tokens: $e');
+          if (kDebugMode) {
+            debugPrint('RegisterCubit: Error guardando tokens: $e');
+          }
           emit(
             state.copyWith(
               status: RegisterStatus.failure,

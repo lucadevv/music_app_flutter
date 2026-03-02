@@ -8,8 +8,7 @@ class PlayerErrorWidget extends StatelessWidget {
   final String message;
 
   const PlayerErrorWidget({
-    super.key,
-    required this.message,
+    required this.message, super.key,
   });
 
   @override

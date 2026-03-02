@@ -21,14 +21,14 @@ class SocialButtons extends StatelessWidget {
         Expanded(
           child: OutlinedButton.icon(
             onPressed: onGooglePressed,
-            icon: Icon(
+            icon: const Icon(
               Icons.g_mobiledata,
               color: AppColorsDark.onSurface,
             ),
             label: Text(l10n.google),
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColorsDark.onSurface,
-              side: BorderSide(color: AppColorsDark.outline),
+              side: const BorderSide(color: AppColorsDark.outline),
               padding: const EdgeInsets.symmetric(vertical: 12),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
@@ -40,14 +40,14 @@ class SocialButtons extends StatelessWidget {
         Expanded(
           child: OutlinedButton.icon(
             onPressed: onApplePressed,
-            icon: Icon(
+            icon: const Icon(
               Icons.apple,
               color: AppColorsDark.onSurface,
             ),
             label: Text(l10n.apple),
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColorsDark.onSurface,
-              side: BorderSide(color: AppColorsDark.outline),
+              side: const BorderSide(color: AppColorsDark.outline),
               padding: const EdgeInsets.symmetric(vertical: 12),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),

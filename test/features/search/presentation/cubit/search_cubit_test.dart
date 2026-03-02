@@ -18,9 +18,7 @@ void main() {
   late MockSearchRepository mockRepository;
   late SearchUseCase searchUseCase;
 
-  setUpAll(() {
-    registerFallbackValues();
-  });
+  setUpAll(registerFallbackValues);
 
   setUp(() {
     mockRepository = MockSearchRepository();
@@ -113,8 +111,8 @@ void main() {
         return searchCubit;
       },
       act: (cubit) async {
-        cubit.search('query 1');
-        cubit.search('query 2');
+        await cubit.search('query 1');
+        await cubit.search('query 2');
       },
       expect: () => [
         isA<SearchState>().having((s) => s.status, 'status', SearchStatus.loading),
@@ -180,7 +178,7 @@ void main() {
       'should handle empty results',
       build: () {
         when(() => mockRepository.search(any(that: isA<SearchRequest>())))
-            .thenAnswer((_) async => Right(SearchResponse(results: [], query: 'test')));
+            .thenAnswer((_) async => const Right(SearchResponse(results: [], query: 'test')));
         return searchCubit;
       },
       act: (cubit) => cubit.search('test'),

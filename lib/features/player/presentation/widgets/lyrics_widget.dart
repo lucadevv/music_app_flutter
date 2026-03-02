@@ -5,14 +5,13 @@ import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/player/domain/entities/lyric_line.dart';
 import 'package:music_app/main.dart';
-import 'package:flutter/foundation.dart';
+
 
 class LyricsWidget extends StatefulWidget {
   final String videoId;
 
   const LyricsWidget({
-    super.key,
-    required this.videoId,
+    required this.videoId, super.key,
   });
 
   @override
@@ -23,7 +22,6 @@ class _LyricsWidgetState extends State<LyricsWidget> {
   bool _isLoading = true;
   String? _lyrics;
   String? _source;
-  String? _error;
   bool _hasTimestamps = false;
   List<LyricLine> _parsedLyrics = [];
   
@@ -70,7 +68,6 @@ class _LyricsWidgetState extends State<LyricsWidget> {
   Future<void> _loadLyrics() async {
     setState(() {
       _isLoading = true;
-      _error = null;
       _parsedLyrics = [];
       _currentLineIndex = -1;
     });
@@ -88,7 +85,7 @@ class _LyricsWidgetState extends State<LyricsWidget> {
           _lyrics = lyricsText;
           _source = response.source;
           // Detectar timestamps de forma más flexible: [MM:SS] o [MM:SS.xx]
-          _hasTimestamps = lyricsText != null && RegExp(r'\[\d{1,2}:\d{2}').hasMatch(lyricsText!);
+          _hasTimestamps = lyricsText != null && RegExp(r'\[\d{1,2}:\d{2}').hasMatch(lyricsText);
           
           // Parsear lyrics con timestamps
           _parsedLyrics = LyricLine.parseLyrics(lyricsText);
@@ -98,7 +95,6 @@ class _LyricsWidgetState extends State<LyricsWidget> {
       if (mounted) {
         setState(() {
           _isLoading = false;
-          _error = e.toString();
         });
       }
     }
@@ -117,12 +113,8 @@ class _LyricsWidgetState extends State<LyricsWidget> {
       },
       builder: (context, playerState) {
         if (playerState is PlayerBlocLoaded) {
-          // Debug: log de posición
-          debugPrint('LyricsWidget: position=${playerState.position}, hasTimestamps=$_hasTimestamps, parsedLines=${_parsedLyrics.length}');
-          
           // Calcular índice de línea actual
           final newIndex = LyricLine.getCurrentLineIndex(_parsedLyrics, playerState.position);
-          debugPrint('LyricsWidget: currentIndex=$newIndex, _currentLineIndex=$_currentLineIndex');
           
           // Solo actualizar y hacer scroll si cambió la línea
           if (newIndex != _currentLineIndex) {

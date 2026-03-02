@@ -82,34 +82,104 @@ import 'package:music_app/features/user_playlists/presentation/user_playlists_sc
 
 /// generated route for
 /// [_i1.AlbumScreen]
-class AlbumRoute extends _i35.PageRouteInfo<void> {
-  const AlbumRoute({List<_i35.PageRouteInfo>? children})
-    : super(AlbumRoute.name, initialChildren: children);
+class AlbumRoute extends _i35.PageRouteInfo<AlbumRouteArgs> {
+  AlbumRoute({
+    _i36.Key? key,
+    required String albumId,
+    List<_i35.PageRouteInfo>? children,
+  }) : super(
+         AlbumRoute.name,
+         args: AlbumRouteArgs(key: key, albumId: albumId),
+         rawPathParams: {'id': albumId},
+         initialChildren: children,
+       );
 
   static const String name = 'AlbumRoute';
 
   static _i35.PageInfo page = _i35.PageInfo(
     name,
     builder: (data) {
-      return const _i1.AlbumScreen();
+      final pathParams = data.inheritedPathParams;
+      final args = data.argsAs<AlbumRouteArgs>(
+        orElse: () => AlbumRouteArgs(albumId: pathParams.getString('id')),
+      );
+      return _i1.AlbumScreen(key: args.key, albumId: args.albumId);
     },
   );
 }
 
+class AlbumRouteArgs {
+  const AlbumRouteArgs({this.key, required this.albumId});
+
+  final _i36.Key? key;
+
+  final String albumId;
+
+  @override
+  String toString() {
+    return 'AlbumRouteArgs{key: $key, albumId: $albumId}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! AlbumRouteArgs) return false;
+    return key == other.key && albumId == other.albumId;
+  }
+
+  @override
+  int get hashCode => key.hashCode ^ albumId.hashCode;
+}
+
 /// generated route for
 /// [_i2.ArtistScreen]
-class ArtistRoute extends _i35.PageRouteInfo<void> {
-  const ArtistRoute({List<_i35.PageRouteInfo>? children})
-    : super(ArtistRoute.name, initialChildren: children);
+class ArtistRoute extends _i35.PageRouteInfo<ArtistRouteArgs> {
+  ArtistRoute({
+    _i36.Key? key,
+    required String artistId,
+    List<_i35.PageRouteInfo>? children,
+  }) : super(
+         ArtistRoute.name,
+         args: ArtistRouteArgs(key: key, artistId: artistId),
+         rawPathParams: {'id': artistId},
+         initialChildren: children,
+       );
 
   static const String name = 'ArtistRoute';
 
   static _i35.PageInfo page = _i35.PageInfo(
     name,
     builder: (data) {
-      return const _i2.ArtistScreen();
+      final pathParams = data.inheritedPathParams;
+      final args = data.argsAs<ArtistRouteArgs>(
+        orElse: () => ArtistRouteArgs(artistId: pathParams.getString('id')),
+      );
+      return _i2.ArtistScreen(key: args.key, artistId: args.artistId);
     },
   );
+}
+
+class ArtistRouteArgs {
+  const ArtistRouteArgs({this.key, required this.artistId});
+
+  final _i36.Key? key;
+
+  final String artistId;
+
+  @override
+  String toString() {
+    return 'ArtistRouteArgs{key: $key, artistId: $artistId}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! ArtistRouteArgs) return false;
+    return key == other.key && artistId == other.artistId;
+  }
+
+  @override
+  int get hashCode => key.hashCode ^ artistId.hashCode;
 }
 
 /// generated route for
@@ -380,7 +450,7 @@ class MyProfileRoute extends _i35.PageRouteInfo<void> {
   static _i35.PageInfo page = _i35.PageInfo(
     name,
     builder: (data) {
-      return _i35.WrappedRoute(child: const _i17.MyProfileScreen());
+      return const _i17.MyProfileScreen();
     },
   );
 }
@@ -639,7 +709,7 @@ class SettingsRoute extends _i35.PageRouteInfo<void> {
   static _i35.PageInfo page = _i35.PageInfo(
     name,
     builder: (data) {
-      return _i35.WrappedRoute(child: const _i29.SettingsScreen());
+      return const _i29.SettingsScreen();
     },
   );
 }

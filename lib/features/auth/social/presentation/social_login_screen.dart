@@ -24,11 +24,11 @@ class SocialLoginScreen extends StatelessWidget {
               Container(
                 width: 120,
                 height: 120,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: AppColorsDark.primaryContainer,
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.music_note,
                   size: 60,
                   color: AppColorsDark.primary,
@@ -39,7 +39,7 @@ class SocialLoginScreen extends StatelessWidget {
               // Título
               Text(
                 l10n.welcome,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
                   color: AppColorsDark.onSurface,
@@ -48,7 +48,7 @@ class SocialLoginScreen extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 l10n.signInToContinue,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 16,
                   color: AppColorsDark.onSurfaceVariant,
                 ),
@@ -60,7 +60,7 @@ class SocialLoginScreen extends StatelessWidget {
                 icon: Icons.g_mobiledata,
                 label: l10n.continueWithGoogle,
                 onPressed: () {
-                  // TODO: Implementar login con Google
+                  // TODO: Implement Google Sign-In (requires google_sign_in package)
                 },
               ),
               const SizedBox(height: 16),
@@ -68,7 +68,7 @@ class SocialLoginScreen extends StatelessWidget {
                 icon: Icons.apple,
                 label: l10n.continueWithApple,
                 onPressed: () {
-                  // TODO: Implementar login con Apple
+                  // TODO: Implement Apple Sign-In (requires Sign_in_with_apple package)
                 },
               ),
               const SizedBox(height: 32),
@@ -76,15 +76,15 @@ class SocialLoginScreen extends StatelessWidget {
               // Divider
               Row(
                 children: [
-                  Expanded(child: Divider(color: AppColorsDark.outlineVariant)),
+                  const Expanded(child: Divider(color: AppColorsDark.outlineVariant)),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Text(
                       l10n.or,
-                      style: TextStyle(color: AppColorsDark.onSurfaceVariant),
+                      style: const TextStyle(color: AppColorsDark.onSurfaceVariant),
                     ),
                   ),
-                  Expanded(child: Divider(color: AppColorsDark.outlineVariant)),
+                  const Expanded(child: Divider(color: AppColorsDark.outlineVariant)),
                 ],
               ),
               const SizedBox(height: 32),
@@ -96,7 +96,7 @@ class SocialLoginScreen extends StatelessWidget {
                 },
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColorsDark.primary,
-                  side: BorderSide(color: AppColorsDark.outline),
+                  side: const BorderSide(color: AppColorsDark.outline),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   minimumSize: const Size(double.infinity, 56),
                   shape: RoundedRectangleBorder(
@@ -120,7 +120,7 @@ class SocialLoginScreen extends StatelessWidget {
                 },
                 child: RichText(
                   text: TextSpan(
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: AppColorsDark.onSurfaceVariant,
                       fontSize: 14,
                     ),
@@ -128,7 +128,7 @@ class SocialLoginScreen extends StatelessWidget {
                       TextSpan(text: '${l10n.noAccount} '),
                       TextSpan(
                         text: l10n.register,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: AppColorsDark.primary,
                           fontWeight: FontWeight.w600,
                         ),

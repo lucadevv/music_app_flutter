@@ -73,12 +73,9 @@ class UserProfile {
   const UserProfile({
     required this.id,
     required this.email,
-    this.firstName,
+    required this.provider, required this.role, required this.isEmailVerified, this.firstName,
     this.lastName,
     this.avatar,
-    required this.provider,
-    required this.role,
-    required this.isEmailVerified,
     this.createdAt,
   });
 

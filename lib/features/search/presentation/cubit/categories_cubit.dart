@@ -1,11 +1,11 @@
+import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/bloc/base_bloc_mixin.dart';
+import 'package:music_app/core/services/network/api_services.dart';
 import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
 import 'package:music_app/features/home/data/models/mood_genre_model.dart';
 import 'package:music_app/features/home/domain/entities/mood_genre.dart';
-import 'package:music_app/core/services/network/api_services.dart';
-import 'package:dio/dio.dart';
 
 part 'categories_state.dart';
 
@@ -22,7 +22,7 @@ class CategoriesCubit extends Cubit<CategoriesState> with BaseBlocMixin {
     emit(state.copyWith(status: CategoriesStatus.loading));
 
     try {
-      final endpoint = '/music/explore';
+      const endpoint = '/music/explore';
       final response = await _apiServices.get(endpoint);
 
       final responseData = response is Response ? response.data : response;

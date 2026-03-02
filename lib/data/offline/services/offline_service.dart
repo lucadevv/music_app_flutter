@@ -5,7 +5,6 @@ import 'package:dio/dio.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:music_app/data/offline/models/offline_history.dart';
 import 'package:music_app/data/offline/models/offline_playlist.dart';
-import 'package:music_app/data/offline/models/offline_queue_item.dart';
 import 'package:music_app/data/offline/models/offline_song.dart';
 import 'package:music_app/data/offline/services/audio_download_service.dart';
 import 'package:path_provider/path_provider.dart';
@@ -177,9 +176,9 @@ class OfflineService {
     final song = getSongByVideoId(videoId);
     if (song?.localAudioPath != null) {
       final file = File(song!.localAudioPath!);
-      return await file.exists();
+      return file.exists();
     }
-    return await _downloadService.isDownloaded(videoId);
+    return _downloadService.isDownloaded(videoId);
   }
 
   /// Obtiene la ruta local del audio de una canción
@@ -188,15 +187,15 @@ class OfflineService {
     if (song?.localAudioPath != null) {
       final file = File(song!.localAudioPath!);
       if (await file.exists()) {
-        return song!.localAudioPath;
+        return song.localAudioPath;
       }
     }
-    return await _downloadService.getLocalPath(videoId);
+    return _downloadService.getLocalPath(videoId);
   }
 
   /// Obtiene el tamaño total de las descargas
   Future<int> getTotalDownloadsSize() async {
-    return await _downloadService.getTotalDownloadsSize();
+    return _downloadService.getTotalDownloadsSize();
   }
 
   /// Obtiene estadísticas de almacenamiento
@@ -275,9 +274,9 @@ class OfflineService {
   Future<HistoryStats> getHistoryStats() async {
     final allHistory = _historyBox.values.toList();
 
-    int totalPlayed = allHistory.length;
-    int totalCompleted = allHistory.where((h) => h.isCompleted).length;
-    int totalDuration = allHistory.fold(0, (sum, h) => sum + h.playedDuration);
+    final int totalPlayed = allHistory.length;
+    final int totalCompleted = allHistory.where((h) => h.isCompleted).length;
+    final int totalDuration = allHistory.fold(0, (sum, h) => sum + h.playedDuration);
 
     // Artistas más escuchados
     final artistCounts = <String, int>{};

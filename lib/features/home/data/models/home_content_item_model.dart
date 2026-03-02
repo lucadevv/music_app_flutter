@@ -1,17 +1,18 @@
+import 'package:music_app/features/search/data/models/search_album_model.dart';
+import 'package:music_app/features/search/data/models/search_artist_model.dart';
+import 'package:music_app/features/search/data/models/thumbnail_model.dart';
+
 import '../../domain/entities/home_content_item.dart';
-import '../../../search/data/models/search_album_model.dart';
-import '../../../search/data/models/search_artist_model.dart';
-import '../../../search/data/models/thumbnail_model.dart';
+
+
 
 /// Modelo para HomeContentItem
 class HomeContentItemModel extends HomeContentItem {
   const HomeContentItemModel({
     required super.title,
-    super.videoId,
+    required super.thumbnails, required super.artists, super.videoId,
     super.playlistId,
-    required super.thumbnails,
     super.isExplicit,
-    required super.artists,
     super.views,
     super.album,
     super.description,

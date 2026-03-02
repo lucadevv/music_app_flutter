@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
-import 'package:music_app/features/playlist/domain/entities/playlist_track.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
+import 'package:music_app/features/playlist/domain/entities/playlist_track.dart';
+
 
 /// Helper para procesar playlists grandes en un isolate
 /// 
@@ -45,7 +46,7 @@ class PlaylistProcessingIsolate {
             track.videoId != null &&
             track.videoId!.isNotEmpty &&
             track.isAvailable)
-        .map((track) => NowPlayingData.fromPlaylistTrack(track))
+        .map(NowPlayingData.fromPlaylistTrack)
         .toList();
   }
 }
@@ -60,6 +61,6 @@ List<NowPlayingData> _processPlaylistInIsolate(List<PlaylistTrack> tracks) {
           track.videoId != null &&
           track.videoId!.isNotEmpty &&
           track.isAvailable)
-      .map((track) => NowPlayingData.fromPlaylistTrack(track))
+      .map(NowPlayingData.fromPlaylistTrack)
       .toList();
 }

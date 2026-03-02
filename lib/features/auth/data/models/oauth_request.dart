@@ -1,5 +1,7 @@
+import 'package:music_app/features/auth/register/data/models/user_model.dart';
+
 import '../../register/domain/entities/register_response.dart';
-import '../../register/data/models/user_model.dart';
+
 
 /// Request para autenticación OAuth
 class OAuthRequest {

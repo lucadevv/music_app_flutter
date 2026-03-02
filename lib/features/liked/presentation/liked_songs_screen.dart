@@ -1,16 +1,14 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
+
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/core/widgets/song_list_item.dart';
-import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/library/presentation/cubit/library_cubit.dart';
-import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 import 'package:music_app/l10n/app_localizations.dart';
-import 'package:music_app/main.dart';
 
 @RoutePage()
 class LikedSongsScreen extends StatelessWidget {
@@ -19,10 +17,10 @@ class LikedSongsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => getIt<LibraryCubit>()..loadLibrary(),
-      child: Scaffold(
-        backgroundColor: const Color(0xFF0D0D0D),
-        body: const _LikedSongsScreenView(),
+      create: (_) => GetIt.I<LibraryCubit>()..loadLibrary(),
+      child: const Scaffold(
+        backgroundColor: Color(0xFF0D0D0D),
+        body: _LikedSongsScreenView(),
       ),
     );
   }
@@ -85,13 +83,13 @@ class _LikedSongsScreenView extends StatelessWidget {
       ],
       flexibleSpace: FlexibleSpaceBar(
         background: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
                 AppColorsDark.primaryContainer,
-                const Color(0xFF0D0D0D),
+                Color(0xFF0D0D0D),
               ],
             ),
           ),
@@ -105,7 +103,7 @@ class _LikedSongsScreenView extends StatelessWidget {
                   width: 180,
                   height: 180,
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
+                    gradient: const LinearGradient(
                       colors: [
                         AppColorsDark.primary,
                         AppColorsDark.secondary,
@@ -255,39 +253,21 @@ class _LikedSongsScreenView extends StatelessWidget {
     );
   }
 
-  NowPlayingData _mapToNowPlaying(FavoriteSong s) {
-    return NowPlayingData.fromBasic(
-      videoId: s.videoId,
-      title: s.title,
-      artistNames: s.artist.split(', '),
-      albumName: '',
-      duration: s.duration != null ? _formatDuration(s.duration!) : '0:00',
-      durationSeconds: s.duration,
-      thumbnailUrl: s.thumbnail,
-    );
-  }
-
-  String _formatDuration(int seconds) {
-    final minutes = seconds ~/ 60;
-    final secs = seconds % 60;
-    return '$minutes:${secs.toString().padLeft(2, '0')}';
-  }
-
   void _playAll(BuildContext context, List<FavoriteSong> songs) {
     if (songs.isEmpty) return;
 
-    final playlist = songs.map(_mapToNowPlaying).toList();
-
-    getIt<PlayerBlocBloc>().add(LoadPlaylistEvent(
-      playlist: playlist,
-      startIndex: 0,
-    ));
-    context.router.push(PlayerRoute(nowPlayingData: playlist.first));
+    // Usar el método del Cubit
+    final nowPlayingData = context.read<LibraryCubit>().playAllFavoriteSongs(songs);
+    if (nowPlayingData != null) {
+      // Navegar al reproductor
+      context.router.push(PlayerRoute(nowPlayingData: nowPlayingData));
+    }
   }
 
   void _playSong(BuildContext context, FavoriteSong song) {
-    final nowPlayingData = _mapToNowPlaying(song);
-    getIt<PlayerBlocBloc>().add(LoadTrackEvent(nowPlayingData));
+    // Usar el método del Cubit
+    final nowPlayingData = context.read<LibraryCubit>().playSong(song);
+    // Navegar al reproductor
     context.router.push(PlayerRoute(nowPlayingData: nowPlayingData));
   }
 

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:music_app/core/theme/app_colors_dark.dart';
+
 import 'package:music_app/features/favorites/presentation/widgets/favorite_button.dart';
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
@@ -14,8 +14,7 @@ class PlayerInfoWidget extends StatelessWidget {
   final bool isLoading;
 
   const PlayerInfoWidget({
-    super.key,
-    required this.track,
+    required this.track, super.key,
     this.isLoading = false,
   });
 

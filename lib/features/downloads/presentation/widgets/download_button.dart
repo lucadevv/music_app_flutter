@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/downloads/presentation/cubit/downloads_cubit.dart';
@@ -19,13 +20,8 @@ class DownloadButton extends StatefulWidget {
   final Color? inactiveColor;
 
   const DownloadButton({
-    super.key,
-    required this.videoId,
-    required this.title,
-    required this.artist,
+    required this.videoId, required this.title, required this.artist, required this.streamUrl, required this.durationSeconds, super.key,
     this.thumbnail,
-    required this.streamUrl,
-    required this.durationSeconds,
     this.size = 24,
     this.activeColor,
     this.inactiveColor,
@@ -56,8 +52,9 @@ class _DownloadButtonState extends State<DownloadButton> {
 
   Future<void> _initCubit() async {
     try {
-      _downloadsCubit = await GetIt.I.getAsync<DownloadsCubit>();
-      _checkDownloadStatus();
+      // Intentar usar el provider global primero
+      _downloadsCubit = context.read<DownloadsCubit>();
+      await _checkDownloadStatus();
       
       // Listen to state changes
       _subscription = _downloadsCubit!.stream.listen((state) {
@@ -74,7 +71,27 @@ class _DownloadButtonState extends State<DownloadButton> {
         });
       });
     } catch (e) {
-      // DownloadsCubit not available - hide download button
+      // Provider no disponible - intentar obtener de getIt (fallback)
+      try {
+        _downloadsCubit = await GetIt.I.getAsync<DownloadsCubit>();
+        await _checkDownloadStatus();
+        
+        _subscription = _downloadsCubit!.stream.listen((state) {
+          if (!mounted) return;
+          
+          final progress = state.downloadProgress[widget.videoId];
+          final isDownloading = state.downloadingIds.contains(widget.videoId);
+          final isDownloaded = state.downloadedSongs.any((s) => s.videoId == widget.videoId);
+
+          setState(() {
+            _progress = progress ?? 0.0;
+            _isDownloading = isDownloading;
+            _isDownloaded = isDownloaded;
+          });
+        });
+      } catch (e) {
+        // DownloadsCubit not available - hide download button
+      }
     }
   }
 
@@ -125,7 +142,7 @@ class _DownloadButtonState extends State<DownloadButton> {
   }
 
   void _showDownloadedOptions() {
-    // TODO: Mostrar opciones como eliminar descarga
+    // TODO: Implement download options menu (delete, quality, etc.)
   }
 
   @override
@@ -180,13 +197,8 @@ class DownloadIconButton extends StatelessWidget {
   final int durationSeconds;
 
   const DownloadIconButton({
-    super.key,
-    required this.videoId,
-    required this.title,
-    required this.artist,
+    required this.videoId, required this.title, required this.artist, required this.streamUrl, required this.durationSeconds, super.key,
     this.thumbnail,
-    required this.streamUrl,
-    required this.durationSeconds,
   });
 
   @override

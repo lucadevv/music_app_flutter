@@ -68,11 +68,13 @@ class PlaylistResponseModel extends PlaylistResponse {
                 tracksList.add(PlaylistTrackModel.fromJson(track));
               } catch (e, stackTrace) {
                 // Log del error pero continuar parseando el resto
-                debugPrint('PlaylistResponseModel: Error parseando track $i: $e');
-                debugPrint('PlaylistResponseModel: Track data: $track');
+                if (kDebugMode) {
+                  debugPrint('PlaylistResponseModel: Error parseando track $i: $e');
+                  debugPrint('PlaylistResponseModel: Track data: $track');
+                }
               }
             } else {
-              debugPrint('PlaylistResponseModel: Track $i no es Map, tipo: ${track.runtimeType}');
+              if (kDebugMode) debugPrint('PlaylistResponseModel: Track $i no es Map, tipo: ${track.runtimeType}');
             }
           }
         }
@@ -95,8 +97,10 @@ class PlaylistResponseModel extends PlaylistResponse {
         durationSeconds: json['duration_seconds'] as int? ?? 0,
       );
     } catch (e, stackTrace) {
-      debugPrint('PlaylistResponseModel: Error general parseando JSON: $e');
-      debugPrint('PlaylistResponseModel: Stack trace: $stackTrace');
+      if (kDebugMode) {
+        debugPrint('PlaylistResponseModel: Error general parseando JSON: $e');
+        debugPrint('PlaylistResponseModel: Stack trace: $stackTrace');
+      }
       rethrow;
     }
   }

@@ -19,12 +19,8 @@ class DownloadedSong extends Equatable {
     required this.videoId,
     required this.title,
     required this.artist,
-    this.album,
+    required this.localPath, required this.fileSize, required this.duration, required this.downloadedAt, this.album,
     this.thumbnail,
-    required this.localPath,
-    required this.fileSize,
-    required this.duration,
-    required this.downloadedAt,
   });
 
   /// Tamaño formateado en MB

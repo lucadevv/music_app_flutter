@@ -8,7 +8,6 @@ import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.
 import 'package:music_app/features/favorites/presentation/widgets/favorite_button.dart';
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
-import 'package:music_app/main.dart';
 
 class MiniPlayer extends StatelessWidget {
   const MiniPlayer({super.key});
@@ -16,8 +15,11 @@ class MiniPlayer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // QUITAR buildWhen temporalmente para debug - reconstruir en cada cambio de estado
+    // Obtener el bloc del provider
+    final playerBloc = context.read<PlayerBlocBloc>();
+    
     return BlocBuilder<PlayerBlocBloc, PlayerBlocState>(
-      bloc: getIt<PlayerBlocBloc>(),
+      bloc: playerBloc,
       builder: (context, state) {
         if (state is! PlayerBlocLoaded || state.currentTrack == null) {
           return const SizedBox.shrink();
@@ -28,7 +30,7 @@ class MiniPlayer extends StatelessWidget {
         final position = state.position;
         final duration = state.duration.inSeconds > 0 
             ? state.duration 
-            : Duration(seconds: track.durationSeconds ?? 0);
+            : Duration(seconds: track.durationSeconds);
 
         return GestureDetector(
           onTap: () => _openPlayer(context, track),
@@ -73,11 +75,13 @@ class MiniPlayer extends StatelessWidget {
                             duration: track.durationSeconds,
                           ),
                         ),
-                        _PlayerControls(
+                          _PlayerControls(
                           isPlaying: isPlaying,
                           canPlayNext: state.canPlayNext,
-                          onPlayPause: _togglePlayPause,
-                          onNext: state.canPlayNext ? _playNext : null,
+                          onPlayPause: () => playerBloc.add(const PlayPauseToggleEvent()),
+                          onNext: state.canPlayNext 
+                              ? () => playerBloc.add(const NextTrackEvent()) 
+                              : null,
                         ),
                       ],
                     ),
@@ -93,14 +97,6 @@ class MiniPlayer extends StatelessWidget {
 
   void _openPlayer(BuildContext context, NowPlayingData track) {
     context.router.push(PlayerRoute(nowPlayingData: track));
-  }
-
-  void _togglePlayPause() {
-    getIt<PlayerBlocBloc>().add(const PlayPauseToggleEvent());
-  }
-
-  void _playNext() {
-    getIt<PlayerBlocBloc>().add(const NextTrackEvent());
   }
 }
 

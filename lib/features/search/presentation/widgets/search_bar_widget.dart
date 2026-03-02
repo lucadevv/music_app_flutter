@@ -5,8 +5,7 @@ class SearchBarWidget extends StatelessWidget {
   final ValueChanged<String>? onChanged;
 
   const SearchBarWidget({
-    super.key,
-    required this.controller,
+    required this.controller, super.key,
     this.onChanged,
   });
 

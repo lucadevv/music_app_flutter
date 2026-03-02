@@ -78,7 +78,7 @@ class _DownloadItem extends StatelessWidget {
           color: AppColorsDark.primaryContainer,
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Icon(
+        child: const Icon(
           Icons.music_note,
           color: AppColorsDark.primary,
         ),

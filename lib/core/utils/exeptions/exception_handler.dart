@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
 import 'app_exceptions.dart';
@@ -132,12 +133,14 @@ class ExceptionHandler {
   }
 
   static void logException(AppException exception, {String? context}) {
-    debugPrint('${context ?? 'Exception'}: ${exception.message}');
-    if (exception.details != null) {
-      debugPrint('Details: ${exception.details}');
-    }
-    if (exception.code != null) {
-      debugPrint('Code: ${exception.code}');
+    if (kDebugMode) {
+      debugPrint('${context ?? 'Exception'}: ${exception.message}');
+      if (exception.details != null) {
+        debugPrint('Details: ${exception.details}');
+      }
+      if (exception.code != null) {
+        debugPrint('Code: ${exception.code}');
+      }
     }
   }
 }

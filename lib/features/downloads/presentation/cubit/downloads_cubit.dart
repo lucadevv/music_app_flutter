@@ -1,11 +1,14 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/bloc/base_bloc_mixin.dart';
+import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/downloads/domain/entities/downloaded_song.dart';
 import 'package:music_app/features/downloads/domain/use_cases/check_download_status_use_case.dart';
 import 'package:music_app/features/downloads/domain/use_cases/download_song_use_case.dart';
 import 'package:music_app/features/downloads/domain/use_cases/get_downloaded_songs_use_case.dart';
 import 'package:music_app/features/downloads/domain/use_cases/remove_download_use_case.dart';
+import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
+ // Removed unused import: thumbnail
 
 part 'downloads_state.dart';
 
@@ -21,12 +24,14 @@ class DownloadsCubit extends Cubit<DownloadsState> with BaseBlocMixin {
   final GetDownloadedSongsUseCase _getDownloadedSongsUseCase;
   final RemoveDownloadUseCase _removeDownloadUseCase;
   final CheckDownloadStatusUseCase _checkDownloadStatusUseCase;
+  final PlayerBlocBloc _playerBloc;
 
   DownloadsCubit(
     this._downloadSongUseCase,
     this._getDownloadedSongsUseCase,
     this._removeDownloadUseCase,
     this._checkDownloadStatusUseCase,
+    this._playerBloc,
   ) : super(const DownloadsState()) {
     // Cargar descargas automáticamente al iniciar
     loadDownloads();
@@ -61,10 +66,10 @@ class DownloadsCubit extends Cubit<DownloadsState> with BaseBlocMixin {
     required String videoId,
     required String title,
     required String artist,
-    String? album,
-    String? thumbnail,
     required String streamUrl,
     required Duration duration,
+    String? album,
+    String? thumbnail,
   }) async {
     // Marcar como descargando
     emit(state.copyWith(
@@ -152,5 +157,60 @@ class DownloadsCubit extends Cubit<DownloadsState> with BaseBlocMixin {
   /// Limpia el mensaje de error
   void clearError() {
     emit(state.copyWith(clearError: true));
+  }
+
+  /// Reproduce una canción descargada
+  /// Retorna el NowPlayingData para navegación
+  NowPlayingData playDownloadedSong(DownloadedSong song) {
+    final durationSeconds = song.duration.inSeconds;
+    final durationStr = _formatDuration(song.duration.inSeconds);
+    final nowPlayingData = NowPlayingData.fromBasic(
+      videoId: song.videoId,
+      title: song.title,
+      artistNames: [song.artist],
+      albumName: '',
+      duration: durationStr,
+      durationSeconds: durationSeconds,
+      thumbnailUrl: song.thumbnail,
+      streamUrl: 'file://${song.localPath}',
+    );
+
+    _playerBloc.add(LoadTrackEvent(nowPlayingData));
+    return nowPlayingData;
+  }
+
+  /// Reproduce todas las canciones descargadas
+  /// Retorna el primer NowPlayingData para navegación
+  NowPlayingData? playAllDownloads() {
+    if (state.downloadedSongs.isEmpty) return null;
+
+    final playlist = state.downloadedSongs
+        .where((song) => song.localPath.isNotEmpty)
+        .map((song) {
+          final durationSeconds = song.duration.inSeconds;
+          return NowPlayingData.fromBasic(
+            videoId: song.videoId,
+            title: song.title,
+            artistNames: [song.artist],
+            albumName: '',
+            duration: _formatDuration(song.duration.inSeconds),
+            durationSeconds: durationSeconds,
+            thumbnailUrl: song.thumbnail,
+            streamUrl: 'file://${song.localPath}',
+          );
+        })
+        .toList();
+
+    if (playlist.isNotEmpty) {
+      _playerBloc.add(LoadPlaylistEvent(playlist: playlist, startIndex: 0));
+      return playlist.first;
+    }
+    return null;
+  }
+
+  String _formatDuration(int seconds) {
+    final minutes = seconds ~/ 60;
+    final secs = seconds % 60;
+    return '$minutes:${secs.toString().padLeft(2, '0')}';
   }
 }

@@ -15,25 +15,12 @@ class LogoutScreen extends StatelessWidget {
       final authService = getIt<AuthService>();
       await authService.clearAuthData();
 
-      final authManager = await getIt.getAsync<AuthManager>();
+      final authManager = getIt<AuthManager>();
       await authManager.logout();
 
-      final refreshToken = await authManager.getCurrentRefreshToken();
-      final accessToken = await authManager.getCurrentAccessToken();
-
-      if (refreshToken == null && accessToken == null) {
-        if (context.mounted) {
-          context.router.replaceAll([const OnboardingRoute()]);
-        }
-      } else {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.errorClosingSession),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
+      // Navigate to onboarding after successful logout
+      if (context.mounted) {
+        context.router.replaceAll([const OnboardingRoute()]);
       }
     } catch (e) {
       if (context.mounted) {

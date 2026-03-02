@@ -143,7 +143,7 @@ class DioApiServicesImpl implements ApiServices {
   Future<bool> _tryRefreshToken() async {
     // Si ya hay un refresh en curso, esperar a que termine
     if (_isRefreshing && _refreshTokenCompleter != null) {
-      return await _refreshTokenCompleter!.future;
+      return _refreshTokenCompleter!.future;
     }
 
     // Iniciar un nuevo refresh
@@ -211,7 +211,7 @@ class DioApiServicesImpl implements ApiServices {
   Future<void> _handleAuthTokenError() async {
     // Si ya hay un manejo de error de auth en curso, esperar a que termine
     if (_isHandlingAuthError && _handleAuthErrorCompleter != null) {
-      return await _handleAuthErrorCompleter!.future;
+      return _handleAuthErrorCompleter!.future;
     }
 
     // Iniciar el manejo de error de auth
@@ -345,7 +345,7 @@ class DioApiServicesImpl implements ApiServices {
     Map<String, dynamic>? queryParameters,
     Map<String, String>? headers,
   }) async {
-    return await _executeWithRetry(
+    return _executeWithRetry(
       () => _dio.get(
         endpoint,
         queryParameters: queryParameters,
@@ -362,7 +362,7 @@ class DioApiServicesImpl implements ApiServices {
     Map<String, String>? headers,
     bool isFormData = false,
   }) async {
-    return await _executeWithRetry(
+    return _executeWithRetry(
       () => _dio.post(
         endpoint,
         data: data,
@@ -383,7 +383,7 @@ class DioApiServicesImpl implements ApiServices {
     Map<String, String>? headers,
     bool isFormData = false,
   }) async {
-    return await _executeWithRetry(
+    return _executeWithRetry(
       () => _dio.put(
         endpoint,
         data: data,
@@ -403,7 +403,7 @@ class DioApiServicesImpl implements ApiServices {
     Map<String, dynamic>? queryParameters,
     Map<String, String>? headers,
   }) async {
-    return await _executeWithRetry(
+    return _executeWithRetry(
       () => _dio.delete(
         endpoint,
         data: data,

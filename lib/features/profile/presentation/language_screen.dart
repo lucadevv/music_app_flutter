@@ -13,9 +13,22 @@ class LanguageScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => getIt<LocaleCubit>()),
+        BlocProvider(create: (_) => getIt<ProfileCubit>()),
+      ],
+      child: const _LanguageView(),
+    );
+  }
+}
+
+class _LanguageView extends StatelessWidget {
+  const _LanguageView();
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final localeCubit = getIt<LocaleCubit>();
-    final profileCubit = getIt<ProfileCubit>();
     
     return Scaffold(
       backgroundColor: const Color(0xFF0D0D0D),
@@ -36,31 +49,34 @@ class LanguageScreen extends StatelessWidget {
         ),
       ),
       body: BlocBuilder<LocaleCubit, LocaleState>(
-        bloc: localeCubit,
-        builder: (context, state) {
-          return ListView.builder(
-            itemCount: LocaleCubit.supportedLocales.length,
-            itemBuilder: (context, index) {
-              final locale = LocaleCubit.supportedLocales[index];
-              final isSelected = state.locale.languageCode == locale.languageCode;
-              final localeName = LocaleCubit.localeNames[locale.languageCode] ?? locale.languageCode;
-              
-              return RadioListTile<String>(
-                value: locale.languageCode,
-                groupValue: state.locale.languageCode,
-                onChanged: (value) {
-                  if (value != null) {
-                    localeCubit.setLocaleByCode(value);
-                    // Also update in backend
-                    profileCubit.updateLanguage(value);
-                  }
+        builder: (context, localeState) {
+          return BlocBuilder<ProfileCubit, ProfileState>(
+            builder: (context, profileState) {
+              return ListView.builder(
+                itemCount: LocaleCubit.supportedLocales.length,
+                itemBuilder: (context, index) {
+                  final locale = LocaleCubit.supportedLocales[index];
+                  final isSelected = localeState.locale.languageCode == locale.languageCode;
+                  final localeName = LocaleCubit.localeNames[locale.languageCode] ?? locale.languageCode;
+                  
+                  return RadioListTile<String>(
+                    value: locale.languageCode,
+                    groupValue: localeState.locale.languageCode,
+                    onChanged: (value) {
+                      if (value != null) {
+                        context.read<LocaleCubit>().setLocaleByCode(value);
+                        // Also update in backend
+                        context.read<ProfileCubit>().updateLanguage(value);
+                      }
+                    },
+                    title: Text(
+                      localeName,
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    activeColor: AppColorsDark.primary,
+                    selected: isSelected,
+                  );
                 },
-                title: Text(
-                  localeName,
-                  style: const TextStyle(color: Colors.white),
-                ),
-                activeColor: AppColorsDark.primary,
-                selected: isSelected,
               );
             },
           );

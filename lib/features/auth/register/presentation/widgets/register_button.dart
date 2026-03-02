@@ -9,8 +9,7 @@ class RegisterButton extends StatelessWidget {
   final VoidCallback onPressed;
 
   const RegisterButton({
-    super.key,
-    required this.onPressed,
+    required this.onPressed, super.key,
   });
 
   @override
@@ -29,7 +28,7 @@ class RegisterButton extends StatelessWidget {
             ),
           ),
           child: isLoading
-              ? SizedBox(
+              ? const SizedBox(
                   height: 20,
                   width: 20,
                   child: CircularProgressIndicator(

@@ -11,7 +11,7 @@ import 'package:music_app/features/search/domain/entities/thumbnail.dart';
 class PlaylistBackdropWidget extends StatelessWidget {
   final Thumbnail? thumbnail;
 
-  const PlaylistBackdropWidget({super.key, required this.thumbnail});
+  const PlaylistBackdropWidget({required this.thumbnail, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +36,7 @@ class PlaylistBackdropWidget extends StatelessWidget {
                 ),
               ),
             )
-          : SizedBox.expand(),
+          : const SizedBox.expand(),
     );
   }
 }

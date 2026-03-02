@@ -7,15 +7,13 @@ import 'package:music_app/features/favorites/presentation/widgets/favorite_butto
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/playlist/data/isolates/playlist_processing_isolate.dart';
 import 'package:music_app/features/playlist/domain/entities/playlist_response.dart';
-import 'package:music_app/main.dart';
 
 /// Widget para los botones de acción de la playlist
 class PlaylistActionsWidget extends StatelessWidget {
   final PlaylistResponse playlist;
 
   const PlaylistActionsWidget({
-    super.key,
-    required this.playlist,
+    required this.playlist, super.key,
   });
 
   /// Obtiene la mejor thumbnail disponible
@@ -61,8 +59,10 @@ class PlaylistActionsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final playerBloc = context.read<PlayerBlocBloc>();
+    
     return BlocBuilder<PlayerBlocBloc, PlayerBlocState>(
-      bloc: getIt<PlayerBlocBloc>(),
+      bloc: playerBloc,
       builder: (context, playerState) {
         final isLoadingPlaylist =
             playerState is PlayerBlocLoaded &&
@@ -84,7 +84,7 @@ class PlaylistActionsWidget extends StatelessWidget {
                     ? null
                     : () async {
                         if (isPlaylistLoaded) {
-                          getIt<PlayerBlocBloc>().add(const PlayPauseToggleEvent());
+                          playerBloc.add(const PlayPauseToggleEvent());
                         } else {
                           final availableTracks = playlist.tracks
                               .where((track) =>
@@ -100,7 +100,7 @@ class PlaylistActionsWidget extends StatelessWidget {
                           );
 
                           if (tracks.isNotEmpty && context.mounted) {
-                            getIt<PlayerBlocBloc>().add(
+                            playerBloc.add(
                               LoadPlaylistEvent(playlist: tracks, startIndex: 0),
                             );
                           }

@@ -18,6 +18,12 @@ class ProfileState {
   final bool isSettingsLoading;
   final String? settingsError;
 
+  // Library Stats
+  final bool isLoadingStats;
+  final int favoriteSongsCount;
+  final int favoritePlaylistsCount;
+  final int favoriteGenresCount;
+
   const ProfileState({
     this.isLoading = false,
     this.error,
@@ -33,6 +39,11 @@ class ProfileState {
     this.settings,
     this.isSettingsLoading = false,
     this.settingsError,
+    // Library Stats
+    this.isLoadingStats = true,
+    this.favoriteSongsCount = 0,
+    this.favoritePlaylistsCount = 0,
+    this.favoriteGenresCount = 0,
   });
 
   String get displayName {
@@ -78,6 +89,11 @@ class ProfileState {
     UserSettings? settings,
     bool? isSettingsLoading,
     String? settingsError,
+    // Library Stats
+    bool? isLoadingStats,
+    int? favoriteSongsCount,
+    int? favoritePlaylistsCount,
+    int? favoriteGenresCount,
     bool clearError = false,
     bool clearSettingsError = false,
   }) {
@@ -96,6 +112,11 @@ class ProfileState {
       settings: settings ?? this.settings,
       isSettingsLoading: isSettingsLoading ?? this.isSettingsLoading,
       settingsError: clearSettingsError ? null : (settingsError ?? this.settingsError),
+      // Library Stats
+      isLoadingStats: isLoadingStats ?? this.isLoadingStats,
+      favoriteSongsCount: favoriteSongsCount ?? this.favoriteSongsCount,
+      favoritePlaylistsCount: favoritePlaylistsCount ?? this.favoritePlaylistsCount,
+      favoriteGenresCount: favoriteGenresCount ?? this.favoriteGenresCount,
     );
   }
 }

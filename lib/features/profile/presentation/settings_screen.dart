@@ -6,146 +6,29 @@ import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/bloc/locale_cubit.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/profile/profile_cubit.dart';
-import 'package:music_app/features/profile/profile_service.dart';
 import 'package:music_app/l10n/app_localizations.dart';
 import 'package:music_app/main.dart';
 
 @RoutePage()
-class SettingsScreen extends StatefulWidget implements AutoRouteWrapper {
+class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
   @override
-  Widget wrappedRoute(BuildContext context) {
-    final profileCubit = getIt<ProfileCubit>();
-    if (profileCubit.state.id.isEmpty) {
-      profileCubit.loadProfile();
-    }
-    if (profileCubit.state.settings == null && !profileCubit.state.isSettingsLoading) {
-      profileCubit.loadSettings();
-    }
-    return this;
-  }
-
-  @override
-  State<SettingsScreen> createState() => _SettingsScreenState();
-}
-
-class _SettingsScreenState extends State<SettingsScreen> {
-  late final ProfileCubit _profileCubit;
-
-  @override
-  void initState() {
-    super.initState();
-    _profileCubit = getIt<ProfileCubit>();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    
-    return Scaffold(
-      backgroundColor: const Color(0xFF0D0D0D),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: Text(
-          l10n.settings,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => context.router.pop(),
-        ),
-      ),
-      body: BlocBuilder<ProfileCubit, ProfileState>(
-        bloc: _profileCubit,
-        builder: (context, profileState) {
-          return ListView(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            children: [
-              if (!profileState.isLoading && profileState.error == null)
-                _ProfileHeader(profileState: profileState, l10n: l10n),
-              const SizedBox(height: 16),
-              _SettingsSection(
-                title: l10n.settings,
-                items: [
-                  _SettingsItem(
-                    icon: Icons.language,
-                    title: l10n.musicLanguages,
-                    trailing: BlocBuilder<LocaleCubit, LocaleState>(
-                      bloc: getIt<LocaleCubit>(),
-                      builder: (context, localeState) {
-                        return Text(
-                          _getLanguageName(localeState.locale.languageCode, l10n),
-                          style: const TextStyle(color: Colors.white),
-                        );
-                      },
-                    ),
-                    onTap: () => context.router.push(const LanguageRoute()),
-                  ),
-                  _SettingsItem(
-                    icon: Icons.high_quality,
-                    title: l10n.streamingQuality,
-                    trailing: Text(
-                      _getQualityName(profileState.settings?.streamingQuality ?? 'high'),
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                    onTap: () => _showQualityPicker(context, 'streaming', profileState.settings?.streamingQuality ?? 'high'),
-                  ),
-                  _SettingsItem(
-                    icon: Icons.download,
-                    title: l10n.downloadQuality,
-                    trailing: Text(
-                      _getQualityName(profileState.settings?.downloadQuality ?? 'high'),
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                    onTap: () => _showQualityPicker(context, 'download', profileState.settings?.downloadQuality ?? 'high'),
-                  ),
-                  _SwitchSettingsItem(
-                    icon: Icons.play_circle_outline,
-                    title: l10n.autoPlay,
-                    value: profileState.settings?.autoPlay ?? true,
-                    onChanged: (value) => _profileCubit.updateAutoPlay(value),
-                  ),
-                  _SwitchSettingsItem(
-                    icon: Icons.lyrics,
-                    title: l10n.showLyricsOnPlayer,
-                    value: profileState.settings?.showLyrics ?? false,
-                    onChanged: (value) => _profileCubit.updateShowLyrics(value),
-                  ),
-                  _SettingsItem(
-                    icon: Icons.equalizer,
-                    title: l10n.equalizer,
-                    trailing: Text(
-                      _getEqualizerName(profileState.settings?.equalizerPreset ?? 'flat'),
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                    onTap: () => context.router.push(const EqualizerRoute()),
-                  ),
-                ],
-              ),
-              _SettingsSection(
-                title: l10n.others,
-                items: [
-                  _SettingsItem(
-                    icon: Icons.logout,
-                    title: l10n.logout,
-                    textColor: Colors.red,
-                    onTap: () => context.router.push(const LogoutRoute()),
-                  ),
-                ],
-              ),
-            ],
-          );
-        },
-      ),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => getIt<ProfileCubit>()..loadProfile()..loadSettings()),
+        BlocProvider(create: (_) => getIt<LocaleCubit>()),
+      ],
+      child: const _SettingsView(),
     );
   }
+}
 
+class _SettingsView extends StatelessWidget {
+  const _SettingsView();
+
+  // Formatting methods (simple helpers that don't need to be in Cubit)
   String _getLanguageName(String code, AppLocalizations l10n) {
     final names = {
       'en': l10n.english,
@@ -188,6 +71,88 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return names[preset] ?? preset;
   }
 
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
+    return Scaffold(
+      backgroundColor: const Color(0xFF0D0D0D),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Text(
+          l10n.settings,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => context.router.pop(),
+        ),
+      ),
+      body: BlocBuilder<ProfileCubit, ProfileState>(
+        builder: (context, profileState) {
+          return BlocBuilder<LocaleCubit, LocaleState>(
+            builder: (context, localeState) {
+              return ListView(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                children: [
+                  if (!profileState.isLoading && profileState.error == null)
+                    _ProfileHeader(profileState: profileState, l10n: l10n),
+                  const SizedBox(height: 16),
+                  _SettingsSection(
+                    title: l10n.settings,
+                    items: [
+                      _SettingsItem(
+                        icon: Icons.language,
+                        title: l10n.musicLanguages,
+                        trailing: Text(
+                          _getLanguageName(localeState.locale.languageCode, l10n),
+                          style: const TextStyle(color: Colors.white70),
+                        ),
+                        onTap: () => context.router.push(const LanguageRoute()),
+                      ),
+                      _SettingsItem(
+                        icon: Icons.high_quality,
+                        title: l10n.streamingQuality,
+                        trailing: Text(
+                          _getQualityName(profileState.settings?.streamingQuality ?? 'high'),
+                          style: const TextStyle(color: Colors.white70),
+                        ),
+                        onTap: () => _showQualityPicker(context, 'streaming', profileState.settings?.streamingQuality ?? 'high'),
+                      ),
+                      _SettingsItem(
+                        icon: Icons.download,
+                        title: l10n.downloadQuality,
+                        trailing: Text(
+                          _getQualityName(profileState.settings?.downloadQuality ?? 'high'),
+                          style: const TextStyle(color: Colors.white70),
+                        ),
+                        onTap: () => _showQualityPicker(context, 'download', profileState.settings?.downloadQuality ?? 'high'),
+                      ),
+                      _SettingsItem(
+                        icon: Icons.equalizer,
+                        title: l10n.equalizer,
+                        trailing: Text(
+                          _getEqualizerName(profileState.settings?.equalizerPreset ?? 'flat'),
+                          style: const TextStyle(color: Colors.white70),
+                        ),
+                        onTap: () => context.router.push(const EqualizerRoute()),
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+
   void _showQualityPicker(BuildContext context, String type, String currentQuality) {
     final qualities = ['low', 'medium', 'high', 'hd', 'uhd'];
     
@@ -207,9 +172,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             onChanged: (value) {
               if (value != null) {
                 if (type == 'streaming') {
-                  _profileCubit.updateStreamingQuality(value);
+                  context.read<ProfileCubit>().updateStreamingQuality(value);
                 } else {
-                  _profileCubit.updateDownloadQuality(value);
+                  context.read<ProfileCubit>().updateDownloadQuality(value);
                 }
                 Navigator.pop(ctx);
               }
@@ -251,41 +216,27 @@ class _ProfileHeader extends StatelessWidget {
                 children: [
                   Text(
                     profileState.displayName,
-                    style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     profileState.email,
-                    style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 14),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: AppColorsDark.primary.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          profileState.provider.toUpperCase(),
-                          style: TextStyle(color: AppColorsDark.primary, fontSize: 10, fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                      if (profileState.isEmailVerified) ...[
-                        const SizedBox(width: 8),
-                        const Icon(Icons.verified, color: Colors.green, size: 14),
-                      ],
-                    ],
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.6),
+                      fontSize: 14,
+                    ),
                   ),
                 ],
               ),
             ),
-            Icon(Icons.chevron_right, color: Colors.white.withValues(alpha: 0.3)),
+            Icon(
+              Icons.chevron_right,
+              color: Colors.white.withValues(alpha: 0.3),
+            ),
           ],
         ),
       ),
@@ -297,7 +248,7 @@ class _ProfileHeader extends StatelessWidget {
       return Container(
         width: 56,
         height: 56,
-        decoration: BoxDecoration(shape: BoxShape.circle, color: AppColorsDark.primaryContainer),
+        decoration: const BoxDecoration(shape: BoxShape.circle),
         child: ClipOval(
           child: CachedNetworkImage(
             imageUrl: profileState.avatarUrl!,
@@ -317,16 +268,21 @@ class _ProfileHeader extends StatelessWidget {
       height: 56,
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [AppColorsDark.primary, AppColorsDark.primary.withValues(alpha: 0.7)],
+          colors: [
+            AppColorsDark.primary,
+            AppColorsDark.primary.withValues(alpha: 0.7),
+          ],
         ),
         shape: BoxShape.circle,
       ),
       child: Center(
         child: Text(
           profileState.initials,
-          style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );
@@ -366,40 +322,13 @@ class _SettingsItem extends StatelessWidget {
   final IconData icon;
   final String title;
   final Widget? trailing;
-  final VoidCallback onTap;
-  final Color? textColor;
+  final VoidCallback? onTap;
 
   const _SettingsItem({
     required this.icon,
     required this.title,
     this.trailing,
-    required this.onTap,
-    this.textColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
-      leading: Icon(icon, color: textColor ?? Colors.white),
-      title: Text(title, style: TextStyle(color: textColor ?? Colors.white, fontSize: 16)),
-      trailing: trailing ?? Icon(Icons.chevron_right, color: Colors.white.withValues(alpha: 0.6)),
-      onTap: onTap,
-    );
-  }
-}
-
-class _SwitchSettingsItem extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final bool value;
-  final ValueChanged<bool> onChanged;
-
-  const _SwitchSettingsItem({
-    required this.icon,
-    required this.title,
-    required this.value,
-    required this.onChanged,
+    this.onTap,
   });
 
   @override
@@ -408,7 +337,8 @@ class _SwitchSettingsItem extends StatelessWidget {
       contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
       leading: Icon(icon, color: Colors.white),
       title: Text(title, style: const TextStyle(color: Colors.white, fontSize: 16)),
-      trailing: Switch(value: value, onChanged: onChanged, activeColor: AppColorsDark.primary),
+      trailing: trailing ?? Icon(Icons.chevron_right, color: Colors.white.withValues(alpha: 0.6)),
+      onTap: onTap,
     );
   }
 }

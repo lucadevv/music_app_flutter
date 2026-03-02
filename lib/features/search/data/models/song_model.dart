@@ -43,11 +43,9 @@ class SongModel extends Song {
       inLibrary: json['inLibrary'] as bool? ?? false,
       thumbnails: json['thumbnails'] != null
           ? (json['thumbnails'] as List<dynamic>)
-              .where((thumb) => thumb is Map<String, dynamic>)
+              .whereType<Map<String, dynamic>>()
               .map(
-                (thumb) => ThumbnailModel.fromJson(
-                  thumb as Map<String, dynamic>,
-                ),
+                ThumbnailModel.fromJson,
               )
               .toList()
           : [],

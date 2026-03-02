@@ -1,7 +1,11 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/bloc/base_bloc_mixin.dart';
+import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
+import 'package:music_app/features/home/domain/entities/chart_song.dart';
+import 'package:music_app/features/home/domain/entities/home_content_item.dart';
 import 'package:music_app/features/home/domain/entities/home_response.dart';
 import 'package:music_app/features/home/domain/use_cases/get_home_use_case.dart';
+import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 
 part 'home_state.dart';
 
@@ -13,8 +17,9 @@ part 'home_state.dart';
 /// Clean Architecture: Capa de presentación - maneja el estado de la UI
 class HomeCubit extends Cubit<HomeState> with BaseBlocMixin {
   final GetHomeUseCase _getHomeUseCase;
+  final PlayerBlocBloc _playerBloc;
 
-  HomeCubit(this._getHomeUseCase) : super(const HomeState());
+  HomeCubit(this._getHomeUseCase, this._playerBloc) : super(const HomeState());
 
   /// Carga los datos del home
   Future<void> loadHome() async {
@@ -30,7 +35,7 @@ class HomeCubit extends Cubit<HomeState> with BaseBlocMixin {
 
     result.fold(
       (error) {
-        String errorMessage = getErrorMessage(error);
+        final String errorMessage = getErrorMessage(error);
         emit(
           state.copyWith(
             status: HomeStatus.failure,
@@ -48,6 +53,89 @@ class HomeCubit extends Cubit<HomeState> with BaseBlocMixin {
         );
       },
     );
+  }
+
+  /// Reproduce una canción de un item de contenido
+  void playContentItem(HomeContentItem item) {
+    final nowPlaying = _mapContentItemToNowPlaying(item);
+    if (nowPlaying == null) return;
+    final playlist = [nowPlaying];
+    _playerBloc.add(LoadPlaylistEvent(playlist: playlist, startIndex: 0));
+  }
+
+  /// Reproduce una canción específica de un item de contenido
+  void playContentItemTrack(HomeContentItem item, int trackIndex) {
+    final nowPlaying = _mapContentItemToNowPlaying(item);
+    if (nowPlaying == null) return;
+    final playlist = [nowPlaying];
+    _playerBloc.add(LoadPlaylistEvent(playlist: playlist, startIndex: trackIndex));
+  }
+
+  /// Reproduce un HomeContentItem como una sola canción (primer track o videoId directo)
+  /// Retorna el NowPlayingData para navegación
+  NowPlayingData? playContentItemAsSingle(HomeContentItem item) {
+    NowPlayingData? nowPlayingData;
+    
+    // Si tiene videoId directo, usarlo
+    if (item.videoId != null && item.videoId!.isNotEmpty) {
+      nowPlayingData = NowPlayingData.fromBasic(
+        videoId: item.videoId!,
+        title: item.title,
+        artistNames: item.artists.map((a) => a.name).toList(),
+        albumName: item.album?.name ?? '',
+        albumId: item.album?.id,
+        duration: '0:00',
+        views: item.views,
+        isExplicit: item.isExplicit,
+        thumbnails: item.thumbnails,
+        thumbnail: item.thumbnail,
+        streamUrl: item.streamUrl,
+      );
+      _playerBloc.add(LoadTrackEvent(nowPlayingData));
+      return nowPlayingData;
+    }
+
+    // No hay tracks anidados disponibles en HomeContentItem; retornar lo que haya cargado
+    return nowPlayingData;
+  }
+
+  /// Reproduce una canción de chart
+  /// Retorna el NowPlayingData para navegación
+  NowPlayingData playChartSong(ChartSong song) {
+    final nowPlayingData = NowPlayingData.fromBasic(
+      videoId: song.videoId,
+      title: song.title,
+      artistNames: [song.artist],
+      albumName: '',
+      duration: '0:00',
+      durationSeconds: 0,
+      thumbnails: const [],
+      streamUrl: song.streamUrl,
+      thumbnailUrl: song.thumbnail,
+    );
+
+    _playerBloc.add(LoadTrackEvent(nowPlayingData));
+    return nowPlayingData;
+  }
+  NowPlayingData? _mapContentItemToNowPlaying(HomeContentItem item) {
+    // Si ya tiene videoId, mapear ese item directamente como canción
+    if (item.videoId != null && item.videoId!.isNotEmpty) {
+      return NowPlayingData.fromBasic(
+        videoId: item.videoId!,
+        title: item.title,
+        artistNames: item.artists.map((a) => a.name).toList(),
+        albumName: item.album?.name ?? '',
+        duration: '0:00',
+        durationSeconds: 0,
+        views: item.views,
+        isExplicit: item.isExplicit,
+        inLibrary: false,
+        thumbnails: item.thumbnails,
+        streamUrl: item.streamUrl,
+        thumbnailUrl: item.thumbnail?.url,
+      );
+    }
+    return null;
   }
 
   /// Reinicia el estado

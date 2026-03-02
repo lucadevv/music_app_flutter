@@ -69,9 +69,9 @@ class SongCardsShimmer extends StatelessWidget {
                     baseColor: Colors.white.withValues(alpha: 0.1),
                     highlightColor: Colors.white.withValues(alpha: 0.2),
                     child: Container(
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         color: Colors.white,
-                        borderRadius: const BorderRadius.vertical(
+                        borderRadius: BorderRadius.vertical(
                           top: Radius.circular(12),
                         ),
                       ),

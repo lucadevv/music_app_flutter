@@ -1,13 +1,22 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/bloc/base_bloc_mixin.dart';
+import 'package:music_app/core/managers/auth/auth_manager.dart';
+import 'package:music_app/core/services/network/api_services.dart';
 import 'package:music_app/features/profile/profile_service.dart';
 
 part 'profile_state.dart';
 
 class ProfileCubit extends Cubit<ProfileState> with BaseBlocMixin {
   final ProfileService _profileService;
+  final ApiServices _apiServices;
+  final AuthManager _authManager;
 
-  ProfileCubit(this._profileService) : super(const ProfileState());
+  ProfileCubit(
+    this._profileService,
+    this._apiServices,
+    this._authManager,
+  ) : super(const ProfileState());
 
   Future<void> loadProfile() async {
     if (state.isLoading) return;
@@ -130,5 +139,51 @@ class ProfileCubit extends Cubit<ProfileState> with BaseBlocMixin {
 
   String _parseError(dynamic error) {
     return error?.toString() ?? 'An error occurred';
+  }
+
+  /// Carga las estadísticas de la biblioteca y actualiza el estado
+  Future<void> loadLibraryStats() async {
+    emit(state.copyWith(isLoadingStats: true));
+
+    try {
+      final response = await _apiServices.get('/library/summary');
+
+      int songsCount = 0;
+      int playlistsCount = 0;
+      int genresCount = 0;
+
+      if (response is Response) {
+        final data = response.data;
+        songsCount = data['favoriteSongs'] ?? 0;
+        playlistsCount = data['favoritePlaylists'] ?? 0;
+        genresCount = data['favoriteGenres'] ?? 0;
+      } else if (response is Map) {
+        songsCount = response['favoriteSongs'] ?? 0;
+        playlistsCount = response['favoritePlaylists'] ?? 0;
+        genresCount = response['favoriteGenres'] ?? 0;
+      }
+
+      if (isClosed) return;
+
+      emit(state.copyWith(
+        isLoadingStats: false,
+        favoriteSongsCount: songsCount,
+        favoritePlaylistsCount: playlistsCount,
+        favoriteGenresCount: genresCount,
+      ));
+    } catch (e) {
+      if (isClosed) return;
+      emit(state.copyWith(
+        isLoadingStats: false,
+        favoriteSongsCount: 0,
+        favoritePlaylistsCount: 0,
+        favoriteGenresCount: 0,
+      ));
+    }
+  }
+
+  /// Cierra la sesión del usuario
+  Future<void> logout() async {
+    await _authManager.logout();
   }
 }

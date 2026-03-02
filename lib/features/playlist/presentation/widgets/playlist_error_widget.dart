@@ -9,9 +9,7 @@ class PlaylistErrorWidget extends StatelessWidget {
   final String playlistId;
 
   const PlaylistErrorWidget({
-    super.key,
-    required this.errorMessage,
-    required this.playlistId,
+    required this.errorMessage, required this.playlistId, super.key,
   });
 
   @override

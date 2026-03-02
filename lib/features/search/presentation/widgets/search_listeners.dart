@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:music_app/features/search/presentation/cubit/orquestador_search_cubit.dart';
+import 'package:music_app/features/search/presentation/cubit/recent_searches_cubit.dart';
 import '../cubit/search_cubit.dart' show SearchCubit, SearchState;
-import '../cubit/recent_searches_cubit.dart' show RecentSearchesCubit, RecentSearchesState;
-import '../cubit/orquestador_search_cubit.dart'
-    show OrquestadorSearchCubit, ShowErrorEffect, OrquestadorSearchState;
 
 /// Widget que escucha los cambios del SearchCubit, RecentSearchesCubit y OrquestadorSearchCubit
 /// Maneja las actualizaciones de estado
 class SearchListeners extends StatelessWidget {
   final Widget child;
 
-  const SearchListeners({super.key, required this.child});
+  const SearchListeners({required this.child, super.key});
 
   @override
   Widget build(BuildContext context) {

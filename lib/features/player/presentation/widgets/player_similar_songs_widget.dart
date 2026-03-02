@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/services/network/api_services.dart';
-import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/core/widgets/song_list_item.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/favorites/presentation/cubit/favorite_cubit.dart';
@@ -126,7 +126,7 @@ class _PlayerSimilarSongsWidgetState extends State<PlayerSimilarSongsWidget> {
     return Column(
       children: List.generate(
         4,
-        (index) => _SimilarSongItem(
+        (index) => const _SimilarSongItem(
           title: 'Loading...',
           artist: '',
           videoId: '',
@@ -230,7 +230,7 @@ class _PlayerSimilarSongsWidgetState extends State<PlayerSimilarSongsWidget> {
       streamUrl: streamUrl,
     );
 
-    getIt<PlayerBlocBloc>().add(LoadTrackEvent(nowPlayingData));
+    context.read<PlayerBlocBloc>().add(LoadTrackEvent(nowPlayingData));
   }
 }
 

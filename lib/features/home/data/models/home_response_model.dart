@@ -12,7 +12,7 @@ import 'home_section_model.dart';
 /// - charts: Objeto con top_songs y trending (cada uno con stream_url y thumbnail)
 /// - sections: Array opcional de secciones de contenido
 class HomeResponseModel extends HomeResponse {
-  const HomeResponseModel({
+  HomeResponseModel({
     required super.moods,
     required super.genres,
     required super.charts,
@@ -45,8 +45,10 @@ class HomeResponseModel extends HomeResponse {
           }
         }
       } catch (e, stackTrace) {
-        debugPrint('HomeResponseModel: Error parseando mood/genre $i: $e');
-        debugPrint('HomeResponseModel: Stack trace: $stackTrace');
+        if (kDebugMode) {
+          debugPrint('HomeResponseModel: Error parseando mood/genre $i: $e');
+          debugPrint('HomeResponseModel: Stack trace: $stackTrace');
+        }
       }
     }
 
@@ -72,16 +74,20 @@ class HomeResponseModel extends HomeResponse {
           if (sectionItem is Map<String, dynamic>) {
             sections.add(HomeSectionModel.fromJson(sectionItem));
           } else {
-            debugPrint('HomeResponseModel: Section $i no es Map, tipo: ${sectionItem.runtimeType}');
+            if (kDebugMode) debugPrint('HomeResponseModel: Section $i no es Map, tipo: ${sectionItem.runtimeType}');
           }
         } catch (e, stackTrace) {
-          debugPrint('HomeResponseModel: Error parseando section $i: $e');
-          debugPrint('HomeResponseModel: Stack trace: $stackTrace');
+          if (kDebugMode) {
+            debugPrint('HomeResponseModel: Error parseando section $i: $e');
+            debugPrint('HomeResponseModel: Stack trace: $stackTrace');
+          }
         }
       }
     }
 
-    debugPrint('HomeResponseModel: Parseado - moods: ${moods.length}, genres: ${genres.length}, sections: ${sections.length}');
+    if (kDebugMode) {
+      debugPrint('HomeResponseModel: Parseado - moods: ${moods.length}, genres: ${genres.length}, sections: ${sections.length}');
+    }
 
     return HomeResponseModel(
       moods: moods,
@@ -96,13 +102,12 @@ class HomeResponseModel extends HomeResponse {
 
   Map<String, dynamic> toJson() {
     return {
-      'moods': moods.map((m) => (m as MoodGenreModel).toJson()).toList(),
-      'genres': genres.map((g) => (g as MoodGenreModel).toJson()).toList(),
+      'moods_genres': [...moods, ...genres].map((e) => (e as MoodGenreModel).toJson()).toList(),
       'charts': {
-        'top_songs': charts.topSongs.map((s) => (s as ChartSongModel).toJson()).toList(),
-        'trending': charts.trending.map((s) => (s as ChartSongModel).toJson()).toList(),
+        'top_songs': charts.topSongs.map((e) => (e as ChartSongModel).toJson()).toList(),
+        'trending': charts.trending.map((e) => (e as ChartSongModel).toJson()).toList(),
       },
-      'sections': sections.map((s) => (s as HomeSectionModel).toJson()).toList(),
+      'home': sections.map((e) => (e as HomeSectionModel).toJson()).toList(),
     };
   }
 }

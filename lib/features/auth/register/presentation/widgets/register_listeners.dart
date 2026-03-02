@@ -11,8 +11,7 @@ class RegisterListeners extends StatelessWidget {
   final Widget child;
 
   const RegisterListeners({
-    super.key,
-    required this.child,
+    required this.child, super.key,
   });
 
   @override

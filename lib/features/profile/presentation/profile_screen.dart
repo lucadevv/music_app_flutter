@@ -122,7 +122,7 @@ class _ProfileView extends StatelessWidget {
       return Container(
         width: 80,
         height: 80,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           shape: BoxShape.circle,
           color: AppColorsDark.primaryContainer,
         ),
@@ -206,8 +206,8 @@ class _SettingsItem extends StatelessWidget {
   const _SettingsItem({
     required this.icon,
     required this.title,
-    this.trailing,
     required this.onTap,
+    this.trailing,
   });
 
   @override

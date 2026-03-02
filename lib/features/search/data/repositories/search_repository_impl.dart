@@ -1,8 +1,9 @@
 import 'package:dartz/dartz.dart';
 import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
+import 'package:music_app/features/search/domain/entities/recent_search.dart';
 import '../../domain/entities/search_request.dart';
 import '../../domain/entities/search_response.dart';
-import '../../domain/entities/recent_search.dart';
+
 import '../../domain/repositories/search_repository.dart';
 import '../data_sources/search_remote_data_source.dart';
 
@@ -16,13 +17,13 @@ class SearchRepositoryImpl implements SearchRepository {
   Future<Either<AppException, SearchResponse>> search(
     SearchRequest request,
   ) async {
-    return await _remoteDataSource.search(request);
+    return _remoteDataSource.search(request);
   }
 
   @override
   Future<Either<AppException, List<RecentSearch>>> getRecentSearches({
     int limit = 10,
   }) async {
-    return await _remoteDataSource.getRecentSearches(limit: limit);
+    return _remoteDataSource.getRecentSearches(limit: limit);
   }
 }
