@@ -1,4 +1,8 @@
 /// Entity representing an album
+/// 
+/// @deprecated Usar [Album] desde `core/domain/entities/album.dart`
+/// Esta entidad será eliminada en futuras versiones.
+@Deprecated('Usar Album desde core/domain/entities/album.dart')
 class Album {
   final String id;
   final String title;

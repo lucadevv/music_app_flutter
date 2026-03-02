@@ -1,4 +1,8 @@
 /// Entity representing an artist
+/// 
+/// @deprecated Usar [Artist] desde `core/domain/entities/artist.dart`
+/// Esta entidad será eliminada en futuras versiones.
+@Deprecated('Usar Artist desde core/domain/entities/artist.dart')
 class Artist {
   final String id;
   final String name;

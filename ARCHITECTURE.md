@@ -70,6 +70,31 @@ class HomeCubit extends Cubit<HomeState> {
 lib/
 ├── core/
 │   ├── domain/
+│   │   ├── entities/          # Entidades centralizadas (Song, Artist, Album, Playlist)
+│   │   ├── repositories/      # Interfaces de repositorios
+│   │   └── mappers/          # Mappers entre entidades
+│   ├── presentation/
+│   │   └── widgets/          # Widgets compartidos
+│   ├── app_injection/         # Configuración de DI
+│   ├── app_router/           # Navegación (auto_route)
+│   ├── bloc/                  # BLoCs base
+│   ├── services/              # Servicios core
+│   ├── theme/                 # Temas
+│   └── utils/                 # Utilidades
+├── features/
+│   ├── auth/
+│   │   ├── data/
+│   │   ├── domain/
+│   │   └── presentation/
+│   ├── home/
+│   ├── player/
+│   └── ...
+├── l10n/                     # Localización
+└── main.dart
+```
+lib/
+├── core/
+│   ├── domain/
 │   │   ├── entities/          # Entidades compartidas (Song, etc.)
 │   │   ├── repositories/       # Interfaces de repositorios
 │   │   └── mappers/           # Mappers entre entidades
@@ -265,6 +290,36 @@ class HomeCubit extends Cubit<HomeState> with BaseBlocMixin {
 | song_options | ❌ | ❌ | ✅ | Pendiente |
 | splash | ❌ | ❌ | ✅ | Pendiente |
 | liked | ❌ | ❌ | ✅ | Pendiente |
+
+---
+
+## Entidades Centralizadas
+
+El proyecto define entidades de dominio centralizadas en `core/domain/entities/`:
+
+| Entidad | Archivo | Propósito |
+|---------|---------|-----------|
+| Song | `song.dart` | Canción universal |
+| Artist | `artist.dart` | Artista musical |
+| Album | `album.dart` | Álbum musical |
+| Playlist | `playlist.dart` | Playlist de canciones |
+
+### Mappers Disponibles
+
+| Mapper | Archivo | Convierte desde |
+|--------|---------|-----------------|
+| SongMapper | `mappers/song_mapper.dart` | search.Song, DownloadedSong, ChartSong, FavoriteSong, RecentSong |
+| ArtistMapper | `mappers/artist_mapper.dart` | artist.Artist (feature) |
+| AlbumMapper | `mappers/album_mapper.dart` | album.Album (feature) |
+
+### Widgets Compartidos
+
+| Widget | Archivo | Propósito |
+|--------|---------|-----------|
+| SongListItem | `presentation/widgets/song_list_item.dart` | Item de canción en lista |
+| SongListItemWithFavorite | `song_list_item.dart` | Item con botón de favorito |
+| SongListItemWithRemove | `song_list_item.dart` | Item con botón de eliminar |
+| SongListItemFromEntity | `song_list_item.dart` | Item usando entidad Song centralizada |
 
 ---
 

@@ -72,7 +72,7 @@ import 'package:music_app/features/playlist/data/repositories/playlist_repositor
 import 'package:music_app/features/playlist/domain/repositories/playlist_repository.dart';
 import 'package:music_app/features/playlist/domain/use_cases/get_playlist_use_case.dart';
 import 'package:music_app/features/playlist/presentation/cubit/playlist_cubit.dart';
-import 'package:music_app/features/profile/profile_service.dart';
+import 'package:music_app/features/profile/profile_service.dart' hide ProfileService;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppInjection {
