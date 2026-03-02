@@ -35,7 +35,8 @@ class FavoriteButton extends StatefulWidget {
   State<FavoriteButton> createState() => _FavoriteButtonState();
 }
 
-class _FavoriteButtonState extends State<FavoriteButton> with SingleTickerProviderStateMixin {
+class _FavoriteButtonState extends State<FavoriteButton>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
   bool _isProcessing = false;
@@ -47,9 +48,10 @@ class _FavoriteButtonState extends State<FavoriteButton> with SingleTickerProvid
       duration: const Duration(milliseconds: 200),
       vsync: this,
     );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.3).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.elasticOut),
-    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 1.3,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.elasticOut));
   }
 
   @override
@@ -115,7 +117,8 @@ class _FavoriteButtonState extends State<FavoriteButton> with SingleTickerProvid
                   isFavorite ? Icons.favorite : Icons.favorite_border,
                   color: isFavorite
                       ? (widget.activeColor ?? AppColorsDark.primary)
-                      : (widget.inactiveColor ?? Colors.white.withValues(alpha: 0.6)),
+                      : (widget.inactiveColor ??
+                            Colors.white.withValues(alpha: 0.6)),
                   size: widget.size,
                 ),
               ),

@@ -1,9 +1,11 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:equatable/equatable.dart';
+
 import 'package:music_app/core/bloc/base_bloc_mixin.dart';
 import 'package:music_app/core/managers/auth/auth_manager.dart';
 import 'package:music_app/main.dart';
+
 import '../../domain/entities/register_request.dart';
 import '../../domain/entities/register_response.dart';
 import '../../domain/use_cases/register_use_case.dart';
@@ -28,9 +30,9 @@ class RegisterCubit extends Cubit<RegisterState> with BaseBlocMixin {
 
     final response = await _registerUseCase(entity);
 
-    response.fold(
+    await response.fold(
       (failure) {
-        String errorMessage = getErrorMessage(failure);
+        final String errorMessage = getErrorMessage(failure);
         emit(
           state.copyWith(
             status: RegisterStatus.failure,
@@ -50,9 +52,11 @@ class RegisterCubit extends Cubit<RegisterState> with BaseBlocMixin {
 
           // Verificar que se guardó correctamente
           final savedIsEmailVerified = await authManager.isEmailVerified();
-          debugPrint(
-            'RegisterCubit: Tokens guardados. isEmailVerified guardado: $savedIsEmailVerified (esperado: ${responseEntity.user.isEmailVerified})',
-          );
+          if (kDebugMode) {
+            debugPrint(
+              'RegisterCubit: Tokens guardados. isEmailVerified guardado: $savedIsEmailVerified (esperado: ${responseEntity.user.isEmailVerified})',
+            );
+          }
 
           emit(
             state.copyWith(
@@ -62,7 +66,9 @@ class RegisterCubit extends Cubit<RegisterState> with BaseBlocMixin {
             ),
           );
         } catch (e) {
-          debugPrint('RegisterCubit: Error guardando tokens: $e');
+          if (kDebugMode) {
+            debugPrint('RegisterCubit: Error guardando tokens: $e');
+          }
           emit(
             state.copyWith(
               status: RegisterStatus.failure,

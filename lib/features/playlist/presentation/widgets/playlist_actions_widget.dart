@@ -7,25 +7,21 @@ import 'package:music_app/features/favorites/presentation/widgets/favorite_butto
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/playlist/data/isolates/playlist_processing_isolate.dart';
 import 'package:music_app/features/playlist/domain/entities/playlist_response.dart';
-import 'package:music_app/main.dart';
 
 /// Widget para los botones de acción de la playlist
 class PlaylistActionsWidget extends StatelessWidget {
   final PlaylistResponse playlist;
 
-  const PlaylistActionsWidget({
-    super.key,
-    required this.playlist,
-  });
+  const PlaylistActionsWidget({required this.playlist, super.key});
 
   /// Obtiene la mejor thumbnail disponible
   String? _getBestThumbnail() {
     if (playlist.thumbnails.isEmpty) return null;
-    
+
     // Ordenar por ancho y obtener la más grande (mayor a menor)
     final sortedThumbnails = List.of(playlist.thumbnails)
       ..sort((a, b) => b.width.compareTo(a.width));
-    
+
     return sortedThumbnails.first.url; // Ya está ordenado de mayor a menor
   }
 
@@ -34,10 +30,12 @@ class PlaylistActionsWidget extends StatelessWidget {
     if (playerState.playlist.isEmpty) return false;
 
     final currentPlaylistVideoIds = playlist.tracks
-        .where((track) =>
-            track.videoId != null &&
-            track.videoId!.isNotEmpty &&
-            track.isAvailable)
+        .where(
+          (track) =>
+              track.videoId != null &&
+              track.videoId!.isNotEmpty &&
+              track.isAvailable,
+        )
         .map((track) => track.videoId!)
         .toList();
 
@@ -61,8 +59,10 @@ class PlaylistActionsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final playerBloc = context.read<PlayerBlocBloc>();
+
     return BlocBuilder<PlayerBlocBloc, PlayerBlocState>(
-      bloc: getIt<PlayerBlocBloc>(),
+      bloc: playerBloc,
       builder: (context, playerState) {
         final isLoadingPlaylist =
             playerState is PlayerBlocLoaded &&
@@ -70,7 +70,8 @@ class PlaylistActionsWidget extends StatelessWidget {
             playerState.playlist.isNotEmpty;
 
         final isPlaylistLoaded = _isPlaylistLoaded(playerState);
-        final isPlaying = playerState is PlayerBlocLoaded &&
+        final isPlaying =
+            playerState is PlayerBlocLoaded &&
             isPlaylistLoaded &&
             playerState.isPlaying;
 
@@ -84,24 +85,30 @@ class PlaylistActionsWidget extends StatelessWidget {
                     ? null
                     : () async {
                         if (isPlaylistLoaded) {
-                          getIt<PlayerBlocBloc>().add(const PlayPauseToggleEvent());
+                          playerBloc.add(const PlayPauseToggleEvent());
                         } else {
                           final availableTracks = playlist.tracks
-                              .where((track) =>
-                                  track.videoId != null &&
-                                  track.videoId!.isNotEmpty &&
-                                  track.isAvailable)
+                              .where(
+                                (track) =>
+                                    track.videoId != null &&
+                                    track.videoId!.isNotEmpty &&
+                                    track.isAvailable,
+                              )
                               .toList();
 
                           if (availableTracks.isEmpty) return;
 
-                          final tracks = await PlaylistProcessingIsolate.processPlaylistInIsolate(
-                            availableTracks,
-                          );
+                          final tracks =
+                              await PlaylistProcessingIsolate.processPlaylistInIsolate(
+                                availableTracks,
+                              );
 
                           if (tracks.isNotEmpty && context.mounted) {
-                            getIt<PlayerBlocBloc>().add(
-                              LoadPlaylistEvent(playlist: tracks, startIndex: 0),
+                            playerBloc.add(
+                              LoadPlaylistEvent(
+                                playlist: tracks,
+                                startIndex: 0,
+                              ),
                             );
                           }
                         }
@@ -126,7 +133,9 @@ class PlaylistActionsWidget extends StatelessWidget {
                           height: 28,
                           child: CircularProgressIndicator(
                             strokeWidth: 2.5,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
                           ),
                         )
                       : Icon(
@@ -145,7 +154,9 @@ class PlaylistActionsWidget extends StatelessWidget {
                 playlistMetadata: PlaylistMetadata(
                   name: playlist.title,
                   thumbnail: _getBestThumbnail(),
-                  description: playlist.description.isNotEmpty ? playlist.description : null,
+                  description: playlist.description.isNotEmpty
+                      ? playlist.description
+                      : null,
                   trackCount: playlist.trackCount,
                 ),
               ),

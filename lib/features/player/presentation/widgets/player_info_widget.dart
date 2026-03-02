@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:music_app/core/theme/app_colors_dark.dart';
+
 import 'package:music_app/features/favorites/presentation/widgets/favorite_button.dart';
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 import 'player_shimmer_widgets.dart';
 
 /// Widget para mostrar la información de la canción (título, artista, álbum)
-/// 
+///
 /// SOLID: Single Responsibility Principle (SRP)
 /// Responsable única: Mostrar información de la canción
 class PlayerInfoWidget extends StatelessWidget {
@@ -14,8 +14,8 @@ class PlayerInfoWidget extends StatelessWidget {
   final bool isLoading;
 
   const PlayerInfoWidget({
-    super.key,
     required this.track,
+    super.key,
     this.isLoading = false,
   });
 

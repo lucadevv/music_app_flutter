@@ -16,11 +16,13 @@ part 'playlist_offline_state.dart';
 ///
 /// Sigue el patrón Clean Architecture con inyección de dependencias
 /// y usa BaseBlocMixin para el manejo centralizado de errores.
-class PlaylistOfflineCubit extends Cubit<PlaylistOfflineState> with BaseBlocMixin {
+class PlaylistOfflineCubit extends Cubit<PlaylistOfflineState>
+    with BaseBlocMixin {
   final OfflineService _offlineService;
 
   /// Constructor con inyección de dependencias
-  PlaylistOfflineCubit(this._offlineService) : super(const PlaylistOfflineState());
+  PlaylistOfflineCubit(this._offlineService)
+    : super(const PlaylistOfflineState());
 
   /// Carga todas las playlists offline desde Hive
   ///
@@ -29,24 +31,30 @@ class PlaylistOfflineCubit extends Cubit<PlaylistOfflineState> with BaseBlocMixi
   Future<void> loadOfflinePlaylists() async {
     if (state.isLoading) return;
 
-    emit(state.copyWith(status: PlaylistOfflineStatus.loading, clearError: true));
+    emit(
+      state.copyWith(status: PlaylistOfflineStatus.loading, clearError: true),
+    );
 
     try {
       final playlists = await _offlineService.getOfflinePlaylists();
 
       if (isClosed) return;
 
-      emit(state.copyWith(
-        status: PlaylistOfflineStatus.success,
-        playlists: playlists,
-      ));
+      emit(
+        state.copyWith(
+          status: PlaylistOfflineStatus.success,
+          playlists: playlists,
+        ),
+      );
     } catch (e) {
       if (isClosed) return;
 
-      emit(state.copyWith(
-        status: PlaylistOfflineStatus.failure,
-        errorMessage: _parseError(e),
-      ));
+      emit(
+        state.copyWith(
+          status: PlaylistOfflineStatus.failure,
+          errorMessage: _parseError(e),
+        ),
+      );
     }
   }
 
@@ -61,7 +69,8 @@ class PlaylistOfflineCubit extends Cubit<PlaylistOfflineState> with BaseBlocMixi
     final playlistId = playlistData.playlistId;
 
     // Marcar como sincronizando
-    final newSyncingIds = Set<String>.from(state.syncingPlaylistIds)..add(playlistId);
+    final newSyncingIds = Set<String>.from(state.syncingPlaylistIds)
+      ..add(playlistId);
     emit(state.copyWith(syncingPlaylistIds: newSyncingIds));
 
     try {
@@ -82,7 +91,8 @@ class PlaylistOfflineCubit extends Cubit<PlaylistOfflineState> with BaseBlocMixi
 
       // Mantener miniatura local si existe
       if (existingPlaylist?.localThumbnailPath != null) {
-        offlinePlaylist.localThumbnailPath = existingPlaylist!.localThumbnailPath;
+        offlinePlaylist.localThumbnailPath =
+            existingPlaylist!.localThumbnailPath;
       }
 
       // Guardar en Hive
@@ -92,7 +102,9 @@ class PlaylistOfflineCubit extends Cubit<PlaylistOfflineState> with BaseBlocMixi
 
       // Actualizar lista local sin recargar todo
       final updatedPlaylists = List<OfflinePlaylist>.from(state.playlists);
-      final existingIndex = updatedPlaylists.indexWhere((p) => p.playlistId == playlistId);
+      final existingIndex = updatedPlaylists.indexWhere(
+        (p) => p.playlistId == playlistId,
+      );
 
       if (existingIndex >= 0) {
         updatedPlaylists[existingIndex] = offlinePlaylist;
@@ -101,22 +113,28 @@ class PlaylistOfflineCubit extends Cubit<PlaylistOfflineState> with BaseBlocMixi
       }
 
       // Remover de syncing y actualizar playlists
-      final newSyncingIdsAfter = Set<String>.from(state.syncingPlaylistIds)..remove(playlistId);
-      emit(state.copyWith(
-        status: PlaylistOfflineStatus.success,
-        playlists: updatedPlaylists,
-        syncingPlaylistIds: newSyncingIdsAfter,
-      ));
+      final newSyncingIdsAfter = Set<String>.from(state.syncingPlaylistIds)
+        ..remove(playlistId);
+      emit(
+        state.copyWith(
+          status: PlaylistOfflineStatus.success,
+          playlists: updatedPlaylists,
+          syncingPlaylistIds: newSyncingIdsAfter,
+        ),
+      );
     } catch (e) {
       if (isClosed) return;
 
       // Remover de syncing en caso de error
-      final newSyncingIds = Set<String>.from(state.syncingPlaylistIds)..remove(playlistId);
-      emit(state.copyWith(
-        status: PlaylistOfflineStatus.failure,
-        errorMessage: _parseError(e),
-        syncingPlaylistIds: newSyncingIds,
-      ));
+      final newSyncingIds = Set<String>.from(state.syncingPlaylistIds)
+        ..remove(playlistId);
+      emit(
+        state.copyWith(
+          status: PlaylistOfflineStatus.failure,
+          errorMessage: _parseError(e),
+          syncingPlaylistIds: newSyncingIds,
+        ),
+      );
     }
   }
 
@@ -124,7 +142,9 @@ class PlaylistOfflineCubit extends Cubit<PlaylistOfflineState> with BaseBlocMixi
   ///
   /// Remueve la playlist de Hive y actualiza el estado local.
   Future<void> removeOfflinePlaylist(String playlistId) async {
-    emit(state.copyWith(status: PlaylistOfflineStatus.loading, clearError: true));
+    emit(
+      state.copyWith(status: PlaylistOfflineStatus.loading, clearError: true),
+    );
 
     try {
       await _offlineService.deleteOfflinePlaylist(playlistId);
@@ -136,17 +156,21 @@ class PlaylistOfflineCubit extends Cubit<PlaylistOfflineState> with BaseBlocMixi
           .where((p) => p.playlistId != playlistId)
           .toList();
 
-      emit(state.copyWith(
-        status: PlaylistOfflineStatus.success,
-        playlists: updatedPlaylists,
-      ));
+      emit(
+        state.copyWith(
+          status: PlaylistOfflineStatus.success,
+          playlists: updatedPlaylists,
+        ),
+      );
     } catch (e) {
       if (isClosed) return;
 
-      emit(state.copyWith(
-        status: PlaylistOfflineStatus.failure,
-        errorMessage: _parseError(e),
-      ));
+      emit(
+        state.copyWith(
+          status: PlaylistOfflineStatus.failure,
+          errorMessage: _parseError(e),
+        ),
+      );
     }
   }
 
@@ -162,10 +186,14 @@ class PlaylistOfflineCubit extends Cubit<PlaylistOfflineState> with BaseBlocMixi
   /// Itera sobre la lista de [FavoritePlaylist] y sincroniza cada una
   /// con el caché offline. Las playlists que ya no están en favoritos
   /// son eliminadas del caché.
-  Future<void> syncAllFavoritePlaylists(List<FavoritePlaylist> playlists) async {
+  Future<void> syncAllFavoritePlaylists(
+    List<FavoritePlaylist> playlists,
+  ) async {
     if (state.isLoading) return;
 
-    emit(state.copyWith(status: PlaylistOfflineStatus.loading, clearError: true));
+    emit(
+      state.copyWith(status: PlaylistOfflineStatus.loading, clearError: true),
+    );
 
     try {
       final syncedIds = <String>{};
@@ -191,7 +219,8 @@ class PlaylistOfflineCubit extends Cubit<PlaylistOfflineState> with BaseBlocMixi
 
         // Mantener miniatura local si existe
         if (existingPlaylist?.localThumbnailPath != null) {
-          offlinePlaylist.localThumbnailPath = existingPlaylist!.localThumbnailPath;
+          offlinePlaylist.localThumbnailPath =
+              existingPlaylist!.localThumbnailPath;
         }
 
         await _offlineService.saveOfflinePlaylist(offlinePlaylist);
@@ -212,17 +241,21 @@ class PlaylistOfflineCubit extends Cubit<PlaylistOfflineState> with BaseBlocMixi
 
       if (isClosed) return;
 
-      emit(state.copyWith(
-        status: PlaylistOfflineStatus.success,
-        playlists: updatedPlaylists,
-      ));
+      emit(
+        state.copyWith(
+          status: PlaylistOfflineStatus.success,
+          playlists: updatedPlaylists,
+        ),
+      );
     } catch (e) {
       if (isClosed) return;
 
-      emit(state.copyWith(
-        status: PlaylistOfflineStatus.failure,
-        errorMessage: _parseError(e),
-      ));
+      emit(
+        state.copyWith(
+          status: PlaylistOfflineStatus.failure,
+          errorMessage: _parseError(e),
+        ),
+      );
     }
   }
 

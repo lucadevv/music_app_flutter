@@ -1,10 +1,10 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:music_app/features/auth/login/presentation/cubit/login_cubit.dart';
+
 import '../../register/domain/entities/register_response.dart';
 import '../../register/presentation/cubit/register_cubit.dart'
     show RegisterStatus, RegisterState;
-import '../../login/presentation/cubit/login_cubit.dart'
-    show LoginStatus, LoginState;
 
 part 'orquestador_auth_state.dart';
 part 'orquestador_auth_effect.dart';

@@ -7,12 +7,12 @@ import '../../domain/entities/mood_playlists_response.dart';
 import '../models/mood_playlists_response_model.dart';
 
 /// Data source remoto para operaciones de mood/genre
-/// 
+///
 /// SOLID: Single Responsibility Principle (SRP)
 /// Responsable única: Obtener playlists de mood/genre desde la API
 abstract class MoodGenreRemoteDataSource {
   /// Obtiene las playlists de un mood/genre
-  /// 
+  ///
   /// Endpoint: /api/music/explore/moods/{params}
   Future<Either<AppException, MoodPlaylistsResponse>> getMoodPlaylists(
     String params,
@@ -38,11 +38,11 @@ class MoodGenreRemoteDataSourceImpl implements MoodGenreRemoteDataSource {
       if (responseData is Map<String, dynamic>) {
         return Right(MoodPlaylistsResponseModel.fromJson(responseData));
       } else {
-        final exception = const ServerException(
+        const exception = ServerException(
           'Respuesta del servidor en formato incorrecto',
         );
         ExceptionHandler.logException(exception, context: 'getMoodPlaylists');
-        return Left(exception);
+        return const Left(exception);
       }
     } catch (e) {
       final appException = ExceptionHandler.handleException(e);

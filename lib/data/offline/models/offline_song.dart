@@ -124,12 +124,12 @@ class OfflineSong extends HiveObject {
 
   /// Convierte a JSON para sincronización
   Map<String, dynamic> toJson() => {
-        'songId': songId,
-        'videoId': videoId,
-        'title': title,
-        'artist': artist,
-        'thumbnail': thumbnail,
-        'duration': duration,
-        'addedAt': addedAt.toIso8601String(),
-      };
+    'songId': songId,
+    'videoId': videoId,
+    'title': title,
+    'artist': artist,
+    'thumbnail': thumbnail,
+    'duration': duration,
+    'addedAt': addedAt.toIso8601String(),
+  };
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
 /// Widget para la barra de progreso del reproductor
-/// 
+///
 /// SOLID: Single Responsibility Principle (SRP)
 /// Responsable única: Mostrar y controlar el progreso de reproducción
 class PlayerProgressBarWidget extends StatelessWidget {
@@ -12,9 +12,9 @@ class PlayerProgressBarWidget extends StatelessWidget {
   final bool isLoading;
 
   const PlayerProgressBarWidget({
-    super.key,
     required this.position,
     required this.duration,
+    super.key,
     this.onSeek,
     this.isLoading = false,
   });

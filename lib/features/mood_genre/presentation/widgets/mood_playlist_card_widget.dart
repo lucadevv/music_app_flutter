@@ -4,7 +4,7 @@ import 'package:music_app/core/theme/app_colors_dark.dart';
 import '../../domain/entities/mood_playlist.dart';
 
 /// Widget para mostrar una playlist de mood/genre en formato card
-/// 
+///
 /// SOLID: Single Responsibility Principle (SRP)
 /// Responsable única: Mostrar una card de playlist
 class MoodPlaylistCardWidget extends StatelessWidget {
@@ -12,9 +12,9 @@ class MoodPlaylistCardWidget extends StatelessWidget {
   final VoidCallback onTap;
 
   const MoodPlaylistCardWidget({
-    super.key,
     required this.playlist,
     required this.onTap,
+    super.key,
   });
 
   @override
@@ -37,11 +37,9 @@ class MoodPlaylistCardWidget extends StatelessWidget {
           children: [
             Expanded(
               child: Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: AppColorsDark.primaryContainer,
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(12),
-                  ),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
                 ),
                 child: thumbnail != null
                     ? ClipRRect(
@@ -53,21 +51,21 @@ class MoodPlaylistCardWidget extends StatelessWidget {
                           width: double.infinity,
                           height: double.infinity,
                           fit: BoxFit.cover,
-                          placeholder: (context, url) => Center(
+                          placeholder: (context, url) => const Center(
                             child: CircularProgressIndicator(
                               valueColor: AlwaysStoppedAnimation<Color>(
                                 AppColorsDark.primary,
                               ),
                             ),
                           ),
-                          errorWidget: (context, url, error) => Icon(
+                          errorWidget: (context, url, error) => const Icon(
                             Icons.playlist_play,
                             size: 60,
                             color: AppColorsDark.primary,
                           ),
                         ),
                       )
-                    : Center(
+                    : const Center(
                         child: Icon(
                           Icons.playlist_play,
                           size: 60,

@@ -3,18 +3,16 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('App Widget Tests', () {
-    testWidgets('placeholder test - verify test infrastructure works', (tester) async {
+    testWidgets('placeholder test - verify test infrastructure works', (
+      tester,
+    ) async {
       // This is a placeholder test to verify the test infrastructure works
       // Replace with actual widget tests as the app grows
 
       // Arrange
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(
-            body: Center(
-              child: Text('Test App'),
-            ),
-          ),
+          home: Scaffold(body: Center(child: Text('Test App'))),
         ),
       );
 
@@ -26,11 +24,7 @@ void main() {
       // Arrange
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(
-            body: Center(
-              child: Text('Test'),
-            ),
-          ),
+          home: Scaffold(body: Center(child: Text('Test'))),
         ),
       );
 
@@ -46,9 +40,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
-            body: Center(
-              child: Text('Test', key: testKey),
-            ),
+            body: Center(child: Text('Test', key: testKey)),
           ),
         ),
       );
@@ -81,32 +73,27 @@ void main() {
       expect(tapCount, equals(1));
     });
 
-    testWidgets('should display loading indicator when widget is in loading state', (tester) async {
-      // Arrange
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
+    testWidgets(
+      'should display loading indicator when widget is in loading state',
+      (tester) async {
+        // Arrange
+        await tester.pumpWidget(
+          const MaterialApp(
+            home: Scaffold(body: Center(child: CircularProgressIndicator())),
           ),
-        ),
-      );
+        );
 
-      // Act & Assert
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
-    });
+        // Act & Assert
+        expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      },
+    );
 
     testWidgets('should display error message in Text widget', (tester) async {
       // Arrange
       const errorMessage = 'An error occurred';
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(
-            body: Center(
-              child: Text(errorMessage),
-            ),
-          ),
+          home: Scaffold(body: Center(child: Text(errorMessage))),
         ),
       );
 
@@ -122,9 +109,8 @@ void main() {
           home: Scaffold(
             body: ListView.builder(
               itemCount: items.length,
-              itemBuilder: (context, index) => ListTile(
-                title: Text(items[index]),
-              ),
+              itemBuilder: (context, index) =>
+                  ListTile(title: Text(items[index])),
             ),
           ),
         ),
@@ -168,9 +154,8 @@ void main() {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => const Scaffold(
-                          body: Text('Second Screen'),
-                        ),
+                        builder: (_) =>
+                            const Scaffold(body: Text('Second Screen')),
                       ),
                     );
                   },
@@ -190,14 +175,14 @@ void main() {
       expect(find.text('Second Screen'), findsOneWidget);
     });
 
-    testWidgets('should display image from network placeholder', (tester) async {
+    testWidgets('should display image from network placeholder', (
+      tester,
+    ) async {
       // Arrange - Using a placeholder widget instead of actual network image
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
-            body: Center(
-              child: Icon(Icons.music_note, size: 100),
-            ),
+            body: Center(child: Icon(Icons.music_note, size: 100)),
           ),
         ),
       );

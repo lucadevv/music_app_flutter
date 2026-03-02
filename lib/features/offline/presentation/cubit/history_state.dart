@@ -46,8 +46,9 @@ class HistoryState extends Equatable {
       status: status ?? this.status,
       history: history ?? this.history,
       stats: clearStats ? null : (stats ?? this.stats),
-      currentHistoryId:
-          clearCurrentHistoryId ? null : (currentHistoryId ?? this.currentHistoryId),
+      currentHistoryId: clearCurrentHistoryId
+          ? null
+          : (currentHistoryId ?? this.currentHistoryId),
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
     );
   }
@@ -62,10 +63,10 @@ class HistoryState extends Equatable {
 
   @override
   List<Object?> get props => [
-        status,
-        history,
-        stats,
-        currentHistoryId,
-        errorMessage,
-      ];
+    status,
+    history,
+    stats,
+    currentHistoryId,
+    errorMessage,
+  ];
 }

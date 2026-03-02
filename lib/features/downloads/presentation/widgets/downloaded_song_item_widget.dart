@@ -41,42 +41,35 @@ class DownloadedSongItemWidget extends StatelessWidget {
           Text(
             song.artist,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
+              color: colorScheme.onSurfaceVariant,
+            ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 4),
           Row(
             children: [
-              Icon(
-                Icons.download_done,
-                size: 14,
-                color: colorScheme.primary,
-              ),
+              Icon(Icons.download_done, size: 14, color: colorScheme.primary),
               const SizedBox(width: 4),
               Text(
                 song.fileSizeFormatted,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: colorScheme.primary,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: colorScheme.primary),
               ),
               const SizedBox(width: 8),
               Text(
                 song.durationFormatted,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                    ),
+                  color: colorScheme.onSurfaceVariant,
+                ),
               ),
             ],
           ),
         ],
       ),
       trailing: IconButton(
-        icon: Icon(
-          Icons.delete_outline,
-          color: colorScheme.error,
-        ),
+        icon: Icon(Icons.delete_outline, color: colorScheme.error),
         onPressed: onDelete,
       ),
     );
@@ -98,14 +91,14 @@ class DownloadedSongItemWidget extends StatelessWidget {
             ? CachedNetworkImage(
                 imageUrl: song.thumbnail!,
                 fit: BoxFit.cover,
-                placeholder: (_, __) => Container(
+                placeholder: (_, _) => Container(
                   color: colorScheme.surfaceContainerHighest,
                   child: Icon(
                     Icons.music_note,
                     color: colorScheme.onSurfaceVariant,
                   ),
                 ),
-                errorWidget: (_, __, ___) => Container(
+                errorWidget: (_, _, _) => Container(
                   color: colorScheme.surfaceContainerHighest,
                   child: Icon(
                     Icons.music_note,
@@ -113,10 +106,7 @@ class DownloadedSongItemWidget extends StatelessWidget {
                   ),
                 ),
               )
-            : Icon(
-                Icons.music_note,
-                color: colorScheme.onSurfaceVariant,
-              ),
+            : Icon(Icons.music_note, color: colorScheme.onSurfaceVariant),
       ),
     );
   }

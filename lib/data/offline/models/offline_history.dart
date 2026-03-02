@@ -138,15 +138,15 @@ class OfflineHistory extends HiveObject {
 
   /// Convierte a JSON para sincronización
   Map<String, dynamic> toJson() => {
-        'historyId': historyId,
-        'songId': songId,
-        'videoId': videoId,
-        'title': title,
-        'artist': artist,
-        'thumbnail': thumbnail,
-        'duration': duration,
-        'playedAt': playedAt.toIso8601String(),
-        'playedDuration': playedDuration,
-        'playedPercentage': playedPercentage,
-      };
+    'historyId': historyId,
+    'songId': songId,
+    'videoId': videoId,
+    'title': title,
+    'artist': artist,
+    'thumbnail': thumbnail,
+    'duration': duration,
+    'playedAt': playedAt.toIso8601String(),
+    'playedDuration': playedDuration,
+    'playedPercentage': playedPercentage,
+  };
 }

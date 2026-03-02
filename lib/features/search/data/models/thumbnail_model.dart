@@ -17,10 +17,6 @@ class ThumbnailModel extends Thumbnail {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'url': url,
-      'width': width,
-      'height': height,
-    };
+    return {'url': url, 'width': width, 'height': height};
   }
 }

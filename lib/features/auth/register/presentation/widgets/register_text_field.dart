@@ -14,11 +14,11 @@ class RegisterTextField extends StatelessWidget {
   final ValueChanged<String>? onChanged;
 
   const RegisterTextField({
-    super.key,
     required this.controller,
     required this.labelText,
     required this.hintText,
     required this.prefixIcon,
+    super.key,
     this.suffixIcon,
     this.obscureText = false,
     this.errorText,
@@ -39,10 +39,7 @@ class RegisterTextField extends StatelessWidget {
         prefixIcon: Icon(prefixIcon, color: AppColorsDark.primary),
         suffixIcon: suffixIcon != null && onSuffixIconPressed != null
             ? IconButton(
-                icon: Icon(
-                  suffixIcon,
-                  color: AppColorsDark.onSurfaceVariant,
-                ),
+                icon: Icon(suffixIcon, color: AppColorsDark.onSurfaceVariant),
                 onPressed: onSuffixIconPressed,
               )
             : null,
@@ -53,10 +50,10 @@ class RegisterTextField extends StatelessWidget {
           borderSide: BorderSide.none,
         ),
         errorText: errorText,
-        labelStyle: TextStyle(color: AppColorsDark.onSurfaceVariant),
-        hintStyle: TextStyle(color: AppColorsDark.onSurfaceVariant),
+        labelStyle: const TextStyle(color: AppColorsDark.onSurfaceVariant),
+        hintStyle: const TextStyle(color: AppColorsDark.onSurfaceVariant),
       ),
-      style: TextStyle(color: AppColorsDark.onSurface),
+      style: const TextStyle(color: AppColorsDark.onSurface),
       onChanged: onChanged,
     );
   }

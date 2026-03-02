@@ -9,12 +9,12 @@ class DownloadedSongModel extends DownloadedSong {
     required super.videoId,
     required super.title,
     required super.artist,
-    super.album,
-    super.thumbnail,
     required super.localPath,
     required super.fileSize,
     required super.duration,
     required super.downloadedAt,
+    super.album,
+    super.thumbnail,
   });
 
   /// Crea un modelo desde un JSON

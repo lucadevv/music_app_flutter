@@ -17,7 +17,8 @@ class SearchShell extends StatelessWidget implements AutoRouteWrapper {
     return MultiBlocProvider(
       providers: [
         BlocProvider<SearchCubit>(
-          create: (context) => SearchCubit(searchUseCase: getIt<SearchUseCase>()),
+          create: (context) =>
+              SearchCubit(searchUseCase: getIt<SearchUseCase>()),
         ),
         BlocProvider<RecentSearchesCubit>(
           create: (context) => RecentSearchesCubit(

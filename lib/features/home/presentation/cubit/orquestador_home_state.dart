@@ -35,10 +35,10 @@ class OrquestadorHomeState extends Equatable {
     );
   }
 
-  factory OrquestadorHomeState.initial() => OrquestadorHomeState(
-    homeState: const HomeState(),
-    moodGenreState: const MoodGenreState(),
-    playlistState: const PlaylistState(),
+  factory OrquestadorHomeState.initial() => const OrquestadorHomeState(
+    homeState: HomeState(),
+    moodGenreState: MoodGenreState(),
+    playlistState: PlaylistState(),
   );
 
   @override

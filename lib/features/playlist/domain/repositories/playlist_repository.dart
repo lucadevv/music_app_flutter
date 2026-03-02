@@ -3,7 +3,7 @@ import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
 import '../entities/playlist_response.dart';
 
 /// Repositorio abstracto para operaciones de playlist
-/// 
+///
 /// SOLID: Dependency Inversion Principle (DIP)
 /// Define la interfaz que debe implementar el repositorio concreto
 abstract class PlaylistRepository {

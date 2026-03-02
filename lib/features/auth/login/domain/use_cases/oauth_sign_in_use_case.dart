@@ -29,7 +29,7 @@ class GoogleSignInUseCase {
       name: oauthResult.name,
     );
 
-    return await _repository.signInWithGoogle(request);
+    return _repository.signInWithGoogle(request);
   }
 }
 
@@ -58,6 +58,6 @@ class AppleSignInUseCase {
       name: oauthResult.name,
     );
 
-    return await _repository.signInWithApple(request);
+    return _repository.signInWithApple(request);
   }
 }

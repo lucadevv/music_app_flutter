@@ -4,11 +4,7 @@ class SearchBarWidget extends StatelessWidget {
   final TextEditingController controller;
   final ValueChanged<String>? onChanged;
 
-  const SearchBarWidget({
-    super.key,
-    required this.controller,
-    this.onChanged,
-  });
+  const SearchBarWidget({required this.controller, super.key, this.onChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -24,9 +20,7 @@ class SearchBarWidget extends StatelessWidget {
         onChanged: onChanged,
         decoration: InputDecoration(
           hintText: 'Search songs, artist, album o...',
-          hintStyle: TextStyle(
-            color: Colors.white.withValues(alpha: 0.5),
-          ),
+          hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.5)),
           prefixIcon: Icon(
             Icons.search,
             color: Colors.white.withValues(alpha: 0.5),

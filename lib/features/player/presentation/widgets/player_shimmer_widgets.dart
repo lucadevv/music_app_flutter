@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
 /// Widgets de shimmer para el reproductor
-/// 
+///
 /// SOLID: Single Responsibility Principle (SRP)
 /// Responsable única: Mostrar placeholders de carga con shimmer
 
@@ -77,13 +77,13 @@ class PlaybackControlsShimmer extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         _ShimmerCircle(size: 48),
-         SizedBox(width: 16),
+        SizedBox(width: 16),
         _ShimmerCircle(size: 48),
-         SizedBox(width: 16),
+        SizedBox(width: 16),
         _ShimmerCircle(size: 64),
-         SizedBox(width: 16),
+        SizedBox(width: 16),
         _ShimmerCircle(size: 48),
-         SizedBox(width: 16),
+        SizedBox(width: 16),
         _ShimmerCircle(size: 48),
       ],
     );

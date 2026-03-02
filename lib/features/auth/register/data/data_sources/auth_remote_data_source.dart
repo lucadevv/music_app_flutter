@@ -3,12 +3,12 @@ import 'package:dio/dio.dart';
 import 'package:music_app/core/services/network/api_services.dart';
 import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
 import 'package:music_app/core/utils/exeptions/exception_handler.dart';
+import 'package:music_app/features/auth/data/models/oauth_request.dart';
+import 'package:music_app/features/auth/login/domain/entities/login_request.dart';
+import 'package:music_app/features/auth/refresh_token/data/models/refresh_token_response_model.dart';
+import 'package:music_app/features/auth/refresh_token/domain/entities/refresh_token_request.dart';
 import '../../domain/entities/register_request.dart';
-import '../../../login/domain/entities/login_request.dart';
-import '../../../refresh_token/domain/entities/refresh_token_request.dart';
 import '../models/register_response_model.dart';
-import '../../../refresh_token/data/models/refresh_token_response_model.dart';
-import '../../../data/models/oauth_request.dart';
 
 /// Data source remoto para operaciones de autenticación
 abstract class AuthRemoteDataSource {
@@ -59,11 +59,11 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       if (responseData is Map<String, dynamic>) {
         return Right(RegisterResponseModel.fromJson(responseData));
       } else {
-        final exception = const ServerException(
+        const exception = ServerException(
           'Respuesta del servidor en formato incorrecto',
         );
         ExceptionHandler.logException(exception, context: 'register');
-        return Left(exception);
+        return const Left(exception);
       }
     } catch (e) {
       final appException = ExceptionHandler.handleException(e);
@@ -79,10 +79,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     try {
       final response = await _apiServices.post(
         '/auth/login',
-        data: {
-          'email': request.email,
-          'password': request.password,
-        },
+        data: {'email': request.email, 'password': request.password},
       );
 
       // Dio devuelve Response, necesitamos acceder a response.data
@@ -91,11 +88,11 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       if (responseData is Map<String, dynamic>) {
         return Right(RegisterResponseModel.fromJson(responseData));
       } else {
-        final exception = const ServerException(
+        const exception = ServerException(
           'Respuesta del servidor en formato incorrecto',
         );
         ExceptionHandler.logException(exception, context: 'login');
-        return Left(exception);
+        return const Left(exception);
       }
     } catch (e) {
       final appException = ExceptionHandler.handleException(e);
@@ -111,9 +108,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     try {
       final response = await _apiServices.post(
         '/auth/refresh',
-        data: {
-          'refreshToken': request.refreshToken,
-        },
+        data: {'refreshToken': request.refreshToken},
       );
 
       // Dio devuelve Response, necesitamos acceder a response.data
@@ -122,11 +117,11 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       if (responseData is Map<String, dynamic>) {
         return Right(RefreshTokenResponseModel.fromJson(responseData));
       } else {
-        final exception = const ServerException(
+        const exception = ServerException(
           'Respuesta del servidor en formato incorrecto',
         );
         ExceptionHandler.logException(exception, context: 'refreshToken');
-        return Left(exception);
+        return const Left(exception);
       }
     } catch (e) {
       final appException = ExceptionHandler.handleException(e);
@@ -150,11 +145,11 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       if (responseData is Map<String, dynamic>) {
         return Right(OAuthResponse.fromJson(responseData));
       } else {
-        final exception = const ServerException(
+        const exception = ServerException(
           'Respuesta del servidor en formato incorrecto',
         );
         ExceptionHandler.logException(exception, context: 'signInWithGoogle');
-        return Left(exception);
+        return const Left(exception);
       }
     } catch (e) {
       final appException = ExceptionHandler.handleException(e);
@@ -178,11 +173,11 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       if (responseData is Map<String, dynamic>) {
         return Right(OAuthResponse.fromJson(responseData));
       } else {
-        final exception = const ServerException(
+        const exception = ServerException(
           'Respuesta del servidor en formato incorrecto',
         );
         ExceptionHandler.logException(exception, context: 'signInWithApple');
-        return Left(exception);
+        return const Left(exception);
       }
     } catch (e) {
       final appException = ExceptionHandler.handleException(e);

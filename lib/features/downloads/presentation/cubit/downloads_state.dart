@@ -49,10 +49,10 @@ class DownloadsState extends Equatable {
 
   @override
   List<Object?> get props => [
-        status,
-        errorMessage,
-        downloadedSongs,
-        downloadingIds,
-        downloadProgress,
-      ];
+    status,
+    errorMessage,
+    downloadedSongs,
+    downloadingIds,
+    downloadProgress,
+  ];
 }

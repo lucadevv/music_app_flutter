@@ -15,11 +15,11 @@ abstract class DownloadsRepository {
     required String videoId,
     required String title,
     required String artist,
-    String? album,
-    String? thumbnail,
     required String streamUrl,
     required Duration duration,
     required void Function(double progress) onProgress,
+    String? album,
+    String? thumbnail,
   });
 
   /// Elimina una descarga

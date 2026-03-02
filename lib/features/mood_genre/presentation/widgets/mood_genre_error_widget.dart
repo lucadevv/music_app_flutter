@@ -4,7 +4,7 @@ import 'package:music_app/l10n/app_localizations.dart';
 import '../cubit/mood_genre_cubit.dart';
 
 /// Widget para mostrar el estado de error
-/// 
+///
 /// SOLID: Single Responsibility Principle (SRP)
 /// Responsable única: Mostrar el estado de error y permitir reintentar
 class MoodGenreErrorWidget extends StatelessWidget {
@@ -20,7 +20,7 @@ class MoodGenreErrorWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

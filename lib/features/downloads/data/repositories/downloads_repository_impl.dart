@@ -18,7 +18,8 @@ class DownloadsRepositoryImpl implements DownloadsRepository {
   DownloadsRepositoryImpl(this._localDataSource);
 
   @override
-  Future<Either<AppException, List<DownloadedSong>>> getDownloadedSongs() async {
+  Future<Either<AppException, List<DownloadedSong>>>
+  getDownloadedSongs() async {
     try {
       final songs = await _localDataSource.getDownloadedSongs();
       return Right(songs);
@@ -32,11 +33,11 @@ class DownloadsRepositoryImpl implements DownloadsRepository {
     required String videoId,
     required String title,
     required String artist,
-    String? album,
-    String? thumbnail,
     required String streamUrl,
     required Duration duration,
     required void Function(double progress) onProgress,
+    String? album,
+    String? thumbnail,
   }) async {
     try {
       // Descargar el archivo

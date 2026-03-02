@@ -5,7 +5,7 @@ import '../../domain/repositories/mood_genre_repository.dart';
 import '../data_sources/mood_genre_remote_data_source.dart';
 
 /// Implementación del repositorio de mood/genre
-/// 
+///
 /// SOLID: Single Responsibility Principle (SRP)
 /// Responsable única: Coordinar la obtención de datos desde el data source
 class MoodGenreRepositoryImpl implements MoodGenreRepository {
@@ -17,6 +17,6 @@ class MoodGenreRepositoryImpl implements MoodGenreRepository {
   Future<Either<AppException, MoodPlaylistsResponse>> getMoodPlaylists(
     String params,
   ) async {
-    return await _remoteDataSource.getMoodPlaylists(params);
+    return _remoteDataSource.getMoodPlaylists(params);
   }
 }

@@ -1,18 +1,13 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
-import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
-import 'package:music_app/features/downloads/domain/entities/downloaded_song.dart';
+import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/features/downloads/presentation/cubit/downloads_cubit.dart';
-import 'package:music_app/features/downloads/presentation/widgets/downloaded_song_item_widget.dart';
 import 'package:music_app/features/downloads/presentation/widgets/download_progress_widget.dart';
-import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
-import 'package:music_app/features/search/domain/entities/album.dart';
-import 'package:music_app/features/search/domain/entities/artist.dart';
-import 'package:music_app/features/search/domain/entities/thumbnail.dart';
+import 'package:music_app/features/downloads/presentation/widgets/downloaded_song_item_widget.dart';
 import 'package:music_app/l10n/app_localizations.dart';
-import 'package:music_app/main.dart';
+
+import '../../domain/entities/downloaded_song.dart';
 
 /// Pantalla de descargas
 ///
@@ -27,55 +22,61 @@ class DownloadsScreen extends StatefulWidget {
 }
 
 class _DownloadsScreenState extends State<DownloadsScreen> {
-  DownloadsCubit? _downloadsCubit;
-
   @override
   void initState() {
     super.initState();
-    _initCubit();
-  }
-
-  @override
-  void dispose() {
-    _downloadsCubit?.close();
-    super.dispose();
-  }
-
-  Future<void> _initCubit() async {
-    _downloadsCubit = await GetIt.I.getAsync<DownloadsCubit>();
-    _downloadsCubit!.loadDownloads();
-    if (mounted) {
-      setState(() {});
-    }
+    // Usar el provider global de DownloadsCubit
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<DownloadsCubit>().loadDownloads();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
-    if (_downloadsCubit == null) {
-      return Scaffold(
-        appBar: AppBar(title: Text(l10n.downloads)),
-        body: const Center(child: CircularProgressIndicator()),
-      );
-    }
 
-    return BlocProvider.value(
-      value: _downloadsCubit!,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(l10n.downloads),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.settings_outlined),
-              onPressed: () {
-                // TODO: Abrir configuración de descargas
-              },
-            ),
-          ],
-        ),
-        body: _DownloadsBody(l10n: l10n),
-      ),
+    return BlocBuilder<DownloadsCubit, DownloadsState>(
+      builder: (context, state) {
+        if (state.status == DownloadsStatus.initial ||
+            state.status == DownloadsStatus.loading) {
+          return Scaffold(
+            appBar: AppBar(title: Text(l10n.downloads)),
+            body: const Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(l10n.downloads),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.settings_outlined),
+                onPressed: () {
+                  // Abre un diálogo simple para indicar que la funcionalidad aún no está implementada
+                  showDialog<void>(
+                    context: context,
+                    builder: (dialogContext) {
+                      return AlertDialog(
+                        title: const Text('Settings'),
+                        content: const Text(
+                          'Downloading settings screen is not implemented yet.',
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(dialogContext).pop(),
+                            child: const Text('OK'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+              ),
+            ],
+          ),
+          body: _DownloadsBody(l10n: l10n),
+        );
+      }, // end of builder
     );
   }
 }
@@ -113,11 +114,7 @@ class _DownloadsBody extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.download_done,
-            size: 80,
-            color: colorScheme.outline,
-          ),
+          Icon(Icons.download_done, size: 80, color: colorScheme.outline),
           const SizedBox(height: 16),
           Text(
             l10n.noDownloadsYet,
@@ -127,8 +124,8 @@ class _DownloadsBody extends StatelessWidget {
           Text(
             l10n.downloadsWillAppearHere,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
+              color: colorScheme.onSurfaceVariant,
+            ),
             textAlign: TextAlign.center,
           ),
         ],
@@ -143,11 +140,7 @@ class _DownloadsBody extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.error_outline,
-            size: 80,
-            color: colorScheme.error,
-          ),
+          Icon(Icons.error_outline, size: 80, color: colorScheme.error),
           const SizedBox(height: 16),
           Text(
             l10n.errorOccurred,
@@ -157,8 +150,8 @@ class _DownloadsBody extends StatelessWidget {
           Text(
             state.errorMessage ?? l10n.errorUnknown,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
+              color: colorScheme.onSurfaceVariant,
+            ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
@@ -217,8 +210,13 @@ class _DownloadsBody extends StatelessWidget {
                 isDownloading: isDownloading,
                 progress: progress,
                 onTap: () {
-                  // Reproducir canción descargada offline
-                  _playDownloadedSong(song);
+                  // Usar el método del Cubit para reproducir
+                  final nowPlayingData = context
+                      .read<DownloadsCubit>()
+                      .playDownloadedSong(song);
+                  context.router.push(
+                    PlayerRoute(nowPlayingData: nowPlayingData),
+                  );
                 },
                 onDelete: () {
                   _showDeleteConfirmationDialog(context, song);
@@ -231,44 +229,16 @@ class _DownloadsBody extends StatelessWidget {
     );
   }
 
-  /// Reproduce una canción descargada localmente
-  void _playDownloadedSong(DownloadedSong song) {
-    // Convertir DownloadedSong a NowPlayingData
-    final nowPlayingData = NowPlayingData(
-      videoId: song.videoId,
-      title: song.title,
-      artists: [
-        SearchArtist(name: song.artist, id: ''),
-      ],
-      album: SearchAlbum(name: song.album ?? 'Unknown Album', id: ''),
-      duration: song.durationFormatted,
-      durationSeconds: song.duration.inSeconds,
-      views: '0',
-      isExplicit: false,
-      inLibrary: true,
-      thumbnails: song.thumbnail != null
-          ? [Thumbnail(url: song.thumbnail!, width: 200, height: 200)]
-          : [],
-      streamUrl: 'file://${song.localPath}', // Usar archivo local
-      thumbnail: song.thumbnail != null
-          ? Thumbnail(url: song.thumbnail!, width: 200, height: 200)
-          : null,
-    );
-
-    // Cargar y reproducir
-    getIt<PlayerBlocBloc>().add(LoadTrackEvent(nowPlayingData));
-  }
-
   void _showDeleteConfirmationDialog(
-      BuildContext context, DownloadedSong song) {
+    BuildContext context,
+    DownloadedSong song,
+  ) {
     showDialog<void>(
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
           title: Text(l10n.deleteDownloadConfirmation),
-          content: Text(
-            l10n.deleteDownloadMessage(song.title),
-          ),
+          content: Text(l10n.deleteDownloadMessage(song.title)),
           actions: [
             TextButton(
               onPressed: () {

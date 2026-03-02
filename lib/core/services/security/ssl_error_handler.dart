@@ -104,7 +104,9 @@ class SslErrorHandler {
 
   // Métodos privados
 
-  static String _getCertificatePinningErrorMessage(CertificatePinningException error) {
+  static String _getCertificatePinningErrorMessage(
+    CertificatePinningException error,
+  ) {
     // Mensajes específicos según el tipo de error
     if (error.message.contains('not in allowed list')) {
       return 'Error de seguridad: La identidad del servidor no pudo ser verificada. '

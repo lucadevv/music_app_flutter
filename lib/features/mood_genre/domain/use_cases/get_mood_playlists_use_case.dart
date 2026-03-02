@@ -4,7 +4,7 @@ import '../entities/mood_playlists_response.dart';
 import '../repositories/mood_genre_repository.dart';
 
 /// Use case para obtener playlists de mood/genre
-/// 
+///
 /// SOLID: Single Responsibility Principle (SRP)
 /// Responsable única: Ejecutar la lógica de negocio para obtener playlists
 class GetMoodPlaylistsUseCase {
@@ -13,7 +13,7 @@ class GetMoodPlaylistsUseCase {
   GetMoodPlaylistsUseCase(this._repository);
 
   /// Ejecuta el caso de uso
-  /// 
+  ///
   /// [params] - Parámetros del mood/genre
   Future<Either<AppException, MoodPlaylistsResponse>> call(String params) {
     return _repository.getMoodPlaylists(params);

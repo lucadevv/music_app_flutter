@@ -1,16 +1,14 @@
 import 'package:dartz/dartz.dart';
 import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
+import 'package:music_app/features/search/domain/entities/recent_search.dart';
 import '../entities/search_request.dart';
 import '../entities/search_response.dart';
-import '../entities/recent_search.dart';
 
 /// Interfaz del repositorio de búsqueda
 /// Define el contrato que debe cumplir cualquier implementación
 abstract class SearchRepository {
   /// Busca canciones, artistas, álbumes, etc.
-  Future<Either<AppException, SearchResponse>> search(
-    SearchRequest request,
-  );
+  Future<Either<AppException, SearchResponse>> search(SearchRequest request);
 
   /// Obtiene las búsquedas recientes
   Future<Either<AppException, List<RecentSearch>>> getRecentSearches({

@@ -2,6 +2,10 @@ import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'package:music_app/features/home/domain/entities/chart_song.dart';
+import 'package:music_app/features/home/domain/entities/home_content_item.dart';
+import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 import 'package:music_app/features/playlist/presentation/cubit/playlist_state.dart';
 
 import 'home_cubit.dart' show HomeCubit, HomeState, HomeStatus;
@@ -56,9 +60,7 @@ class OrquestadorHomeCubit extends Cubit<OrquestadorHomeState> {
       _playlistSubscription?.cancel();
     }
     _playlistCubit = playlistCubit;
-    _playlistSubscription = _playlistCubit!.stream.listen((playlistState) {
-      _updatePlaylistState(playlistState);
-    });
+    _playlistSubscription = _playlistCubit!.stream.listen(_updatePlaylistState);
     // Actualizar el estado inicial
     _updatePlaylistState(playlistCubit.state);
   }
@@ -176,6 +178,23 @@ class OrquestadorHomeCubit extends Cubit<OrquestadorHomeState> {
   /// Limpia el effect después de procesarlo
   void clearEffect() {
     emit(state.copyWith(effect: null));
+  }
+
+  /// Reproduce un HomeContentItem como una sola canción
+  /// Retorna el NowPlayingData para navegación
+  NowPlayingData? playContentItemAsSingle(HomeContentItem item) {
+    return _homeCubit.playContentItemAsSingle(item);
+  }
+
+  /// Reproduce una canción de chart
+  /// Retorna el NowPlayingData para navegación
+  NowPlayingData playChartSong(ChartSong song) {
+    return _homeCubit.playChartSong(song);
+  }
+
+  /// Reproduce un contenido completo (playlist)
+  void playContentItem(HomeContentItem item) {
+    _homeCubit.playContentItem(item);
   }
 
   /// Reinicia todo el flujo

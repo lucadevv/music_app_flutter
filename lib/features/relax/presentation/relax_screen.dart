@@ -10,7 +10,7 @@ class RelaxScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     return Scaffold(
       backgroundColor: const Color(0xFF0D0D0D),
       body: SafeArea(
@@ -163,13 +163,11 @@ class _MusicCard extends StatelessWidget {
         children: [
           Expanded(
             child: Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppColorsDark.primaryContainer,
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(12),
-                ),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
               ),
-              child: Center(
+              child: const Center(
                 child: Icon(
                   Icons.music_note,
                   size: 60,

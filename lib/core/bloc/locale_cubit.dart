@@ -7,15 +7,9 @@ class LocaleState {
   final Locale locale;
   final bool isLoading;
 
-  const LocaleState({
-    required this.locale,
-    this.isLoading = false,
-  });
+  const LocaleState({required this.locale, this.isLoading = false});
 
-  LocaleState copyWith({
-    Locale? locale,
-    bool? isLoading,
-  }) {
+  LocaleState copyWith({Locale? locale, bool? isLoading}) {
     return LocaleState(
       locale: locale ?? this.locale,
       isLoading: isLoading ?? this.isLoading,
@@ -23,10 +17,7 @@ class LocaleState {
   }
 
   factory LocaleState.initial() {
-    return const LocaleState(
-      locale: Locale('en'),
-      isLoading: true,
-    );
+    return const LocaleState(locale: Locale('en'), isLoading: true);
   }
 }
 
@@ -44,10 +35,7 @@ class LocaleCubit extends Cubit<LocaleState> {
     try {
       final savedLocale = _prefs.getString(_localeKey);
       if (savedLocale != null) {
-        emit(state.copyWith(
-          locale: Locale(savedLocale),
-          isLoading: false,
-        ));
+        emit(state.copyWith(locale: Locale(savedLocale), isLoading: false));
       } else {
         // Si no hay locale guardado, usar inglés por defecto
         emit(state.copyWith(isLoading: false));
@@ -77,10 +65,7 @@ class LocaleCubit extends Cubit<LocaleState> {
   Locale get currentLocale => state.locale;
 
   /// Lista de locales soportados
-  static const List<Locale> supportedLocales = [
-    Locale('en'),
-    Locale('es'),
-  ];
+  static const List<Locale> supportedLocales = [Locale('en'), Locale('es')];
 
   /// Nombres de los idiomas para mostrar en la UI
   static const Map<String, String> localeNames = {

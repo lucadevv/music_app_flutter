@@ -2,13 +2,11 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
-import 'package:music_app/core/managers/auth/auth_manager.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/core/utils/bottom_sheet_visibility.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/player/presentation/widgets/mini_player.dart';
 import 'package:music_app/l10n/app_localizations.dart';
-import 'package:music_app/main.dart';
 
 @RoutePage()
 class DashboardShell extends StatefulWidget implements AutoRouteWrapper {
@@ -28,10 +26,6 @@ class _DashboardShellState extends State<DashboardShell> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await _init();
-    });
-    
     // Listen to bottom sheet visibility changes
     BottomSheetVisibility().addListener(_onBottomSheetChanged);
   }
@@ -46,14 +40,6 @@ class _DashboardShellState extends State<DashboardShell> {
     if (mounted) {
       setState(() {}); // Rebuild to update miniplayer position
     }
-  }
-
-  Future<void> _init() async {
-    final manager = getIt<AuthManager>();
-    final accessTokem = await manager.getCurrentAccessToken();
-    final refreshTokem = await manager.getCurrentRefreshToken();
-    debugPrint("accessToken: $accessTokem");
-    debugPrint("refreshToken: $refreshTokem");
   }
 
   @override
@@ -73,12 +59,12 @@ class _DashboardShellState extends State<DashboardShell> {
     // Obtener la ruta actual
     final currentPath = context.router.currentPath;
     final isEmailVerificationRoute = currentPath.contains('email-verification');
-    print("current page: $currentPath");
+
     // Si estamos en la ruta de verificación de email, mostrar solo el AutoRouter sin tabs
     if (isEmailVerificationRoute) {
-      return Scaffold(
+      return const Scaffold(
         backgroundColor: AppColorsDark.surface,
-        body: const AutoRouter(),
+        body: AutoRouter(),
       );
     }
     return AutoTabsRouter.pageView(
@@ -90,12 +76,13 @@ class _DashboardShellState extends State<DashboardShell> {
         final isVisible = visibleRoutes.contains(tabsPath);
 
         return BlocBuilder<PlayerBlocBloc, PlayerBlocState>(
-          bloc: getIt<PlayerBlocBloc>(),
+          // NO especificar bloc - usar el heredado del provider
           buildWhen: (previous, current) {
             // Rebuild cuando cambia la canción actual O la presencia de canción
             // IMPORTANTE: Necesitamos rebuild en cada cambio para que el MiniPlayer se actualice
             if (previous is PlayerBlocLoaded && current is PlayerBlocLoaded) {
-              return previous.currentTrack?.videoId != current.currentTrack?.videoId ||
+              return previous.currentTrack?.videoId !=
+                      current.currentTrack?.videoId ||
                   previous.playbackState != current.playbackState ||
                   previous.position != current.position ||
                   previous.duration != current.duration;
@@ -104,14 +91,19 @@ class _DashboardShellState extends State<DashboardShell> {
             return true;
           },
           builder: (context, playerState) {
-            final hasTrack = playerState is PlayerBlocLoaded && playerState.currentTrack != null;
+            final hasTrack =
+                playerState is PlayerBlocLoaded &&
+                playerState.currentTrack != null;
             final isBottomSheetOpen = BottomSheetVisibility().isBottomSheetOpen;
-            
+
             // Posición del miniplayer:
             // - Normal: 119
             // - Con bottom sheet abierto: 512 (para que no tape el bottom sheet)
             final miniPlayerBottom = isBottomSheetOpen ? 512 : 119;
-            
+
+            // Obtener el bloc para pasar al MiniPlayer
+            final playerBloc = context.read<PlayerBlocBloc>();
+
             return Scaffold(
               backgroundColor: AppColorsDark.surface,
               body: Stack(
@@ -125,7 +117,10 @@ class _DashboardShellState extends State<DashboardShell> {
                       left: 0,
                       right: 0,
                       bottom: miniPlayerBottom.toDouble(),
-                      child: const MiniPlayer(),
+                      child: BlocProvider.value(
+                        value: playerBloc,
+                        child: const MiniPlayer(),
+                      ),
                     ),
                   // Navbar
                   if (isVisible) ...[
@@ -134,7 +129,7 @@ class _DashboardShellState extends State<DashboardShell> {
                       child: Container(
                         height: 79,
                         width: double.infinity,
-                        margin: EdgeInsets.symmetric(
+                        margin: const EdgeInsets.symmetric(
                           horizontal: 30,
                         ).copyWith(bottom: 32),
                         decoration: BoxDecoration(

@@ -5,29 +5,26 @@ import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.
 import 'package:music_app/features/playlist/domain/use_cases/get_playlist_use_case.dart';
 import 'package:music_app/features/playlist/presentation/cubit/playlist_cubit.dart';
 import 'package:music_app/features/playlist/presentation/cubit/playlist_state.dart';
+import 'package:music_app/features/playlist/presentation/widgets/playlist_actions_widget.dart';
 import 'package:music_app/features/playlist/presentation/widgets/playlist_error_widget.dart';
 import 'package:music_app/features/playlist/presentation/widgets/playlist_header_widget.dart';
 import 'package:music_app/features/playlist/presentation/widgets/playlist_listeners.dart';
 import 'package:music_app/features/playlist/presentation/widgets/playlist_loading_overlay.dart';
 import 'package:music_app/features/playlist/presentation/widgets/playlist_loading_widget.dart';
 import 'package:music_app/features/playlist/presentation/widgets/playlist_track_item_widget.dart';
-import 'package:music_app/features/playlist/presentation/widgets/playlist_actions_widget.dart';
-import 'package:music_app/features/search/domain/entities/thumbnail.dart';
 import 'package:music_app/main.dart';
 
 @RoutePage()
 class PlaylistScreen extends StatefulWidget implements AutoRouteWrapper {
   final String id;
 
-  const PlaylistScreen({super.key, required this.id});
+  const PlaylistScreen({required this.id, super.key});
 
   @override
   Widget wrappedRoute(BuildContext context) {
     return BlocProvider<PlaylistCubit>(
       create: (context) {
-        return PlaylistCubit(
-          getPlaylistUseCase: getIt<GetPlaylistUseCase>(),
-        );
+        return PlaylistCubit(getPlaylistUseCase: getIt<GetPlaylistUseCase>());
       },
       child: this,
     );
@@ -45,19 +42,19 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.id.isNotEmpty) {
         context.read<PlaylistCubit>().loadPlaylist(widget.id);
-      } else {
-        debugPrint('PlaylistScreen: ERROR - ID is empty!');
       }
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final playerBloc = context.read<PlayerBlocBloc>();
+
     return PlaylistListeners(
       child: Scaffold(
         backgroundColor: const Color(0xFF0D0D0D),
         body: BlocBuilder<PlayerBlocBloc, PlayerBlocState>(
-          bloc: getIt<PlayerBlocBloc>(),
+          bloc: playerBloc,
           builder: (context, playerState) {
             final isLoadingPlaylist =
                 playerState is PlayerBlocLoaded &&
@@ -89,20 +86,12 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                     return const PlaylistLoadingWidget();
                   }
 
-                  // Obtener la mejor thumbnail para el backdrop (usar .last para mejor calidad)
-                  Thumbnail? bestThumbnail;
-                  if (playlist.thumbnails.isNotEmpty) {
-                    bestThumbnail = playlist.thumbnails.last;
-                    for (final thumbnail in playlist.thumbnails) {
-                      if (thumbnail.width > bestThumbnail!.width) {
-                        bestThumbnail = thumbnail;
-                      }
-                    }
-                  }
+                  // Obtener la mejor thumbnail del estado
+                  // final bestThumbnail obtenido de playlistState (no se usa aún)
 
                   return Stack(
                     children: [
-                      // Backdrop difuminado
+                      // Backdrop difuminado (se conservará si se reintroduce la UI con la thumbnail)
                       // PlaylistBackdropWidget(thumbnail: bestThumbnail),
 
                       // Contenido con CustomScrollView

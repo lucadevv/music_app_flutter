@@ -49,16 +49,16 @@ class OrquestadorSearchState extends Equatable {
   }
 
   factory OrquestadorSearchState.initial() => const OrquestadorSearchState(
-        searchState: SearchState(),
-        recentSearchesState: RecentSearchesState(),
-      );
+    searchState: SearchState(),
+    recentSearchesState: RecentSearchesState(),
+  );
 
   @override
   List<Object?> get props => [
-        searchState,
-        recentSearchesState,
-        hasError,
-        errorMessage,
-        effect,
-      ];
+    searchState,
+    recentSearchesState,
+    hasError,
+    errorMessage,
+    effect,
+  ];
 }

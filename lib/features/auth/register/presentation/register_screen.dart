@@ -98,7 +98,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           backgroundColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: AppColorsDark.onSurface),
+            icon: const Icon(Icons.arrow_back, color: AppColorsDark.onSurface),
             onPressed: () => context.router.pop(),
           ),
         ),

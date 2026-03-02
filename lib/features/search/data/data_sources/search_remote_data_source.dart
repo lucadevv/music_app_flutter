@@ -4,10 +4,11 @@ import 'package:flutter/foundation.dart';
 import 'package:music_app/core/services/network/api_services.dart';
 import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
 import 'package:music_app/core/utils/exeptions/exception_handler.dart';
+import 'package:music_app/features/home/data/models/mood_genre_model.dart';
+import 'package:music_app/features/search/data/models/recent_search_model.dart';
+import 'package:music_app/features/search/domain/entities/recent_search.dart';
 import '../../domain/entities/search_request.dart';
 import '../models/search_response_model.dart';
-import '../models/recent_search_model.dart';
-import '../../domain/entities/recent_search.dart';
 
 /// Data source remoto para operaciones de búsqueda
 abstract class SearchRemoteDataSource {
@@ -18,6 +19,9 @@ abstract class SearchRemoteDataSource {
   Future<Either<AppException, List<RecentSearch>>> getRecentSearches({
     int limit = 10,
   });
+
+  /// Obtiene las categorías (moods/genres) para la pantalla de búsqueda
+  Future<Either<AppException, List<MoodGenreModel>>> getCategories();
 }
 
 class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
@@ -32,7 +36,8 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
     try {
       // Codificar la query para URL (espacios -> %20)
       final encodedQuery = Uri.encodeComponent(request.query);
-      final endpoint = '/music/search?q=$encodedQuery&filter=${request.filter}&include_stream_urls=true';
+      final endpoint =
+          '/music/search?q=$encodedQuery&filter=${request.filter}&include_stream_urls=true';
 
       final response = await _apiServices.get(endpoint);
 
@@ -80,7 +85,8 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
     int limit = 10,
   }) async {
     try {
-      final endpoint = '/music/recent-searches?limit=$limit&include_stream_urls=true';
+      final endpoint =
+          '/music/recent-searches?limit=$limit&include_stream_urls=true';
       final response = await _apiServices.get(endpoint);
 
       // Dio devuelve Response, necesitamos acceder a response.data
@@ -88,7 +94,7 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
 
       if (responseData is List) {
         final recentSearches = <RecentSearch>[];
-        
+
         for (var i = 0; i < responseData.length; i++) {
           final item = responseData[i];
           try {
@@ -96,34 +102,47 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
             // La API puede retornar solo strings o objetos completos
             if (item is String) {
               // Saltar items que son solo strings - la API debería retornar objetos completos
-              debugPrint('getRecentSearches: Item $i es String (solo query), saltando: $item');
+              if (kDebugMode)
+                debugPrint(
+                  'getRecentSearches: Item $i es String (solo query), saltando: $item',
+                );
               continue;
-            } 
+            }
             // Si el item es un Map, parsearlo normalmente
             else if (item is Map<String, dynamic>) {
               recentSearches.add(RecentSearchModel.fromJson(item));
             }
             // Si el item es otro tipo, intentar convertirlo
             else {
-              debugPrint('getRecentSearches: Item $i tiene tipo inesperado: ${item.runtimeType}, valor: $item');
+              if (kDebugMode)
+                debugPrint(
+                  'getRecentSearches: Item $i tiene tipo inesperado: ${item.runtimeType}, valor: $item',
+                );
               // Intentar convertir a Map si es posible
               try {
                 final itemMap = Map<String, dynamic>.from(item as Map);
                 recentSearches.add(RecentSearchModel.fromJson(itemMap));
               } catch (castError) {
-                debugPrint('getRecentSearches: Error convirtiendo item $i a Map: $castError');
+                if (kDebugMode)
+                  debugPrint(
+                    'getRecentSearches: Error convirtiendo item $i a Map: $castError',
+                  );
                 continue;
               }
             }
           } catch (e, stackTrace) {
             // Si falla el parseo de un item, loguear y continuar con los demás
-            debugPrint('getRecentSearches: Error parseando item $i: $e');
-            debugPrint('getRecentSearches: Stack trace: $stackTrace');
-            debugPrint('getRecentSearches: Item que causó el error: $item (tipo: ${item.runtimeType})');
+            if (kDebugMode) {
+              debugPrint('getRecentSearches: Error parseando item $i: $e');
+              debugPrint('getRecentSearches: Stack trace: $stackTrace');
+              debugPrint(
+                'getRecentSearches: Item que causó el error: $item (tipo: ${item.runtimeType})',
+              );
+            }
             continue;
           }
         }
-        
+
         return Right(recentSearches);
       } else if (responseData is Map<String, dynamic>) {
         // La API puede retornar un objeto con una lista dentro
@@ -131,22 +150,28 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
           // Parsear la lista anidada
           final dataList = responseData['data'] as List;
           final recentSearches = <RecentSearch>[];
-          
+
           for (var i = 0; i < dataList.length; i++) {
             final item = dataList[i];
             try {
               if (item is Map<String, dynamic>) {
                 recentSearches.add(RecentSearchModel.fromJson(item));
               } else if (item is String) {
-                debugPrint('getRecentSearches: Item $i en data es String, saltando: $item');
+                if (kDebugMode)
+                  debugPrint(
+                    'getRecentSearches: Item $i en data es String, saltando: $item',
+                  );
                 continue;
               }
             } catch (e) {
-              debugPrint('getRecentSearches: Error parseando item $i en data: $e');
+              if (kDebugMode)
+                debugPrint(
+                  'getRecentSearches: Error parseando item $i en data: $e',
+                );
               continue;
             }
           }
-          
+
           return Right(recentSearches);
         }
         final exception = ServerException(
@@ -164,6 +189,34 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
     } catch (e) {
       final appException = ExceptionHandler.handleException(e);
       ExceptionHandler.logException(appException, context: 'getRecentSearches');
+      return Left(appException);
+    }
+  }
+
+  @override
+  Future<Either<AppException, List<MoodGenreModel>>> getCategories() async {
+    try {
+      const endpoint = '/music/explore';
+      final response = await _apiServices.get(endpoint);
+
+      final responseData = response is Response ? response.data : response;
+
+      if (responseData is Map<String, dynamic>) {
+        final moodsGenresList =
+            responseData['moods_genres'] as List<dynamic>? ?? [];
+
+        final categories = moodsGenresList
+            .map((json) => MoodGenreModel.fromJson(json as Map<String, dynamic>))
+            .where((category) => category.params.isNotEmpty)
+            .toList();
+
+        return Right(categories);
+      } else {
+        return Left(ServerException('Respuesta del servidor en formato incorrecto'));
+      }
+    } catch (e) {
+      final appException = ExceptionHandler.handleException(e);
+      ExceptionHandler.logException(appException, context: 'getCategories');
       return Left(appException);
     }
   }

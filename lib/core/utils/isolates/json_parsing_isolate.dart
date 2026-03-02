@@ -1,14 +1,14 @@
 import 'package:flutter/foundation.dart';
 
 /// Helper para parsear JSON grandes en isolates
-/// 
+///
 /// Útil cuando el JSON es grande (>100KB) y el parsing podría bloquear la UI
 class JsonParsingIsolate {
   /// Parsea un JSON grande en un isolate
-  /// 
+  ///
   /// [jsonData] El JSON a parsear (Map<String, dynamic>)
   /// [parser] Función que parsea el JSON
-  /// 
+  ///
   /// Retorna [T] El resultado del parsing
   static Future<T> parseJsonInIsolate<T>(
     Map<String, dynamic> jsonData,
@@ -16,7 +16,8 @@ class JsonParsingIsolate {
   ) async {
     // Si el JSON es pequeño, no vale la pena usar isolate
     final jsonString = jsonData.toString();
-    if (jsonString.length < 100000) { // <100KB
+    if (jsonString.length < 100000) {
+      // <100KB
       return parser(jsonData);
     }
 
@@ -24,7 +25,8 @@ class JsonParsingIsolate {
       // Usar compute para parsear en un isolate
       return await compute(_parseJsonInIsolate, {
         'jsonData': jsonData,
-        'parser': parser.toString(), // Nota: Esto es una limitación, necesitamos otra forma
+        'parser': parser
+            .toString(), // Nota: Esto es una limitación, necesitamos otra forma
       });
     } catch (e) {
       // Si falla el isolate, usar el método síncrono como fallback

@@ -9,8 +9,8 @@ class LoginFormNotifier extends ChangeNotifier {
   String? _passwordError;
 
   LoginFormNotifier()
-      : emailController = TextEditingController(),
-        passwordController = TextEditingController() {
+    : emailController = TextEditingController(),
+      passwordController = TextEditingController() {
     // Validar en tiempo real cuando cambian los valores
     emailController.addListener(_onEmailChanged);
     passwordController.addListener(_onPasswordChanged);
@@ -59,10 +59,7 @@ class LoginFormNotifier extends ChangeNotifier {
   }
 
   /// Valida todo el formulario
-  bool validateForm({
-    required String? email,
-    required String? password,
-  }) {
+  bool validateForm({required String? email, required String? password}) {
     final emailValid = validateEmail(email);
     final passwordValid = validatePassword(password);
 

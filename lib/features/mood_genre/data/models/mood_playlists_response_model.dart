@@ -14,8 +14,11 @@ class MoodPlaylistsResponseModel extends MoodPlaylistsResponse {
 
   factory MoodPlaylistsResponseModel.fromJson(Map<String, dynamic> json) {
     return MoodPlaylistsResponseModel(
-      playlists: (json['playlists'] as List<dynamic>?)
-              ?.map((e) => MoodPlaylistModel.fromJson(e as Map<String, dynamic>))
+      playlists:
+          (json['playlists'] as List<dynamic>?)
+              ?.map(
+                (e) => MoodPlaylistModel.fromJson(e as Map<String, dynamic>),
+              )
               .toList() ??
           [],
       genreName: json['genre_name'] as String? ?? '',
@@ -28,7 +31,9 @@ class MoodPlaylistsResponseModel extends MoodPlaylistsResponse {
 
   Map<String, dynamic> toJson() {
     return {
-      'playlists': playlists.map((p) => (p as MoodPlaylistModel).toJson()).toList(),
+      'playlists': playlists
+          .map((p) => (p as MoodPlaylistModel).toJson())
+          .toList(),
       'genre_name': genreName,
       'params': params,
       if (message != null) 'message': message,

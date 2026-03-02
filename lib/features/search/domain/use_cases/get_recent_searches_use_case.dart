@@ -13,6 +13,6 @@ class GetRecentSearchesUseCase {
   Future<Either<AppException, List<RecentSearch>>> call({
     int limit = 10,
   }) async {
-    return await _repository.getRecentSearches(limit: limit);
+    return _repository.getRecentSearches(limit: limit);
   }
 }

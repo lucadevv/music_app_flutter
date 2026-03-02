@@ -1,9 +1,9 @@
 /// SOLID: Dependency Inversion Principle (DIP)
-/// 
+///
 /// Esta interfaz abstracta define el contrato para el servicio de almacenamiento local.
 /// Las clases de alto nivel (presentation, use cases) dependen de esta abstracción,
 /// no de implementaciones concretas (SharedPreferences, Hive, SQFlite, etc.).
-/// 
+///
 /// Esto permite cambiar la implementación sin afectar el código cliente.
 /// Ejemplo: Cambiar de SharedPreferences a flutter_secure_storage o Hive
 /// solo requiere crear una nueva implementación e inyectarla.

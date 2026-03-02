@@ -4,13 +4,13 @@ import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/features/home/domain/entities/mood_genre.dart';
 
 /// Widget para mostrar una categoría de mood/genre
-/// 
+///
 /// SOLID: Single Responsibility Principle (SRP)
 /// Responsable única: Mostrar una card de categoría
 class MoodGenreCardWidget extends StatelessWidget {
   final MoodGenre moodGenre;
 
-  const MoodGenreCardWidget({super.key, required this.moodGenre});
+  const MoodGenreCardWidget({required this.moodGenre, super.key});
 
   @override
   Widget build(BuildContext context) {

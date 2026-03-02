@@ -3,8 +3,5 @@ class SearchArtist {
   final String name;
   final String id;
 
-  const SearchArtist({
-    required this.name,
-    required this.id,
-  });
+  const SearchArtist({required this.name, required this.id});
 }

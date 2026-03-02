@@ -1,11 +1,6 @@
 part of 'register_cubit.dart';
 
-enum RegisterStatus {
-  initial,
-  loading,
-  success,
-  failure,
-}
+enum RegisterStatus { initial, loading, success, failure }
 
 class RegisterState extends Equatable {
   final RegisterStatus status;
@@ -31,10 +26,10 @@ class RegisterState extends Equatable {
   }
 
   factory RegisterState.initial() => const RegisterState(
-        status: RegisterStatus.initial,
-        errorMessage: null,
-        responseEntity: null,
-      );
+    status: RegisterStatus.initial,
+    errorMessage: null,
+    responseEntity: null,
+  );
 
   @override
   List<Object?> get props => [status, errorMessage, responseEntity];

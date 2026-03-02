@@ -24,7 +24,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   void _sendResetEmail() {
     if (_formKey.currentState!.validate()) {
-      // TODO: Implementar envío de email de recuperación
       setState(() {
         _emailSent = true;
       });
@@ -39,7 +38,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppColorsDark.onSurface),
+          icon: const Icon(Icons.arrow_back, color: AppColorsDark.onSurface),
           onPressed: () => context.router.pop(),
         ),
       ),
@@ -55,11 +54,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 Container(
                   width: 100,
                   height: 100,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: AppColorsDark.primaryContainer,
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(
+                  child: const Icon(
                     Icons.lock_reset,
                     size: 50,
                     color: AppColorsDark.primary,
@@ -70,7 +69,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 // Título
                 Text(
                   _emailSent ? 'Email enviado' : 'Recuperar contraseña',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
                     color: AppColorsDark.onSurface,
@@ -82,7 +81,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   _emailSent
                       ? 'Revisa tu bandeja de entrada para restablecer tu contraseña'
                       : 'Ingresa tu email y te enviaremos las instrucciones para restablecer tu contraseña',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 16,
                     color: AppColorsDark.onSurfaceVariant,
                   ),
@@ -98,17 +97,24 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     decoration: InputDecoration(
                       labelText: 'Email',
                       hintText: 'tu@email.com',
-                      prefixIcon: Icon(Icons.email, color: AppColorsDark.primary),
+                      prefixIcon: const Icon(
+                        Icons.email,
+                        color: AppColorsDark.primary,
+                      ),
                       filled: true,
                       fillColor: AppColorsDark.surfaceContainerHigh,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20),
                         borderSide: BorderSide.none,
                       ),
-                      labelStyle: TextStyle(color: AppColorsDark.onSurfaceVariant),
-                      hintStyle: TextStyle(color: AppColorsDark.onSurfaceVariant),
+                      labelStyle: const TextStyle(
+                        color: AppColorsDark.onSurfaceVariant,
+                      ),
+                      hintStyle: const TextStyle(
+                        color: AppColorsDark.onSurfaceVariant,
+                      ),
                     ),
-                    style: TextStyle(color: AppColorsDark.onSurface),
+                    style: const TextStyle(color: AppColorsDark.onSurface),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Por favor ingresa tu email';
@@ -142,7 +148,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   ),
                 ] else ...[
                   // Success icon
-                  Icon(
+                  const Icon(
                     Icons.check_circle,
                     size: 80,
                     color: AppColorsDark.primary,
@@ -176,7 +182,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   onPressed: () {
                     context.router.push(const LoginRoute());
                   },
-                  child: Text(
+                  child: const Text(
                     'Volver a iniciar sesión',
                     style: TextStyle(
                       color: AppColorsDark.primary,

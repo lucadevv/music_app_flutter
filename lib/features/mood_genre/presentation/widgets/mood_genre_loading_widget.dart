@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
 /// Widget para mostrar el estado de carga con shimmer
-/// 
+///
 /// SOLID: Single Responsibility Principle (SRP)
 /// Responsable única: Mostrar el estado de carga
 class MoodGenreLoadingWidget extends StatelessWidget {

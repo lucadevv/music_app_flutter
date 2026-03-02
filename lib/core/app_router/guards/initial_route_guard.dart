@@ -11,7 +11,10 @@ import 'package:music_app/main.dart';
 /// 3. Estado de verificación de email
 class InitialRouteGuard extends AutoRouteGuard {
   @override
-  Future<void> onNavigation(NavigationResolver resolver, StackRouter router) async {
+  Future<void> onNavigation(
+    NavigationResolver resolver,
+    StackRouter router,
+  ) async {
     if (kDebugMode) {
       debugPrint('InitialRouteGuard: Verificando navegación inicial');
     }
@@ -19,45 +22,66 @@ class InitialRouteGuard extends AutoRouteGuard {
     try {
       // 1. Verificar si ya completó el onboarding
       final onboardingService = await getIt.getAsync<OnboardingService>();
-      final isOnboardingCompleted = await onboardingService.isOnboardingCompleted();
-      
-      debugPrint('InitialRouteGuard: onboardingCompleted = $isOnboardingCompleted');
-      
+      final isOnboardingCompleted = await onboardingService
+          .isOnboardingCompleted();
+
+      if (kDebugMode) {
+        debugPrint(
+          'InitialRouteGuard: onboardingCompleted = $isOnboardingCompleted',
+        );
+      }
+
       if (!isOnboardingCompleted) {
         // Onboarding NO completado - ir a onboarding
-        debugPrint('InitialRouteGuard: Navegando a OnboardingRoute');
+        if (kDebugMode) {
+          debugPrint('InitialRouteGuard: Navegando a OnboardingRoute');
+        }
         resolver.redirectUntil(const OnboardingRoute());
         return;
       }
-      
+
       // 2. Verificar si el usuario está autenticado
       final authManager = await getIt.getAsync<AuthManager>();
       final refreshToken = await authManager.getCurrentRefreshToken();
-      
-      debugPrint('InitialRouteGuard: refreshToken = ${refreshToken != null ? "existe" : "null"}');
-      
+
+      if (kDebugMode) {
+        debugPrint(
+          'InitialRouteGuard: refreshToken = ${refreshToken != null ? "existe" : "null"}',
+        );
+      }
+
       if (refreshToken != null) {
         // Usuario autenticado - verificar email
         final isEmailVerified = await authManager.isEmailVerified();
-        
-        debugPrint('InitialRouteGuard: isEmailVerified = $isEmailVerified');
-        
+
+        if (kDebugMode) {
+          debugPrint('InitialRouteGuard: isEmailVerified = $isEmailVerified');
+        }
+
         if (isEmailVerified == true) {
           // Email verificado - ir a dashboard
-          debugPrint('InitialRouteGuard: Navegando a DashboardShell');
+          if (kDebugMode) {
+            debugPrint('InitialRouteGuard: Navegando a DashboardShell');
+          }
           resolver.redirectUntil(const DashboardShell());
         } else {
           // Email no verificado - ir a verificación
-          debugPrint('InitialRouteGuard: Navegando a EmailVerificationRoute');
+          if (kDebugMode) {
+            debugPrint('InitialRouteGuard: Navegando a EmailVerificationRoute');
+          }
           resolver.redirectUntil(const EmailVerificationRoute());
         }
       } else {
         // Usuario no autenticado - ir a login
-        debugPrint('InitialRouteGuard: Navegando a SocialLoginRoute');
+        if (kDebugMode) {
+          debugPrint('InitialRouteGuard: Navegando a SocialLoginRoute');
+        }
         resolver.redirectUntil(const SocialLoginRoute());
       }
     } catch (e) {
-      debugPrint('InitialRouteGuard: Error = $e');
+      if (kDebugMode) {
+        debugPrint('InitialRouteGuard: Error = $e');
+      }
       // En caso de error, ir a onboarding
       resolver.redirectUntil(const OnboardingRoute());
     }

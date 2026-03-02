@@ -3,8 +3,5 @@ class PlaylistAuthor {
   final String name;
   final String id;
 
-  const PlaylistAuthor({
-    required this.name,
-    required this.id,
-  });
+  const PlaylistAuthor({required this.name, required this.id});
 }

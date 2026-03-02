@@ -13,13 +13,10 @@ class LoginLink extends StatelessWidget {
         context.router.push(const LoginRoute());
       },
       child: RichText(
-        text: TextSpan(
-          style: TextStyle(
-            color: AppColorsDark.onSurfaceVariant,
-            fontSize: 14,
-          ),
+        text: const TextSpan(
+          style: TextStyle(color: AppColorsDark.onSurfaceVariant, fontSize: 14),
           children: [
-            const TextSpan(text: '¿Ya tienes una cuenta? '),
+            TextSpan(text: '¿Ya tienes una cuenta? '),
             TextSpan(
               text: 'Iniciar sesión',
               style: TextStyle(

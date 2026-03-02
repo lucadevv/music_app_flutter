@@ -1,5 +1,6 @@
+import 'package:music_app/features/auth/register/data/models/user_model.dart';
+
 import '../../register/domain/entities/register_response.dart';
-import '../../register/data/models/user_model.dart';
 
 /// Request para autenticación OAuth
 class OAuthRequest {
@@ -18,12 +19,12 @@ class OAuthRequest {
   });
 
   Map<String, dynamic> toJson() => {
-        'provider': provider,
-        'access_token': accessToken,
-        if (idToken != null) 'id_token': idToken,
-        if (email != null) 'email': email,
-        if (name != null) 'name': name,
-      };
+    'provider': provider,
+    'access_token': accessToken,
+    if (idToken != null) 'id_token': idToken,
+    if (email != null) 'email': email,
+    if (name != null) 'name': name,
+  };
 }
 
 /// Response para autenticación OAuth
@@ -41,27 +42,27 @@ class OAuthResponse extends RegisterResponse {
 
   factory OAuthResponse.fromJson(Map<String, dynamic> json) {
     return OAuthResponse(
-      accessToken: json['accessToken'] as String? ??
+      accessToken:
+          json['accessToken'] as String? ??
           json['access_token'] as String? ??
           '',
-      refreshToken: json['refreshToken'] as String? ??
+      refreshToken:
+          json['refreshToken'] as String? ??
           json['refresh_token'] as String? ??
           '',
-      expiresIn: json['expiresIn'] as int? ??
-          json['expires_in'] as int? ??
-          3600,
+      expiresIn:
+          json['expiresIn'] as int? ?? json['expires_in'] as int? ?? 3600,
       user: UserModel.fromJson(json['user'] as Map<String, dynamic>),
-      isNewUser: json['isNewUser'] as bool? ??
-          json['is_new_user'] as bool? ??
-          false,
+      isNewUser:
+          json['isNewUser'] as bool? ?? json['is_new_user'] as bool? ?? false,
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'accessToken': accessToken,
-        'refreshToken': refreshToken,
-        'expiresIn': expiresIn,
-        'user': (user as UserModel).toJson(),
-        'isNewUser': isNewUser,
-      };
+    'accessToken': accessToken,
+    'refreshToken': refreshToken,
+    'expiresIn': expiresIn,
+    'user': (user as UserModel).toJson(),
+    'isNewUser': isNewUser,
+  };
 }

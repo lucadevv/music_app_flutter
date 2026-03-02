@@ -13,9 +13,6 @@ class RemoveDownloadUseCase {
   Future<(AppException?, bool)> call(String videoId) async {
     final result = await _repository.removeDownload(videoId);
 
-    return result.fold(
-      (error) => (error, false),
-      (_) => (null, true),
-    );
+    return result.fold((error) => (error, false), (_) => (null, true));
   }
 }

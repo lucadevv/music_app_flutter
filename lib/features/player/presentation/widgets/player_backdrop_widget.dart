@@ -5,16 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:music_app/features/search/domain/entities/thumbnail.dart';
 
 /// Widget para el backdrop difuminado de la imagen de la canción
-/// 
+///
 /// SOLID: Single Responsibility Principle (SRP)
 /// Responsable única: Mostrar el backdrop difuminado de la imagen
 class PlayerBackdropWidget extends StatelessWidget {
   final Thumbnail? thumbnail;
 
-  const PlayerBackdropWidget({
-    super.key,
-    required this.thumbnail,
-  });
+  const PlayerBackdropWidget({required this.thumbnail, super.key});
 
   @override
   Widget build(BuildContext context) {

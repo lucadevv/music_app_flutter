@@ -5,8 +5,5 @@ class HomeSection {
   final String title;
   final List<HomeContentItem> contents;
 
-  const HomeSection({
-    required this.title,
-    required this.contents,
-  });
+  const HomeSection({required this.title, required this.contents});
 }

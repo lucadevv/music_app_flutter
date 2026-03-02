@@ -8,12 +8,12 @@ import '../../domain/entities/home_response.dart';
 import '../models/home_response_model.dart';
 
 /// Data source remoto para operaciones del home
-/// 
+///
 /// SOLID: Single Responsibility Principle (SRP)
 /// Responsable única: Obtener datos del home desde la API
 abstract class HomeRemoteDataSource {
   /// Obtiene los datos del home
-  /// 
+  ///
   /// Endpoint: /api/music/explore
   Future<Either<AppException, HomeResponse>> getHome();
 }
@@ -34,14 +34,26 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
 
       if (responseData is Map<String, dynamic>) {
         // Debug: Ver qué está llegando de la API
-        debugPrint('getHome: Respuesta recibida');
-        debugPrint('getHome: moods_genres: ${(responseData['moods_genres'] as List?)?.length ?? 0}');
-        debugPrint('getHome: home: ${(responseData['home'] as List?)?.length ?? 0}');
-        debugPrint('getHome: charts: ${responseData['charts'] != null ? 'presente' : 'ausente'}');
-        
+        if (kDebugMode) {
+          debugPrint('getHome: Respuesta recibida');
+          debugPrint(
+            'getHome: moods_genres: ${(responseData['moods_genres'] as List?)?.length ?? 0}',
+          );
+          debugPrint(
+            'getHome: home: ${(responseData['home'] as List?)?.length ?? 0}',
+          );
+          debugPrint(
+            'getHome: charts: ${responseData['charts'] != null ? 'presente' : 'ausente'}',
+          );
+        }
+
         final homeResponse = HomeResponseModel.fromJson(responseData);
-        debugPrint('getHome: HomeResponse parseado - moods: ${homeResponse.moods.length}, genres: ${homeResponse.genres.length}, sections: ${homeResponse.sections.length}');
-        
+        if (kDebugMode) {
+          debugPrint(
+            'getHome: HomeResponse parseado - moods: ${homeResponse.moods.length}, genres: ${homeResponse.genres.length}, sections: ${homeResponse.sections.length}',
+          );
+        }
+
         return Right(homeResponse);
       } else {
         final exception = const ServerException(

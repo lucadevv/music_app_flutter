@@ -7,11 +7,11 @@ import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/favorites/presentation/widgets/favorite_button.dart';
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
+import 'package:music_app/features/search/domain/entities/recent_search.dart';
 import 'package:music_app/features/song_options/presentation/widgets/song_options_bottom_sheet.dart';
+
 import '../cubit/orquestador_search_cubit.dart';
-import '../cubit/recent_searches_cubit.dart'
-    show RecentSearchesState, RecentSearchesStatus;
-import '../../domain/entities/recent_search.dart';
+import '../cubit/recent_searches_cubit.dart' show RecentSearchesStatus;
 
 class RecentSearchesWidget extends StatelessWidget {
   const RecentSearchesWidget({super.key});
@@ -52,7 +52,10 @@ class RecentSearchesWidget extends StatelessWidget {
               )
             else if (hasResults)
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 16,
+                ),
                 child: ListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
@@ -98,9 +101,7 @@ class _RecentSearchItem extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         context.router.push(
-          PlayerRoute(
-            nowPlayingData: NowPlayingData.fromSong(song),
-          ),
+          PlayerRoute(nowPlayingData: NowPlayingData.fromSong(song)),
         );
       },
       child: Container(
@@ -122,7 +123,7 @@ class _RecentSearchItem extends StatelessWidget {
                           width: 60,
                           height: 60,
                           color: AppColorsDark.primaryContainer,
-                          child: Center(
+                          child: const Center(
                             child: SizedBox(
                               width: 20,
                               height: 20,
@@ -139,7 +140,7 @@ class _RecentSearchItem extends StatelessWidget {
                           width: 60,
                           height: 60,
                           color: AppColorsDark.primaryContainer,
-                          child: Icon(
+                          child: const Icon(
                             Icons.music_note,
                             color: AppColorsDark.primary,
                           ),
@@ -149,7 +150,7 @@ class _RecentSearchItem extends StatelessWidget {
                         width: 60,
                         height: 60,
                         color: AppColorsDark.primaryContainer,
-                        child: Icon(
+                        child: const Icon(
                           Icons.music_note,
                           color: AppColorsDark.primary,
                         ),

@@ -1,6 +1,6 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:equatable/equatable.dart';
 import 'package:music_app/core/bloc/base_bloc_mixin.dart';
 import '../../domain/entities/recent_search.dart';
 import '../../domain/use_cases/get_recent_searches_use_case.dart';
@@ -8,12 +8,14 @@ import '../../domain/use_cases/get_recent_searches_use_case.dart';
 part 'recent_searches_state.dart';
 
 /// Cubit para manejar el estado de las búsquedas recientes
-class RecentSearchesCubit extends Cubit<RecentSearchesState> with BaseBlocMixin {
+class RecentSearchesCubit extends Cubit<RecentSearchesState>
+    with BaseBlocMixin {
   final GetRecentSearchesUseCase _getRecentSearchesUseCase;
 
-  RecentSearchesCubit({required GetRecentSearchesUseCase getRecentSearchesUseCase})
-      : _getRecentSearchesUseCase = getRecentSearchesUseCase,
-        super(const RecentSearchesState());
+  RecentSearchesCubit({
+    required GetRecentSearchesUseCase getRecentSearchesUseCase,
+  }) : _getRecentSearchesUseCase = getRecentSearchesUseCase,
+       super(const RecentSearchesState());
 
   /// Obtiene las búsquedas recientes
   Future<void> getRecentSearches({int limit = 10}) async {
@@ -38,10 +40,10 @@ class RecentSearchesCubit extends Cubit<RecentSearchesState> with BaseBlocMixin 
     response.fold(
       (failure) {
         if (isClosed) return;
-        
-        String errorMessage = getErrorMessage(failure);
+
+        final String errorMessage = getErrorMessage(failure);
         if (kDebugMode) {
-          debugPrint("RecentSearchesCubit: errorMessage $errorMessage");
+          debugPrint('RecentSearchesCubit: errorMessage $errorMessage');
         }
         emit(
           state.copyWith(
@@ -52,7 +54,7 @@ class RecentSearchesCubit extends Cubit<RecentSearchesState> with BaseBlocMixin 
       },
       (recentSearches) {
         if (isClosed) return;
-        
+
         emit(
           state.copyWith(
             status: RecentSearchesStatus.success,

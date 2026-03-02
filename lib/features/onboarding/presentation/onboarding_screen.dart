@@ -17,25 +17,26 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
+  bool _isCompleting = false;
 
-  late List<OnboardingPage> _pages;
+  late List<OnboardingPageData> _pages;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final l10n = AppLocalizations.of(context)!;
     _pages = [
-      OnboardingPage(
+      OnboardingPageData(
         title: l10n.discoverNewMusic,
         description: l10n.discoverNewMusicDesc,
         icon: Icons.music_note,
       ),
-      OnboardingPage(
+      OnboardingPageData(
         title: l10n.createYourPlaylists,
         description: l10n.createYourPlaylistsDesc,
         icon: Icons.playlist_add,
       ),
-      OnboardingPage(
+      OnboardingPageData(
         title: l10n.listenWithoutLimits,
         description: l10n.listenWithoutLimitsDesc,
         icon: Icons.headphones,
@@ -50,11 +51,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Future<void> _completeOnboardingAndNavigate() async {
-    final onboardingService = await getIt.getAsync<OnboardingService>();
-    await onboardingService.setOnboardingCompleted(true);
-    
-    if (mounted) {
-      context.router.push(const SocialLoginRoute());
+    if (_isCompleting) return;
+
+    setState(() => _isCompleting = true);
+
+    try {
+      final onboardingService = getIt<OnboardingService>();
+      await onboardingService.setOnboardingCompleted(true);
+
+      if (mounted) {
+        await context.router.push(const SocialLoginRoute());
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isCompleting = false);
+      }
     }
   }
 
@@ -76,7 +87,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     return Scaffold(
       backgroundColor: AppColorsDark.surface,
       body: SafeArea(
@@ -88,11 +99,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: TextButton(
-                  onPressed: _skip,
+                  onPressed: _isCompleting ? null : _skip,
                   child: Text(
                     l10n.skip,
                     style: TextStyle(
-                      color: AppColorsDark.onSurfaceVariant,
+                      color: _isCompleting
+                          ? AppColorsDark.onSurfaceVariant.withValues(
+                              alpha: 0.5,
+                            )
+                          : AppColorsDark.onSurfaceVariant,
                       fontSize: 16,
                     ),
                   ),
@@ -136,7 +151,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               child: SizedBox(
                 width: double.infinity,
                 child: FilledButton(
-                  onPressed: _nextPage,
+                  onPressed: _isCompleting ? null : _nextPage,
                   style: FilledButton.styleFrom(
                     backgroundColor: AppColorsDark.primary,
                     foregroundColor: AppColorsDark.onPrimary,
@@ -145,15 +160,24 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       borderRadius: BorderRadius.circular(20),
                     ),
                   ),
-                  child: Text(
-                    _currentPage == _pages.length - 1
-                        ? l10n.getStarted
-                        : l10n.next,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  child: _isCompleting
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : Text(
+                          _currentPage == _pages.length - 1
+                              ? l10n.getStarted
+                              : l10n.next,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                 ),
               ),
             ),
@@ -167,7 +191,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 }
 
 class _OnboardingPageWidget extends StatelessWidget {
-  final OnboardingPage page;
+  final OnboardingPageData page;
 
   const _OnboardingPageWidget({required this.page});
 
@@ -181,7 +205,7 @@ class _OnboardingPageWidget extends StatelessWidget {
           Container(
             width: 200,
             height: 200,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: AppColorsDark.primaryContainer,
               shape: BoxShape.circle,
             ),
@@ -190,7 +214,7 @@ class _OnboardingPageWidget extends StatelessWidget {
           const SizedBox(height: 48),
           Text(
             page.title,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
               color: AppColorsDark.onSurface,
@@ -200,7 +224,7 @@ class _OnboardingPageWidget extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             page.description,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 16,
               color: AppColorsDark.onSurfaceVariant,
               height: 1.5,
@@ -216,7 +240,7 @@ class _OnboardingPageWidget extends StatelessWidget {
 class PageIndicator extends StatelessWidget {
   final bool isActive;
 
-  const PageIndicator({super.key, required this.isActive});
+  const PageIndicator({required this.isActive, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -232,12 +256,12 @@ class PageIndicator extends StatelessWidget {
   }
 }
 
-class OnboardingPage {
+class OnboardingPageData {
   final String title;
   final String description;
   final IconData icon;
 
-  OnboardingPage({
+  OnboardingPageData({
     required this.title,
     required this.description,
     required this.icon,

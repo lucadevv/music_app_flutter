@@ -1,74 +1,34 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
-import 'package:music_app/core/services/network/api_services.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
-import 'package:music_app/core/widgets/song_list_item.dart';
+import 'package:music_app/core/presentation/widgets/song_list_item.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
-import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
+import 'package:music_app/features/recently_played/domain/entities/recently_played_song.dart';
+import 'package:music_app/features/recently_played/domain/usecases/get_recently_played_usecase.dart';
+import 'package:music_app/features/recently_played/presentation/cubit/recently_played_cubit.dart';
 import 'package:music_app/l10n/app_localizations.dart';
 import 'package:music_app/main.dart';
 
 @RoutePage()
-class RecentlyPlayedScreen extends StatefulWidget {
+class RecentlyPlayedScreen extends StatelessWidget {
   const RecentlyPlayedScreen({super.key});
 
   @override
-  State<RecentlyPlayedScreen> createState() => _RecentlyPlayedScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => RecentlyPlayedCubit(
+        getRecentlyPlayedUseCase: getIt<GetRecentlyPlayedUseCase>(),
+        playerBloc: context.read<PlayerBlocBloc>(),
+      )..loadRecentlyPlayed(),
+      child: const _RecentlyPlayedView(),
+    );
+  }
 }
 
-class _RecentlyPlayedScreenState extends State<RecentlyPlayedScreen> {
-  List<dynamic> _songs = [];
-  bool _isLoading = true;
-  String? _error;
-  bool _isDisposed = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadRecentlyPlayed();
-  }
-
-  @override
-  void dispose() {
-    _isDisposed = true;
-    super.dispose();
-  }
-
-  Future<void> _loadRecentlyPlayed() async {
-    if (_isDisposed) return;
-
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
-
-    try {
-      final apiServices = getIt<ApiServices>();
-      final response = await apiServices.get('/music/recently-listened');
-
-      if (_isDisposed) return;
-
-      final songs = response.data['songs'] as List<dynamic>? ?? [];
-
-      if (mounted) {
-        setState(() {
-          _songs = songs;
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      if (_isDisposed) return;
-
-      if (mounted) {
-        setState(() {
-          _error = e.toString();
-          _isLoading = false;
-        });
-      }
-    }
-  }
+class _RecentlyPlayedView extends StatelessWidget {
+  const _RecentlyPlayedView();
 
   @override
   Widget build(BuildContext context) {
@@ -76,31 +36,39 @@ class _RecentlyPlayedScreenState extends State<RecentlyPlayedScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFF0D0D0D),
-      body: CustomScrollView(
-        slivers: [
-          _buildHeader(context, l10n),
-          if (_isLoading)
-            const SliverFillRemaining(
-              child: Center(
-                child: CircularProgressIndicator(color: AppColorsDark.primary),
-              ),
-            )
-          else if (_error != null)
-            SliverFillRemaining(
-              child: _buildError(l10n),
-            )
-          else if (_songs.isEmpty)
-            SliverFillRemaining(
-              child: _buildEmpty(l10n),
-            )
-          else
-            _buildSongsList(context, l10n),
-        ],
+      body: BlocBuilder<RecentlyPlayedCubit, RecentlyPlayedState>(
+        builder: (context, state) {
+          return CustomScrollView(
+            slivers: [
+              _buildHeader(context, state, l10n),
+              if (state.status == RecentlyPlayedStatus.loading)
+                const SliverFillRemaining(
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      color: AppColorsDark.primary,
+                    ),
+                  ),
+                )
+              else if (state.status == RecentlyPlayedStatus.failure)
+                SliverFillRemaining(
+                  child: _buildError(state.errorMessage, context, l10n),
+                )
+              else if (state.songs.isEmpty)
+                SliverFillRemaining(child: _buildEmpty(l10n))
+              else
+                _buildSongsList(context, state),
+            ],
+          );
+        },
       ),
     );
   }
 
-  Widget _buildHeader(BuildContext context, AppLocalizations l10n) {
+  Widget _buildHeader(
+    BuildContext context,
+    RecentlyPlayedState state,
+    AppLocalizations l10n,
+  ) {
     return SliverAppBar(
       expandedHeight: 280,
       pinned: true,
@@ -121,14 +89,11 @@ class _RecentlyPlayedScreenState extends State<RecentlyPlayedScreen> {
       ],
       flexibleSpace: FlexibleSpaceBar(
         background: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [
-                AppColorsDark.primaryContainer,
-                const Color(0xFF0D0D0D),
-              ],
+              colors: [AppColorsDark.primaryContainer, Color(0xFF0D0D0D)],
             ),
           ),
           child: SafeArea(
@@ -142,7 +107,7 @@ class _RecentlyPlayedScreenState extends State<RecentlyPlayedScreen> {
                     width: 140,
                     height: 140,
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
+                      gradient: const LinearGradient(
                         colors: [
                           AppColorsDark.primary,
                           AppColorsDark.secondary,
@@ -167,37 +132,35 @@ class _RecentlyPlayedScreenState extends State<RecentlyPlayedScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${_songs.length} ${l10n.songs}',
+                    '${state.songs.length} ${l10n.songs}',
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.6),
                       fontSize: 14,
                     ),
                   ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
       ),
-      ),
     );
   }
 
-  Widget _buildSongsList(BuildContext context, AppLocalizations l10n) {
+  Widget _buildSongsList(BuildContext context, RecentlyPlayedState state) {
     return SliverList(
-      delegate: SliverChildBuilderDelegate(
-        (context, index) {
-          final song = _songs[index];
-          return _SongItem(
-            song: song,
-            onTap: () => _playSong(context, song),
-          );
-        },
-        childCount: _songs.length,
-      ),
+      delegate: SliverChildBuilderDelegate((context, index) {
+        final song = state.songs[index];
+        return _SongItem(song: song, onTap: () => _playSong(context, song));
+      }, childCount: state.songs.length),
     );
   }
 
-  Widget _buildError(AppLocalizations l10n) {
+  Widget _buildError(
+    String? errorMessage,
+    BuildContext context,
+    AppLocalizations l10n,
+  ) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -205,13 +168,14 @@ class _RecentlyPlayedScreenState extends State<RecentlyPlayedScreen> {
           const Icon(Icons.error_outline, color: Colors.red, size: 48),
           const SizedBox(height: 16),
           Text(
-            _error ?? l10n.errorLoadingSongs,
+            errorMessage ?? l10n.errorLoadingSongs,
             style: const TextStyle(color: Colors.white70),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
           ElevatedButton(
-            onPressed: _loadRecentlyPlayed,
+            onPressed: () =>
+                context.read<RecentlyPlayedCubit>().loadRecentlyPlayed(),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColorsDark.primary,
             ),
@@ -254,56 +218,24 @@ class _RecentlyPlayedScreenState extends State<RecentlyPlayedScreen> {
     );
   }
 
-  void _playSong(BuildContext context, dynamic song) {
-    final videoId = song['videoId'] ?? '';
-    final title = song['title'] ?? 'Unknown';
-    final artist = song['artist'] ?? 'Unknown Artist';
-    final thumbnail = song['thumbnail'];
-    final durationStr = song['duration'] ?? '0:00';
-
-    // Convert duration string to seconds
-    int durationSeconds = 0;
-    try {
-      final parts = durationStr.toString().split(':');
-      if (parts.length == 2) {
-        durationSeconds = int.parse(parts[0]) * 60 + int.parse(parts[1]);
-      }
-    } catch (_) {}
-
-    final nowPlayingData = NowPlayingData.fromBasic(
-      videoId: videoId.toString(),
-      title: title.toString(),
-      artistNames: [artist.toString()],
-      albumName: '',
-      duration: durationStr.toString(),
-      durationSeconds: durationSeconds,
-      thumbnailUrl: thumbnail?.toString(),
-    );
-
-    getIt<PlayerBlocBloc>().add(LoadTrackEvent(nowPlayingData));
+  void _playSong(BuildContext context, RecentlyPlayedSong song) {
+    final nowPlayingData = context.read<RecentlyPlayedCubit>().playSong(song);
     context.router.push(PlayerRoute(nowPlayingData: nowPlayingData));
   }
 }
 
 class _SongItem extends StatelessWidget {
-  final dynamic song;
+  final RecentlyPlayedSong song;
   final VoidCallback onTap;
 
-  const _SongItem({
-    required this.song,
-    required this.onTap,
-  });
+  const _SongItem({required this.song, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    final title = song['title'] ?? 'Unknown';
-    final artist = song['artist'] ?? 'Unknown Artist';
-    final thumbnail = song['thumbnail'];
-
     return SongListItemWithTrailing(
-      title: title.toString(),
-      artist: artist.toString(),
-      thumbnail: thumbnail?.toString(),
+      title: song.title,
+      artist: song.artist,
+      thumbnail: song.thumbnail,
       trailing: Icon(
         Icons.play_circle_outline,
         color: Colors.white.withValues(alpha: 0.6),

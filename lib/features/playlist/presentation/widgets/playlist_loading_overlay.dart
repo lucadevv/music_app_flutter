@@ -7,9 +7,9 @@ class PlaylistLoadingOverlay extends StatelessWidget {
   final Widget child;
 
   const PlaylistLoadingOverlay({
-    super.key,
     required this.isLoading,
     required this.child,
+    super.key,
   });
 
   @override

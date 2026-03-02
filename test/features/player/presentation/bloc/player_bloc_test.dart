@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
-import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 
 import '../../../../helpers/test_helpers.dart';
 
@@ -113,7 +112,10 @@ void main() {
 
     group('PlayTrackAtIndexEvent', () {
       test('should support value equality', () {
-        expect(const PlayTrackAtIndexEvent(2), equals(const PlayTrackAtIndexEvent(2)));
+        expect(
+          const PlayTrackAtIndexEvent(2),
+          equals(const PlayTrackAtIndexEvent(2)),
+        );
       });
 
       test('props should contain index', () {
@@ -135,7 +137,10 @@ void main() {
 
     group('RemoveFromPlaylistEvent', () {
       test('should support value equality', () {
-        expect(const RemoveFromPlaylistEvent(1), equals(const RemoveFromPlaylistEvent(1)));
+        expect(
+          const RemoveFromPlaylistEvent(1),
+          equals(const RemoveFromPlaylistEvent(1)),
+        );
       });
 
       test('props should contain index', () {
@@ -172,7 +177,10 @@ void main() {
       });
 
       test('props should contain loopMode', () {
-        expect(const SetLoopModeEvent(LoopMode.one).props, contains(LoopMode.one));
+        expect(
+          const SetLoopModeEvent(LoopMode.one).props,
+          contains(LoopMode.one),
+        );
       });
     });
 
@@ -195,7 +203,10 @@ void main() {
       });
 
       test('props should contain error', () {
-        expect(const AudioErrorEvent('Error message').props, contains('Error message'));
+        expect(
+          const AudioErrorEvent('Error message').props,
+          contains('Error message'),
+        );
       });
     });
   });
@@ -216,7 +227,10 @@ void main() {
         const state = PlayerBlocLoaded();
         expect(state.playbackState, equals(PlaybackState.stopped));
         expect(state.processingState, equals(ProcessingState.idle));
-        expect(state.connectionState, equals(AudioConnectionState.disconnected));
+        expect(
+          state.connectionState,
+          equals(AudioConnectionState.disconnected),
+        );
         expect(state.playlist, isEmpty);
         expect(state.currentIndex, isNull);
         expect(state.currentTrack, isNull);
@@ -272,7 +286,9 @@ void main() {
       });
 
       test('hasCurrentTrack should be true when currentTrack is not null', () {
-        final state = PlayerBlocLoaded(currentTrack: createTestNowPlayingData());
+        final state = PlayerBlocLoaded(
+          currentTrack: createTestNowPlayingData(),
+        );
         expect(state.hasCurrentTrack, isTrue);
       });
 
@@ -344,11 +360,16 @@ void main() {
         expect(updated.error, isNull);
       });
 
-      test('copyWith with clearCurrentTrack should set currentTrack to null', () {
-        final original = PlayerBlocLoaded(currentTrack: createTestNowPlayingData());
-        final updated = original.copyWith(clearCurrentTrack: true);
-        expect(updated.currentTrack, isNull);
-      });
+      test(
+        'copyWith with clearCurrentTrack should set currentTrack to null',
+        () {
+          final original = PlayerBlocLoaded(
+            currentTrack: createTestNowPlayingData(),
+          );
+          final updated = original.copyWith(clearCurrentTrack: true);
+          expect(updated.currentTrack, isNull);
+        },
+      );
     });
   });
 
@@ -364,9 +385,18 @@ void main() {
   group('AudioConnectionState enum', () {
     test('should have three values', () {
       expect(AudioConnectionState.values.length, equals(3));
-      expect(AudioConnectionState.values, contains(AudioConnectionState.connected));
-      expect(AudioConnectionState.values, contains(AudioConnectionState.connecting));
-      expect(AudioConnectionState.values, contains(AudioConnectionState.disconnected));
+      expect(
+        AudioConnectionState.values,
+        contains(AudioConnectionState.connected),
+      );
+      expect(
+        AudioConnectionState.values,
+        contains(AudioConnectionState.connecting),
+      );
+      expect(
+        AudioConnectionState.values,
+        contains(AudioConnectionState.disconnected),
+      );
     });
   });
 }

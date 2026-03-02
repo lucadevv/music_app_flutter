@@ -8,8 +8,7 @@ import 'package:music_app/features/favorites/presentation/cubit/favorite_cubit.d
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/l10n/app_localizations.dart';
 import 'package:music_app/main.dart';
-// TODO: Importar share_plus cuando esté disponible
-// import 'package:share_plus/share_plus.dart';
+// Note: Sharing functionality can be wired with 'share_plus' in a future PR
 
 /// Datos de canción para el bottom sheet
 class SongOptionsData {
@@ -41,8 +40,8 @@ class SongOptionsBottomSheet extends StatelessWidget {
   final VoidCallback? onRemoveDownload;
 
   const SongOptionsBottomSheet({
-    super.key,
     required this.song,
+    super.key,
     this.onPlayOffline,
     this.onRemoveDownload,
   });
@@ -65,22 +64,29 @@ class SongOptionsBottomSheet extends StatelessWidget {
   }
 
   /// Comparte la canción
-  void _shareSong(SongOptionsData song) {
-    final shareText = '🎵 ${song.title} - ${song.artist}\n\n'
+  void _shareSong(BuildContext context, SongOptionsData song) {
+    final shareText =
+        '🎵 ${song.title} - ${song.artist}\n\n'
         'Listen to this song on Music App!\n'
         'https://music.youtube.com/watch?v=${song.videoId}';
 
-    // TODO: Descomentar cuando se ejecute flutter pub get
     // Share.share(shareText, subject: song.title);
-    
-    // Por ahora mostrar un snackbar
-    debugPrint('Share: $shareText');
+
+    // For now, show a snackbar as fallback
+    if (context.mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Share: $shareText')));
+    }
   }
 
   /// Muestra el diálogo para agregar a playlist
-  Future<void> _showAddToPlaylistDialog(BuildContext context, SongOptionsData song) async {
+  Future<void> _showAddToPlaylistDialog(
+    BuildContext context,
+    SongOptionsData song,
+  ) async {
     final l10n = AppLocalizations.of(context)!;
-    
+
     // Load user's playlists
     List<UserPlaylist> playlists = [];
     bool isLoading = true;
@@ -136,16 +142,15 @@ class SongOptionsBottomSheet extends StatelessWidget {
               const Padding(
                 padding: EdgeInsets.all(32),
                 child: Center(
-                  child: CircularProgressIndicator(color: AppColorsDark.primary),
+                  child: CircularProgressIndicator(
+                    color: AppColorsDark.primary,
+                  ),
                 ),
               )
             else if (error != null)
               Padding(
                 padding: const EdgeInsets.all(16),
-                child: Text(
-                  error,
-                  style: const TextStyle(color: Colors.red),
-                ),
+                child: Text(error, style: const TextStyle(color: Colors.red)),
               )
             else if (playlists.isEmpty)
               Padding(
@@ -192,7 +197,7 @@ class SongOptionsBottomSheet extends StatelessWidget {
                                   fit: BoxFit.cover,
                                 ),
                               )
-                            : Icon(
+                            : const Icon(
                                 Icons.playlist_play,
                                 color: AppColorsDark.primary,
                               ),
@@ -221,16 +226,22 @@ class SongOptionsBottomSheet extends StatelessWidget {
                           );
                           if (bottomSheetContext.mounted) {
                             Navigator.pop(bottomSheetContext);
-                            ScaffoldMessenger.of(bottomSheetContext).showSnackBar(
+                            ScaffoldMessenger.of(
+                              bottomSheetContext,
+                            ).showSnackBar(
                               SnackBar(
-                                content: Text('${song.title} added to ${playlist.name}'),
+                                content: Text(
+                                  '${song.title} added to ${playlist.name}',
+                                ),
                                 backgroundColor: AppColorsDark.primary,
                               ),
                             );
                           }
                         } catch (e) {
                           if (bottomSheetContext.mounted) {
-                            ScaffoldMessenger.of(bottomSheetContext).showSnackBar(
+                            ScaffoldMessenger.of(
+                              bottomSheetContext,
+                            ).showSnackBar(
                               SnackBar(
                                 content: Text('Error: $e'),
                                 backgroundColor: Colors.red,
@@ -307,7 +318,7 @@ class SongOptionsBottomSheet extends StatelessWidget {
               label: l10n.share,
               onTap: () {
                 Navigator.pop(context);
-                _shareSong(song);
+                _shareSong(context, song);
               },
             ),
           ],
@@ -342,12 +353,12 @@ class _SongHeader extends StatelessWidget {
               ? CachedNetworkImage(
                   imageUrl: thumbnail!,
                   fit: BoxFit.cover,
-                  errorWidget: (_, __, ___) => Icon(
+                  errorWidget: (_, _, _) => const Icon(
                     Icons.music_note,
                     color: AppColorsDark.primary,
                   ),
                 )
-              : Icon(Icons.music_note, color: AppColorsDark.primary),
+              : const Icon(Icons.music_note, color: AppColorsDark.primary),
         ),
       ),
       title: Text(
@@ -382,9 +393,9 @@ class _FavoriteOptionTile extends StatelessWidget {
     required this.videoId,
     required this.title,
     required this.artist,
+    required this.isFavorite,
     this.thumbnail,
     this.duration,
-    required this.isFavorite,
   });
 
   @override

@@ -20,9 +20,7 @@ class MoodGenreScreen extends StatefulWidget implements AutoRouteWrapper {
   Widget wrappedRoute(BuildContext context) {
     return BlocProvider<MoodGenreCubit>(
       create: (context) {
-        return MoodGenreCubit(
-          getIt<GetMoodPlaylistsUseCase>(),
-        );
+        return MoodGenreCubit(getIt<GetMoodPlaylistsUseCase>());
       },
       child: this,
     );
@@ -134,17 +132,11 @@ class _MoodGenreScreenState extends State<MoodGenreScreen> {
                         return MoodPlaylistCardWidget(
                           playlist: playlist,
                           onTap: () {
-                            // Debug: Verificar el browseId antes de navegar
-                            print('MoodGenreScreen: Navigating to playlist with browseId: ${playlist.browseId}');
-                            print('MoodGenreScreen: browseId isEmpty: ${playlist.browseId.isEmpty}');
-                            
                             // Navegar a la playlist usando el browseId
                             if (playlist.browseId.isNotEmpty) {
                               context.router.push(
                                 PlaylistRoute(id: playlist.browseId),
                               );
-                            } else {
-                              print('MoodGenreScreen: ERROR - browseId is empty!');
                             }
                           },
                         );

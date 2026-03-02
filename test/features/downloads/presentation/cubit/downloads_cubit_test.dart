@@ -2,8 +2,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
-import 'package:music_app/features/downloads/domain/entities/downloaded_song.dart';
+import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/downloads/domain/repositories/downloads_repository.dart';
 import 'package:music_app/features/downloads/domain/use_cases/check_download_status_use_case.dart';
 import 'package:music_app/features/downloads/domain/use_cases/download_song_use_case.dart';
@@ -14,6 +13,8 @@ import 'package:music_app/features/downloads/presentation/cubit/downloads_cubit.
 import '../../../../helpers/test_helpers.dart';
 
 class MockDownloadsRepository extends Mock implements DownloadsRepository {}
+
+class MockPlayerBlocBloc extends Mock implements PlayerBlocBloc {}
 
 void main() {
   late DownloadsCubit downloadsCubit;
@@ -29,6 +30,7 @@ void main() {
 
   setUp(() {
     mockRepository = MockDownloadsRepository();
+    final mockPlayerBloc = MockPlayerBlocBloc();
     downloadSongUseCase = DownloadSongUseCase(mockRepository);
     getDownloadedSongsUseCase = GetDownloadedSongsUseCase(mockRepository);
     removeDownloadUseCase = RemoveDownloadUseCase(mockRepository);
@@ -38,6 +40,7 @@ void main() {
       getDownloadedSongsUseCase,
       removeDownloadUseCase,
       checkDownloadStatusUseCase,
+      mockPlayerBloc,
     );
   });
 
@@ -57,31 +60,43 @@ void main() {
     blocTest<DownloadsCubit, DownloadsState>(
       'should emit [loading, success] when loadDownloads succeeds',
       build: () {
-        when(() => mockRepository.getDownloadedSongs())
-            .thenAnswer((_) async => Right(createTestDownloadedSongs()));
+        when(
+          () => mockRepository.getDownloadedSongs(),
+        ).thenAnswer((_) async => Right(createTestDownloadedSongs()));
         return downloadsCubit;
       },
       act: (cubit) => cubit.loadDownloads(),
       expect: () => [
-        isA<DownloadsState>()
-            .having((s) => s.status, 'status', DownloadsStatus.loading),
+        isA<DownloadsState>().having(
+          (s) => s.status,
+          'status',
+          DownloadsStatus.loading,
+        ),
         isA<DownloadsState>()
             .having((s) => s.status, 'status', DownloadsStatus.success)
-            .having((s) => s.downloadedSongs.length, 'downloadedSongs.length', 3),
+            .having(
+              (s) => s.downloadedSongs.length,
+              'downloadedSongs.length',
+              3,
+            ),
       ],
     );
 
     blocTest<DownloadsCubit, DownloadsState>(
       'should emit [loading, failure] when loadDownloads fails',
       build: () {
-        when(() => mockRepository.getDownloadedSongs())
-            .thenAnswer((_) async => Left(createTestNetworkException()));
+        when(
+          () => mockRepository.getDownloadedSongs(),
+        ).thenAnswer((_) async => Left(createTestNetworkException()));
         return downloadsCubit;
       },
       act: (cubit) => cubit.loadDownloads(),
       expect: () => [
-        isA<DownloadsState>()
-            .having((s) => s.status, 'status', DownloadsStatus.loading),
+        isA<DownloadsState>().having(
+          (s) => s.status,
+          'status',
+          DownloadsStatus.loading,
+        ),
         isA<DownloadsState>()
             .having((s) => s.status, 'status', DownloadsStatus.failure)
             .having((s) => s.errorMessage, 'errorMessage', isNotNull),
@@ -91,13 +106,18 @@ void main() {
     blocTest<DownloadsCubit, DownloadsState>(
       'should handle empty downloads list',
       build: () {
-        when(() => mockRepository.getDownloadedSongs())
-            .thenAnswer((_) async => const Right([]));
+        when(
+          () => mockRepository.getDownloadedSongs(),
+        ).thenAnswer((_) async => const Right([]));
         return downloadsCubit;
       },
       act: (cubit) => cubit.loadDownloads(),
       expect: () => [
-        isA<DownloadsState>().having((s) => s.status, 'status', DownloadsStatus.loading),
+        isA<DownloadsState>().having(
+          (s) => s.status,
+          'status',
+          DownloadsStatus.loading,
+        ),
         isA<DownloadsState>()
             .having((s) => s.status, 'status', DownloadsStatus.success)
             .having((s) => s.downloadedSongs, 'downloadedSongs', isEmpty),
@@ -107,10 +127,12 @@ void main() {
     blocTest<DownloadsCubit, DownloadsState>(
       'should remove song from list when removeDownload succeeds',
       build: () {
-        when(() => mockRepository.getDownloadedSongs())
-            .thenAnswer((_) async => Right(createTestDownloadedSongs()));
-        when(() => mockRepository.removeDownload(any()))
-            .thenAnswer((_) async => const Right(null));
+        when(
+          () => mockRepository.getDownloadedSongs(),
+        ).thenAnswer((_) async => Right(createTestDownloadedSongs()));
+        when(
+          () => mockRepository.removeDownload(any()),
+        ).thenAnswer((_) async => const Right(null));
         return downloadsCubit;
       },
       seed: () => DownloadsState(
@@ -119,16 +141,20 @@ void main() {
       ),
       act: (cubit) => cubit.removeDownload('downloaded0'),
       expect: () => [
-        isA<DownloadsState>()
-            .having((s) => s.downloadedSongs.length, 'downloadedSongs.length', 2),
+        isA<DownloadsState>().having(
+          (s) => s.downloadedSongs.length,
+          'downloadedSongs.length',
+          2,
+        ),
       ],
     );
 
     blocTest<DownloadsCubit, DownloadsState>(
       'should set error message when removeDownload fails',
       build: () {
-        when(() => mockRepository.removeDownload(any()))
-            .thenAnswer((_) async => Left(createTestNetworkException()));
+        when(
+          () => mockRepository.removeDownload(any()),
+        ).thenAnswer((_) async => Left(createTestNetworkException()));
         return downloadsCubit;
       },
       seed: () => DownloadsState(
@@ -137,8 +163,11 @@ void main() {
       ),
       act: (cubit) => cubit.removeDownload('downloaded0'),
       expect: () => [
-        isA<DownloadsState>()
-            .having((s) => s.errorMessage, 'errorMessage', isNotNull),
+        isA<DownloadsState>().having(
+          (s) => s.errorMessage,
+          'errorMessage',
+          isNotNull,
+        ),
       ],
     );
 
@@ -151,15 +180,19 @@ void main() {
       ),
       act: (cubit) => cubit.clearError(),
       expect: () => [
-        isA<DownloadsState>()
-            .having((s) => s.errorMessage, 'errorMessage', isNull),
+        isA<DownloadsState>().having(
+          (s) => s.errorMessage,
+          'errorMessage',
+          isNull,
+        ),
       ],
     );
 
     test('isDownloaded should return true when song is downloaded', () async {
       // Arrange
-      when(() => mockRepository.isDownloaded('existing'))
-          .thenAnswer((_) async => const Right(true));
+      when(
+        () => mockRepository.isDownloaded('existing'),
+      ).thenAnswer((_) async => const Right(true));
 
       // Act
       final result = await downloadsCubit.isDownloaded('existing');
@@ -168,22 +201,27 @@ void main() {
       expect(result, isTrue);
     });
 
-    test('isDownloaded should return false when song is not downloaded', () async {
-      // Arrange
-      when(() => mockRepository.isDownloaded('nonexisting'))
-          .thenAnswer((_) async => const Right(false));
+    test(
+      'isDownloaded should return false when song is not downloaded',
+      () async {
+        // Arrange
+        when(
+          () => mockRepository.isDownloaded('nonexisting'),
+        ).thenAnswer((_) async => const Right(false));
 
-      // Act
-      final result = await downloadsCubit.isDownloaded('nonexisting');
+        // Act
+        final result = await downloadsCubit.isDownloaded('nonexisting');
 
-      // Assert
-      expect(result, isFalse);
-    });
+        // Assert
+        expect(result, isFalse);
+      },
+    );
 
     test('isDownloaded should return false when error occurs', () async {
       // Arrange
-      when(() => mockRepository.isDownloaded('videoId'))
-          .thenAnswer((_) async => Left(createTestNetworkException()));
+      when(
+        () => mockRepository.isDownloaded('videoId'),
+      ).thenAnswer((_) async => Left(createTestNetworkException()));
 
       // Act
       final result = await downloadsCubit.isDownloaded('videoId');

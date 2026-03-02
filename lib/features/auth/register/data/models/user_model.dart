@@ -8,9 +8,9 @@ class UserModel extends User {
     required super.email,
     required super.firstName,
     required super.lastName,
-    super.avatar,
     required super.role,
     required super.isEmailVerified,
+    super.avatar,
   });
 
   /// Crea un UserModel desde un Map (JSON)

@@ -69,15 +69,15 @@ class DownloadProgress {
 /// reportando progreso y manejando errores.
 class AudioDownloadService {
   final Dio _dio;
-  
+
   late String _downloadsDir;
   final Map<String, CancelToken> _cancelTokens = {};
   final Map<String, DownloadProgress> _downloadProgress = {};
-  
+
   /// Stream controller para notificar progreso
   final StreamController<DownloadProgress> _progressController =
       StreamController<DownloadProgress>.broadcast();
-  
+
   /// Stream de progreso de descargas
   Stream<DownloadProgress> get progressStream => _progressController.stream;
 
@@ -94,11 +94,11 @@ class AudioDownloadService {
   }
 
   /// Descarga una canción desde una URL
-  /// 
+  ///
   /// [videoId] - ID del video de YouTube
   /// [streamUrl] - URL del stream de audio
   /// [onProgress] - Callback para reportar progreso
-  /// 
+  ///
   /// Retorna la ruta local del archivo descargado
   Future<String?> downloadSong({
     required String videoId,
@@ -110,9 +110,9 @@ class AudioDownloadService {
 
     final cancelToken = CancelToken();
     _cancelTokens[videoId] = cancelToken;
-    
+
     final filePath = '$_downloadsDir/$videoId.mp3';
-    
+
     // Inicializar progreso
     _downloadProgress[videoId] = DownloadProgress(
       videoId: videoId,
@@ -136,7 +136,7 @@ class AudioDownloadService {
               totalBytes: total,
             );
             _notifyProgress(videoId);
-            
+
             if (onProgress != null) {
               onProgress(_downloadProgress[videoId]!);
             }
@@ -152,7 +152,7 @@ class AudioDownloadService {
         localPath: filePath,
       );
       _notifyProgress(videoId);
-      
+
       _cancelTokens.remove(videoId);
       return filePath;
     } on DioException catch (e) {
@@ -196,7 +196,8 @@ class AudioDownloadService {
   /// Pausa una descarga (cancela y marca como pausada)
   void pauseDownload(String videoId) {
     final currentProgress = _downloadProgress[videoId];
-    if (currentProgress != null && currentProgress.status == DownloadStatus.downloading) {
+    if (currentProgress != null &&
+        currentProgress.status == DownloadStatus.downloading) {
       cancelDownload(videoId);
       _downloadProgress[videoId] = currentProgress.copyWith(
         status: DownloadStatus.paused,
@@ -221,7 +222,7 @@ class AudioDownloadService {
   Future<bool> isDownloaded(String videoId) async {
     final filePath = '$_downloadsDir/$videoId.mp3';
     final file = File(filePath);
-    return await file.exists();
+    return file.exists();
   }
 
   /// Obtiene la ruta local de una canción descargada
@@ -239,7 +240,7 @@ class AudioDownloadService {
     final filePath = '$_downloadsDir/$videoId.mp3';
     final file = File(filePath);
     if (await file.exists()) {
-      return await file.length();
+      return file.length();
     }
     return 0;
   }

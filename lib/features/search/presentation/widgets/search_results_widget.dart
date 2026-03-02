@@ -3,8 +3,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
-import 'package:music_app/core/utils/bottom_sheet_visibility.dart';
-import 'package:music_app/features/downloads/presentation/widgets/download_option_tile.dart';
 import 'package:music_app/features/favorites/presentation/widgets/favorite_button.dart';
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
@@ -14,7 +12,7 @@ import '../../domain/entities/song.dart';
 class SearchResultsWidget extends StatelessWidget {
   final List<Song> results;
 
-  const SearchResultsWidget({super.key, required this.results});
+  const SearchResultsWidget({required this.results, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -77,13 +75,15 @@ class _SongItem extends StatelessWidget {
                           width: 60,
                           height: 60,
                           color: AppColorsDark.primaryContainer,
-                          child: Center(
+                          child: const Center(
                             child: SizedBox(
                               width: 20,
                               height: 20,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(AppColorsDark.primary),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  AppColorsDark.primary,
+                                ),
                               ),
                             ),
                           ),
@@ -92,14 +92,20 @@ class _SongItem extends StatelessWidget {
                           width: 60,
                           height: 60,
                           color: AppColorsDark.primaryContainer,
-                          child: Icon(Icons.music_note, color: AppColorsDark.primary),
+                          child: const Icon(
+                            Icons.music_note,
+                            color: AppColorsDark.primary,
+                          ),
                         ),
                       )
                     : Container(
                         width: 60,
                         height: 60,
                         color: AppColorsDark.primaryContainer,
-                        child: Icon(Icons.music_note, color: AppColorsDark.primary),
+                        child: const Icon(
+                          Icons.music_note,
+                          color: AppColorsDark.primary,
+                        ),
                       ),
               ),
             ),

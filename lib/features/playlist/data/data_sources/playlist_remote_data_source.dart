@@ -8,12 +8,12 @@ import '../../domain/entities/playlist_response.dart';
 import '../isolates/playlist_response_parsing_isolate.dart';
 
 /// Data source remoto para operaciones de playlist
-/// 
+///
 /// SOLID: Single Responsibility Principle (SRP)
 /// Responsable única: Obtener datos de playlist desde la API
 abstract class PlaylistRemoteDataSource {
   /// Obtiene los datos de una playlist
-  /// 
+  ///
   /// Endpoint: /api/music/playlists/{id}
   Future<Either<AppException, PlaylistResponse>> getPlaylist(String id);
 }
@@ -28,13 +28,13 @@ class PlaylistRemoteDataSourceImpl implements PlaylistRemoteDataSource {
     try {
       // Validar que el ID no esté vacío
       if (id.isEmpty) {
-        final exception = const ValidationException(
+        const exception = ValidationException(
           'El ID de la playlist no puede estar vacío',
         );
         ExceptionHandler.logException(exception, context: 'getPlaylist');
-        return Left(exception);
+        return const Left(exception);
       }
-      
+
       final endpoint = '/music/playlists/$id?include_stream_urls=true';
       if (kDebugMode) {
         debugPrint('getPlaylist: Loading playlist with ID: $id');
@@ -52,11 +52,11 @@ class PlaylistRemoteDataSourceImpl implements PlaylistRemoteDataSource {
         );
         return Right(playlist);
       } else {
-        final exception = const ServerException(
+        const exception = ServerException(
           'Respuesta del servidor en formato incorrecto',
         );
         ExceptionHandler.logException(exception, context: 'getPlaylist');
-        return Left(exception);
+        return const Left(exception);
       }
     } catch (e) {
       final appException = ExceptionHandler.handleException(e);

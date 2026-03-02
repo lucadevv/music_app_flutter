@@ -1,10 +1,9 @@
-import '../../domain/entities/song.dart';
+import '../../domain/entities/song.dart' as domain;
 import 'search_album_model.dart';
 import 'search_artist_model.dart';
-import 'thumbnail_model.dart';
 
 /// Modelo de datos para una canción en los resultados de búsqueda
-class SongModel extends Song {
+class SongModel extends domain.Song {
   const SongModel({
     required super.title,
     required super.album,
@@ -21,52 +20,81 @@ class SongModel extends Song {
   });
 
   factory SongModel.fromJson(Map<String, dynamic> json) {
+    // Parse album
+    domain.SearchAlbum album;
+    if (json['album'] != null) {
+      final albumModel = SearchAlbumModel.fromJson(
+        json['album'] as Map<String, dynamic>,
+      );
+      album = domain.SearchAlbum(
+        id: albumModel.id,
+        name: albumModel.name,
+        artists: [], // SearchAlbumModel doesn't have artists
+      );
+    } else {
+      album = const domain.SearchAlbum(id: '', name: '', artists: []);
+    }
+
+    // Parse artists
+    List<domain.SearchArtist> artists = [];
+    if (json['artists'] != null) {
+      artists = (json['artists'] as List<dynamic>).map((artist) {
+        final model = SearchArtistModel.fromJson(
+          artist as Map<String, dynamic>,
+        );
+        return domain.SearchArtist(id: model.id, name: model.name);
+      }).toList();
+    }
+
+    // Parse thumbnails
+    List<domain.Thumbnail> thumbnails = [];
+    if (json['thumbnails'] != null) {
+      thumbnails = (json['thumbnails'] as List<dynamic>)
+          .whereType<Map<String, dynamic>>()
+          .map(
+            (thumb) => domain.Thumbnail(
+              url: thumb['url'] as String? ?? '',
+              width: thumb['width'] as int?,
+              height: thumb['height'] as int?,
+            ),
+          )
+          .toList();
+    }
+
+    // Parse thumbnail (best quality)
+    domain.Thumbnail? thumbnail;
+    if (json['thumbnail'] != null) {
+      if (json['thumbnail'] is Map<String, dynamic>) {
+        final thumb = json['thumbnail'] as Map<String, dynamic>;
+        thumbnail = domain.Thumbnail(
+          url: thumb['url'] as String? ?? '',
+          width: thumb['width'] as int?,
+          height: thumb['height'] as int?,
+        );
+      }
+    }
+
     return SongModel(
       title: json['title'] as String? ?? '',
-      album: json['album'] != null
-          ? SearchAlbumModel.fromJson(json['album'] as Map<String, dynamic>)
-          : const SearchAlbumModel(name: '', id: ''),
-      artists: json['artists'] != null
-          ? (json['artists'] as List<dynamic>)
-              .map(
-                (artist) => SearchArtistModel.fromJson(
-                  artist as Map<String, dynamic>,
-                ),
-              )
-              .toList()
-          : [],
+      album: album,
+      artists: artists,
       videoId: json['videoId'] as String? ?? '',
       duration: json['duration'] as String? ?? '0:00',
       durationSeconds: json['duration_seconds'] as int? ?? 0,
       views: json['views'] as String? ?? '0',
       isExplicit: json['isExplicit'] as bool? ?? false,
       inLibrary: json['inLibrary'] as bool? ?? false,
-      thumbnails: json['thumbnails'] != null
-          ? (json['thumbnails'] as List<dynamic>)
-              .where((thumb) => thumb is Map<String, dynamic>)
-              .map(
-                (thumb) => ThumbnailModel.fromJson(
-                  thumb as Map<String, dynamic>,
-                ),
-              )
-              .toList()
-          : [],
+      thumbnails: thumbnails,
       streamUrl: json['stream_url'] as String?,
-      thumbnail: json['thumbnail'] != null
-          ? (json['thumbnail'] is Map<String, dynamic>
-              ? ThumbnailModel.fromJson(json['thumbnail'] as Map<String, dynamic>)
-              : null) // Si thumbnail es String, ignorarlo (usar thumbnails array)
-          : null,
+      thumbnail: thumbnail,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'title': title,
-      'album': (album as SearchAlbumModel).toJson(),
-      'artists': artists
-          .map((artist) => (artist as SearchArtistModel).toJson())
-          .toList(),
+      'album': {'id': album.id, 'name': album.name},
+      'artists': artists.map((a) => {'id': a.id, 'name': a.name}).toList(),
       'videoId': videoId,
       'duration': duration,
       'duration_seconds': durationSeconds,
@@ -74,10 +102,15 @@ class SongModel extends Song {
       'isExplicit': isExplicit,
       'inLibrary': inLibrary,
       'thumbnails': thumbnails
-          .map((thumb) => (thumb as ThumbnailModel).toJson())
+          .map((t) => {'url': t.url, 'width': t.width, 'height': t.height})
           .toList(),
       if (streamUrl != null) 'stream_url': streamUrl,
-      if (thumbnail != null) 'thumbnail': (thumbnail as ThumbnailModel).toJson(),
+      if (thumbnail != null)
+        'thumbnail': {
+          'url': thumbnail!.url,
+          'width': thumbnail!.width,
+          'height': thumbnail!.height,
+        },
     };
   }
 }

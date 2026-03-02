@@ -10,7 +10,7 @@ class AuthManagerImpl implements AuthManager {
 
   @override
   Future<bool> isUserLoggedIn() async {
-    return await _tokenManager.hasToken();
+    return _tokenManager.hasToken();
   }
 
   @override
@@ -71,22 +71,22 @@ class AuthManagerImpl implements AuthManager {
 
   @override
   Future<String?> getCurrentAccessToken() async {
-    return await _tokenManager.getAccessToken();
+    return _tokenManager.getAccessToken();
   }
 
   @override
   Future<String?> getCurrentRefreshToken() async {
-    return await _tokenManager.getResfreshToken();
+    return _tokenManager.getResfreshToken();
   }
 
   @override
   Future<bool?> isEmailVerified() async {
-    return await _tokenManager.getIsEmailVerified();
+    return _tokenManager.getIsEmailVerified();
   }
 
   @override
   Future<String?> getCurrentUserEmail() async {
-    return await _tokenManager.getUserEmail();
+    return _tokenManager.getUserEmail();
   }
 
   @override

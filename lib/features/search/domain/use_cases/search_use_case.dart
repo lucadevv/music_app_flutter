@@ -14,6 +14,6 @@ class SearchUseCase {
   Future<Either<AppException, SearchResponse>> call(
     SearchRequest request,
   ) async {
-    return await _repository.search(request);
+    return _repository.search(request);
   }
 }

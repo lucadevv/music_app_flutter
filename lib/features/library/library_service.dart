@@ -7,12 +7,7 @@ class SongMetadata {
   final String? thumbnail;
   final int? duration;
 
-  const SongMetadata({
-    this.title,
-    this.artist,
-    this.thumbnail,
-    this.duration,
-  });
+  const SongMetadata({this.title, this.artist, this.thumbnail, this.duration});
 
   Map<String, dynamic> toJson() => {
     if (title != null) 'title': title,
@@ -58,7 +53,10 @@ class LibraryService {
     }
   }
 
-  Future<FavoriteSongsResponse> getFavoriteSongs({int page = 1, int limit = 20}) async {
+  Future<FavoriteSongsResponse> getFavoriteSongs({
+    int page = 1,
+    int limit = 20,
+  }) async {
     try {
       final response = await _apiServices.get(
         '/library/songs',
@@ -71,7 +69,10 @@ class LibraryService {
     }
   }
 
-  Future<FavoritePlaylistsResponse> getFavoritePlaylists({int page = 1, int limit = 20}) async {
+  Future<FavoritePlaylistsResponse> getFavoritePlaylists({
+    int page = 1,
+    int limit = 20,
+  }) async {
     try {
       final response = await _apiServices.get(
         '/library/playlists',
@@ -84,7 +85,10 @@ class LibraryService {
     }
   }
 
-  Future<FavoriteGenresResponse> getFavoriteGenres({int page = 1, int limit = 20}) async {
+  Future<FavoriteGenresResponse> getFavoriteGenres({
+    int page = 1,
+    int limit = 20,
+  }) async {
     try {
       final response = await _apiServices.get(
         '/library/genres',
@@ -150,10 +154,10 @@ class LibraryService {
         '/library/playlists',
         data: {
           'externalPlaylistId': externalPlaylistId,
-          if (name != null) 'name': name,
-          if (thumbnail != null) 'thumbnail': thumbnail,
-          if (description != null) 'description': description,
-          if (trackCount != null) 'trackCount': trackCount,
+          'name': ?name,
+          'thumbnail': ?thumbnail,
+          'description': ?description,
+          'trackCount': ?trackCount,
         },
       );
     } catch (e) {
@@ -171,7 +175,9 @@ class LibraryService {
 
   Future<bool> isPlaylistFavorite(String playlistId) async {
     try {
-      final response = await _apiServices.get('/library/playlists/$playlistId/check');
+      final response = await _apiServices.get(
+        '/library/playlists/$playlistId/check',
+      );
       final data = response is Response ? response.data : response;
       return data['isFavorite'] ?? false;
     } catch (e) {
@@ -183,7 +189,7 @@ class LibraryService {
     try {
       await _apiServices.post(
         '/library/genres',
-        data: {'externalParams': externalParams, if (name != null) 'name': name},
+        data: {'externalParams': externalParams, 'name': ?name},
       );
     } catch (e) {
       rethrow;
@@ -221,8 +227,8 @@ class LibraryService {
         '/library/user-playlists',
         data: {
           'name': name,
-          if (description != null) 'description': description,
-          if (thumbnail != null) 'thumbnail': thumbnail,
+          'description': ?description,
+          'thumbnail': ?thumbnail,
           'isPublic': isPublic,
         },
       );
@@ -233,7 +239,10 @@ class LibraryService {
     }
   }
 
-  Future<UserPlaylistsResponse> getUserPlaylists({int page = 1, int limit = 20}) async {
+  Future<UserPlaylistsResponse> getUserPlaylists({
+    int page = 1,
+    int limit = 20,
+  }) async {
     try {
       final response = await _apiServices.get(
         '/library/user-playlists',
@@ -248,7 +257,9 @@ class LibraryService {
 
   Future<UserPlaylistDetail> getUserPlaylist(String playlistId) async {
     try {
-      final response = await _apiServices.get('/library/user-playlists/$playlistId');
+      final response = await _apiServices.get(
+        '/library/user-playlists/$playlistId',
+      );
       final data = response is Response ? response.data : response;
       return UserPlaylistDetail.fromJson(data);
     } catch (e) {
@@ -267,10 +278,10 @@ class LibraryService {
       final response = await _apiServices.put(
         '/library/user-playlists/$playlistId',
         data: {
-          if (name != null) 'name': name,
-          if (description != null) 'description': description,
-          if (thumbnail != null) 'thumbnail': thumbnail,
-          if (isPublic != null) 'isPublic': isPublic,
+          'name': ?name,
+          'description': ?description,
+          'thumbnail': ?thumbnail,
+          'isPublic': ?isPublic,
         },
       );
       final data = response is Response ? response.data : response;
@@ -301,10 +312,10 @@ class LibraryService {
         '/library/user-playlists/$playlistId/songs',
         data: {
           'videoId': videoId,
-          if (title != null) 'title': title,
-          if (artist != null) 'artist': artist,
-          if (thumbnail != null) 'thumbnail': thumbnail,
-          if (duration != null) 'duration': duration,
+          'title': ?title,
+          'artist': ?artist,
+          'thumbnail': ?thumbnail,
+          'duration': ?duration,
         },
       );
       final data = response is Response ? response.data : response;
@@ -314,9 +325,14 @@ class LibraryService {
     }
   }
 
-  Future<void> removeSongFromUserPlaylist(String playlistId, String songId) async {
+  Future<void> removeSongFromUserPlaylist(
+    String playlistId,
+    String songId,
+  ) async {
     try {
-      await _apiServices.delete('/library/user-playlists/$playlistId/songs/$songId');
+      await _apiServices.delete(
+        '/library/user-playlists/$playlistId/songs/$songId',
+      );
     } catch (e) {
       rethrow;
     }
@@ -347,16 +363,15 @@ class FavoriteSongsResponse {
   final List<FavoriteSong> data;
   final int total;
 
-  FavoriteSongsResponse({
-    required this.data,
-    required this.total,
-  });
+  FavoriteSongsResponse({required this.data, required this.total});
 
   factory FavoriteSongsResponse.fromJson(Map<String, dynamic> json) {
     return FavoriteSongsResponse(
-      data: (json['data'] as List?)
-          ?.map((e) => FavoriteSong.fromJson(e))
-          .toList() ?? [],
+      data:
+          (json['data'] as List?)
+              ?.map((e) => FavoriteSong.fromJson(e))
+              .toList() ??
+          [],
       total: json['total'] ?? 0,
     );
   }
@@ -378,9 +393,9 @@ class FavoriteSong {
     required this.videoId,
     required this.title,
     required this.artist,
+    required this.createdAt,
     this.thumbnail,
     this.duration,
-    required this.createdAt,
   });
 
   factory FavoriteSong.fromJson(Map<String, dynamic> json) {
@@ -402,16 +417,15 @@ class FavoritePlaylistsResponse {
   final List<FavoritePlaylist> data;
   final int total;
 
-  FavoritePlaylistsResponse({
-    required this.data,
-    required this.total,
-  });
+  FavoritePlaylistsResponse({required this.data, required this.total});
 
   factory FavoritePlaylistsResponse.fromJson(Map<String, dynamic> json) {
     return FavoritePlaylistsResponse(
-      data: (json['data'] as List?)
-          ?.map((e) => FavoritePlaylist.fromJson(e))
-          .toList() ?? [],
+      data:
+          (json['data'] as List?)
+              ?.map((e) => FavoritePlaylist.fromJson(e))
+              .toList() ??
+          [],
       total: json['total'] ?? 0,
     );
   }
@@ -433,11 +447,11 @@ class FavoritePlaylist {
     required this.playlistId,
     required this.externalPlaylistId,
     required this.name,
+    required this.createdAt,
     this.description,
     this.thumbnail,
     this.trackCount,
     this.cachedTrackCount,
-    required this.createdAt,
   });
 
   factory FavoritePlaylist.fromJson(Map<String, dynamic> json) {
@@ -460,16 +474,15 @@ class FavoriteGenresResponse {
   final List<FavoriteGenre> data;
   final int total;
 
-  FavoriteGenresResponse({
-    required this.data,
-    required this.total,
-  });
+  FavoriteGenresResponse({required this.data, required this.total});
 
   factory FavoriteGenresResponse.fromJson(Map<String, dynamic> json) {
     return FavoriteGenresResponse(
-      data: (json['data'] as List?)
-          ?.map((e) => FavoriteGenre.fromJson(e))
-          .toList() ?? [],
+      data:
+          (json['data'] as List?)
+              ?.map((e) => FavoriteGenre.fromJson(e))
+              .toList() ??
+          [],
       total: json['total'] ?? 0,
     );
   }
@@ -515,10 +528,10 @@ class UserPlaylist {
   UserPlaylist({
     required this.id,
     required this.name,
-    this.description,
-    this.thumbnail,
     required this.songCount,
     required this.createdAt,
+    this.description,
+    this.thumbnail,
   });
 
   factory UserPlaylist.fromJson(Map<String, dynamic> json) {
@@ -545,11 +558,11 @@ class UserPlaylistDetail {
   UserPlaylistDetail({
     required this.id,
     required this.name,
-    this.description,
-    this.thumbnail,
     required this.isPublic,
     required this.songs,
     required this.createdAt,
+    this.description,
+    this.thumbnail,
   });
 
   factory UserPlaylistDetail.fromJson(Map<String, dynamic> json) {
@@ -559,9 +572,11 @@ class UserPlaylistDetail {
       description: json['description'],
       thumbnail: json['thumbnail'],
       isPublic: json['isPublic'] ?? false,
-      songs: (json['songs'] as List?)
-          ?.map((e) => UserPlaylistSong.fromJson(e))
-          .toList() ?? [],
+      songs:
+          (json['songs'] as List?)
+              ?.map((e) => UserPlaylistSong.fromJson(e))
+              .toList() ??
+          [],
       createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
     );
   }
@@ -600,16 +615,15 @@ class UserPlaylistsResponse {
   final List<UserPlaylist> data;
   final int total;
 
-  UserPlaylistsResponse({
-    required this.data,
-    required this.total,
-  });
+  UserPlaylistsResponse({required this.data, required this.total});
 
   factory UserPlaylistsResponse.fromJson(Map<String, dynamic> json) {
     return UserPlaylistsResponse(
-      data: (json['data'] as List?)
-          ?.map((e) => UserPlaylist.fromJson(e))
-          .toList() ?? [],
+      data:
+          (json['data'] as List?)
+              ?.map((e) => UserPlaylist.fromJson(e))
+              .toList() ??
+          [],
       total: json['total'] ?? 0,
     );
   }
@@ -620,16 +634,10 @@ class LyricsResponse {
   final String? lyrics;
   final String? source;
 
-  const LyricsResponse({
-    this.lyrics,
-    this.source,
-  });
+  const LyricsResponse({this.lyrics, this.source});
 
   factory LyricsResponse.fromJson(Map<String, dynamic> json) {
-    return LyricsResponse(
-      lyrics: json['lyrics'],
-      source: json['source'],
-    );
+    return LyricsResponse(lyrics: json['lyrics'], source: json['source']);
   }
 }
 
@@ -638,7 +646,9 @@ extension LibraryServiceExtensions on LibraryService {
   /// Obtiene las lyrics de una canción por su videoId o browseId
   Future<LyricsResponse> getLyrics(String videoIdOrBrowseId) async {
     try {
-      final response = await _apiServices.get('/music/lyrics/$videoIdOrBrowseId');
+      final response = await _apiServices.get(
+        '/music/lyrics/$videoIdOrBrowseId',
+      );
       final data = response is Response ? response.data : response;
       return LyricsResponse.fromJson(data);
     } catch (e) {

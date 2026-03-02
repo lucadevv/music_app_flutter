@@ -2,7 +2,6 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
 import 'package:music_app/features/search/domain/entities/search_request.dart';
 import 'package:music_app/features/search/domain/entities/search_response.dart';
 import 'package:music_app/features/search/domain/repositories/search_repository.dart';
@@ -18,9 +17,7 @@ void main() {
   late MockSearchRepository mockRepository;
   late SearchUseCase searchUseCase;
 
-  setUpAll(() {
-    registerFallbackValues();
-  });
+  setUpAll(registerFallbackValues);
 
   setUp(() {
     mockRepository = MockSearchRepository();
@@ -44,8 +41,9 @@ void main() {
     blocTest<SearchCubit, SearchState>(
       'should emit [loading, success] when search succeeds',
       build: () {
-        when(() => mockRepository.search(any(that: isA<SearchRequest>())))
-            .thenAnswer((_) async => Right(createTestSearchResponse()));
+        when(
+          () => mockRepository.search(any(that: isA<SearchRequest>())),
+        ).thenAnswer((_) async => Right(createTestSearchResponse()));
         return searchCubit;
       },
       act: (cubit) => cubit.search('test query'),
@@ -59,8 +57,9 @@ void main() {
             .having((s) => s.errorMessage, 'errorMessage', isNull),
       ],
       verify: (_) {
-        verify(() => mockRepository.search(any(that: isA<SearchRequest>())))
-            .called(1);
+        verify(
+          () => mockRepository.search(any(that: isA<SearchRequest>())),
+        ).called(1);
       },
     );
 
@@ -91,14 +90,18 @@ void main() {
     blocTest<SearchCubit, SearchState>(
       'should emit [loading, failure] when search fails',
       build: () {
-        when(() => mockRepository.search(any(that: isA<SearchRequest>())))
-            .thenAnswer((_) async => Left(createTestNetworkException()));
+        when(
+          () => mockRepository.search(any(that: isA<SearchRequest>())),
+        ).thenAnswer((_) async => Left(createTestNetworkException()));
         return searchCubit;
       },
       act: (cubit) => cubit.search('test query'),
       expect: () => [
-        isA<SearchState>()
-            .having((s) => s.status, 'status', SearchStatus.loading),
+        isA<SearchState>().having(
+          (s) => s.status,
+          'status',
+          SearchStatus.loading,
+        ),
         isA<SearchState>()
             .having((s) => s.status, 'status', SearchStatus.failure)
             .having((s) => s.errorMessage, 'errorMessage', isNotNull),
@@ -108,25 +111,35 @@ void main() {
     blocTest<SearchCubit, SearchState>(
       'should not emit new state when already loading',
       build: () {
-        when(() => mockRepository.search(any(that: isA<SearchRequest>())))
-            .thenAnswer((_) async => Right(createTestSearchResponse()));
+        when(
+          () => mockRepository.search(any(that: isA<SearchRequest>())),
+        ).thenAnswer((_) async => Right(createTestSearchResponse()));
         return searchCubit;
       },
       act: (cubit) async {
-        cubit.search('query 1');
-        cubit.search('query 2');
+        await cubit.search('query 1');
+        await cubit.search('query 2');
       },
       expect: () => [
-        isA<SearchState>().having((s) => s.status, 'status', SearchStatus.loading),
-        isA<SearchState>().having((s) => s.status, 'status', SearchStatus.success),
+        isA<SearchState>().having(
+          (s) => s.status,
+          'status',
+          SearchStatus.loading,
+        ),
+        isA<SearchState>().having(
+          (s) => s.status,
+          'status',
+          SearchStatus.success,
+        ),
       ],
     );
 
     blocTest<SearchCubit, SearchState>(
       'should reset state to initial when reset is called',
       build: () {
-        when(() => mockRepository.search(any(that: isA<SearchRequest>())))
-            .thenAnswer((_) async => Right(createTestSearchResponse()));
+        when(
+          () => mockRepository.search(any(that: isA<SearchRequest>())),
+        ).thenAnswer((_) async => Right(createTestSearchResponse()));
         return searchCubit;
       },
       act: (cubit) async {
@@ -134,8 +147,16 @@ void main() {
         cubit.reset();
       },
       expect: () => [
-        isA<SearchState>().having((s) => s.status, 'status', SearchStatus.loading),
-        isA<SearchState>().having((s) => s.status, 'status', SearchStatus.success),
+        isA<SearchState>().having(
+          (s) => s.status,
+          'status',
+          SearchStatus.loading,
+        ),
+        isA<SearchState>().having(
+          (s) => s.status,
+          'status',
+          SearchStatus.success,
+        ),
         isA<SearchState>()
             .having((s) => s.status, 'status', SearchStatus.initial)
             .having((s) => s.query, 'query', isEmpty)
@@ -147,8 +168,9 @@ void main() {
     blocTest<SearchCubit, SearchState>(
       'should trim whitespace from query',
       build: () {
-        when(() => mockRepository.search(any(that: isA<SearchRequest>())))
-            .thenAnswer((_) async => Right(createTestSearchResponse()));
+        when(
+          () => mockRepository.search(any(that: isA<SearchRequest>())),
+        ).thenAnswer((_) async => Right(createTestSearchResponse()));
         return searchCubit;
       },
       act: (cubit) => cubit.search('  test query  '),
@@ -156,20 +178,29 @@ void main() {
         isA<SearchState>()
             .having((s) => s.status, 'status', SearchStatus.loading)
             .having((s) => s.query, 'query', '  test query  '),
-        isA<SearchState>().having((s) => s.status, 'status', SearchStatus.success),
+        isA<SearchState>().having(
+          (s) => s.status,
+          'status',
+          SearchStatus.success,
+        ),
       ],
     );
 
     blocTest<SearchCubit, SearchState>(
       'should handle ServerException',
       build: () {
-        when(() => mockRepository.search(any(that: isA<SearchRequest>())))
-            .thenAnswer((_) async => Left(createTestServerException()));
+        when(
+          () => mockRepository.search(any(that: isA<SearchRequest>())),
+        ).thenAnswer((_) async => Left(createTestServerException()));
         return searchCubit;
       },
       act: (cubit) => cubit.search('test query'),
       expect: () => [
-        isA<SearchState>().having((s) => s.status, 'status', SearchStatus.loading),
+        isA<SearchState>().having(
+          (s) => s.status,
+          'status',
+          SearchStatus.loading,
+        ),
         isA<SearchState>()
             .having((s) => s.status, 'status', SearchStatus.failure)
             .having((s) => s.errorMessage, 'errorMessage', 'Server error'),
@@ -179,13 +210,20 @@ void main() {
     blocTest<SearchCubit, SearchState>(
       'should handle empty results',
       build: () {
-        when(() => mockRepository.search(any(that: isA<SearchRequest>())))
-            .thenAnswer((_) async => Right(SearchResponse(results: [], query: 'test')));
+        when(
+          () => mockRepository.search(any(that: isA<SearchRequest>())),
+        ).thenAnswer(
+          (_) async => const Right(SearchResponse(results: [], query: 'test')),
+        );
         return searchCubit;
       },
       act: (cubit) => cubit.search('test'),
       expect: () => [
-        isA<SearchState>().having((s) => s.status, 'status', SearchStatus.loading),
+        isA<SearchState>().having(
+          (s) => s.status,
+          'status',
+          SearchStatus.loading,
+        ),
         isA<SearchState>()
             .having((s) => s.status, 'status', SearchStatus.success)
             .having((s) => s.responseEntity!.results, 'results', isEmpty),

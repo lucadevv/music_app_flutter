@@ -3,7 +3,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 
 /// Widget para los controles de reproducción
-/// 
+///
 /// SOLID: Single Responsibility Principle (SRP)
 /// Responsable única: Mostrar y manejar controles de reproducción
 class PlayerControlsWidget extends StatelessWidget {
@@ -19,12 +19,12 @@ class PlayerControlsWidget extends StatelessWidget {
   final VoidCallback? onRepeat;
 
   const PlayerControlsWidget({
-    super.key,
     required this.isPlaying,
     required this.canPlayNext,
     required this.canPlayPrevious,
     required this.isShuffleEnabled,
     required this.loopMode,
+    super.key,
     this.onPlayPause,
     this.onNext,
     this.onPrevious,

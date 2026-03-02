@@ -15,6 +15,6 @@ class LoginUseCase {
   Future<Either<AppException, RegisterResponse>> call(
     LoginRequest request,
   ) async {
-    return await _repository.login(request);
+    return _repository.login(request);
   }
 }

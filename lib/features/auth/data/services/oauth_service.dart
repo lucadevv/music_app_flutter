@@ -16,11 +16,11 @@ class OAuthResult {
 
   const OAuthResult({
     required this.accessToken,
+    required this.provider,
     this.idToken,
     this.email,
     this.name,
     this.photoUrl,
-    required this.provider,
   });
 }
 
@@ -35,11 +35,8 @@ abstract class OAuthService {
 class OAuthServiceImpl implements OAuthService {
   final GoogleSignIn _googleSignIn;
 
-  OAuthServiceImpl({
-    List<String> googleScopes = const ['email', 'profile'],
-  }) : _googleSignIn = GoogleSignIn(
-          scopes: googleScopes,
-        );
+  OAuthServiceImpl({List<String> googleScopes = const ['email', 'profile']})
+    : _googleSignIn = GoogleSignIn(scopes: googleScopes);
 
   @override
   Future<OAuthResult?> signInWithGoogle() async {
@@ -87,18 +84,14 @@ class OAuthServiceImpl implements OAuthService {
       );
 
       final authorizationCode = credential.authorizationCode;
-      if (authorizationCode == null) {
-        AppLogger.error('Apple Sign In: authorization code is null');
-        return null;
-      }
 
       // Construir el nombre completo
       final name =
-          '${credential.givenName ?? ''} ${credential.familyName ?? ''}'
-              .trim();
+          '${credential.givenName ?? ''} ${credential.familyName ?? ''}'.trim();
 
       AppLogger.info(
-          'Apple Sign In successful for ${credential.email ?? 'hidden email'}');
+        'Apple Sign In successful for ${credential.email ?? 'hidden email'}',
+      );
 
       return OAuthResult(
         accessToken: authorizationCode,
@@ -113,7 +106,9 @@ class OAuthServiceImpl implements OAuthService {
         return null;
       }
       AppLogger.error(
-          'Apple Sign In failed with SignInWithAppleAuthorizationException', e);
+        'Apple Sign In failed with SignInWithAppleAuthorizationException',
+        e,
+      );
       rethrow;
     } catch (e) {
       AppLogger.error('Apple Sign In failed', e);

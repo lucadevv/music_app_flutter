@@ -1,41 +1,23 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
-import 'package:music_app/core/managers/auth/auth_manager.dart';
-import 'package:music_app/core/services/network/api_services.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
-import 'package:music_app/features/profile/profile_cubit.dart';
-import 'package:music_app/features/profile/profile_service.dart';
+import 'package:music_app/core/utils/format_utils.dart';
+import 'package:music_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:music_app/l10n/app_localizations.dart';
-import 'package:music_app/main.dart';
 
 @RoutePage()
-class MyProfileScreen extends StatefulWidget implements AutoRouteWrapper {
+class MyProfileScreen extends StatefulWidget {
   const MyProfileScreen({super.key});
-
-  @override
-  Widget wrappedRoute(BuildContext context) {
-    return BlocProvider<ProfileCubit>(
-      create: (context) => getIt<ProfileCubit>()..loadProfile(),
-      child: this,
-    );
-  }
 
   @override
   State<MyProfileScreen> createState() => _MyProfileScreenState();
 }
 
-class _MyProfileScreenState extends State<MyProfileScreen> with SingleTickerProviderStateMixin {
-  // Estadísticas del usuario
-  int _favoriteSongsCount = 0;
-  int _favoritePlaylistsCount = 0;
-  int _favoriteGenresCount = 0;
-  bool _isLoadingStats = true;
-  
-  // Animations
+class _MyProfileScreenState extends State<MyProfileScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -44,38 +26,40 @@ class _MyProfileScreenState extends State<MyProfileScreen> with SingleTickerProv
   @override
   void initState() {
     super.initState();
-    _loadLibraryStats();
-    
-    // Setup animations
+    // Cargar profile y estadísticas
+    context.read<ProfileCubit>().loadProfile();
+    context.read<ProfileCubit>().loadLibraryStats();
+    _setupAnimations();
+  }
+
+  void _setupAnimations() {
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    
+
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _animationController,
         curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
       ),
     );
-    
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.3),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: const Interval(0.2, 0.8, curve: Curves.easeOutCubic),
-      ),
-    );
-    
+
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _animationController,
+            curve: const Interval(0.2, 0.8, curve: Curves.easeOutCubic),
+          ),
+        );
+
     _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
       CurvedAnimation(
         parent: _animationController,
         curve: const Interval(0.0, 0.5, curve: Curves.elasticOut),
       ),
     );
-    
+
     _animationController.forward();
   }
 
@@ -85,44 +69,10 @@ class _MyProfileScreenState extends State<MyProfileScreen> with SingleTickerProv
     super.dispose();
   }
 
-  Future<void> _loadLibraryStats() async {
-    try {
-      final apiServices = getIt<ApiServices>();
-      final response = await apiServices.get('/library/summary');
-
-      int songsCount = 0;
-      int playlistsCount = 0;
-      int genresCount = 0;
-
-      if (response is Response) {
-        final data = response.data;
-        songsCount = data['favoriteSongs'] ?? 0;
-        playlistsCount = data['favoritePlaylists'] ?? 0;
-        genresCount = data['favoriteGenres'] ?? 0;
-      } else if (response is Map) {
-        songsCount = response['favoriteSongs'] ?? 0;
-        playlistsCount = response['favoritePlaylists'] ?? 0;
-        genresCount = response['favoriteGenres'] ?? 0;
-      }
-
-      if (mounted) {
-        setState(() {
-          _favoriteSongsCount = songsCount;
-          _favoritePlaylistsCount = playlistsCount;
-          _favoriteGenresCount = genresCount;
-          _isLoadingStats = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isLoadingStats = false;
-        });
-      }
-    }
-  }
-
-  Future<void> _handleLogout(BuildContext context, AppLocalizations l10n) async {
+  Future<void> _handleLogout(
+    BuildContext context,
+    AppLocalizations l10n,
+  ) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -142,292 +92,360 @@ class _MyProfileScreenState extends State<MyProfileScreen> with SingleTickerProv
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text(
-              l10n.logout,
-              style: const TextStyle(color: Colors.red),
-            ),
+            child: Text(l10n.logout, style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),
     );
 
     if (confirmed == true && mounted) {
-      final authManager = await getIt.getAsync<AuthManager>();
-      await authManager.logout();
+      await context.read<ProfileCubit>().logout();
     }
   }
 
   Future<void> _refreshAll() async {
-    context.read<ProfileCubit>().loadProfile();
-    await _loadLibraryStats();
+    await context.read<ProfileCubit>().loadProfile();
+    await context.read<ProfileCubit>().loadLibraryStats();
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     return Scaffold(
       backgroundColor: const Color(0xFF0D0D0D),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: Text(
-          l10n.myProfile,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => context.router.pop(),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => _handleLogout(context, l10n),
-            child: Text(
-              l10n.exit,
-              style: const TextStyle(color: Colors.red, fontSize: 16),
-            ),
-          ),
-        ],
-      ),
+      appBar: _buildAppBar(context, l10n),
       body: BlocBuilder<ProfileCubit, ProfileState>(
         builder: (context, state) {
           if (state.isLoading) {
             return const Center(
-              child: CircularProgressIndicator(
-                color: AppColorsDark.primary,
-              ),
+              child: CircularProgressIndicator(color: AppColorsDark.primary),
             );
           }
 
           if (state.error != null) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline, color: Colors.red, size: 48),
-                  const SizedBox(height: 16),
-                  Text(
-                    l10n.errorLoadingProfile,
-                    style: const TextStyle(color: Colors.white70),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () => context.read<ProfileCubit>().loadProfile(),
-                    child: Text(l10n.retry),
-                  ),
-                ],
-              ),
-            );
+            return _buildErrorState(context, l10n, state);
           }
 
-          return RefreshIndicator(
-            color: AppColorsDark.primary,
-            onRefresh: _refreshAll,
-            child: AnimatedBuilder(
-              animation: _animationController,
-              builder: (context, child) {
-                return FadeTransition(
-                  opacity: _fadeAnimation,
-                  child: SlideTransition(
-                    position: _slideAnimation,
-                    child: child,
-                  ),
-                );
-              },
-              child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  children: [
-                    // Profile picture with scale animation
-                    ScaleTransition(
-                      scale: _scaleAnimation,
-                      child: _buildAvatar(state),
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Name with fade
-                    FadeTransition(
-                      opacity: _fadeAnimation,
-                      child: Text(
-                        state.displayName,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-
-                    // Email
-                    _AnimatedProfileField(
-                      delay: 0.1,
-                      child: _ProfileField(
-                        label: l10n.email,
-                        value: state.email,
-                        icon: Icons.email_outlined,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Provider
-                    _AnimatedProfileField(
-                      delay: 0.2,
-                      child: _ProfileField(
-                        label: l10n.provider,
-                        value: state.provider.toUpperCase(),
-                        icon: Icons.login,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Member since
-                    if (state.createdAt != null)
-                      _AnimatedProfileField(
-                        delay: 0.3,
-                        child: _ProfileField(
-                          label: l10n.memberSince,
-                          value: _formatDate(state.createdAt!, l10n),
-                          icon: Icons.calendar_today_outlined,
-                        ),
-                      ),
-                    const SizedBox(height: 32),
-
-                    // Statistics with animation
-                    _AnimatedStatCard(
-                      delay: 0.4,
-                      child: Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.05),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: _isLoadingStats
-                            ? const Center(
-                                child: Padding(
-                                  padding: EdgeInsets.all(16.0),
-                                  child: SizedBox(
-                                    width: 24,
-                                    height: 24,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: AppColorsDark.primary,
-                                    ),
-                                  ),
-                                ),
-                              )
-                            : Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                children: [
-                                  _StatCard(
-                                    icon: Icons.favorite,
-                                    number: _favoriteSongsCount.toString(),
-                                    label: l10n.songs,
-                                    onTap: () => context.router.push(const LikedSongsRoute()),
-                                  ),
-                                  Container(
-                                    width: 1,
-                                    height: 40,
-                                    color: Colors.white.withValues(alpha: 0.1),
-                                  ),
-                                  _StatCard(
-                                    icon: Icons.playlist_play,
-                                    number: _favoritePlaylistsCount.toString(),
-                                    label: l10n.playlists,
-                                    onTap: () {
-                                      // TODO: Navigate to playlists tab
-                                    },
-                                  ),
-                                  Container(
-                                    width: 1,
-                                    height: 40,
-                                    color: Colors.white.withValues(alpha: 0.1),
-                                  ),
-                                  _StatCard(
-                                    icon: Icons.library_music,
-                                    number: _favoriteGenresCount.toString(),
-                                    label: l10n.genres,
-                                  ),
-                                ],
-                              ),
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-
-                    // Quick actions with staggered animations
-                    _AnimatedQuickAction(
-                      delay: 0.5,
-                      child: _QuickActionCard(
-                        icon: Icons.settings_outlined,
-                        title: l10n.settings,
-                        subtitle: l10n.appPreferencesAndAccountSettings,
-                        onTap: () => context.router.push(const SettingsRoute()),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    _AnimatedQuickAction(
-                      delay: 0.6,
-                      child: _QuickActionCard(
-                        icon: Icons.download_outlined,
-                        title: l10n.downloads,
-                        subtitle: l10n.manageYourDownloadedMusic,
-                        onTap: () => context.router.push(const DownloadsRoute()),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    _AnimatedQuickAction(
-                      delay: 0.7,
-                      child: _QuickActionCard(
-                        icon: Icons.language_outlined,
-                        title: l10n.language,
-                        subtitle: l10n.changeAppLanguage,
-                        onTap: () => context.router.push(const LanguageRoute()),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
+          return _buildContent(context, l10n, state);
         },
       ),
     );
   }
 
-  Widget _buildAvatar(ProfileState state) {
-    if (state.avatarUrl != null && state.avatarUrl!.isNotEmpty) {
-      return Container(
-        width: 120,
-        height: 120,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: AppColorsDark.primary.withValues(alpha: 0.3),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            ),
-          ],
+  AppBar _buildAppBar(BuildContext context, AppLocalizations l10n) {
+    return AppBar(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      title: Text(
+        l10n.myProfile,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
         ),
-        child: ClipOval(
-          child: CachedNetworkImage(
-            imageUrl: state.avatarUrl!,
-            fit: BoxFit.cover,
-            placeholder: (_, __) => _buildInitialsAvatar(state),
-            errorWidget: (_, __, ___) => _buildInitialsAvatar(state),
+      ),
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back, color: Colors.white),
+        onPressed: () => context.router.pop(),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => _handleLogout(context, l10n),
+          child: Text(
+            l10n.exit,
+            style: const TextStyle(color: Colors.red, fontSize: 16),
           ),
         ),
-      );
-    }
-    return _buildInitialsAvatar(state);
+      ],
+    );
   }
 
-  Widget _buildInitialsAvatar(ProfileState state) {
+  Widget _buildErrorState(
+    BuildContext context,
+    AppLocalizations l10n,
+    ProfileState state,
+  ) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.error_outline, color: Colors.red, size: 48),
+          const SizedBox(height: 16),
+          Text(
+            l10n.errorLoadingProfile,
+            style: const TextStyle(color: Colors.white70),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () => context.read<ProfileCubit>().loadProfile(),
+            child: Text(l10n.retry),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildContent(
+    BuildContext context,
+    AppLocalizations l10n,
+    ProfileState state,
+  ) {
+    return RefreshIndicator(
+      color: AppColorsDark.primary,
+      onRefresh: _refreshAll,
+      child: AnimatedBuilder(
+        animation: _animationController,
+        builder: (context, child) {
+          return FadeTransition(
+            opacity: _fadeAnimation,
+            child: SlideTransition(position: _slideAnimation, child: child),
+          );
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            children: [
+              _buildAvatarSection(state),
+              const SizedBox(height: 24),
+              _buildNameSection(state),
+              const SizedBox(height: 32),
+              _buildInfoSection(context, l10n, state),
+              const SizedBox(height: 32),
+              _buildStatsSection(context, l10n, state),
+              const SizedBox(height: 32),
+              _buildQuickActions(context, l10n),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAvatarSection(ProfileState state) {
+    return ScaleTransition(
+      scale: _scaleAnimation,
+      child: _ProfileAvatar(
+        avatarUrl: state.avatarUrl,
+        initials: state.initials,
+      ),
+    );
+  }
+
+  Widget _buildNameSection(ProfileState state) {
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: Text(
+        state.displayName,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoSection(
+    BuildContext context,
+    AppLocalizations l10n,
+    ProfileState state,
+  ) {
+    final months = [
+      l10n.monthsJan,
+      l10n.monthsFeb,
+      l10n.monthsMar,
+      l10n.monthsApr,
+      l10n.monthsMay,
+      l10n.monthsJun,
+      l10n.monthsJul,
+      l10n.monthsAug,
+      l10n.monthsSep,
+      l10n.monthsOct,
+      l10n.monthsNov,
+      l10n.monthsDec,
+    ];
+
+    return Column(
+      children: [
+        _AnimatedProfileField(
+          delay: 0.1,
+          child: _ProfileField(
+            label: l10n.email,
+            value: state.email,
+            icon: Icons.email_outlined,
+          ),
+        ),
+        const SizedBox(height: 16),
+        _AnimatedProfileField(
+          delay: 0.2,
+          child: _ProfileField(
+            label: l10n.provider,
+            value: state.provider.toUpperCase(),
+            icon: Icons.login,
+          ),
+        ),
+        const SizedBox(height: 16),
+        if (state.createdAt != null)
+          _AnimatedProfileField(
+            delay: 0.3,
+            child: _ProfileField(
+              label: l10n.memberSince,
+              value: FormatUtils.date(state.createdAt!, months),
+              icon: Icons.calendar_today_outlined,
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildStatsSection(
+    BuildContext context,
+    AppLocalizations l10n,
+    ProfileState state,
+  ) {
+    return _AnimatedStatCard(
+      delay: 0.4,
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: state.isLoadingStats
+            ? const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppColorsDark.primary,
+                    ),
+                  ),
+                ),
+              )
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _StatCard(
+                    icon: Icons.favorite,
+                    number: state.favoriteSongsCount.toString(),
+                    label: l10n.songs,
+                    onTap: () => context.router.push(const LikedSongsRoute()),
+                  ),
+                  Container(
+                    width: 1,
+                    height: 40,
+                    color: Colors.white.withValues(alpha: 0.1),
+                  ),
+                  _StatCard(
+                    icon: Icons.playlist_play,
+                    number: state.favoritePlaylistsCount.toString(),
+                    label: l10n.playlists,
+                    onTap: () {
+                      // TODO: Implement navigation to playlists tab
+                    },
+                  ),
+                  Container(
+                    width: 1,
+                    height: 40,
+                    color: Colors.white.withValues(alpha: 0.1),
+                  ),
+                  _StatCard(
+                    icon: Icons.library_music,
+                    number: state.favoriteGenresCount.toString(),
+                    label: l10n.genres,
+                  ),
+                ],
+              ),
+      ),
+    );
+  }
+
+  Widget _buildQuickActions(BuildContext context, AppLocalizations l10n) {
+    return Column(
+      children: [
+        _AnimatedQuickAction(
+          delay: 0.5,
+          child: _QuickActionCard(
+            icon: Icons.settings_outlined,
+            title: l10n.settings,
+            subtitle: l10n.appPreferencesAndAccountSettings,
+            onTap: () => context.router.push(const SettingsRoute()),
+          ),
+        ),
+        const SizedBox(height: 12),
+        _AnimatedQuickAction(
+          delay: 0.6,
+          child: _QuickActionCard(
+            icon: Icons.download_outlined,
+            title: l10n.downloads,
+            subtitle: l10n.manageYourDownloadedMusic,
+            onTap: () => context.router.push(const DownloadsRoute()),
+          ),
+        ),
+        const SizedBox(height: 12),
+        _AnimatedQuickAction(
+          delay: 0.7,
+          child: _QuickActionCard(
+            icon: Icons.language_outlined,
+            title: l10n.language,
+            subtitle: l10n.changeAppLanguage,
+            onTap: () => context.router.push(const LanguageRoute()),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ============================================================================
+// WIDGETS PEQUEÑOS - Following Clean Architecture y Single Responsibility
+// ============================================================================
+
+class _ProfileAvatar extends StatelessWidget {
+  final String? avatarUrl;
+  final String initials;
+
+  const _ProfileAvatar({required this.avatarUrl, required this.initials});
+
+  @override
+  Widget build(BuildContext context) {
+    if (avatarUrl != null && avatarUrl!.isNotEmpty) {
+      return _buildNetworkImage();
+    }
+    return _buildInitialsAvatar();
+  }
+
+  Widget _buildNetworkImage() {
+    return Container(
+      width: 120,
+      height: 120,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: AppColorsDark.primary.withValues(alpha: 0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: ClipOval(
+        child: CachedNetworkImage(
+          imageUrl: avatarUrl!,
+          fit: BoxFit.cover,
+          placeholder: (_, _) => _buildInitialsAvatar(),
+          errorWidget: (_, _, _) => _buildInitialsAvatar(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInitialsAvatar() {
     return Container(
       width: 120,
       height: 120,
@@ -451,7 +469,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> with SingleTickerProv
       ),
       child: Center(
         child: Text(
-          state.initials,
+          initials,
           style: const TextStyle(
             color: Colors.white,
             fontSize: 48,
@@ -460,15 +478,6 @@ class _MyProfileScreenState extends State<MyProfileScreen> with SingleTickerProv
         ),
       ),
     );
-  }
-
-  String _formatDate(DateTime date, AppLocalizations l10n) {
-    final months = [
-      l10n.monthsJan, l10n.monthsFeb, l10n.monthsMar, l10n.monthsApr,
-      l10n.monthsMay, l10n.monthsJun, l10n.monthsJul, l10n.monthsAug,
-      l10n.monthsSep, l10n.monthsOct, l10n.monthsNov, l10n.monthsDec
-    ];
-    return '${months[date.month - 1]} ${date.day}, ${date.year}';
   }
 }
 
@@ -493,11 +502,7 @@ class _ProfileField extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(
-            icon,
-            color: AppColorsDark.primary,
-            size: 24,
-          ),
+          Icon(icon, color: AppColorsDark.primary, size: 24),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
@@ -513,10 +518,7 @@ class _ProfileField extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   value,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                  ),
+                  style: const TextStyle(color: Colors.white, fontSize: 16),
                 ),
               ],
             ),
@@ -546,11 +548,7 @@ class _StatCard extends StatelessWidget {
       onTap: onTap,
       child: Column(
         children: [
-          Icon(
-            icon,
-            color: AppColorsDark.primary,
-            size: 24,
-          ),
+          Icon(icon, color: AppColorsDark.primary, size: 24),
           const SizedBox(height: 8),
           Text(
             number,
@@ -606,11 +604,7 @@ class _QuickActionCard extends StatelessWidget {
                 color: AppColorsDark.primaryContainer,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(
-                icon,
-                color: AppColorsDark.primary,
-                size: 24,
-              ),
+              child: Icon(icon, color: AppColorsDark.primary, size: 24),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -652,10 +646,7 @@ class _AnimatedProfileField extends StatefulWidget {
   final double delay;
   final Widget child;
 
-  const _AnimatedProfileField({
-    required this.delay,
-    required this.child,
-  });
+  const _AnimatedProfileField({required this.delay, required this.child});
 
   @override
   State<_AnimatedProfileField> createState() => _AnimatedProfileFieldState();
@@ -675,16 +666,15 @@ class _AnimatedProfileFieldState extends State<_AnimatedProfileField>
       vsync: this,
     );
 
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
 
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.3),
       end: Offset.zero,
-    ).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
-    );
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
 
     Future.delayed(Duration(milliseconds: (widget.delay * 1000).toInt()), () {
       if (mounted) _controller.forward();
@@ -701,10 +691,7 @@ class _AnimatedProfileFieldState extends State<_AnimatedProfileField>
   Widget build(BuildContext context) {
     return FadeTransition(
       opacity: _fadeAnimation,
-      child: SlideTransition(
-        position: _slideAnimation,
-        child: widget.child,
-      ),
+      child: SlideTransition(position: _slideAnimation, child: widget.child),
     );
   }
 }
@@ -714,10 +701,7 @@ class _AnimatedStatCard extends StatefulWidget {
   final double delay;
   final Widget child;
 
-  const _AnimatedStatCard({
-    required this.delay,
-    required this.child,
-  });
+  const _AnimatedStatCard({required this.delay, required this.child});
 
   @override
   State<_AnimatedStatCard> createState() => _AnimatedStatCardState();
@@ -736,12 +720,10 @@ class _AnimatedStatCardState extends State<_AnimatedStatCard>
       vsync: this,
     );
 
-    _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.elasticOut,
-      ),
-    );
+    _scaleAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.elasticOut));
 
     Future.delayed(Duration(milliseconds: (widget.delay * 1000).toInt()), () {
       if (mounted) _controller.forward();
@@ -756,10 +738,7 @@ class _AnimatedStatCardState extends State<_AnimatedStatCard>
 
   @override
   Widget build(BuildContext context) {
-    return ScaleTransition(
-      scale: _scaleAnimation,
-      child: widget.child,
-    );
+    return ScaleTransition(scale: _scaleAnimation, child: widget.child);
   }
 }
 
@@ -768,10 +747,7 @@ class _AnimatedQuickAction extends StatefulWidget {
   final double delay;
   final Widget child;
 
-  const _AnimatedQuickAction({
-    required this.delay,
-    required this.child,
-  });
+  const _AnimatedQuickAction({required this.delay, required this.child});
 
   @override
   State<_AnimatedQuickAction> createState() => _AnimatedQuickActionState();
@@ -791,16 +767,15 @@ class _AnimatedQuickActionState extends State<_AnimatedQuickAction>
       vsync: this,
     );
 
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
 
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0.3, 0),
       end: Offset.zero,
-    ).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
-    );
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
 
     Future.delayed(Duration(milliseconds: (widget.delay * 1000).toInt()), () {
       if (mounted) _controller.forward();
@@ -817,10 +792,7 @@ class _AnimatedQuickActionState extends State<_AnimatedQuickAction>
   Widget build(BuildContext context) {
     return FadeTransition(
       opacity: _fadeAnimation,
-      child: SlideTransition(
-        position: _slideAnimation,
-        child: widget.child,
-      ),
+      child: SlideTransition(position: _slideAnimation, child: widget.child),
     );
   }
 }

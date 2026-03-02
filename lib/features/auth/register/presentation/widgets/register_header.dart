@@ -20,10 +20,7 @@ class RegisterHeader extends StatelessWidget {
         const SizedBox(height: 8),
         Text(
           'Regístrate para comenzar',
-          style: TextStyle(
-            fontSize: 16,
-            color: AppColorsDark.onSurfaceVariant,
-          ),
+          style: TextStyle(fontSize: 16, color: AppColorsDark.onSurfaceVariant),
         ),
         const SizedBox(height: 32),
       ],

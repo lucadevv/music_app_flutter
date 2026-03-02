@@ -5,7 +5,8 @@ class MoodPlaylist {
   final String title;
   final String itemCount;
   final String author;
-  final String browseId; // Este es el playlistId que se usa en /api/v1/playlists/{playlistId}
+  final String
+  browseId; // Este es el playlistId que se usa en /api/v1/playlists/{playlistId}
   final List<Thumbnail> thumbnails;
   final String category;
   final String resultType;

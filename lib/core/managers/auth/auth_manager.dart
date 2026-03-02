@@ -48,8 +48,4 @@ abstract class AuthManager {
 }
 
 /// Estados de autenticación
-enum AuthStatus {
-  authenticated,
-  unauthenticated,
-  expired,
-}
+enum AuthStatus { authenticated, unauthenticated, expired }

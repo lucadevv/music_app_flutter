@@ -18,24 +18,26 @@ class PlaylistTrack {
   final String? views;
   final String duration;
   final int durationSeconds;
-  final String? streamUrl; // URL de streaming (viene del endpoint con include_stream_urls=true)
-  final Thumbnail? thumbnail; // Thumbnail de mejor calidad (viene junto con stream_url)
+  final String?
+  streamUrl; // URL de streaming (viene del endpoint con include_stream_urls=true)
+  final Thumbnail?
+  thumbnail; // Thumbnail de mejor calidad (viene junto con stream_url)
 
   const PlaylistTrack({
-    this.videoId,
     required this.title,
     required this.artists,
+    required this.thumbnails,
+    required this.isAvailable,
+    required this.isExplicit,
+    required this.duration,
+    required this.durationSeconds,
+    this.videoId,
     this.album,
     this.likeStatus,
     this.inLibrary,
     this.pinnedToListenAgain,
-    required this.thumbnails,
-    required this.isAvailable,
-    required this.isExplicit,
     this.videoType,
     this.views,
-    required this.duration,
-    required this.durationSeconds,
     this.streamUrl,
     this.thumbnail,
   });

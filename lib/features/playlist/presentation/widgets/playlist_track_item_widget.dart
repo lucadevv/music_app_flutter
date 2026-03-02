@@ -3,13 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
-import 'package:music_app/core/widgets/song_list_item.dart';
+import 'package:music_app/core/presentation/widgets/song_list_item.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/favorites/presentation/widgets/favorite_button.dart';
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 import 'package:music_app/features/song_options/presentation/widgets/song_options_bottom_sheet.dart';
-import 'package:music_app/main.dart';
 import '../../domain/entities/playlist_track.dart';
 
 class PlaylistTrackItemWidget extends StatelessWidget {
@@ -17,9 +16,9 @@ class PlaylistTrackItemWidget extends StatelessWidget {
   final List<PlaylistTrack> allTracks;
 
   const PlaylistTrackItemWidget({
-    super.key,
-    required this.track,
+    required this.track, // ignore: always_put_required_named_parameters_first
     required this.allTracks,
+    super.key,
   });
 
   String _getArtistsNames() {
@@ -31,15 +30,20 @@ class PlaylistTrackItemWidget extends StatelessWidget {
     return NowPlayingData.fromPlaylistTrack(track);
   }
 
-  bool _isPlaylistLoaded(PlayerBlocState playerState, List<PlaylistTrack> allTracks) {
+  bool _isPlaylistLoaded(
+    PlayerBlocState playerState,
+    List<PlaylistTrack> allTracks,
+  ) {
     if (playerState is! PlayerBlocLoaded) return false;
     if (playerState.playlist.isEmpty) return false;
 
     final currentPlaylistVideoIds = allTracks
-        .where((track) =>
-            track.videoId != null &&
-            track.videoId!.isNotEmpty &&
-            track.isAvailable)
+        .where(
+          (track) =>
+              track.videoId != null &&
+              track.videoId!.isNotEmpty &&
+              track.isAvailable,
+        )
         .map((track) => track.videoId!)
         .toList();
 
@@ -63,14 +67,17 @@ class PlaylistTrackItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final thumbnail = track.thumbnail ??
+    final thumbnail =
+        track.thumbnail ??
         (track.thumbnails.isNotEmpty ? track.thumbnails.last : null);
 
     final isDisabled =
         !track.isAvailable || track.videoId == null || track.videoId!.isEmpty;
 
+    final playerBloc = context.read<PlayerBlocBloc>();
+
     return BlocBuilder<PlayerBlocBloc, PlayerBlocState>(
-      bloc: getIt<PlayerBlocBloc>(),
+      bloc: playerBloc,
       builder: (context, playerState) {
         final isCurrentlyPlaying =
             playerState is PlayerBlocLoaded &&
@@ -78,17 +85,12 @@ class PlaylistTrackItemWidget extends StatelessWidget {
             playerState.currentTrack!.videoId == track.videoId &&
             playerState.isPlaying;
 
-        final isCurrentTrack =
-            playerState is PlayerBlocLoaded &&
-            playerState.currentTrack != null &&
-            playerState.currentTrack!.videoId == track.videoId;
-
         final isPlaylistLoaded = _isPlaylistLoaded(playerState, allTracks);
 
         return Opacity(
           opacity: isDisabled ? 0.5 : 1.0,
           child: SongListItemWithTrailing(
-            title: track.title ?? 'Unknown',
+            title: track.title,
             artist: _getArtistsNames(),
             thumbnail: thumbnail?.url,
             trailing: Row(
@@ -98,8 +100,18 @@ class PlaylistTrackItemWidget extends StatelessWidget {
                 SizedBox(
                   width: 24,
                   child: isCurrentlyPlaying
-                      ? Icon(Icons.equalizer, color: AppColorsDark.primary, size: 20)
-                      : Icon(Icons.play_arrow, color: Colors.white.withValues(alpha: isDisabled ? 0.3 : 0.6), size: 20),
+                      ? const Icon(
+                          Icons.equalizer,
+                          color: AppColorsDark.primary,
+                          size: 20,
+                        )
+                      : Icon(
+                          Icons.play_arrow,
+                          color: Colors.white.withValues(
+                            alpha: isDisabled ? 0.3 : 0.6,
+                          ),
+                          size: 20,
+                        ),
                 ),
                 const SizedBox(width: 8),
                 // Botón de favorito
@@ -107,7 +119,7 @@ class PlaylistTrackItemWidget extends StatelessWidget {
                   videoId: track.videoId ?? '',
                   size: 20,
                   metadata: SongMetadata(
-                    title: track.title ?? '',
+                    title: track.title,
                     artist: _getArtistsNames(),
                     thumbnail: thumbnail?.url,
                     duration: track.durationSeconds,
@@ -117,10 +129,14 @@ class PlaylistTrackItemWidget extends StatelessWidget {
                 IconButton(
                   icon: Icon(
                     Icons.more_vert,
-                    color: Colors.white.withValues(alpha: isDisabled ? 0.3 : 0.6),
+                    color: Colors.white.withValues(
+                      alpha: isDisabled ? 0.3 : 0.6,
+                    ),
                     size: 20,
                   ),
-                  onPressed: isDisabled ? null : () => _showTrackOptionsBottomSheet(context),
+                  onPressed: isDisabled
+                      ? null
+                      : () => _showTrackOptionsBottomSheet(context),
                 ),
               ],
             ),
@@ -133,11 +149,13 @@ class PlaylistTrackItemWidget extends StatelessWidget {
                           (t) => t.videoId == track.videoId,
                         );
                         if (trackIndex >= 0) {
-                          getIt<PlayerBlocBloc>().add(PlayTrackAtIndexEvent(trackIndex));
+                          playerBloc.add(PlayTrackAtIndexEvent(trackIndex));
                         }
                       }
                     } else {
-                      context.router.push(PlayerRoute(nowPlayingData: _toNowPlayingData()));
+                      context.router.push(
+                        PlayerRoute(nowPlayingData: _toNowPlayingData()),
+                      );
                     }
                   },
           ),
@@ -151,9 +169,11 @@ class PlaylistTrackItemWidget extends StatelessWidget {
       context: context,
       song: SongOptionsData(
         videoId: track.videoId ?? '',
-        title: track.title ?? 'Unknown',
+        title: track.title,
         artist: _getArtistsNames(),
-        thumbnail: track.thumbnail?.url ?? (track.thumbnails.isNotEmpty ? track.thumbnails.last.url : null),
+        thumbnail:
+            track.thumbnail?.url ??
+            (track.thumbnails.isNotEmpty ? track.thumbnails.last.url : null),
         streamUrl: track.streamUrl,
         durationSeconds: track.durationSeconds,
         isFavorite: track.inLibrary ?? false,

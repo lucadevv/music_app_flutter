@@ -46,7 +46,8 @@ class OfflineState {
       status: status ?? this.status,
       isOnline: isOnline ?? this.isOnline,
       offlineSongsCount: offlineSongsCount ?? this.offlineSongsCount,
-      offlinePlaylistsCount: offlinePlaylistsCount ?? this.offlinePlaylistsCount,
+      offlinePlaylistsCount:
+          offlinePlaylistsCount ?? this.offlinePlaylistsCount,
       error: clearError ? null : (error ?? this.error),
       syncMessage: clearSyncMessage ? null : (syncMessage ?? this.syncMessage),
     );

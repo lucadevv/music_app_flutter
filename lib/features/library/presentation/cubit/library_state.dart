@@ -1,11 +1,6 @@
 part of 'library_cubit.dart';
 
-enum LibraryStatus {
-  initial,
-  loading,
-  success,
-  failure,
-}
+enum LibraryStatus { initial, loading, success, failure }
 
 /// Represents a playlist item (either user-created or favorite from YouTube)
 class PlaylistItem {
@@ -19,12 +14,12 @@ class PlaylistItem {
 
   PlaylistItem({
     required this.id,
-    this.externalPlaylistId,
     required this.name,
-    this.description,
-    this.thumbnail,
     required this.songCount,
     required this.isUserCreated,
+    this.externalPlaylistId,
+    this.description,
+    this.thumbnail,
   });
 }
 
@@ -34,7 +29,8 @@ class LibraryState {
   final List<FavoriteSong> favoriteSongs;
   final List<FavoritePlaylist> favoritePlaylists;
   final List<UserPlaylist> userPlaylists;
-  final List<PlaylistItem> allPlaylists; // Combinación de playlists del usuario + favoritas
+  final List<PlaylistItem>
+  allPlaylists; // Combinación de playlists del usuario + favoritas
   final List<FavoriteGenre> favoriteGenres;
   final int totalSongs;
   final int totalPlaylists;
@@ -62,7 +58,10 @@ class LibraryState {
   bool get hasMoreSongs => favoriteSongs.length < totalSongs;
   bool get hasMorePlaylists => favoritePlaylists.length < totalPlaylists;
   bool get hasMoreGenres => favoriteGenres.length < totalGenres;
-  bool get isEmpty => favoriteSongs.isEmpty && favoritePlaylists.isEmpty && favoriteGenres.isEmpty;
+  bool get isEmpty =>
+      favoriteSongs.isEmpty &&
+      favoritePlaylists.isEmpty &&
+      favoriteGenres.isEmpty;
 
   LibraryState copyWith({
     LibraryStatus? status,

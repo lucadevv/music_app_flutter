@@ -48,7 +48,9 @@ class PlaylistResponseModel extends PlaylistResponse {
       PlaylistAuthorModel author;
       if (json['author'] != null && json['author'] is Map<String, dynamic>) {
         try {
-          author = PlaylistAuthorModel.fromJson(json['author'] as Map<String, dynamic>);
+          author = PlaylistAuthorModel.fromJson(
+            json['author'] as Map<String, dynamic>,
+          );
         } catch (e) {
           author = const PlaylistAuthorModel(name: '', id: '');
         }
@@ -66,13 +68,20 @@ class PlaylistResponseModel extends PlaylistResponse {
             if (track is Map<String, dynamic>) {
               try {
                 tracksList.add(PlaylistTrackModel.fromJson(track));
-              } catch (e, stackTrace) {
+              } catch (e) {
                 // Log del error pero continuar parseando el resto
-                debugPrint('PlaylistResponseModel: Error parseando track $i: $e');
-                debugPrint('PlaylistResponseModel: Track data: $track');
+                if (kDebugMode) {
+                  debugPrint(
+                    'PlaylistResponseModel: Error parseando track $i: $e',
+                  );
+                  debugPrint('PlaylistResponseModel: Track data: $track');
+                }
               }
             } else {
-              debugPrint('PlaylistResponseModel: Track $i no es Map, tipo: ${track.runtimeType}');
+              if (kDebugMode)
+                debugPrint(
+                  'PlaylistResponseModel: Track $i no es Map, tipo: ${track.runtimeType}',
+                );
             }
           }
         }
@@ -95,8 +104,10 @@ class PlaylistResponseModel extends PlaylistResponse {
         durationSeconds: json['duration_seconds'] as int? ?? 0,
       );
     } catch (e, stackTrace) {
-      debugPrint('PlaylistResponseModel: Error general parseando JSON: $e');
-      debugPrint('PlaylistResponseModel: Stack trace: $stackTrace');
+      if (kDebugMode) {
+        debugPrint('PlaylistResponseModel: Error general parseando JSON: $e');
+        debugPrint('PlaylistResponseModel: Stack trace: $stackTrace');
+      }
       rethrow;
     }
   }
@@ -111,11 +122,15 @@ class PlaylistResponseModel extends PlaylistResponse {
       'duration': duration,
       'trackCount': trackCount,
       'title': title,
-      'thumbnails': thumbnails.map((thumb) => (thumb as ThumbnailModel).toJson()).toList(),
+      'thumbnails': thumbnails
+          .map((thumb) => (thumb as ThumbnailModel).toJson())
+          .toList(),
       'author': (author as PlaylistAuthorModel).toJson(),
       'year': year,
       'related': related,
-      'tracks': tracks.map((track) => (track as PlaylistTrackModel).toJson()).toList(),
+      'tracks': tracks
+          .map((track) => (track as PlaylistTrackModel).toJson())
+          .toList(),
       'duration_seconds': durationSeconds,
     };
   }

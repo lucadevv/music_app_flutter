@@ -1,16 +1,14 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
+import 'package:music_app/core/presentation/widgets/song_list_item.dart';
+
 import 'package:music_app/core/theme/app_colors_dark.dart';
-import 'package:music_app/core/widgets/song_list_item.dart';
-import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/library/presentation/cubit/library_cubit.dart';
-import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 import 'package:music_app/l10n/app_localizations.dart';
-import 'package:music_app/main.dart';
 
 @RoutePage()
 class LikedSongsScreen extends StatelessWidget {
@@ -19,10 +17,10 @@ class LikedSongsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => getIt<LibraryCubit>()..loadLibrary(),
-      child: Scaffold(
-        backgroundColor: const Color(0xFF0D0D0D),
-        body: const _LikedSongsScreenView(),
+      create: (_) => GetIt.I<LibraryCubit>()..loadLibrary(),
+      child: const Scaffold(
+        backgroundColor: Color(0xFF0D0D0D),
+        body: _LikedSongsScreenView(),
       ),
     );
   }
@@ -34,7 +32,7 @@ class _LikedSongsScreenView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     return BlocBuilder<LibraryCubit, LibraryState>(
       builder: (context, state) {
         return CustomScrollView(
@@ -43,7 +41,9 @@ class _LikedSongsScreenView extends StatelessWidget {
             if (state.status == LibraryStatus.loading)
               const SliverFillRemaining(
                 child: Center(
-                  child: CircularProgressIndicator(color: AppColorsDark.primary),
+                  child: CircularProgressIndicator(
+                    color: AppColorsDark.primary,
+                  ),
                 ),
               )
             else if (state.status == LibraryStatus.failure)
@@ -60,9 +60,13 @@ class _LikedSongsScreenView extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context, LibraryState state, AppLocalizations l10n) {
-    final totalText = state.totalSongs > 0 
-        ? '${state.totalSongs} ${l10n.likedSongsCount}' 
+  Widget _buildHeader(
+    BuildContext context,
+    LibraryState state,
+    AppLocalizations l10n,
+  ) {
+    final totalText = state.totalSongs > 0
+        ? '${state.totalSongs} ${l10n.likedSongsCount}'
         : l10n.likedSongs;
 
     return SliverAppBar(
@@ -85,14 +89,11 @@ class _LikedSongsScreenView extends StatelessWidget {
       ],
       flexibleSpace: FlexibleSpaceBar(
         background: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [
-                AppColorsDark.primaryContainer,
-                const Color(0xFF0D0D0D),
-              ],
+              colors: [AppColorsDark.primaryContainer, Color(0xFF0D0D0D)],
             ),
           ),
           child: Padding(
@@ -105,11 +106,8 @@ class _LikedSongsScreenView extends StatelessWidget {
                   width: 180,
                   height: 180,
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        AppColorsDark.primary,
-                        AppColorsDark.secondary,
-                      ],
+                    gradient: const LinearGradient(
+                      colors: [AppColorsDark.primary, AppColorsDark.secondary],
                     ),
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -145,7 +143,8 @@ class _LikedSongsScreenView extends StatelessWidget {
   }
 
   Widget _buildPlayButton(BuildContext context, LibraryState state) {
-    if (state.favoriteSongs.isEmpty) return const SliverToBoxAdapter(child: SizedBox.shrink());
+    if (state.favoriteSongs.isEmpty)
+      return const SliverToBoxAdapter(child: SizedBox.shrink());
 
     return SliverToBoxAdapter(
       child: Padding(
@@ -179,7 +178,11 @@ class _LikedSongsScreenView extends StatelessWidget {
     );
   }
 
-  Widget _buildSongsList(BuildContext context, LibraryState state, AppLocalizations l10n) {
+  Widget _buildSongsList(
+    BuildContext context,
+    LibraryState state,
+    AppLocalizations l10n,
+  ) {
     if (state.favoriteSongs.isEmpty) {
       return SliverFillRemaining(
         child: Center(
@@ -214,23 +217,24 @@ class _LikedSongsScreenView extends StatelessWidget {
     }
 
     return SliverList(
-      delegate: SliverChildBuilderDelegate(
-        (context, index) {
-          final song = state.favoriteSongs[index];
-          return SongListItemWithRemove(
-            title: song.title,
-            artist: song.artist,
-            thumbnail: song.thumbnail,
-            onTap: () => _playSong(context, song),
-            onRemove: () => _removeSong(context, song),
-          );
-        },
-        childCount: state.favoriteSongs.length,
-      ),
+      delegate: SliverChildBuilderDelegate((context, index) {
+        final song = state.favoriteSongs[index];
+        return SongListItemWithRemove(
+          title: song.title,
+          artist: song.artist,
+          thumbnail: song.thumbnail,
+          onTap: () => _playSong(context, song),
+          onRemove: () => _removeSong(context, song),
+        );
+      }, childCount: state.favoriteSongs.length),
     );
   }
 
-  Widget _buildError(String? errorMessage, BuildContext context, AppLocalizations l10n) {
+  Widget _buildError(
+    String? errorMessage,
+    BuildContext context,
+    AppLocalizations l10n,
+  ) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -255,39 +259,23 @@ class _LikedSongsScreenView extends StatelessWidget {
     );
   }
 
-  NowPlayingData _mapToNowPlaying(FavoriteSong s) {
-    return NowPlayingData.fromBasic(
-      videoId: s.videoId,
-      title: s.title,
-      artistNames: s.artist.split(', '),
-      albumName: '',
-      duration: s.duration != null ? _formatDuration(s.duration!) : '0:00',
-      durationSeconds: s.duration,
-      thumbnailUrl: s.thumbnail,
-    );
-  }
-
-  String _formatDuration(int seconds) {
-    final minutes = seconds ~/ 60;
-    final secs = seconds % 60;
-    return '$minutes:${secs.toString().padLeft(2, '0')}';
-  }
-
   void _playAll(BuildContext context, List<FavoriteSong> songs) {
     if (songs.isEmpty) return;
 
-    final playlist = songs.map(_mapToNowPlaying).toList();
-
-    getIt<PlayerBlocBloc>().add(LoadPlaylistEvent(
-      playlist: playlist,
-      startIndex: 0,
-    ));
-    context.router.push(PlayerRoute(nowPlayingData: playlist.first));
+    // Usar el método del Cubit
+    final nowPlayingData = context.read<LibraryCubit>().playAllFavoriteSongs(
+      songs,
+    );
+    if (nowPlayingData != null) {
+      // Navegar al reproductor
+      context.router.push(PlayerRoute(nowPlayingData: nowPlayingData));
+    }
   }
 
   void _playSong(BuildContext context, FavoriteSong song) {
-    final nowPlayingData = _mapToNowPlaying(song);
-    getIt<PlayerBlocBloc>().add(LoadTrackEvent(nowPlayingData));
+    // Usar el método del Cubit
+    final nowPlayingData = context.read<LibraryCubit>().playSong(song);
+    // Navegar al reproductor
     context.router.push(PlayerRoute(nowPlayingData: nowPlayingData));
   }
 

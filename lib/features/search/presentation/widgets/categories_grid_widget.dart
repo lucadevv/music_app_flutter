@@ -42,7 +42,8 @@ class _CategoriesGridWidgetState extends State<CategoriesGridWidget> {
           }
 
           // Si hay error o no hay categorías, no mostrar nada
-          if (state.status == CategoriesStatus.failure || state.categories.isEmpty) {
+          if (state.status == CategoriesStatus.failure ||
+              state.categories.isEmpty) {
             return const SizedBox.shrink();
           }
 
@@ -71,9 +72,13 @@ class _CategoriesGridWidgetState extends State<CategoriesGridWidget> {
                     mainAxisSpacing: 12,
                     childAspectRatio: 2.0,
                   ),
-                  itemCount: state.categories.length > 8 ? 8 : state.categories.length,
+                  itemCount: state.categories.length > 8
+                      ? 8
+                      : state.categories.length,
                   itemBuilder: (context, index) {
-                    return MoodGenreCardWidget(moodGenre: state.categories[index]);
+                    return MoodGenreCardWidget(
+                      moodGenre: state.categories[index],
+                    );
                   },
                 ),
               ),

@@ -1,12 +1,7 @@
 part of 'mood_genre_cubit.dart';
 
 /// Estados del cubit de mood/genre
-enum MoodGenreStatus {
-  initial,
-  loading,
-  success,
-  failure,
-}
+enum MoodGenreStatus { initial, loading, success, failure }
 
 /// Estado del cubit de mood/genre
 class MoodGenreState {

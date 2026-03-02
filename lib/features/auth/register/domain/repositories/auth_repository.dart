@@ -1,12 +1,12 @@
 import 'package:dartz/dartz.dart';
 import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
+import 'package:music_app/features/auth/data/models/oauth_request.dart';
 import 'package:music_app/features/auth/login/domain/entities/login_request.dart';
 import 'package:music_app/features/auth/refresh_token/domain/entities/refresh_token_request.dart';
 import 'package:music_app/features/auth/refresh_token/domain/entities/refresh_token_response.dart';
 
 import '../entities/register_request.dart';
 import '../entities/register_response.dart';
-import '../../../data/models/oauth_request.dart';
 
 /// Interfaz del repositorio de autenticación
 /// Define el contrato que debe cumplir cualquier implementación

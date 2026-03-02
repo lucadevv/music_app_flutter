@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
-import 'package:music_app/core/widgets/song_list_item.dart';
 import 'package:music_app/features/favorites/presentation/widgets/favorite_button.dart';
 import 'package:music_app/features/home/domain/entities/home_content_item.dart';
 import 'package:music_app/features/library/library_service.dart';
@@ -12,11 +11,7 @@ class SongCardWidget extends StatelessWidget {
   final HomeContentItem item;
   final VoidCallback onTap;
 
-  const SongCardWidget({
-    super.key,
-    required this.item,
-    required this.onTap,
-  });
+  const SongCardWidget({required this.item, required this.onTap, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -36,31 +31,35 @@ class SongCardWidget extends StatelessWidget {
           children: [
             Expanded(
               child: Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: AppColorsDark.primaryContainer,
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
                 ),
                 child: thumbnail != null
                     ? ClipRRect(
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                        borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(12),
+                        ),
                         child: CachedNetworkImage(
                           imageUrl: thumbnail.url,
                           width: double.infinity,
                           height: double.infinity,
                           fit: BoxFit.cover,
-                          placeholder: (context, url) => Center(
+                          placeholder: (context, url) => const Center(
                             child: CircularProgressIndicator(
-                              valueColor: AlwaysStoppedAnimation<Color>(AppColorsDark.primary),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                AppColorsDark.primary,
+                              ),
                             ),
                           ),
-                          errorWidget: (context, url, error) => Icon(
+                          errorWidget: (context, url, error) => const Icon(
                             Icons.music_note,
                             size: 60,
                             color: AppColorsDark.primary,
                           ),
                         ),
                       )
-                    : Center(
+                    : const Center(
                         child: Icon(
                           Icons.music_note,
                           size: 60,
@@ -111,11 +110,7 @@ class PlaylistCardWidget extends StatelessWidget {
   final HomeContentItem item;
   final VoidCallback? onTap;
 
-  const PlaylistCardWidget({
-    super.key,
-    required this.item,
-    this.onTap,
-  });
+  const PlaylistCardWidget({required this.item, super.key, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -135,31 +130,35 @@ class PlaylistCardWidget extends StatelessWidget {
           children: [
             Expanded(
               child: Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: AppColorsDark.primaryContainer,
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
                 ),
                 child: thumbnail != null
                     ? ClipRRect(
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                        borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(12),
+                        ),
                         child: CachedNetworkImage(
                           imageUrl: thumbnail.url,
                           width: double.infinity,
                           height: double.infinity,
                           fit: BoxFit.cover,
-                          placeholder: (context, url) => Center(
+                          placeholder: (context, url) => const Center(
                             child: CircularProgressIndicator(
-                              valueColor: AlwaysStoppedAnimation<Color>(AppColorsDark.primary),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                AppColorsDark.primary,
+                              ),
                             ),
                           ),
-                          errorWidget: (context, url, error) => Icon(
+                          errorWidget: (context, url, error) => const Icon(
                             Icons.playlist_play,
                             size: 60,
                             color: AppColorsDark.primary,
                           ),
                         ),
                       )
-                    : Center(
+                    : const Center(
                         child: Icon(
                           Icons.playlist_play,
                           size: 60,
@@ -211,9 +210,9 @@ class SongListItemWidget extends StatelessWidget {
   final VoidCallback onTap;
 
   const SongListItemWidget({
-    super.key,
     required this.item,
     required this.onTap,
+    super.key,
   });
 
   @override
@@ -238,9 +237,11 @@ class SongListItemWidget extends StatelessWidget {
                     width: 48,
                     height: 48,
                     color: AppColorsDark.primaryContainer,
-                    child: Center(
+                    child: const Center(
                       child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(AppColorsDark.primary),
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          AppColorsDark.primary,
+                        ),
                       ),
                     ),
                   ),
@@ -251,7 +252,10 @@ class SongListItemWidget extends StatelessWidget {
                       color: AppColorsDark.primaryContainer,
                       borderRadius: BorderRadius.circular(4),
                     ),
-                    child: Icon(Icons.music_note, color: AppColorsDark.primary),
+                    child: const Icon(
+                      Icons.music_note,
+                      color: AppColorsDark.primary,
+                    ),
                   ),
                 ),
               )
@@ -262,7 +266,10 @@ class SongListItemWidget extends StatelessWidget {
                   color: AppColorsDark.primaryContainer,
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: Icon(Icons.music_note, color: AppColorsDark.primary),
+                child: const Icon(
+                  Icons.music_note,
+                  color: AppColorsDark.primary,
+                ),
               ),
         title: Text(
           item.title,
@@ -296,10 +303,15 @@ class SongListItemWidget extends StatelessWidget {
               ),
             ),
             IconButton(
-              icon: Icon(Icons.more_vert, color: Colors.white.withValues(alpha: 0.6)),
+              icon: Icon(
+                Icons.more_vert,
+                color: Colors.white.withValues(alpha: 0.6),
+              ),
               onPressed: () {
                 // Obtener thumbnail para el bottom sheet (usar mejor calidad)
-                final bottomSheetThumbnail = item.thumbnails.isNotEmpty ? item.thumbnails.last.url : null;
+                final bottomSheetThumbnail = item.thumbnails.isNotEmpty
+                    ? item.thumbnails.last.url
+                    : null;
                 SongOptionsBottomSheet.show(
                   context: context,
                   song: SongOptionsData(
@@ -325,11 +337,7 @@ class PlaylistListItemWidget extends StatelessWidget {
   final HomeContentItem item;
   final VoidCallback? onTap;
 
-  const PlaylistListItemWidget({
-    super.key,
-    required this.item,
-    this.onTap,
-  });
+  const PlaylistListItemWidget({required this.item, super.key, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -352,9 +360,11 @@ class PlaylistListItemWidget extends StatelessWidget {
                     width: 56,
                     height: 56,
                     color: AppColorsDark.primaryContainer,
-                    child: Center(
+                    child: const Center(
                       child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(AppColorsDark.primary),
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          AppColorsDark.primary,
+                        ),
                       ),
                     ),
                   ),
@@ -365,7 +375,10 @@ class PlaylistListItemWidget extends StatelessWidget {
                       color: AppColorsDark.primaryContainer,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Icon(Icons.playlist_play, color: AppColorsDark.primary),
+                    child: const Icon(
+                      Icons.playlist_play,
+                      color: AppColorsDark.primary,
+                    ),
                   ),
                 ),
               )
@@ -376,7 +389,10 @@ class PlaylistListItemWidget extends StatelessWidget {
                   color: AppColorsDark.primaryContainer,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(Icons.playlist_play, color: AppColorsDark.primary),
+                child: const Icon(
+                  Icons.playlist_play,
+                  color: AppColorsDark.primary,
+                ),
               ),
         title: Text(
           item.title,
@@ -394,7 +410,10 @@ class PlaylistListItemWidget extends StatelessWidget {
           ),
         ),
         trailing: IconButton(
-          icon: Icon(Icons.more_vert, color: Colors.white.withValues(alpha: 0.6)),
+          icon: Icon(
+            Icons.more_vert,
+            color: Colors.white.withValues(alpha: 0.6),
+          ),
           onPressed: () {},
         ),
       ),

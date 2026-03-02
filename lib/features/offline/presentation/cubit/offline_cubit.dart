@@ -22,11 +22,8 @@ class OfflineCubit extends Cubit<OfflineState> {
 
   StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
 
-  OfflineCubit(
-    this._offlineService,
-    this._apiServices,
-    this._connectivity,
-  ) : super(const OfflineState());
+  OfflineCubit(this._offlineService, this._apiServices, this._connectivity)
+    : super(const OfflineState());
 
   /// Inicializa el servicio offline
   Future<void> init() async {
@@ -38,18 +35,18 @@ class OfflineCubit extends Cubit<OfflineState> {
       await _offlineService.init();
 
       // Escuchar cambios en la conectividad
-      _connectivitySubscription = _connectivity.onConnectivityChanged.listen(
-        (results) async {
-          final isOnline = !results.contains(ConnectivityResult.none);
-          emit(state.copyWith(isOnline: isOnline));
+      _connectivitySubscription = _connectivity.onConnectivityChanged.listen((
+        results,
+      ) async {
+        final isOnline = !results.contains(ConnectivityResult.none);
+        emit(state.copyWith(isOnline: isOnline));
 
-          // Auto-sincronizar cuando vuelve la conexión
-          if (isOnline) {
-            await syncFavoriteSongs();
-            await syncPlaylists();
-          }
-        },
-      );
+        // Auto-sincronizar cuando vuelve la conexión
+        if (isOnline) {
+          await syncFavoriteSongs();
+          await syncPlaylists();
+        }
+      });
 
       // Verificar conectividad inicial
       final isOnline = await _connectivity.checkConnectivity();
@@ -60,33 +57,33 @@ class OfflineCubit extends Cubit<OfflineState> {
       final playlistsCount =
           (await _offlineService.getOfflinePlaylists()).length;
 
-      emit(state.copyWith(
-        status: OfflineStatus.ready,
-        isOnline: online,
-        offlineSongsCount: songsCount,
-        offlinePlaylistsCount: playlistsCount,
-      ));
+      emit(
+        state.copyWith(
+          status: OfflineStatus.ready,
+          isOnline: online,
+          offlineSongsCount: songsCount,
+          offlinePlaylistsCount: playlistsCount,
+        ),
+      );
     } catch (e) {
-      emit(state.copyWith(
-        status: OfflineStatus.error,
-        error: 'Error initializing offline service: $e',
-      ));
+      emit(
+        state.copyWith(
+          status: OfflineStatus.error,
+          error: 'Error initializing offline service: $e',
+        ),
+      );
     }
   }
 
   /// Sincroniza las canciones favoritas con el servidor
   Future<void> syncFavoriteSongs() async {
     if (!state.isOnline) {
-      emit(state.copyWith(
-        syncMessage: 'No hay conexión a internet',
-      ));
+      emit(state.copyWith(syncMessage: 'No hay conexión a internet'));
       return;
     }
 
     try {
-      emit(state.copyWith(
-        syncMessage: 'Sincronizando canciones favoritas...',
-      ));
+      emit(state.copyWith(syncMessage: 'Sincronizando canciones favoritas...'));
 
       // Obtener favoritos del servidor
       final response = await _apiServices.get(
@@ -97,38 +94,36 @@ class OfflineCubit extends Cubit<OfflineState> {
       final songs = (data['data'] as List?) ?? [];
 
       // Sincronizar con la base de datos offline
-      await _offlineService.syncFavoriteSongs(songs.cast<Map<String, dynamic>>());
+      await _offlineService.syncFavoriteSongs(
+        songs.cast<Map<String, dynamic>>(),
+      );
 
       final songsCount = await _offlineService.getOfflineSongsCount();
 
-      emit(state.copyWith(
-        offlineSongsCount: songsCount,
-        syncMessage: 'Sincronizadas ${songs.length} canciones',
-      ));
+      emit(
+        state.copyWith(
+          offlineSongsCount: songsCount,
+          syncMessage: 'Sincronizadas ${songs.length} canciones',
+        ),
+      );
 
       // Limpiar mensaje después de 3 segundos
       await Future.delayed(const Duration(seconds: 3));
       emit(state.copyWith(clearSyncMessage: true));
     } catch (e) {
-      emit(state.copyWith(
-        syncMessage: 'Error sincronizando: $e',
-      ));
+      emit(state.copyWith(syncMessage: 'Error sincronizando: $e'));
     }
   }
 
   /// Sincroniza las playlists con el servidor
   Future<void> syncPlaylists() async {
     if (!state.isOnline) {
-      emit(state.copyWith(
-        syncMessage: 'No hay conexión a internet',
-      ));
+      emit(state.copyWith(syncMessage: 'No hay conexión a internet'));
       return;
     }
 
     try {
-      emit(state.copyWith(
-        syncMessage: 'Sincronizando playlists...',
-      ));
+      emit(state.copyWith(syncMessage: 'Sincronizando playlists...'));
 
       // Obtener playlists del servidor
       final response = await _apiServices.get(
@@ -146,34 +141,34 @@ class OfflineCubit extends Cubit<OfflineState> {
       final playlistsCount =
           (await _offlineService.getOfflinePlaylists()).length;
 
-      emit(state.copyWith(
-        offlinePlaylistsCount: playlistsCount,
-        syncMessage: 'Sincronizadas ${playlists.length} playlists',
-      ));
+      emit(
+        state.copyWith(
+          offlinePlaylistsCount: playlistsCount,
+          syncMessage: 'Sincronizadas ${playlists.length} playlists',
+        ),
+      );
 
       // Limpiar mensaje después de 3 segundos
       await Future.delayed(const Duration(seconds: 3));
       emit(state.copyWith(clearSyncMessage: true));
     } catch (e) {
-      emit(state.copyWith(
-        syncMessage: 'Error sincronizando playlists: $e',
-      ));
+      emit(state.copyWith(syncMessage: 'Error sincronizando playlists: $e'));
     }
   }
 
   /// Obtiene las canciones guardadas offline
   Future<List<OfflineSong>> getOfflineSongs() async {
-    return await _offlineService.getOfflineSongs();
+    return _offlineService.getOfflineSongs();
   }
 
   /// Obtiene las playlists guardadas offline
   Future<List<OfflinePlaylist>> getOfflinePlaylists() async {
-    return await _offlineService.getOfflinePlaylists();
+    return _offlineService.getOfflinePlaylists();
   }
 
   /// Busca canciones offline por título o artista
   Future<List<OfflineSong>> searchOfflineSongs(String query) async {
-    return await _offlineService.searchSongs(query);
+    return _offlineService.searchSongs(query);
   }
 
   /// Agrega al historial de reproducción
@@ -199,7 +194,7 @@ class OfflineCubit extends Cubit<OfflineState> {
 
   /// Obtiene el historial de reproducción
   Future<List<OfflineHistory>> getHistory({int limit = 50}) async {
-    return await _offlineService.getHistory(limit: limit);
+    return _offlineService.getHistory(limit: limit);
   }
 
   /// Limpia el historial de reproducción
@@ -209,7 +204,7 @@ class OfflineCubit extends Cubit<OfflineState> {
 
   /// Obtiene estadísticas del historial
   Future<HistoryStats> getHistoryStats() async {
-    return await _offlineService.getHistoryStats();
+    return _offlineService.getHistoryStats();
   }
 
   /// Fuerza la verificación de conectividad

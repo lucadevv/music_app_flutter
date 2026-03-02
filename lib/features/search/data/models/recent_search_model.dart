@@ -32,8 +32,12 @@ class RecentSearchModel extends RecentSearch {
       id: json['id'] as String? ?? '',
       videoId: json['videoId'] as String? ?? '',
       songData: SongModel.fromJson(songDataMap),
-      createdAt: DateTime.parse(json['createdAt'] as String? ?? DateTime.now().toIso8601String()),
-      lastSearchedAt: DateTime.parse(json['lastSearchedAt'] as String? ?? DateTime.now().toIso8601String()),
+      createdAt: DateTime.parse(
+        json['createdAt'] as String? ?? DateTime.now().toIso8601String(),
+      ),
+      lastSearchedAt: DateTime.parse(
+        json['lastSearchedAt'] as String? ?? DateTime.now().toIso8601String(),
+      ),
     );
   }
 

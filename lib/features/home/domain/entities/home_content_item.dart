@@ -14,8 +14,10 @@ class HomeContentItem {
   final String views;
   final SearchAlbum? album;
   final String? description; // Para playlists
-  final String? streamUrl; // URL de streaming (viene del endpoint con include_stream_urls=true)
-  final Thumbnail? thumbnail; // Thumbnail de mejor calidad (viene junto con stream_url)
+  final String?
+  streamUrl; // URL de streaming (viene del endpoint con include_stream_urls=true)
+  final Thumbnail?
+  thumbnail; // Thumbnail de mejor calidad (viene junto con stream_url)
 
   const HomeContentItem({
     required this.title,

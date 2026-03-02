@@ -20,10 +20,8 @@ class SplashScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // Logo o indicador de carga
-             CircularProgressIndicator(
-              color: AppColorsDark.primary,
-            ),
-             SizedBox(height: 24),
+            CircularProgressIndicator(color: AppColorsDark.primary),
+            SizedBox(height: 24),
             Text(
               'Cargando...',
               style: TextStyle(
