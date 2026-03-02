@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:music_app/core/domain/entities/song.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 
 /// Widget unificado para mostrar items de canciones en listas.
@@ -175,6 +176,89 @@ class SongListItemWithTrailing extends StatelessWidget {
       thumbnail: thumbnail,
       trailing: trailing,
       onTap: onTap,
+    );
+  }
+}
+
+// ============================================================================
+// VERSIONES QUE USAN LA ENTIDAD SONG CENTRALIZADA
+// ============================================================================
+
+/// Widget unificado para mostrar items de canciones usando la entidad Song.
+/// Esta es la versión recomendada que usa la entidad centralizada.
+class SongListItemFromEntity extends StatelessWidget {
+  final Song song;
+  final Widget? trailing;
+  final VoidCallback? onTap;
+
+  const SongListItemFromEntity({
+    super.key,
+    required this.song,
+    this.trailing,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SongListItem(
+      title: song.title,
+      artist: song.artistNames.isNotEmpty ? song.artistNames.join(', ') : song.artist,
+      thumbnail: song.bestThumbnail,
+      trailing: trailing,
+      onTap: onTap,
+    );
+  }
+}
+
+/// Versión con botón de favorito usando la entidad Song
+class SongListItemWithFavoriteFromEntity extends StatelessWidget {
+  final Song song;
+  final bool isFavorite;
+  final VoidCallback? onTap;
+  final VoidCallback? onFavoriteToggle;
+
+  const SongListItemWithFavoriteFromEntity({
+    super.key,
+    required this.song,
+    this.isFavorite = false,
+    this.onTap,
+    this.onFavoriteToggle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SongListItemWithFavorite(
+      title: song.title,
+      artist: song.artistNames.isNotEmpty ? song.artistNames.join(', ') : song.artist,
+      thumbnail: song.bestThumbnail,
+      isFavorite: isFavorite,
+      onTap: onTap,
+      onFavoriteToggle: onFavoriteToggle,
+    );
+  }
+}
+
+/// Versión con botón de eliminar usando la entidad Song
+class SongListItemWithRemoveFromEntity extends StatelessWidget {
+  final Song song;
+  final VoidCallback? onTap;
+  final VoidCallback? onRemove;
+
+  const SongListItemWithRemoveFromEntity({
+    super.key,
+    required this.song,
+    this.onTap,
+    this.onRemove,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SongListItemWithRemove(
+      title: song.title,
+      artist: song.artistNames.isNotEmpty ? song.artistNames.join(', ') : song.artist,
+      thumbnail: song.bestThumbnail,
+      onTap: onTap,
+      onRemove: onRemove,
     );
   }
 }
