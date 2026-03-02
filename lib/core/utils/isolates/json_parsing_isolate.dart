@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 class JsonParsingIsolate {
   /// Parsea un JSON grande en un isolate
   ///
+  // ignore: unintended_html_in_doc_comment
   /// [jsonData] El JSON a parsear (Map<String, dynamic>)
   /// [parser] Función que parsea el JSON
   ///

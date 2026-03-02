@@ -111,3 +111,31 @@ class _ShimmerCircle extends StatelessWidget {
     );
   }
 }
+
+/// Widget combinado de shimmer para el reproductor
+class PlayerShimmerWidget extends StatelessWidget {
+  const PlayerShimmerWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.all(24),
+      child: Column(
+        children: [
+          // Artwork shimmer
+          SizedBox(height: 24),
+          MetadataShimmer(),
+          SizedBox(height: 24),
+          // Title shimmer
+          TitleShimmer(),
+          SizedBox(height: 8),
+          // Subtitle shimmer
+          SubtitleShimmer(width: 150),
+          SizedBox(height: 24),
+          // Controls shimmer
+          PlaybackControlsShimmer(),
+        ],
+      ),
+    );
+  }
+}
