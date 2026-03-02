@@ -44,19 +44,43 @@ class NowPlayingData extends Equatable {
 
   /// Constructor desde Song
   factory NowPlayingData.fromSong(search.Song song) {
+    // Map search.Song properties to now_playing_data types
+    final searchThumbnails = song.thumbnails.map((t) => 
+      search_thumb.Thumbnail(url: t.url, width: t.width, height: t.height)
+    ).toList();
+    
+    search_thumb.Thumbnail? bestThumb;
+    if (song.thumbnail != null) {
+      bestThumb = search_thumb.Thumbnail(
+        url: song.thumbnail!.url, 
+        width: song.thumbnail!.width, 
+        height: song.thumbnail!.height
+      );
+    } else if (searchThumbnails.isNotEmpty) {
+      bestThumb = searchThumbnails.last;
+    }
+    
     return NowPlayingData(
       videoId: song.videoId,
       title: song.title,
-      artists: song.artists,
-      album: song.album,
+      artists: song.artists.map((a) => 
+        search_artist.SearchArtist(id: a.id, name: a.name)
+      ).toList(),
+      album: search_album.SearchAlbum(
+        id: song.album.id, 
+        name: song.album.name,
+        artists: song.album.artists.map((a) => 
+          search_artist.SearchArtist(id: a.id, name: a.name)
+        ).toList()
+      ),
       duration: song.duration,
       durationSeconds: song.durationSeconds,
       views: song.views,
       isExplicit: song.isExplicit,
       inLibrary: song.inLibrary,
-      thumbnails: song.thumbnails,
+      thumbnails: searchThumbnails,
       streamUrl: song.streamUrl,
-      thumbnail: song.thumbnail, // Usar thumbnail de mejor calidad si está disponible
+      thumbnail: bestThumb,
     );
   }
 

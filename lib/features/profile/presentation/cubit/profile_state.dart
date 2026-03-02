@@ -3,6 +3,7 @@ part of 'profile_cubit.dart';
 class ProfileState {
   final bool isLoading;
   final String? errorMessage;
+  final String? error; // For backward compatibility
   final UserProfile? profile;
   final String id;
   final String email;
@@ -28,6 +29,7 @@ class ProfileState {
   const ProfileState({
     this.isLoading = false,
     this.errorMessage,
+    this.error,
     this.profile,
     this.id = '',
     this.email = '',
@@ -47,6 +49,9 @@ class ProfileState {
     this.favoritePlaylistsCount = 0,
     this.favoriteGenresCount = 0,
   });
+
+  // For backward compatibility
+  String? get error => errorMessage;
 
   String get displayName {
     final name = profile?.displayName;
@@ -85,6 +90,7 @@ class ProfileState {
   ProfileState copyWith({
     bool? isLoading,
     String? errorMessage,
+    String? error,
     UserProfile? profile,
     String? id,
     String? email,
@@ -109,6 +115,7 @@ class ProfileState {
     return ProfileState(
       isLoading: isLoading ?? this.isLoading,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+      error: clearError ? null : (error ?? this.errorMessage),
       profile: profile ?? this.profile,
       id: id ?? this.id,
       email: email ?? this.email,

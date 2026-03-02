@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/bloc/base_bloc_mixin.dart';
 import 'package:music_app/core/managers/auth/auth_manager.dart';
 import 'package:music_app/core/services/network/api_services.dart';
+import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
 import 'package:music_app/features/profile/data/services/profile_service.dart';
 
 part 'profile_state.dart';
@@ -43,10 +44,10 @@ class ProfileCubit extends Cubit<ProfileState> with BaseBlocMixin {
       ));
     } catch (e) {
       if (isClosed) return;
-
+      final message = e is AppException ? getErrorMessage(e) : e.toString();
       emit(state.copyWith(
         isLoading: false,
-        errorMessage: getErrorMessage(e),
+        errorMessage: message,
       ));
     }
   }
@@ -67,10 +68,10 @@ class ProfileCubit extends Cubit<ProfileState> with BaseBlocMixin {
       ));
     } catch (e) {
       if (isClosed) return;
-
+      final message = e is AppException ? getErrorMessage(e) : e.toString();
       emit(state.copyWith(
         isSettingsLoading: false,
-        settingsError: getErrorMessage(e),
+        settingsError: message,
       ));
     }
   }
@@ -91,10 +92,10 @@ class ProfileCubit extends Cubit<ProfileState> with BaseBlocMixin {
       ));
     } catch (e) {
       if (isClosed) return;
-
+      final message = e is AppException ? getErrorMessage(e) : e.toString();
       emit(state.copyWith(
         isSettingsLoading: false,
-        settingsError: getErrorMessage(e),
+        settingsError: message,
       ));
     }
   }
@@ -175,10 +176,10 @@ class ProfileCubit extends Cubit<ProfileState> with BaseBlocMixin {
       ));
     } catch (e) {
       if (isClosed) return;
-
+      final message = e is AppException ? getErrorMessage(e) : e.toString();
       emit(state.copyWith(
         isLoading: false,
-        errorMessage: getErrorMessage(e),
+        errorMessage: message,
       ));
     }
   }
@@ -197,15 +198,19 @@ class ProfileCubit extends Cubit<ProfileState> with BaseBlocMixin {
       emit(const ProfileState());
     } catch (e) {
       if (isClosed) return;
-
+      final message = e is AppException ? getErrorMessage(e) : e.toString();
       emit(state.copyWith(
         isLoading: false,
-        errorMessage: getErrorMessage(e),
+        errorMessage: message,
       ));
     }
   }
 
-  bool get isLoggedIn => _authManager.isLoggedIn;
+  Future<bool> isLoggedIn() async {
+    return await _authManager.isUserLoggedIn();
+  }
 
-  String? get token => _authManager.accessToken;
+  Future<String?> getToken() async {
+    return await _authManager.getCurrentAccessToken();
+  }
 }
