@@ -46,15 +46,15 @@ class NowPlayingData extends Equatable {
   factory NowPlayingData.fromSong(search.Song song) {
     // Map search.Song properties to now_playing_data types
     final searchThumbnails = song.thumbnails.map((t) => 
-      search_thumb.Thumbnail(url: t.url, width: t.width, height: t.height)
+      search_thumb.Thumbnail(url: t.url, width: t.width ?? 0, height: t.height ?? 0)
     ).toList();
     
     search_thumb.Thumbnail? bestThumb;
     if (song.thumbnail != null) {
       bestThumb = search_thumb.Thumbnail(
         url: song.thumbnail!.url, 
-        width: song.thumbnail!.width, 
-        height: song.thumbnail!.height
+        width: song.thumbnail!.width ?? 0, 
+        height: song.thumbnail!.height ?? 0
       );
     } else if (searchThumbnails.isNotEmpty) {
       bestThumb = searchThumbnails.last;
@@ -68,10 +68,7 @@ class NowPlayingData extends Equatable {
       ).toList(),
       album: search_album.SearchAlbum(
         id: song.album.id, 
-        name: song.album.name,
-        artists: song.album.artists.map((a) => 
-          search_artist.SearchArtist(id: a.id, name: a.name)
-        ).toList()
+        name: song.album.name
       ),
       duration: song.duration,
       durationSeconds: song.durationSeconds,

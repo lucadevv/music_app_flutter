@@ -28,10 +28,9 @@ class SongModel extends domain.Song {
       album = domain.SearchAlbum(
         id: albumModel.id,
         name: albumModel.name,
-        artists: albumModel.artists.map((a) => domain.SearchArtist(id: a.id, name: a.name)).toList(),
       );
     } else {
-      album = const domain.SearchAlbum(id: '', name: '', artists: []);
+      album = const domain.SearchAlbum(id: '', name: '');
     }
 
     // Parse artists
@@ -90,7 +89,7 @@ class SongModel extends domain.Song {
   Map<String, dynamic> toJson() {
     return {
       'title': title,
-      'album': (album is SearchAlbumModel) ? (album as SearchAlbumModel).toJson() : {'id': album.id, 'name': album.name},
+      'album': {'id': album.id, 'name': album.name},
       'artists': artists.map((a) => {'id': a.id, 'name': a.name}).toList(),
       'videoId': videoId,
       'duration': duration,
