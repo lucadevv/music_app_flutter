@@ -116,7 +116,9 @@ class _PlayerScreenState extends State<PlayerScreen> {
                   CustomScrollView(
                     slivers: [
                       // Header con botón de cerrar
-                      const PlayerHeaderWidget(),
+                      const SliverToBoxAdapter(
+                        child: PlayerHeaderWidget(),
+                      ),
 
                       // Info de la canción
                       SliverToBoxAdapter(
@@ -164,8 +166,10 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
                       // Similar songs
                       if (!hasError && !isLoading)
-                        PlayerSimilarSongsWidget(
-                          videoId: currentTrack.videoId,
+                        SliverToBoxAdapter(
+                          child: PlayerSimilarSongsWidget(
+                            videoId: currentTrack.videoId,
+                          ),
                         ),
 
                       // Error widget
