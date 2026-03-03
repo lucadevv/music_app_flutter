@@ -157,17 +157,10 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
               if (item is Map<String, dynamic>) {
                 recentSearches.add(RecentSearchModel.fromJson(item));
               } else if (item is String) {
-                if (kDebugMode)
-                  debugPrint(
-                    'getRecentSearches: Item $i en data es String, saltando: $item',
-                  );
-                continue;
+             
               }
             } catch (e) {
-              if (kDebugMode)
-                debugPrint(
-                  'getRecentSearches: Error parseando item $i en data: $e',
-                );
+             
               continue;
             }
           }

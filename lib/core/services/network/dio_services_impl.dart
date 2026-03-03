@@ -52,9 +52,7 @@ class DioApiServicesImpl implements ApiServices {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-          if (kDebugMode) {
-            debugPrint('DioApiServicesImpl: REQUEST ${options.method} ${options.uri}');
-          }
+         
           
           // Obtener el access token actual del AuthManager
           try {
@@ -63,29 +61,20 @@ class DioApiServicesImpl implements ApiServices {
                 .getCurrentAccessToken();
             if (currentAccessToken != null && currentAccessToken.isNotEmpty) {
               options.headers['Authorization'] = 'Bearer $currentAccessToken';
-              if (kDebugMode) {
-                debugPrint('DioApiServicesImpl: Token added');
-              }
+             
             } else {
-              if (kDebugMode) {
-                debugPrint('DioApiServicesImpl: No token available');
-              }
+             
             }
           } catch (e) {
             if (kDebugMode) {
-              debugPrint(
-                'DioApiServicesImpl: Error obtaining access token: $e',
-              );
+             
             }
           }
 
           return handler.next(options);
         },
         onError: (e, handler) async {
-          if (kDebugMode) {
-            debugPrint('DioApiServicesImpl: ERROR ${e.type} ${e.message}');
-            debugPrint('DioApiServicesImpl: Response: ${e.response}');
-          }
+        
           
           final statusCode = e.response?.statusCode;
 
@@ -169,9 +158,7 @@ class DioApiServicesImpl implements ApiServices {
       final refreshToken = await authManager.getCurrentRefreshToken();
 
       if (refreshToken == null || refreshToken.isEmpty) {
-        if (kDebugMode) {
-          debugPrint('DioApiServicesImpl: No hay refresh token disponible');
-        }
+       
         _isRefreshing = false;
         _refreshTokenCompleter!.complete(false);
         _refreshTokenCompleter = null;
@@ -185,9 +172,7 @@ class DioApiServicesImpl implements ApiServices {
 
       return await response.fold(
         (failure) async {
-          if (kDebugMode) {
-            debugPrint('DioApiServicesImpl: Error en refresh token: $failure');
-          }
+         
           _isRefreshing = false;
           _refreshTokenCompleter!.complete(false);
           _refreshTokenCompleter = null;
@@ -201,9 +186,7 @@ class DioApiServicesImpl implements ApiServices {
             isEmailVerified: refreshResponse.isEmailVerified,
           );
 
-          if (kDebugMode) {
-            debugPrint('DioApiServicesImpl: Tokens refrescados exitosamente');
-          }
+        
 
           _isRefreshing = false;
           _refreshTokenCompleter!.complete(true);
@@ -212,9 +195,7 @@ class DioApiServicesImpl implements ApiServices {
         },
       );
     } catch (e) {
-      if (kDebugMode) {
-        debugPrint('DioApiServicesImpl: Excepción en refresh token: $e');
-      }
+    
       _isRefreshing = false;
       _refreshTokenCompleter!.complete(false);
       _refreshTokenCompleter = null;
@@ -245,16 +226,16 @@ class DioApiServicesImpl implements ApiServices {
       _handleAuthErrorCompleter!.complete();
       _handleAuthErrorCompleter = null;
     } catch (e) {
-      if (kDebugMode) {
-        debugPrint('DioApiServicesImpl: Error en _handleAuthTokenError: $e');
-      }
+      
       // Intentar logout aunque falle clearAuthData
       try {
         final authManager = await getIt.getAsync<AuthManager>();
         await authManager.logout();
       } catch (logoutError) {
         if (kDebugMode) {
-          debugPrint('DioApiServicesImpl: Error en logout: $logoutError');
+          debugPrint(
+            'DioApiServicesImpl: Error during logout after auth token error: $logoutError',
+          );
         }
       }
       _isHandlingAuthError = false;
@@ -318,32 +299,24 @@ class DioApiServicesImpl implements ApiServices {
     int attempts = 0;
     DioException? lastError;
 
-    if (kDebugMode) {
-      debugPrint('DioApiServicesImpl: Starting request (max retries: $maxRetries)');
-    }
+    
 
     while (attempts < maxRetries) {
       try {
-        if (kDebugMode) {
-          debugPrint('DioApiServicesImpl: Attempt ${attempts + 1}/$maxRetries');
-        }
+      
         return await request();
       } on DioException catch (e) {
         lastError = e;
         attempts++;
 
-        if (kDebugMode) {
-          debugPrint('DioApiServicesImpl: Attempt failed - ${e.type}: ${e.message}');
-        }
+        
 
         // No hacer retry para errores 4xx (excepto 401 que ya se maneja en el interceptor)
         if (e.response?.statusCode != null &&
             e.response!.statusCode! >= 400 &&
             e.response!.statusCode! < 500 &&
             e.response!.statusCode != 401) {
-          if (kDebugMode) {
-            debugPrint('DioApiServicesImpl: 4xx error, not retrying');
-          }
+          
           rethrow;
         }
 

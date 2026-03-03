@@ -2,9 +2,10 @@ import 'package:auto_route/auto_route.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:music_app/core/presentation/widgets/song_list_item.dart';
 // Removed hard dependency on routes in this detail screen for now; navigation uses context.router.
 import 'package:music_app/core/theme/app_colors_dark.dart';
-import 'package:music_app/core/presentation/widgets/song_list_item.dart';
+
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/user_playlists/presentation/cubit/user_playlist_detail_cubit.dart';
@@ -268,10 +269,10 @@ class _UserPlaylistDetailView extends StatelessWidget {
       builder: (dialogContext) => AlertDialog(
         backgroundColor: AppColorsDark.surfaceContainerHigh,
         title: Text(l10n.delete, style: const TextStyle(color: Colors.white)),
-        content: Text(
+        content: const Text(
           // Fallback si la key localization no está disponible
           'Are you sure you want to delete this playlist?',
-          style: const TextStyle(color: Colors.white70),
+          style: TextStyle(color: Colors.white70),
         ),
         actions: [
           TextButton(
@@ -286,7 +287,7 @@ class _UserPlaylistDetailView extends StatelessWidget {
                 context.router.pop();
               }
             },
-            child: Text('Delete', style: const TextStyle(color: Colors.red)),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),

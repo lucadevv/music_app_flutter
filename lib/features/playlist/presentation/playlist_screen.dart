@@ -25,7 +25,7 @@ class PlaylistScreen extends StatefulWidget implements AutoRouteWrapper {
       create: (context) {
         return PlaylistCubit(
           getPlaylistUseCase: getIt<GetPlaylistUseCase>(),
-          playerBloc: getIt<PlayerBlocBloc>(),
+          playerBloc: context.read<PlayerBlocBloc>(),
         );
       },
       child: this,

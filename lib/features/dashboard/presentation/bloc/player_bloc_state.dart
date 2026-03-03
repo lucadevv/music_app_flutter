@@ -181,7 +181,7 @@ class PlayerBlocLoaded extends PlayerBlocState {
       ];
 }
 
-/// Enums para el estado del reproductor
+
 enum PlaybackState { stopped, playing, paused }
 
 enum AudioConnectionState { connected, connecting, disconnected }
