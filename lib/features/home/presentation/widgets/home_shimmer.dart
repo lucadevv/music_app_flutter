@@ -129,7 +129,6 @@ class SongListItemsShimmer extends StatelessWidget {
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 24),
       itemCount: 5,
       itemBuilder: (context, index) {
         return ListTile(

@@ -5,6 +5,7 @@ import 'package:music_app/core/presentation/widgets/song_list_item.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/favorites/presentation/cubit/favorite_cubit.dart';
 import 'package:music_app/features/favorites/presentation/widgets/favorite_button.dart';
+import 'package:music_app/features/home/presentation/widgets/home_shimmer.dart';
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 import 'package:music_app/features/player/domain/usecases/get_radio_playlist_usecase.dart';
@@ -92,14 +93,17 @@ class _PlayerSimilarSongsWidgetState extends State<PlayerSimilarSongsWidget> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-            l10n.songsSimilarToThis,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+        Padding(
+          padding: const EdgeInsets.only(left: 16),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              l10n.songsSimilarToThis,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ),
@@ -120,11 +124,9 @@ class _PlayerSimilarSongsWidgetState extends State<PlayerSimilarSongsWidget> {
     return Column(
       children: List.generate(
         4,
-        (index) => const _SimilarSongItem(
-          title: 'Loading...',
-          artist: '',
-          videoId: '',
-          isLoading: true,
+        (index) => const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: SongListItemsShimmer(),
         ),
       ),
     );

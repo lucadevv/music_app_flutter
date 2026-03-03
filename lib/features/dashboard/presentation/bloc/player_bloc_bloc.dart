@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:just_audio/just_audio.dart';
@@ -11,6 +12,7 @@ import 'package:music_app/core/services/network/api_services.dart';
 import 'package:music_app/data/offline/models/offline_history.dart';
 import 'package:music_app/data/offline/services/offline_service.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
+import 'package:music_app/features/player/domain/usecases/get_stream_url_usecase.dart';
 import 'package:music_app/features/profile/presentation/cubit/profile_cubit.dart';
 
 part 'player_bloc_event.dart';
@@ -18,31 +20,28 @@ part 'player_bloc_state.dart';
 
 class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
   final ApiServices _apiServices;
+  late final GetStreamUrlUseCase _getStreamUrlUseCase;
 
   // AudioPlayer se obtiene de forma lazy para evitar dependencia circular
   // AudioPlayerHandler se registra en main.dart después de AudioService.init()
   AudioPlayer? _audioPlayerInstance;
 
-  /// Obtiene el player, creando uno nuevo si no está disponible del handler
+  /// Getter para acceder al AudioPlayer
   AudioPlayer get _audioPlayer {
     if (_audioPlayerInstance == null) {
-      try {
-        if (GetIt.I.isRegistered<AudioPlayerHandler>()) {
-          _audioPlayerInstance = GetIt.I<AudioPlayerHandler>().player;
-        } else {
-          // Fallback: crear un AudioPlayer básico si el handler no está disponible
-          _audioPlayerInstance = AudioPlayer();
-          // IMPORTANTE: Inicializar los streams del fallback player
-          _initializePlayer();
-        }
-      } catch (e) {
-        // Fallback final
-        _audioPlayerInstance = AudioPlayer();
-        // IMPORTANTE: Inicializar los streams del fallback player
-        _initializePlayer();
-      }
+      throw Exception('Player not initialized');
     }
     return _audioPlayerInstance!;
+  }
+
+  PlayerBlocBloc(this._apiServices) : super(const PlayerBlocInitial()) {
+    _getStreamUrlUseCase = GetIt.I<GetStreamUrlUseCase>();
+    _registerEventHandlers();
+    // No inicializar streams aquí - se hará cuando el player esté disponible
+    // Inicializar el handler de audio después de un pequeño delay para asegurar que todo esté listo
+    Future.microtask(() {
+      add(const InitializeAudioServiceEvent());
+    });
   }
 
   // OfflineService se obtiene de forma lazy para evitar dependencia circular
@@ -67,15 +66,6 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
 
   /// Intervalo mínimo entre actualizaciones de historial (en segundos)
   static const int _historyUpdateIntervalSeconds = 5;
-
-  PlayerBlocBloc(this._apiServices) : super(const PlayerBlocInitial()) {
-    _registerEventHandlers();
-    // No inicializar streams aquí - se hará cuando el player esté disponible
-    // Inicializar el handler de audio después de un pequeño delay para asegurar que todo esté listo
-    Future.microtask(() {
-      add(const InitializeAudioServiceEvent());
-    });
-  }
 
   /// Obtiene el OfflineService de forma lazy
   Future<OfflineService?> _getOfflineService() async {
@@ -437,17 +427,9 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
         streamUrl = event.track.streamUrl;
       }
 
-      // Si aún no hay streamUrl, intentar obtenerla del endpoint
+      // Si aún no hay streamUrl, usar el use case para obtenerla
       if (streamUrl == null || streamUrl.isEmpty) {
-        try {
-          final response = await _apiServices.get('/music/stream/${event.track.videoId}');
-          final data = response is Response ? response.data : response;
-          if (data is Map<String, dynamic>) {
-            streamUrl = data['streamUrl'] as String? ?? data['stream_url'] as String?;
-          }
-        } catch (e) {
-          // Silently fail - se maneja abajo
-        }
+        streamUrl = await _getStreamUrlUseCase(event.track.videoId);
       }
 
       if (streamUrl == null || streamUrl.isEmpty) {

@@ -91,6 +91,11 @@ import 'package:music_app/features/player/domain/repositories/radio_repository.d
 import 'package:music_app/features/player/domain/usecases/get_radio_playlist_usecase.dart';
 import 'package:music_app/features/player/data/datasources/radio_remote_data_source.dart';
 import 'package:music_app/features/player/data/repositories/radio_repository_impl.dart';
+import 'package:music_app/features/player/domain/repositories/stream_url_repository.dart';
+import 'package:music_app/features/player/domain/usecases/get_stream_url_usecase.dart';
+import 'package:music_app/features/player/data/datasources/stream_url_remote_data_source.dart';
+import 'package:music_app/features/player/data/repositories/stream_url_repository_impl.dart';
+import 'package:music_app/features/player/domain/repositories/stream_url_repository.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -392,6 +397,27 @@ class AppInjection {
     if (!_getIt.isRegistered<GetRadioPlaylistUseCase>()) {
       _getIt.registerLazySingleton<GetRadioPlaylistUseCase>(
         () => GetRadioPlaylistUseCase(_getIt<RadioRepository>()),
+      );
+    }
+    
+    // Stream URL Data Source
+    if (!_getIt.isRegistered<StreamUrlRemoteDataSource>()) {
+      _getIt.registerLazySingleton<StreamUrlRemoteDataSource>(
+        () => StreamUrlRemoteDataSourceImpl(_getIt<ApiServices>()),
+      );
+    }
+
+    // Stream URL Repository
+    if (!_getIt.isRegistered<StreamUrlRepository>()) {
+      _getIt.registerLazySingleton<StreamUrlRepository>(
+        () => StreamUrlRepositoryImpl(_getIt<StreamUrlRemoteDataSource>()),
+      );
+    }
+
+    // Stream URL Use Case
+    if (!_getIt.isRegistered<GetStreamUrlUseCase>()) {
+      _getIt.registerLazySingleton<GetStreamUrlUseCase>(
+        () => GetStreamUrlUseCase(_getIt<StreamUrlRepository>()),
       );
     }
 

@@ -13,6 +13,7 @@ import 'package:music_app/features/player/presentation/widgets/player_progress_b
 import 'package:music_app/features/player/presentation/widgets/player_controls_widget.dart';
 import 'package:music_app/features/player/presentation/widgets/player_shimmer_widgets.dart';
 import 'package:music_app/features/player/presentation/widgets/player_similar_songs_widget.dart';
+import 'package:music_app/features/player/presentation/widgets/lyrics_widget.dart';
 import 'package:music_app/main.dart';
 
 @RoutePage()
@@ -169,6 +170,14 @@ class _PlayerScreenState extends State<PlayerScreen> {
                       if (!hasError && !isLoading)
                         SliverToBoxAdapter(
                           child: PlayerSimilarSongsWidget(
+                            videoId: currentTrack.videoId,
+                          ),
+                        ),
+
+                      // Lyrics
+                      if (!hasError && !isLoading)
+                        SliverToBoxAdapter(
+                          child: LyricsWidget(
                             videoId: currentTrack.videoId,
                           ),
                         ),
