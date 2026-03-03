@@ -14,8 +14,9 @@ class DashboardShell extends StatefulWidget implements AutoRouteWrapper {
 
   @override
   Widget wrappedRoute(BuildContext context) {
-    // Aquí se pueden agregar BlocProviders si es necesario
-    return this;
+    return MultiBlocProvider(providers: [
+      BlocProvider(create:(context) => PlayerBlocBloc(),)
+    ], child: this);
   }
 
   @override

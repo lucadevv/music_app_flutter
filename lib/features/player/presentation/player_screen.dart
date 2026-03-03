@@ -1,5 +1,4 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
@@ -15,7 +14,6 @@ import 'package:music_app/features/player/presentation/widgets/player_info_widge
 import 'package:music_app/features/player/presentation/widgets/player_progress_bar_widget.dart';
 import 'package:music_app/features/player/presentation/widgets/player_shimmer_widgets.dart';
 import 'package:music_app/features/player/presentation/widgets/player_similar_songs_widget.dart';
-import 'package:music_app/main.dart';
 
 @RoutePage()
 class PlayerScreen extends StatefulWidget {
@@ -32,384 +30,266 @@ class _PlayerScreenState extends State<PlayerScreen> {
   void initState() {
     super.initState();
 
+    // Sincronizar canción al abrir PlayerScreen
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final bloc = getIt<PlayerBlocBloc>();
+      final bloc = context.read<PlayerBlocBloc>();
       final state = bloc.state;
 
-      // Si la canción actual ya es la que se quiere reproducir, no hacer nada
-      if (state is PlayerBlocLoaded &&
-          state.currentTrack?.videoId == widget.nowPlayingData.videoId) {
-        return;
-      }
-
-      // Verificar si la canción está en la playlist cargada
       if (state is PlayerBlocLoaded && state.playlist.isNotEmpty) {
+        // Buscar si la canción está en la playlist
         final trackIndex = state.playlist.indexWhere(
-          (track) => track.videoId == widget.nowPlayingData.videoId,
+          (t) => t.videoId == widget.nowPlayingData.videoId,
         );
 
-        // Si la canción está en la playlist cargada, solo cambiar el índice
-        if (trackIndex >= 0) {
+        if (trackIndex >= 0 && state.playlist[trackIndex].streamUrl != null) {
+          // Está en playlist con URL - reproducir ese índice
           bloc.add(PlayTrackAtIndexEvent(trackIndex));
-          return;
+        } else {
+          // No está o sin URL - cargar canción
+          bloc.add(LoadTrackEvent(widget.nowPlayingData));
         }
+      } else {
+        // Sin playlist - cargar canción
+        bloc.add(LoadTrackEvent(widget.nowPlayingData));
       }
-
-      // Si la canción no está en la playlist cargada, cargar solo esa canción
-      bloc.add(LoadTrackEvent(widget.nowPlayingData));
     });
   }
 
   @override
   Widget build(BuildContext context) {
-  
-    return BlocProvider<PlayerBlocBloc>.value(
-      value: getIt<PlayerBlocBloc>(),
-      child: Scaffold(
-        backgroundColor: const Color(0xFF0D0D0D),
-        body: SafeArea(
-          child: BlocBuilder<PlayerBlocBloc, PlayerBlocState>(
-              buildWhen: (previous, current) {
-              // Siempre reconstruir si el estado cambió significativamente
-              if (previous.runtimeType != current.runtimeType) {
-                return true;
-              }
-              // Si ambos son PlayerBlocLoaded, reconstruir si cambió algo importante
-              if (previous is PlayerBlocLoaded && current is PlayerBlocLoaded) {
-                return previous.position != current.position ||
-                    previous.duration != current.duration ||
-                    previous.playbackState != current.playbackState ||
-                    previous.currentTrack?.videoId !=
-                        current.currentTrack?.videoId ||
-                    previous.currentIndex != current.currentIndex ||
-                    previous.isLoading != current.isLoading ||
-                    previous.playlist.length != current.playlist.length;
-              }
-              return true;
-            },
-            builder: (context, state) {
-              final currentTrack = state is PlayerBlocLoaded
-                  ? (state.currentTrack ?? widget.nowPlayingData)
-                  : widget.nowPlayingData;
-
-              final isLoading = state is PlayerBlocLoaded && state.isLoading;
-              final isBuffering =
-                  state is PlayerBlocLoaded && state.isBuffering;
-              final hasError = state is PlayerBlocLoaded && state.hasError;
-              final errorMessage = state is PlayerBlocLoaded
-                  ? state.error
-                  : null;
-
-              // Get playback state values
-              final isPlaying = state is PlayerBlocLoaded 
-                  ? state.isPlaying 
-                  : false;
-              final canPlayNext = state is PlayerBlocLoaded 
-                  ? state.canPlayNext 
-                  : false;
-              final canPlayPrevious = state is PlayerBlocLoaded 
-                  ? state.canPlayPrevious 
-                  : false;
-              final isShuffleEnabled = state is PlayerBlocLoaded 
-                  ? state.isShuffleEnabled 
-                  : false;
-              final repeatMode = state is PlayerBlocLoaded 
-                  ? state.loopMode 
-                  : LoopMode.off;
-
-              return Stack(
-                children: [
-                  // Backdrop difuminado
-                  PlayerBackdropWidget(thumbnail: currentTrack.highResThumbnail),
-
-                  // Contenido con CustomScrollView
-                  CustomScrollView(
-                    slivers: [
-                      // Header con botón de cerrar
-                      const SliverToBoxAdapter(
-                        child: PlayerHeaderWidget(),
+    return Scaffold(
+      backgroundColor: const Color(0xFF0D0D0D),
+      body: SafeArea(
+        child: BlocBuilder<PlayerBlocBloc, PlayerBlocState>(
+        builder: (context, state) {
+          // Obtener datos del estado
+          final isLoaded = state is PlayerBlocLoaded;
+          
+          final playlist = isLoaded ? state.playlist : <NowPlayingData>[];
+          final currentIndex = isLoaded ? state.currentIndex : null;
+          final currentTrackData = isLoaded 
+              ? (state.currentTrack ?? widget.nowPlayingData)
+              : widget.nowPlayingData;
+          
+          final isLoading = isLoaded && state.isLoading;
+          final isBuffering = isLoaded && state.isBuffering;
+          final hasError = isLoaded && state.hasError;
+          final errorMessage = isLoaded ? state.error : null;
+          
+          final isPlaying = isLoaded ? state.isPlaying : false;
+          final canPlayNext = isLoaded ? state.canPlayNext : false;
+          final canPlayPrevious = isLoaded ? state.canPlayPrevious : false;
+          final isShuffleEnabled = isLoaded ? state.isShuffleEnabled : false;
+          final repeatMode = isLoaded ? state.loopMode : LoopMode.off;
+          
+          final position = isLoaded ? state.position : Duration.zero;
+          final duration = isLoaded ? state.duration : Duration.zero;
+    
+          return Stack(
+            children: [
+              // Backdrop
+              PlayerBackdropWidget(thumbnail: currentTrackData.highResThumbnail),
+    
+              // Contenido
+              CustomScrollView(
+                slivers: [
+                  // Header
+                  const SliverToBoxAdapter(
+                    child: PlayerHeaderWidget(),
+                  ),
+    
+                  // Carrusel o Artwork
+                  SliverToBoxAdapter(
+                    child: _PlayerCarousel(
+                      playlist: playlist,
+                      currentIndex: currentIndex ?? 0,
+                      nowPlayingData: widget.nowPlayingData,
+                    ),
+                  ),
+    
+                  // Info
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 24),
+                          PlayerInfoWidget(
+                            track: currentTrackData,
+                            isLoading: isLoading,
+                          ),
+                          const SizedBox(height: 16),
+                          PlayerProgressBarWidget(
+                            position: position,
+                            duration: duration,
+                            onSeek: (pos) => context.read<PlayerBlocBloc>().add(SeekEvent(pos)),
+                          ),
+                          const SizedBox(height: 16),
+                          PlayerControlsWidget(
+                            isPlaying: isPlaying,
+                            canPlayNext: canPlayNext,
+                            canPlayPrevious: canPlayPrevious,
+                            isShuffleEnabled: isShuffleEnabled,
+                            loopMode: repeatMode,
+                            onPlayPause: () => context.read<PlayerBlocBloc>().add(const PlayPauseToggleEvent()),
+                            onNext: () => context.read<PlayerBlocBloc>().add(const NextTrackEvent()),
+                            onPrevious: () => context.read<PlayerBlocBloc>().add(const PreviousTrackEvent()),
+                          ),
+                          const SizedBox(height: 24),
+                        ],
                       ),
-
-                      // Info de la canción
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 24),
-                          child: Column(
-                            children: [
-                              const SizedBox(height: 20),
-                              // Artwork
-                              PlayerArtworkWidget(
-                                thumbnail: currentTrack.highResThumbnail,
-                                videoId: currentTrack.videoId,
-                                isLoading: isLoading,
-                              ),
-                              const SizedBox(height: 24),
-                              // Info
-                              PlayerInfoWidget(
-                                track: currentTrack,
-                                isLoading: isLoading,
-                              ),
-                              const SizedBox(height: 16),
-                              // Progress bar
-                              PlayerProgressBarWidget(
-                                position: state is PlayerBlocLoaded
-                                    ? state.position
-                                    : Duration.zero,
-                                duration: state is PlayerBlocLoaded
-                                    ? state.duration
-                                    : Duration.zero,
-                                onSeek: (position) => context.read<PlayerBlocBloc>().add(SeekEvent(position)),
-                              ),
-                              const SizedBox(height: 16),
-                              // Controls
-                              PlayerControlsWidget(
-                                isPlaying: isPlaying,
-                                canPlayNext: canPlayNext,
-                                canPlayPrevious: canPlayPrevious,
-                                isShuffleEnabled: isShuffleEnabled,
-                                loopMode: repeatMode,
-                                onPlayPause: () => context.read<PlayerBlocBloc>().add(const PlayPauseToggleEvent()),
-                                onNext: () => context.read<PlayerBlocBloc>().add(const NextTrackEvent()),
-                                onPrevious: () => context.read<PlayerBlocBloc>().add(const PreviousTrackEvent()),
-                              ),
-                              const SizedBox(height: 24),
-                            ],
-                          ),
-                        ),
-                      ),
-
-                      // Playlist
-                      if (!hasError && !isLoading && state is PlayerBlocLoaded && state.playlist.isNotEmpty)
-                        SliverToBoxAdapter(
-                          child: _PlaylistWidget(
-                            playlist: state.playlist,
-                            currentIndex: state.currentIndex,
-                            onTrackTap: (index) {
-                              context.read<PlayerBlocBloc>().add(PlayTrackAtIndexEvent(index));
-                            },
-                          ),
-                        ),
-
-                      // Similar songs
-                      if (!hasError && !isLoading)
-                        SliverToBoxAdapter(
-                          child: PlayerSimilarSongsWidget(
-                            videoId: currentTrack.videoId,
-                          ),
-                        ),
-
-                      // Lyrics
-                      if (!hasError && !isLoading)
-                        SliverToBoxAdapter(
-                          child: LyricsWidget(
-                            videoId: currentTrack.videoId,
-                          ),
-                        ),
-
-                      // Error widget
-                      if (hasError)
-                        SliverToBoxAdapter(
-                          child: PlayerErrorWidget(
-                            message: errorMessage ?? 'Unknown error',
-                          ),
-                        ),
-
-                      // Loading shimmer
-                      if (isLoading || isBuffering)
-                        const SliverToBoxAdapter(
-                          child: PlayerShimmerWidget(),
-                        ),
-
-                      // Bottom padding
-                      const SliverToBoxAdapter(
-                        child: SizedBox(height: 100),
-                      ),
-                    ],
+                    ),
+                  ),
+    
+                  // Similar songs
+                  if (!hasError && !isLoading)
+                    SliverToBoxAdapter(
+                      child: PlayerSimilarSongsWidget(videoId: currentTrackData.videoId),
+                    ),
+    
+                  // Lyrics
+                  if (!hasError && !isLoading)
+                    SliverToBoxAdapter(
+                      child: LyricsWidget(videoId: currentTrackData.videoId),
+                    ),
+    
+                  // Error
+                  if (hasError)
+                    SliverToBoxAdapter(
+                      child: PlayerErrorWidget(message: errorMessage ?? 'Unknown error'),
+                    ),
+    
+                  // Loading
+                  if (isLoading || isBuffering)
+                    const SliverToBoxAdapter(
+                      child: PlayerShimmerWidget(),
+                    ),
+    
+                  // Bottom padding
+                  const SliverToBoxAdapter(
+                    child: SizedBox(height: 100),
                   ),
                 ],
-              );
-            },
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Widget para mostrar la playlist en la pantalla del reproductor
-class _PlaylistWidget extends StatelessWidget {
-  final List<NowPlayingData> playlist;
-  final int? currentIndex;
-  final void Function(int index) onTrackTap;
-
-  const _PlaylistWidget({
-    required this.playlist,
-    required this.currentIndex,
-    required this.onTrackTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 24),
-          // Header
-          Row(
-            children: [
-              const Icon(
-                Icons.queue_music,
-                color: Colors.white70,
-                size: 24,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                'Playlist',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                '${playlist.length} songs',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.white54,
-                    ),
               ),
             ],
-          ),
-          const SizedBox(height: 16),
-          // Playlist items
-          ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: playlist.length,
-            itemBuilder: (context, index) {
-              final track = playlist[index];
-              final isCurrentTrack = index == currentIndex;
-
-              return _PlaylistItemWidget(
-                track: track,
-                index: index,
-                isCurrentTrack: isCurrentTrack,
-                onTap: () => onTrackTap(index),
-              );
-            },
-          ),
-        ],
+          );
+        },
       ),
-    );
+    ),
+        );
   }
 }
 
-/// Widget para un item individual de la playlist
-class _PlaylistItemWidget extends StatelessWidget {
-  final NowPlayingData track;
-  final int index;
-  final bool isCurrentTrack;
-  final VoidCallback onTap;
+/// Carrusel de canciones con sincronización automática por videoId
+class _PlayerCarousel extends StatefulWidget {
+  final List<NowPlayingData> playlist;
+  final int currentIndex;
+  final NowPlayingData nowPlayingData;
 
-  const _PlaylistItemWidget({
-    required this.track,
-    required this.index,
-    required this.isCurrentTrack,
-    required this.onTap,
+  const _PlayerCarousel({
+    required this.playlist,
+    required this.currentIndex,
+    required this.nowPlayingData,
   });
 
   @override
+  State<_PlayerCarousel> createState() => _PlayerCarouselState();
+}
+
+class _PlayerCarouselState extends State<_PlayerCarousel> {
+  late PageController _pageController;
+  int _currentIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.currentIndex;
+    _pageController = PageController(
+      viewportFraction: 0.8,
+      initialPage: _currentIndex,
+    );
+  }
+
+  int _findIndexByVideoId(String videoId) {
+    for (int i = 0; i < widget.playlist.length; i++) {
+      if (widget.playlist[i].videoId == videoId) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  void _animateToPage(int page) {
+    if (_pageController.hasClients && page >= 0 && page < widget.playlist.length) {
+      _pageController.animateToPage(
+        page,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeOutCubic,
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        decoration: BoxDecoration(
-          color: isCurrentTrack ? Colors.white.withValues(alpha: 0.1) : Colors.transparent,
-          borderRadius: BorderRadius.circular(8),
+    // Si no hay playlist, mostrar artwork normal
+    if (widget.playlist.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: PlayerArtworkWidget(
+          thumbnail: widget.nowPlayingData.highResThumbnail,
+          videoId: widget.nowPlayingData.videoId,
+          isLoading: false,
         ),
-        child: Row(
-          children: [
-            // Thumbnail
-            ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: SizedBox(
-                width: 48,
-                height: 48,
-                child: CachedNetworkImage(
-                  imageUrl: track.highResThumbnail.url,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => Container(
-                    color: Colors.grey[800],
-                    child: const Icon(
-                      Icons.music_note,
-                      color: Colors.white54,
-                      size: 24,
-                    ),
-                  ),
-                  errorWidget: (context, url, error) => Container(
-                    color: Colors.grey[800],
-                    child: const Icon(
-                      Icons.music_note,
-                      color: Colors.white54,
-                      size: 24,
-                    ),
-                  ),
+      );
+    }
+
+    // Usar BlocListener para escuchar cambios del PlayerBloc
+    return BlocListener<PlayerBlocBloc, PlayerBlocState>(
+      listenWhen: (previous, current) {
+        // Escuchar cuando cambia el currentTrack
+        if (previous is PlayerBlocLoaded && current is PlayerBlocLoaded) {
+          return previous.currentTrack?.videoId != current.currentTrack?.videoId ||
+                 previous.currentIndex != current.currentIndex;
+        }
+        return current is PlayerBlocLoaded;
+      },
+      listener: (context, state) {
+        if (state is PlayerBlocLoaded && state.currentTrack != null) {
+          final newIndex = _findIndexByVideoId(state.currentTrack!.videoId);
+          if (newIndex >= 0 && newIndex != _currentIndex) {
+            _currentIndex = newIndex;
+            _animateToPage(newIndex);
+          }
+        }
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: SizedBox(
+          height: 320,
+          child: PageView.builder(
+            controller: _pageController,
+            onPageChanged: (index) {
+              _currentIndex = index;
+              context.read<PlayerBlocBloc>().add(PlayTrackAtIndexEvent(index));
+            },
+            itemCount: widget.playlist.length,
+            itemBuilder: (context, index) {
+              final track = widget.playlist[index];
+              return Center(
+                child: PlayerArtworkWidget(
+                  thumbnail: track.highResThumbnail,
+                  videoId: track.videoId,
+                  isLoading: false,
                 ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            // Track info
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    track.title,
-                    style: TextStyle(
-                      color: isCurrentTrack ? const Color(0xFF1DB954) : Colors.white,
-                      fontWeight: isCurrentTrack ? FontWeight.bold : FontWeight.normal,
-                      fontSize: 14,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    track.artistsNames,
-                    style: TextStyle(
-                      color: isCurrentTrack ? const Color(0xFF1DB954).withValues(alpha: 0.8) : Colors.white54,
-                      fontSize: 12,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-            // Duration
-            Padding(
-              padding: const EdgeInsets.only(left: 8),
-              child: Text(
-                track.duration,
-                style: TextStyle(
-                  color: isCurrentTrack ? const Color(0xFF1DB954) : Colors.white54,
-                  fontSize: 12,
-                ),
-              ),
-            ),
-            // Playing indicator
-            if (isCurrentTrack)
-              const Padding(
-                padding: EdgeInsets.only(left: 8),
-                child: Icon(
-                  Icons.equalizer,
-                  color: Color(0xFF1DB954),
-                  size: 20,
-                ),
-              ),
-          ],
+              );
+            },
+          ),
         ),
       ),
     );

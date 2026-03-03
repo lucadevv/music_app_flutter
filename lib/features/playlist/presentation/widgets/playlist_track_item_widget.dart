@@ -151,20 +151,11 @@ class PlaylistTrackItemWidget extends StatelessWidget {
             onTap: isDisabled
                 ? null
                 : () {
-                    if (isPlaylistLoaded) {
-                      if (playerState is PlayerBlocLoaded) {
-                        final trackIndex = playerState.playlist.indexWhere(
-                          (t) => t.videoId == track.videoId,
-                        );
-                        if (trackIndex >= 0) {
-                          playerBloc.add(PlayTrackAtIndexEvent(trackIndex));
-                        }
-                      }
-                    } else {
-                      context.router.push(
-                        PlayerRoute(nowPlayingData: _toNowPlayingData()),
-                      );
-                    }
+                    // SIEMPRE navegar a PlayerScreen
+                    // El PlayerScreen se encarga de reproducir la canción correcta
+                    context.router.push(
+                      PlayerRoute(nowPlayingData: _toNowPlayingData()),
+                    );
                   },
           ),
         );

@@ -22,7 +22,7 @@ class _AppState extends State<App> {
   final _router = getIt<AppRouter>();
   ThemeCubit? _themeCubit;
   LocaleCubit? _localeCubit;
-  PlayerBlocBloc? _playerBlocBloc;
+ 
   DownloadsCubit? _downloadsCubit;
   ProfileCubit? _profileCubit;
   bool _isInitialized = false;
@@ -37,7 +37,7 @@ class _AppState extends State<App> {
   void dispose() {
     _themeCubit?.close();
     _localeCubit?.close();
-    _playerBlocBloc?.close();
+ 
     _downloadsCubit?.close();
     _profileCubit?.close();
     super.dispose();
@@ -52,7 +52,7 @@ class _AppState extends State<App> {
       // Now safe to get async singletons
       _themeCubit = await getIt.getAsync<ThemeCubit>();
       _localeCubit = await getIt.getAsync<LocaleCubit>();
-      _playerBlocBloc = getIt<PlayerBlocBloc>();
+    
 
       // DownloadsCubit es lazy singleton async
       _downloadsCubit = await getIt.getAsync<DownloadsCubit>();
@@ -75,7 +75,7 @@ class _AppState extends State<App> {
     if (!_isInitialized ||
         _themeCubit == null ||
         _localeCubit == null ||
-        _playerBlocBloc == null ||
+     
         _downloadsCubit == null ||
         _profileCubit == null) {
       return MaterialApp(
@@ -92,7 +92,7 @@ class _AppState extends State<App> {
       providers: [
         BlocProvider.value(value: _themeCubit!),
         BlocProvider.value(value: _localeCubit!),
-        BlocProvider.value(value: _playerBlocBloc!),
+ 
         BlocProvider.value(value: _downloadsCubit!),
         BlocProvider.value(value: _profileCubit!),
       ],
