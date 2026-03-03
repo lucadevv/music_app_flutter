@@ -592,10 +592,8 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
         );
         return;
       }
-      print("DEBUG: objects: ${audioSources.length}, total: ${event.playlist.length} first track: ${event.playlist.first.title} with url: ${event.playlist.first.streamUrl}  ");  
 
       // Primera canción: configurar y reproducir con reintentos
-      print("DEBUG 1: Antes de setAudioSource");
       
       // Intentar con reintentos para manejar errores de red temporales
       Exception? lastError;
@@ -604,11 +602,9 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
           await _audioPlayer.setAudioSource(
             ConcatenatingAudioSource(children: audioSources),
           );
-          print("DEBUG 2: Después de setAudioSource (intento ${retry + 1})");
           break; // Éxito
         } catch (e) {
           lastError = e as Exception;
-          print("DEBUG 2 ERROR (intento ${retry + 1}/3): $e");
           if (retry < 2) {
             await Future.delayed(Duration(milliseconds: 500 * (retry + 1)));
           }
@@ -631,7 +627,6 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
       final actualDuration = Duration(seconds: firstTrack.durationSeconds);
       
       // Emitir estado
-      print("DEBUG 3: Emitiendo estado con playbackState: playing");
       emit(
         PlayerBlocLoaded(
           playbackState: PlaybackState.playing,
@@ -649,12 +644,8 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
       );
       
       // Play directamente
-      print("DEBUG 4: Antes de _audioPlayer.play()");
       await _audioPlayer.play();
-      print("DEBUG 5: Después de play()");
     } catch (e, stackTrace) {
-      print("ERROR in _onLoadPlaylist: $e");
-      print("Stack: $stackTrace");
       emit(
         PlayerBlocLoaded(
           isLoading: false,
