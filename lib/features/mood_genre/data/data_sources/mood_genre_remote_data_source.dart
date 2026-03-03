@@ -29,7 +29,7 @@ class MoodGenreRemoteDataSourceImpl implements MoodGenreRemoteDataSource {
     String params,
   ) async {
     try {
-      final endpoint = '/music/explore/moods/$params?include_stream_urls=true';
+      final endpoint = '/music/explore/moods/$params?include_stream_urls=false';
       final response = await _apiServices.get(endpoint);
 
       // Dio devuelve Response, necesitamos acceder a response.data

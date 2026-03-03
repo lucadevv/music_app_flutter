@@ -37,7 +37,7 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
       // Codificar la query para URL (espacios -> %20)
       final encodedQuery = Uri.encodeComponent(request.query);
       final endpoint =
-          '/music/search?q=$encodedQuery&filter=${request.filter}&include_stream_urls=true';
+          '/music/search?q=$encodedQuery&filter=${request.filter}&include_stream_urls=false';
 
       final response = await _apiServices.get(endpoint);
 
@@ -86,7 +86,7 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
   }) async {
     try {
       final endpoint =
-          '/music/recent-searches?limit=$limit&include_stream_urls=true';
+          '/music/recent-searches?limit=$limit&include_stream_urls=false';
       final response = await _apiServices.get(endpoint);
 
       // Dio devuelve Response, necesitamos acceder a response.data
@@ -196,7 +196,7 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
   @override
   Future<Either<AppException, List<MoodGenreModel>>> getCategories() async {
     try {
-      const endpoint = '/music/explore?include_stream_urls=true';
+      const endpoint = '/music/explore?include_stream_urls=false';
       final response = await _apiServices.get(endpoint);
 
       final responseData = response is Response ? response.data : response;

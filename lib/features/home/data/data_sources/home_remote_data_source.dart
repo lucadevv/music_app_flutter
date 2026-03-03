@@ -30,7 +30,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
         debugPrint('HomeRemoteDataSource: Calling /music/explore');
       }
       
-      final endpoint = '/music/explore?include_stream_urls=true';
+      final endpoint = '/music/explore?include_stream_urls=false';
       final response = await _apiServices.get(endpoint);
 
       if (kDebugMode) {

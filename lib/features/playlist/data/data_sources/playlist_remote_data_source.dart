@@ -35,7 +35,7 @@ class PlaylistRemoteDataSourceImpl implements PlaylistRemoteDataSource {
         return const Left(exception);
       }
 
-      final endpoint = '/music/playlists/$id?include_stream_urls=true';
+      final endpoint = '/music/playlists/$id?include_stream_urls=false';
       if (kDebugMode) {
         debugPrint('getPlaylist: Loading playlist with ID: $id');
         debugPrint('getPlaylist: Endpoint: $endpoint');
