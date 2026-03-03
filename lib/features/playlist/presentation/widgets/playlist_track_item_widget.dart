@@ -79,11 +79,13 @@ class PlaylistTrackItemWidget extends StatelessWidget {
     return BlocBuilder<PlayerBlocBloc, PlayerBlocState>(
       bloc: playerBloc,
       builder: (context, playerState) {
-        final isCurrentlyPlaying =
+        // Mostrar indicador si es la canción actual (reproduciendo o en pausa)
+        final isCurrentTrack =
             playerState is PlayerBlocLoaded &&
             playerState.currentTrack != null &&
-            playerState.currentTrack!.videoId == track.videoId &&
-            playerState.isPlaying;
+            playerState.currentTrack!.videoId == track.videoId;
+
+        final isCurrentlyPlaying = isCurrentTrack && playerState.isPlaying;
 
         final isPlaylistLoaded = _isPlaylistLoaded(playerState, allTracks);
 
@@ -105,13 +107,19 @@ class PlaylistTrackItemWidget extends StatelessWidget {
                           color: AppColorsDark.primary,
                           size: 20,
                         )
-                      : Icon(
-                          Icons.play_arrow,
-                          color: Colors.white.withValues(
-                            alpha: isDisabled ? 0.3 : 0.6,
-                          ),
-                          size: 20,
-                        ),
+                      : isCurrentTrack
+                          ? Icon(
+                              Icons.pause,
+                              color: AppColorsDark.primary,
+                              size: 20,
+                            )
+                          : Icon(
+                              Icons.play_arrow,
+                              color: Colors.white.withValues(
+                                alpha: isDisabled ? 0.3 : 0.6,
+                              ),
+                              size: 20,
+                            ),
                 ),
                 const SizedBox(width: 8),
                 // Botón de favorito

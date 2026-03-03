@@ -69,12 +69,18 @@ class _PlayerScreenState extends State<PlayerScreen> {
         body: SafeArea(
           child: BlocBuilder<PlayerBlocBloc, PlayerBlocState>(
             buildWhen: (previous, current) {
+              // Siempre reconstruir si el estado cambió significativamente
+              if (previous.runtimeType != current.runtimeType) {
+                return true;
+              }
+              // Si ambos son PlayerBlocLoaded, reconstruir si cambió algo importante
               if (previous is PlayerBlocLoaded && current is PlayerBlocLoaded) {
                 return previous.position != current.position ||
                     previous.duration != current.duration ||
                     previous.playbackState != current.playbackState ||
                     previous.currentTrack?.videoId !=
                         current.currentTrack?.videoId ||
+                    previous.currentIndex != current.currentIndex ||
                     previous.isLoading != current.isLoading;
               }
               return true;
