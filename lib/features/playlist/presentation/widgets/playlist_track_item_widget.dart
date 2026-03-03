@@ -151,8 +151,28 @@ class PlaylistTrackItemWidget extends StatelessWidget {
             onTap: isDisabled
                 ? null
                 : () {
-                    // SIEMPRE navegar a PlayerScreen
-                    // El PlayerScreen se encarga de reproducir la canción correcta
+                    // Verificar si la canción ya está en la playlist del PlayerBloc
+                    final playerState = context.read<PlayerBlocBloc>().state;
+                    
+                    if (playerState is PlayerBlocLoaded && 
+                        playerState.playlist.isNotEmpty) {
+                      final trackIndex = playerState.playlist.indexWhere(
+                        (t) => t.videoId == track.videoId,
+                      );
+                      
+                      if (trackIndex >= 0) {
+                        // Ya está en la playlist - reproducir y navegar
+                        context.read<PlayerBlocBloc>().add(
+                          PlayTrackAtIndexEvent(trackIndex),
+                        );
+                        context.router.push(
+                          PlayerRoute(nowPlayingData: _toNowPlayingData()),
+                        );
+                        return;
+                      }
+                    }
+                    
+                    // No está en la playlist - navegar a PlayerScreen
                     context.router.push(
                       PlayerRoute(nowPlayingData: _toNowPlayingData()),
                     );

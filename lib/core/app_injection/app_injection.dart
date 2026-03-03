@@ -63,7 +63,7 @@ import 'package:music_app/features/playlist/data/data_sources/playlist_remote_da
 import 'package:music_app/features/playlist/data/repositories/playlist_repository_impl.dart';
 import 'package:music_app/features/playlist/domain/repositories/playlist_repository.dart';
 import 'package:music_app/features/playlist/domain/use_cases/get_playlist_use_case.dart';
-import 'package:music_app/features/playlist/presentation/cubit/playlist_cubit.dart';
+
 import 'package:music_app/features/profile/data/datasources/profile_remote_data_source.dart';
 import 'package:music_app/features/profile/data/repositories/profile_repository_impl.dart';
 import 'package:music_app/features/profile/domain/repositories/profile_repository.dart';
@@ -95,7 +95,6 @@ import 'package:music_app/features/player/domain/repositories/stream_url_reposit
 import 'package:music_app/features/player/domain/usecases/get_stream_url_usecase.dart';
 import 'package:music_app/features/player/data/datasources/stream_url_remote_data_source.dart';
 import 'package:music_app/features/player/data/repositories/stream_url_repository_impl.dart';
-import 'package:music_app/features/player/domain/repositories/stream_url_repository.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 

@@ -172,7 +172,7 @@ void main() {
       });
 
       test('should format duration correctly', () {
-        final recentSong = RecentSong(
+        const recentSong = RecentSong(
           videoId: 'test',
           title: 'Test',
           artist: 'Artist',
