@@ -150,6 +150,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                                 duration: state is PlayerBlocLoaded
                                     ? state.duration
                                     : Duration.zero,
+                                onSeek: (position) => context.read<PlayerBlocBloc>().add(SeekEvent(position)),
                               ),
                               const SizedBox(height: 16),
                               // Controls
@@ -159,6 +160,9 @@ class _PlayerScreenState extends State<PlayerScreen> {
                                 canPlayPrevious: canPlayPrevious,
                                 isShuffleEnabled: isShuffleEnabled,
                                 loopMode: repeatMode,
+                                onPlayPause: () => context.read<PlayerBlocBloc>().add(const PlayPauseToggleEvent()),
+                                onNext: () => context.read<PlayerBlocBloc>().add(const NextTrackEvent()),
+                                onPrevious: () => context.read<PlayerBlocBloc>().add(const PreviousTrackEvent()),
                               ),
                               const SizedBox(height: 24),
                             ],

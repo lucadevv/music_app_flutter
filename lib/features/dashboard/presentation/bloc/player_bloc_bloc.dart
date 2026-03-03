@@ -26,10 +26,24 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
   // AudioPlayerHandler se registra en main.dart después de AudioService.init()
   AudioPlayer? _audioPlayerInstance;
 
-  /// Getter para acceder al AudioPlayer
+  /// Obtiene el player, creando uno nuevo si no está disponible del handler
   AudioPlayer get _audioPlayer {
     if (_audioPlayerInstance == null) {
-      throw Exception('Player not initialized');
+      try {
+        if (GetIt.I.isRegistered<AudioPlayerHandler>()) {
+          _audioPlayerInstance = GetIt.I<AudioPlayerHandler>().player;
+        } else {
+          // Fallback: crear un AudioPlayer básico si el handler no está disponible
+          _audioPlayerInstance = AudioPlayer();
+          // IMPORTANTE: Inicializar los streams del fallback player
+          _initializePlayer();
+        }
+      } catch (e) {
+        // Fallback final
+        _audioPlayerInstance = AudioPlayer();
+        // IMPORTANTE: Inicializar los streams del fallback player
+        _initializePlayer();
+      }
     }
     return _audioPlayerInstance!;
   }
