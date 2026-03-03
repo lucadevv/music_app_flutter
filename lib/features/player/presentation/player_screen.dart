@@ -111,7 +111,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
               return Stack(
                 children: [
                   // Backdrop difuminado
-                  PlayerBackdropWidget(thumbnail: currentTrack.bestThumbnail),
+                  PlayerBackdropWidget(thumbnail: currentTrack.highResThumbnail),
 
                   // Contenido con CustomScrollView
                   CustomScrollView(
@@ -130,7 +130,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                               const SizedBox(height: 20),
                               // Artwork
                               PlayerArtworkWidget(
-                                thumbnail: currentTrack.bestThumbnail,
+                                thumbnail: currentTrack.highResThumbnail,
                                 videoId: currentTrack.videoId,
                                 isLoading: isLoading,
                               ),
