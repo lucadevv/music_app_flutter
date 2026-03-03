@@ -428,7 +428,7 @@ class AppInjection {
     // Nota: OfflineService se obtiene de forma lazy dentro del BLoC
     if (!_getIt.isRegistered<PlayerBlocBloc>()) {
       _getIt.registerLazySingleton<PlayerBlocBloc>(
-        () => PlayerBlocBloc(_getIt<ApiServices>()),
+        () => PlayerBlocBloc(),
       );
     }
   }
@@ -515,12 +515,8 @@ class AppInjection {
       );
     }
 
-    // Cubits (factory porque cada pantalla necesita su propia instancia)
-    if (!_getIt.isRegistered<PlaylistCubit>()) {
-      _getIt.registerFactory<PlaylistCubit>(
-        () => PlaylistCubit(getPlaylistUseCase: _getIt<GetPlaylistUseCase>()),
-      );
-    }
+    // PlaylistCubit se crea directamente en PlaylistScreen con BlocProvider
+    // No se registra aquí porque necesita PlayerBloc que es un singleton
   }
 
   void _registerDownloadsFeature() {

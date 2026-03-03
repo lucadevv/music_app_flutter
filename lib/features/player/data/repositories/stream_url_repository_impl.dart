@@ -8,7 +8,7 @@ class StreamUrlRepositoryImpl implements StreamUrlRepository {
   StreamUrlRepositoryImpl(this._remoteDataSource);
 
   @override
-  Future<String?> getStreamUrl(String videoId) {
-    return _remoteDataSource.getStreamUrl(videoId);
+  Future<String?> getStreamUrl(String videoId, {bool bypassCache = false}) {
+    return _remoteDataSource.getStreamUrl(videoId, bypassCache: bypassCache);
   }
 }

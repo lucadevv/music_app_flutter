@@ -10,22 +10,36 @@ class PlaylistState extends Equatable {
   final PlaylistStatus status;
   final PlaylistResponse? response;
   final String? errorMessage;
+  
+  // Estado de carga de playlist para reproducción
+  final int loadedCount;
+  final int totalCount;
+  final bool isLoadingForPlay;
 
   const PlaylistState({
     this.status = PlaylistStatus.initial,
     this.response,
     this.errorMessage,
+    this.loadedCount = 0,
+    this.totalCount = 0,
+    this.isLoadingForPlay = false,
   });
 
   PlaylistState copyWith({
     PlaylistStatus? status,
     PlaylistResponse? response,
     String? errorMessage,
+    int? loadedCount,
+    int? totalCount,
+    bool? isLoadingForPlay,
   }) {
     return PlaylistState(
       status: status ?? this.status,
       response: response ?? this.response,
       errorMessage: errorMessage ?? this.errorMessage,
+      loadedCount: loadedCount ?? this.loadedCount,
+      totalCount: totalCount ?? this.totalCount,
+      isLoadingForPlay: isLoadingForPlay ?? this.isLoadingForPlay,
     );
   }
 
@@ -43,5 +57,5 @@ class PlaylistState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [status, response, errorMessage];
+  List<Object?> get props => [status, response, errorMessage, loadedCount, totalCount, isLoadingForPlay];
 }

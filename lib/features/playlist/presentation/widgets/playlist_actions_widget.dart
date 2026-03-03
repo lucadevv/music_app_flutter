@@ -5,8 +5,9 @@ import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.
 import 'package:music_app/features/favorites/presentation/cubit/favorite_cubit.dart';
 import 'package:music_app/features/favorites/presentation/widgets/favorite_button.dart';
 import 'package:music_app/features/library/library_service.dart';
-import 'package:music_app/features/playlist/data/isolates/playlist_processing_isolate.dart';
 import 'package:music_app/features/playlist/domain/entities/playlist_response.dart';
+import 'package:music_app/features/playlist/presentation/cubit/playlist_cubit.dart';
+import 'package:music_app/features/playlist/presentation/cubit/playlist_state.dart';
 
 /// Widget para los botones de acción de la playlist
 class PlaylistActionsWidget extends StatelessWidget {
@@ -18,11 +19,11 @@ class PlaylistActionsWidget extends StatelessWidget {
   String? _getBestThumbnail() {
     if (playlist.thumbnails.isEmpty) return null;
 
-    // Ordenar por ancho y obtener la más grande (mayor a menor)
+    // Ordenar por ancho y obtener la más grande
     final sortedThumbnails = List.of(playlist.thumbnails)
       ..sort((a, b) => b.width.compareTo(a.width));
 
-    return sortedThumbnails.first.url; // Ya está ordenado de mayor a menor
+    return sortedThumbnails.first.url;
   }
 
   bool _isPlaylistLoaded(PlayerBlocState playerState) {
@@ -60,122 +61,181 @@ class PlaylistActionsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final playerBloc = context.read<PlayerBlocBloc>();
+    final playlistCubit = context.read<PlaylistCubit>();
 
-    return BlocBuilder<PlayerBlocBloc, PlayerBlocState>(
-      bloc: playerBloc,
-      builder: (context, playerState) {
-        final isLoadingPlaylist =
-            playerState is PlayerBlocLoaded &&
-            playerState.isLoading &&
-            playerState.playlist.isNotEmpty;
+    return BlocBuilder<PlaylistCubit, PlaylistState>(
+      builder: (context, playlistState) {
+        return BlocBuilder<PlayerBlocBloc, PlayerBlocState>(
+          builder: (context, playerState) {
+            // Estado de carga del cubit
+            final isLoadingForPlay = playlistState.isLoadingForPlay;
+            final loadedCount = playlistState.loadedCount;
+            final totalCount = playlistState.totalCount;
 
-        final isPlaylistLoaded = _isPlaylistLoaded(playerState);
-        final isPlaying =
-            playerState is PlayerBlocLoaded &&
-            isPlaylistLoaded &&
-            playerState.isPlaying;
+            // Determinar si está reproduciendo: 
+            // Si hay currentTrack en el player, está reproduciendo o en pausa
+            final hasCurrentTrack = playerState is PlayerBlocLoaded &&
+                playerState.currentTrack != null;
+            final isPlaying = playerState is PlayerBlocLoaded &&
+                playerState.isPlaying;
 
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-          child: Row(
-            children: [
-              // Botón de play/pause
-              GestureDetector(
-                onTap: isLoadingPlaylist
-                    ? null
-                    : () async {
-                        if (isPlaylistLoaded) {
-                          playerBloc.add(const PlayPauseToggleEvent());
-                        } else {
-                          final availableTracks = playlist.tracks
-                              .where(
-                                (track) =>
-                                    track.videoId != null &&
-                                    track.videoId!.isNotEmpty &&
-                                    track.isAvailable,
-                              )
-                              .toList();
+            // El loading del botón solo cuando está cargando la primera
+            final isLoadingFirstSong = isLoadingForPlay && loadedCount < 1;
 
-                          if (availableTracks.isEmpty) return;
-
-                          final tracks =
-                              await PlaylistProcessingIsolate.processPlaylistInIsolate(
-                                availableTracks,
-                              );
-
-                          if (tracks.isNotEmpty && context.mounted) {
-                            playerBloc.add(
-                              LoadPlaylistEvent(
-                                playlist: tracks,
-                                startIndex: 0,
-                              ),
-                            );
-                          }
-                        }
-                      },
-                child: Container(
-                  width: 64,
-                  height: 64,
-                  decoration: BoxDecoration(
-                    color: AppColorsDark.primary,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColorsDark.primary.withValues(alpha: 0.4),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: isLoadingPlaylist
-                      ? const SizedBox(
-                          width: 28,
-                          height: 28,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2.5,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              Colors.white,
-                            ),
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+              child: Row(
+                children: [
+                  // Botón de play/pause
+                  GestureDetector(
+                    onTap: isLoadingFirstSong
+                        ? null
+                        : () {
+                            // Si hay una canción (reproduciendo o pausa), togglear
+                            if (hasCurrentTrack) {
+                              playerBloc.add(const PlayPauseToggleEvent());
+                            } else {
+                              // No hay nada - cargar playlist desde cubit
+                              playlistCubit.playAll();
+                            }
+                          },
+                    child: Container(
+                      width: 64,
+                      height: 64,
+                      decoration: BoxDecoration(
+                        color: AppColorsDark.primary,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColorsDark.primary.withValues(alpha: 0.4),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
                           ),
-                        )
-                      : Icon(
-                          isPlaying ? Icons.pause : Icons.play_arrow,
-                          color: Colors.white,
-                          size: 36,
-                        ),
-                ),
+                        ],
+                      ),
+                      child: isLoadingFirstSong
+                          ? const SizedBox(
+                              width: 28,
+                              height: 28,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.5,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.white,
+                                ),
+                              ),
+                            )
+                          : Icon(
+                              isPlaying ? Icons.pause : Icons.play_arrow,
+                              color: Colors.white,
+                              size: 36,
+                            ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  // Botón de favorito
+                  FavoriteButton(
+                    videoId: playlist.id,
+                    type: FavoriteType.playlist,
+                    size: 28,
+                    playlistMetadata: PlaylistMetadata(
+                      name: playlist.title,
+                      thumbnail: _getBestThumbnail(),
+                      description: playlist.description.isNotEmpty
+                          ? playlist.description
+                          : null,
+                      trackCount: playlist.trackCount,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  // Botón de descarga con progreso
+                  _buildDownloadWithProgress(
+                    isPlaylistLoading: isLoadingForPlay,
+                    loadedCount: loadedCount,
+                    totalToLoad: totalCount,
+                  ),
+                  const Spacer(),
+                  // Botón de shuffle
+                  IconButton(
+                    icon: const Icon(Icons.shuffle, color: Colors.white, size: 28),
+                    onPressed: () {},
+                  ),
+                ],
               ),
-              const SizedBox(width: 16),
-              // Botón de favorito
-              FavoriteButton(
-                videoId: playlist.id,
-                type: FavoriteType.playlist,
-                size: 28,
-                playlistMetadata: PlaylistMetadata(
-                  name: playlist.title,
-                  thumbnail: _getBestThumbnail(),
-                  description: playlist.description.isNotEmpty
-                      ? playlist.description
-                      : null,
-                  trackCount: playlist.trackCount,
-                ),
-              ),
-              const SizedBox(width: 8),
-              // Botón de descarga
-              IconButton(
-                icon: const Icon(Icons.download, color: Colors.white, size: 28),
-                onPressed: () {},
-              ),
-              const Spacer(),
-              // Botón de shuffle
-              IconButton(
-                icon: const Icon(Icons.shuffle, color: Colors.white, size: 28),
-                onPressed: () {},
-              ),
-            ],
-          ),
+            );
+          },
         );
       },
+    );
+  }
+
+  Widget _buildDownloadWithProgress({
+    required bool isPlaylistLoading,
+    int? loadedCount,
+    int? totalToLoad,
+  }) {
+    // Si está cargando, mostrar progreso
+    if (isPlaylistLoading && loadedCount != null && totalToLoad != null && totalToLoad > 0) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: AppColorsDark.primary.withValues(alpha: 0.3),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              ),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              '$loadedCount/$totalToLoad',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Si terminó de cargar, mostrar check
+    if (loadedCount != null && totalToLoad != null && loadedCount >= totalToLoad && totalToLoad > 0) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: Colors.green.withValues(alpha: 0.3),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.check, color: Colors.white, size: 16),
+            SizedBox(width: 4),
+            Text(
+              'Lista',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Botón normal de descarga
+    return IconButton(
+      icon: const Icon(Icons.download, color: Colors.white, size: 28),
+      onPressed: () {},
     );
   }
 }

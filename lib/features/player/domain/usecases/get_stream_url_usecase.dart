@@ -7,7 +7,8 @@ class GetStreamUrlUseCase {
   GetStreamUrlUseCase(this._repository);
 
   /// Ejecuta el use case para obtener la stream URL
-  Future<String?> call(String videoId) {
-    return _repository.getStreamUrl(videoId);
+  /// [bypassCache] - Si true, ignora la caché y obtiene URL fresca
+  Future<String?> call(String videoId, {bool bypassCache = false}) {
+    return _repository.getStreamUrl(videoId, bypassCache: bypassCache);
   }
 }

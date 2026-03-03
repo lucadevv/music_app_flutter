@@ -98,6 +98,9 @@ class AddToPlaylistEvent extends PlayerBlocEvent {
   List<Object?> get props => [track];
 }
 
+/// Cargar una canción con URL ya resuelta (para playlist loading)
+
+
 /// Remover canción de la playlist
 class RemoveFromPlaylistEvent extends PlayerBlocEvent {
   final int index;

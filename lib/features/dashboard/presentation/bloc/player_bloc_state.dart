@@ -34,6 +34,9 @@ class PlayerBlocLoaded extends PlayerBlocState {
   final bool isShuffleEnabled;
   final String? error;
   final bool isLoading;
+  final DateTime? loadingCompletedAt; // Timestamp cuando terminó de cargar
+  final int? loadedCount; // Número de canciones cargadas en playlist
+  final int? totalToLoad; // Total de canciones a cargar en playlist
 
   const PlayerBlocLoaded({
     this.playbackState = PlaybackState.stopped,
@@ -52,6 +55,9 @@ class PlayerBlocLoaded extends PlayerBlocState {
     this.isShuffleEnabled = false,
     this.error,
     this.isLoading = false,
+    this.loadingCompletedAt,
+    this.loadedCount,
+    this.totalToLoad,
   });
 
   /// Getters computados para facilitar el uso
@@ -70,6 +76,19 @@ class PlayerBlocLoaded extends PlayerBlocState {
       currentIndex! < playlist.length - 1;
   bool get canPlayPrevious =>
       hasPlaylist && currentIndex != null && currentIndex! > 0;
+
+  /// Verifica si la playlist terminó de cargar (para mostrar indicador verde)
+  bool get isPlaylistFullyLoaded => loadingCompletedAt != null && !isLoading;
+
+  /// Verifica si la playlist está cargando (tiene canciones pendientes)
+  bool get isPlaylistLoading => isLoading && loadedCount != null && totalToLoad != null && loadedCount! < totalToLoad!;
+
+  /// Progreso de carga de la playlist (0.0 a 1.0)
+  double get loadingProgress {
+    if (totalToLoad == null || totalToLoad == 0) return 0.0;
+    if (loadedCount == null) return 0.0;
+    return loadedCount! / totalToLoad!;
+  }
 
   /// Progreso de reproducción (0.0 a 1.0)
   double get progress {
@@ -101,6 +120,9 @@ class PlayerBlocLoaded extends PlayerBlocState {
     bool? isShuffleEnabled,
     String? error,
     bool? isLoading,
+    DateTime? loadingCompletedAt,
+    int? loadedCount,
+    int? totalToLoad,
     bool clearError = false,
     bool clearCurrentTrack = false,
     bool clearCurrentIndex = false,
@@ -129,28 +151,34 @@ class PlayerBlocLoaded extends PlayerBlocState {
       isShuffleEnabled: isShuffleEnabled ?? this.isShuffleEnabled,
       error: clearError ? null : (error ?? this.error),
       isLoading: isLoading ?? this.isLoading,
+      loadingCompletedAt: isLoading == true ? null : (loadingCompletedAt ?? this.loadingCompletedAt),
+      loadedCount: loadedCount ?? this.loadedCount,
+      totalToLoad: totalToLoad ?? this.totalToLoad,
     );
   }
 
   @override
   List<Object?> get props => [
-    playbackState,
-    processingState,
-    connectionState,
-    playlist,
-    currentIndex,
-    currentTrack,
-    currentStreamUrl,
-    position,
-    duration,
-    bufferedPosition,
-    volume,
-    speed,
-    loopMode,
-    isShuffleEnabled,
-    error,
-    isLoading,
-  ];
+        playbackState,
+        processingState,
+        connectionState,
+        playlist,
+        currentIndex,
+        currentTrack,
+        currentStreamUrl,
+        position,
+        duration,
+        bufferedPosition,
+        volume,
+        speed,
+        loopMode,
+        isShuffleEnabled,
+        error,
+        isLoading,
+        loadingCompletedAt,
+        loadedCount,
+        totalToLoad,
+      ];
 }
 
 /// Enums para el estado del reproductor

@@ -24,7 +24,10 @@ class PlaylistScreen extends StatefulWidget implements AutoRouteWrapper {
   Widget wrappedRoute(BuildContext context) {
     return BlocProvider<PlaylistCubit>(
       create: (context) {
-        return PlaylistCubit(getPlaylistUseCase: getIt<GetPlaylistUseCase>());
+        return PlaylistCubit(
+          getPlaylistUseCase: getIt<GetPlaylistUseCase>(),
+          playerBloc: getIt<PlayerBlocBloc>(),
+        );
       },
       child: this,
     );
@@ -56,38 +59,32 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
         body: BlocBuilder<PlayerBlocBloc, PlayerBlocState>(
           bloc: playerBloc,
           builder: (context, playerState) {
-            final isLoadingPlaylist =
-                playerState is PlayerBlocLoaded &&
-                playerState.isLoading &&
-                playerState.playlist.isNotEmpty;
+            // Ya no necesitamos el overlay de loading porque el botón tiene indicador
+            return BlocBuilder<PlaylistCubit, PlaylistState>(
+              builder: (context, playlistState) {
+                // Mostrar loading
+                if (playlistState.status == PlaylistStatus.loading ||
+                    playlistState.status == PlaylistStatus.initial) {
+                  return const PlaylistLoadingWidget();
+                }
 
-            return PlaylistLoadingOverlay(
-              isLoading: isLoadingPlaylist,
-              child: BlocBuilder<PlaylistCubit, PlaylistState>(
-                builder: (context, playlistState) {
-                  // Mostrar loading
-                  if (playlistState.status == PlaylistStatus.loading ||
-                      playlistState.status == PlaylistStatus.initial) {
-                    return const PlaylistLoadingWidget();
-                  }
+                // Mostrar error
+                if (playlistState.status == PlaylistStatus.failure) {
+                  return PlaylistErrorWidget(
+                    errorMessage:
+                        playlistState.errorMessage ?? 'Error desconocido',
+                    playlistId: widget.id,
+                  );
+                }
 
-                  // Mostrar error
-                  if (playlistState.status == PlaylistStatus.failure) {
-                    return PlaylistErrorWidget(
-                      errorMessage:
-                          playlistState.errorMessage ?? 'Error desconocido',
-                      playlistId: widget.id,
-                    );
-                  }
+                // Mostrar contenido
+                final playlist = playlistState.response;
+                if (playlist == null) {
+                  return const PlaylistLoadingWidget();
+                }
 
-                  // Mostrar contenido
-                  final playlist = playlistState.response;
-                  if (playlist == null) {
-                    return const PlaylistLoadingWidget();
-                  }
-
-                  // Obtener la mejor thumbnail del estado
-                  // final bestThumbnail obtenido de playlistState (no se usa aún)
+                // Obtener la mejor thumbnail del estado
+                // final bestThumbnail obtenido de playlistState (no se usa aún)
 
                   return Stack(
                     children: [
@@ -192,7 +189,7 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                     ],
                   );
                 },
-              ),
+              
             );
           },
         ),
