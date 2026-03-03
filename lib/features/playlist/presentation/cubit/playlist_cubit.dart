@@ -113,10 +113,16 @@ class PlaylistCubit extends Cubit<PlaylistState> with BaseBlocMixin {
       NowPlayingData? firstTrackWithUrl;
       
       while (startIndex < nowPlayingTracks.length) {
+        // Verificar si el Cubit fue cerrado antes de continuar
+        if (isClosed) return;
+        
         final streamUrl = await _getStreamUrlUseCase(
           nowPlayingTracks[startIndex].videoId, 
           bypassCache: true,
         );
+        
+        // Verificar si fue cerrado durante el await
+        if (isClosed) return;
         
         if (streamUrl != null && streamUrl.isNotEmpty) {
           final track = nowPlayingTracks[startIndex];
@@ -141,6 +147,9 @@ class PlaylistCubit extends Cubit<PlaylistState> with BaseBlocMixin {
         startIndex++;
       }
 
+      // Verificar si fue cerrado
+      if (isClosed) return;
+
       // Si ninguna canción funcionó
       if (firstTrackWithUrl == null) {
         emit(state.copyWith(
@@ -161,6 +170,9 @@ class PlaylistCubit extends Cubit<PlaylistState> with BaseBlocMixin {
       // Esperar un poco para ver si la canción se reproduce correctamente
       await Future.delayed(const Duration(seconds: 2));
 
+      // Verificar si fue cerrado durante el delay
+      if (isClosed) return;
+
       // Verificar si el player tiene un track cargado
       final playerState = _playerBloc.state;
       if (playerState is! PlayerBlocLoaded || 
@@ -173,8 +185,14 @@ class PlaylistCubit extends Cubit<PlaylistState> with BaseBlocMixin {
 
       // === FASE 2: Cargar resto secuencialmente ===
       for (int i = 1; i < nowPlayingTracks.length; i++) {
+        // Verificar si fue cerrado antes de cada canción
+        if (isClosed) return;
+        
         // Delay para evitar rate limiting
         await Future.delayed(const Duration(milliseconds: 800));
+        
+        // Verificar si fue cerrado durante el delay
+        if (isClosed) return;
         
         final track = nowPlayingTracks[i];
         final url = await _getStreamUrlUseCase(track.videoId);
@@ -205,7 +223,9 @@ class PlaylistCubit extends Cubit<PlaylistState> with BaseBlocMixin {
         loadedCount: nowPlayingTracks.length,
       ));
     } catch (e) {
-      emit(state.copyWith(isLoadingForPlay: false));
+      if (!isClosed) {
+        emit(state.copyWith(isLoadingForPlay: false));
+      }
     }
   }
 
