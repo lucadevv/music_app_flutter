@@ -68,10 +68,10 @@ class PlaylistCubit extends Cubit<PlaylistState> with BaseBlocMixin {
 
   /// Reproduce la playlist desde el inicio
   /// 
-  /// Flujo simplificado:
-  /// 1. Carga primera canción con URL
-  /// 2. Envía LoadPlaylistEvent (reproduce automáticamente)
-  /// 3. Carga resto secuencialmente
+  /// Flujo:
+  /// 1. Intenta cargar la primera canción disponible
+  /// 2. Si falla, intenta con la siguiente, y así sucesivamente
+  /// 3. Una vez que encuentra una que funcione, carga el resto secuencialmente
   Future<void> playAll() async {
     if (state.response == null) return;
     if (state.isLoadingForPlay) return;
@@ -107,55 +107,69 @@ class PlaylistCubit extends Cubit<PlaylistState> with BaseBlocMixin {
     await Future.delayed(const Duration(milliseconds: 100));
 
     try {
-      // === FASE 1: Cargar primera canción CON bypass cache para obtener URL fresca ===
-      final streamUrl = await _getStreamUrlUseCase(nowPlayingTracks.first.videoId, bypassCache: true);
+      // === FASE 1: Encontrar primera canción válida ===
+      // Intentar con cada canción hasta encontrar una que funcione
+      int startIndex = 0;
+      NowPlayingData? firstTrackWithUrl;
       
-      if (streamUrl == null || streamUrl.isEmpty) {
-        emit(state.copyWith(isLoadingForPlay: false));
+      while (startIndex < nowPlayingTracks.length) {
+        final streamUrl = await _getStreamUrlUseCase(
+          nowPlayingTracks[startIndex].videoId, 
+          bypassCache: true,
+        );
+        
+        if (streamUrl != null && streamUrl.isNotEmpty) {
+          final track = nowPlayingTracks[startIndex];
+          firstTrackWithUrl = NowPlayingData(
+            videoId: track.videoId,
+            title: track.title,
+            artists: track.artists,
+            album: track.album,
+            duration: track.duration,
+            durationSeconds: track.durationSeconds,
+            views: track.views,
+            isExplicit: track.isExplicit,
+            inLibrary: track.inLibrary,
+            thumbnails: track.thumbnails,
+            streamUrl: streamUrl,
+            thumbnail: track.thumbnail,
+          );
+          break; // Encontramos una canción válida
+        }
+        
+        // Esta canción falló, intentar con la siguiente
+        startIndex++;
+      }
+
+      // Si ninguna canción funcionó
+      if (firstTrackWithUrl == null) {
+        emit(state.copyWith(
+          isLoadingForPlay: false,
+          errorMessage: 'No se pudo reproducir ninguna canción de la playlist',
+        ));
         return;
       }
 
-      // Crear primera canción con URL
-      final firstTrack = nowPlayingTracks.first;
-      final firstTrackWithUrl = NowPlayingData(
-        videoId: firstTrack.videoId,
-        title: firstTrack.title,
-        artists: firstTrack.artists,
-        album: firstTrack.album,
-        duration: firstTrack.duration,
-        durationSeconds: firstTrack.durationSeconds,
-        views: firstTrack.views,
-        isExplicit: firstTrack.isExplicit,
-        inLibrary: firstTrack.inLibrary,
-        thumbnails: firstTrack.thumbnails,
-        streamUrl: streamUrl,
-        thumbnail: firstTrack.thumbnail,
-      );
-
-      // Enviar LoadPlaylistEvent con primera canción
+      // Enviar LoadPlaylistEvent con primera canción válida
       _playerBloc.add(LoadPlaylistEvent(
         playlist: [firstTrackWithUrl],
         startIndex: 0,
       ));
 
-      emit(state.copyWith(loadedCount: 1));
+      emit(state.copyWith(loadedCount: startIndex + 1));
 
-      // Esperar un poco para ver si la primera canción se reproduce correctamente
-      // Si hay error, no continuamos cargando el resto
+      // Esperar un poco para ver si la canción se reproduce correctamente
       await Future.delayed(const Duration(seconds: 2));
 
-      // Verificar si el player tiene un track cargado (si falló, no hay currentTrack o hay error)
+      // Verificar si el player tiene un track cargado
       final playerState = _playerBloc.state;
       if (playerState is! PlayerBlocLoaded || 
           playerState.currentTrack == null ||
           playerState.hasError) {
-        // La primera canción falló, no continuar cargando
-        print("DEBUG: Primera canción falló (currentTrack: ${playerState is PlayerBlocLoaded ? playerState.currentTrack : 'null'}, hasError: ${playerState is PlayerBlocLoaded ? playerState.hasError : 'N/A'}), cancelando carga del resto");
+        // La canción también falló, cancelar
         emit(state.copyWith(isLoadingForPlay: false));
         return;
       }
-
-      print("DEBUG: Primera canción reproduciendo, cargando resto...");
 
       // === FASE 2: Cargar resto secuencialmente ===
       for (int i = 1; i < nowPlayingTracks.length; i++) {
