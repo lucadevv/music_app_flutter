@@ -17,7 +17,7 @@ class RadioRemoteDataSourceImpl implements RadioRemoteDataSource {
     try {
       final response = await _apiServices.get(
         '/music/radio/$videoId',
-        queryParameters: {'limit': limit},
+        queryParameters: {'limit': limit, 'include_stream_urls': true},
       );
       
       final data = response is Response ? response.data : response;

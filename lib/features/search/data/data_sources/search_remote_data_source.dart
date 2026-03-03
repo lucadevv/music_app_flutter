@@ -196,7 +196,7 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
   @override
   Future<Either<AppException, List<MoodGenreModel>>> getCategories() async {
     try {
-      const endpoint = '/music/explore';
+      const endpoint = '/music/explore?include_stream_urls=true';
       final response = await _apiServices.get(endpoint);
 
       final responseData = response is Response ? response.data : response;

@@ -60,6 +60,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
   @override
   Widget build(BuildContext context) {
+  
     return BlocProvider<PlayerBlocBloc>.value(
       value: getIt<PlayerBlocBloc>(),
       child: Scaffold(

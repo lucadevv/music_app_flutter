@@ -430,10 +430,24 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
         }
       }
 
-      // SI NO hay archivo local, obtener URL del servidor
+      // Los endpoints ya devuelven stream_url con include_stream_urls=true
+      // PERO: algunos endpoints como recently-listened pueden no tenerla
+      // Fallback: obtener URL bajo demanda si no la tiene
       if (streamUrl == null || streamUrl.isEmpty) {
-        final freshStreamUrl = await _fetchFreshStreamUrl(event.track.videoId);
-        streamUrl = freshStreamUrl ?? event.track.streamUrl;
+        streamUrl = event.track.streamUrl;
+      }
+
+      // Si aún no hay streamUrl, intentar obtenerla del endpoint
+      if (streamUrl == null || streamUrl.isEmpty) {
+        try {
+          final response = await _apiServices.get('/music/stream/${event.track.videoId}');
+          final data = response is Response ? response.data : response;
+          if (data is Map<String, dynamic>) {
+            streamUrl = data['streamUrl'] as String? ?? data['stream_url'] as String?;
+          }
+        } catch (e) {
+          // Silently fail - se maneja abajo
+        }
       }
 
       if (streamUrl == null || streamUrl.isEmpty) {
@@ -538,51 +552,6 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
       );
       rethrow;
     }
-  }
-
-  /// Obtiene una URL de streaming fresca del backend.
-  /// Las URLs de YouTube expiran y están vinculadas a la IP del servidor,
-  /// por lo que necesitamos obtener una URL fresca cada vez que reproducimos.
-  ///
-  /// Usa el endpoint de proxy (/music/stream-proxy/:videoId) que reenvía
-  /// el audio desde el servidor, evitando el problema de IP restriction.
-  /// El token se pasa como query parameter para validación.
-  Future<String?> _fetchFreshStreamUrl(String videoId) async {
-    try {
-      // Obtener el token de acceso
-      final authManager = await GetIt.I.getAsync<AuthManager>();
-      final accessToken = await authManager.getCurrentAccessToken();
-
-      if (accessToken == null || accessToken.isEmpty) {
-        return null;
-      }
-
-      // Obtener la URL directa del stream desde el backend
-      // El endpoint /music/stream devuelve JSON con streamUrl (URL directa de YouTube)
-      // y proxyUrl (proxy de NestJS - causa problemas con duration/position)
-      final response = await _apiServices.get('/music/stream/$videoId');
-      final data = response is Response ? response.data : response;
-      if (data is Map<String, dynamic>) {
-        // PRIORIZAR URL directa de YouTube (streamUrl) sobre el proxy
-        // El proxy causa problemas de buffering y duration/position
-        final directUrl = data['streamUrl'] as String?;
-        if (directUrl != null && directUrl.isNotEmpty) {
-          return directUrl;
-        }
-
-        // Fallback al proxy solo si no hay URL directa
-        String? proxyUrl = data['proxyUrl'] as String?;
-        if (proxyUrl != null && proxyUrl.isNotEmpty) {
-          // Añadir token como query parameter para autenticación
-          final separator = proxyUrl.contains('?') ? '&' : '?';
-          proxyUrl = '$proxyUrl${separator}token=$accessToken';
-          return proxyUrl;
-        }
-      }
-    } catch (e) {
-      // Silently fail - se manejará en el caller
-    }
-    return null;
   }
 
   Future<void> _onLoadPlaylist(
@@ -707,10 +676,10 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
       }
     }
 
-    // SI NO hay archivo local, obtener URL del servidor
+    // Los endpoints ya devuelven stream_url con include_stream_urls=true
+    // No es necesario llamar a /music/stream/{videoId}
     if (streamUrl == null || streamUrl.isEmpty) {
-      final freshStreamUrl = await _fetchFreshStreamUrl(track.videoId);
-      streamUrl = freshStreamUrl ?? track.streamUrl;
+      streamUrl = track.streamUrl;
     }
 
     if (streamUrl == null || streamUrl.isEmpty) {
