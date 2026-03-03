@@ -1,19 +1,20 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
-import 'package:music_app/features/player/presentation/widgets/player_backdrop_widget.dart';
-import 'package:music_app/features/player/presentation/widgets/player_header_widget.dart';
-import 'package:music_app/features/player/presentation/widgets/player_error_widget.dart';
+import 'package:music_app/features/player/presentation/widgets/lyrics_widget.dart';
 import 'package:music_app/features/player/presentation/widgets/player_artwork_widget.dart';
+import 'package:music_app/features/player/presentation/widgets/player_backdrop_widget.dart';
+import 'package:music_app/features/player/presentation/widgets/player_controls_widget.dart';
+import 'package:music_app/features/player/presentation/widgets/player_error_widget.dart';
+import 'package:music_app/features/player/presentation/widgets/player_header_widget.dart';
 import 'package:music_app/features/player/presentation/widgets/player_info_widget.dart';
 import 'package:music_app/features/player/presentation/widgets/player_progress_bar_widget.dart';
-import 'package:music_app/features/player/presentation/widgets/player_controls_widget.dart';
 import 'package:music_app/features/player/presentation/widgets/player_shimmer_widgets.dart';
 import 'package:music_app/features/player/presentation/widgets/player_similar_songs_widget.dart';
-import 'package:music_app/features/player/presentation/widgets/lyrics_widget.dart';
 import 'package:music_app/main.dart';
 
 @RoutePage()
@@ -68,7 +69,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
         backgroundColor: const Color(0xFF0D0D0D),
         body: SafeArea(
           child: BlocBuilder<PlayerBlocBloc, PlayerBlocState>(
-            buildWhen: (previous, current) {
+              buildWhen: (previous, current) {
               // Siempre reconstruir si el estado cambió significativamente
               if (previous.runtimeType != current.runtimeType) {
                 return true;
@@ -81,7 +82,8 @@ class _PlayerScreenState extends State<PlayerScreen> {
                     previous.currentTrack?.videoId !=
                         current.currentTrack?.videoId ||
                     previous.currentIndex != current.currentIndex ||
-                    previous.isLoading != current.isLoading;
+                    previous.isLoading != current.isLoading ||
+                    previous.playlist.length != current.playlist.length;
               }
               return true;
             },
@@ -176,6 +178,18 @@ class _PlayerScreenState extends State<PlayerScreen> {
                         ),
                       ),
 
+                      // Playlist
+                      if (!hasError && !isLoading && state is PlayerBlocLoaded && state.playlist.isNotEmpty)
+                        SliverToBoxAdapter(
+                          child: _PlaylistWidget(
+                            playlist: state.playlist,
+                            currentIndex: state.currentIndex,
+                            onTrackTap: (index) {
+                              context.read<PlayerBlocBloc>().add(PlayTrackAtIndexEvent(index));
+                            },
+                          ),
+                        ),
+
                       // Similar songs
                       if (!hasError && !isLoading)
                         SliverToBoxAdapter(
@@ -216,6 +230,186 @@ class _PlayerScreenState extends State<PlayerScreen> {
               );
             },
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Widget para mostrar la playlist en la pantalla del reproductor
+class _PlaylistWidget extends StatelessWidget {
+  final List<NowPlayingData> playlist;
+  final int? currentIndex;
+  final void Function(int index) onTrackTap;
+
+  const _PlaylistWidget({
+    required this.playlist,
+    required this.currentIndex,
+    required this.onTrackTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 24),
+          // Header
+          Row(
+            children: [
+              const Icon(
+                Icons.queue_music,
+                color: Colors.white70,
+                size: 24,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Playlist',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                '${playlist.length} songs',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Colors.white54,
+                    ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          // Playlist items
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: playlist.length,
+            itemBuilder: (context, index) {
+              final track = playlist[index];
+              final isCurrentTrack = index == currentIndex;
+
+              return _PlaylistItemWidget(
+                track: track,
+                index: index,
+                isCurrentTrack: isCurrentTrack,
+                onTap: () => onTrackTap(index),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Widget para un item individual de la playlist
+class _PlaylistItemWidget extends StatelessWidget {
+  final NowPlayingData track;
+  final int index;
+  final bool isCurrentTrack;
+  final VoidCallback onTap;
+
+  const _PlaylistItemWidget({
+    required this.track,
+    required this.index,
+    required this.isCurrentTrack,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        decoration: BoxDecoration(
+          color: isCurrentTrack ? Colors.white.withValues(alpha: 0.1) : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          children: [
+            // Thumbnail
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: SizedBox(
+                width: 48,
+                height: 48,
+                child: CachedNetworkImage(
+                  imageUrl: track.highResThumbnail.url,
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => Container(
+                    color: Colors.grey[800],
+                    child: const Icon(
+                      Icons.music_note,
+                      color: Colors.white54,
+                      size: 24,
+                    ),
+                  ),
+                  errorWidget: (context, url, error) => Container(
+                    color: Colors.grey[800],
+                    child: const Icon(
+                      Icons.music_note,
+                      color: Colors.white54,
+                      size: 24,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            // Track info
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    track.title,
+                    style: TextStyle(
+                      color: isCurrentTrack ? const Color(0xFF1DB954) : Colors.white,
+                      fontWeight: isCurrentTrack ? FontWeight.bold : FontWeight.normal,
+                      fontSize: 14,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    track.artistsNames,
+                    style: TextStyle(
+                      color: isCurrentTrack ? const Color(0xFF1DB954).withValues(alpha: 0.8) : Colors.white54,
+                      fontSize: 12,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            // Duration
+            Padding(
+              padding: const EdgeInsets.only(left: 8),
+              child: Text(
+                track.duration,
+                style: TextStyle(
+                  color: isCurrentTrack ? const Color(0xFF1DB954) : Colors.white54,
+                  fontSize: 12,
+                ),
+              ),
+            ),
+            // Playing indicator
+            if (isCurrentTrack)
+              const Padding(
+                padding: EdgeInsets.only(left: 8),
+                child: Icon(
+                  Icons.equalizer,
+                  color: Color(0xFF1DB954),
+                  size: 20,
+                ),
+              ),
+          ],
         ),
       ),
     );
