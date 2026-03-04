@@ -21,7 +21,7 @@ class MiniPlayer extends StatelessWidget {
     return BlocBuilder<PlayerBlocBloc, PlayerBlocState>(
       bloc: playerBloc,
       builder: (context, state) {
-        if (state is! PlayerBlocLoaded || state.currentTrack == null) {
+        if (state is! PlayerBlocState || state.currentTrack == null) {
           return const SizedBox.shrink();
         }
 

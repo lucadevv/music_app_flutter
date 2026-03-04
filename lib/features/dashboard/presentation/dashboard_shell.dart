@@ -27,7 +27,7 @@ class _DashboardShellState extends State<DashboardShell> {
   @override
   void initState() {
     super.initState();
-    // Listen to bottom sheet visibility changes
+    
     BottomSheetVisibility().addListener(_onBottomSheetChanged);
   }
 
@@ -39,7 +39,7 @@ class _DashboardShellState extends State<DashboardShell> {
 
   void _onBottomSheetChanged() {
     if (mounted) {
-      setState(() {}); // Rebuild to update miniplayer position
+      setState(() {}); 
     }
   }
 
@@ -57,11 +57,11 @@ class _DashboardShellState extends State<DashboardShell> {
       '/dashboard/library',
     ];
 
-    // Obtener la ruta actual
+    
     final currentPath = context.router.currentPath;
     final isEmailVerificationRoute = currentPath.contains('email-verification');
 
-    // Si estamos en la ruta de verificación de email, mostrar solo el AutoRouter sin tabs
+    
     if (isEmailVerificationRoute) {
       return const Scaffold(
         backgroundColor: AppColorsDark.surface,
@@ -77,40 +77,30 @@ class _DashboardShellState extends State<DashboardShell> {
         final isVisible = visibleRoutes.contains(tabsPath);
 
         return BlocBuilder<PlayerBlocBloc, PlayerBlocState>(
-          // NO especificar bloc - usar el heredado del provider
+         
           buildWhen: (previous, current) {
-            // Rebuild cuando cambia la canción actual O la presencia de canción
-            // IMPORTANTE: Necesitamos rebuild en cada cambio para que el MiniPlayer se actualice
-            if (previous is PlayerBlocLoaded && current is PlayerBlocLoaded) {
-              return previous.currentTrack?.videoId !=
-                      current.currentTrack?.videoId ||
-                  previous.playbackState != current.playbackState ||
-                  previous.position != current.position ||
-                  previous.duration != current.duration;
-            }
-            // También rebuild cuando cambia el estado (ej: de Initial a Loaded)
-            return true;
+        
+            return previous.currentTrack?.videoId !=
+                    current.currentTrack?.videoId ||
+                previous.playbackState != current.playbackState ||
+                previous.position != current.position ||
+                previous.duration != current.duration;
+      
           },
           builder: (context, playerState) {
             final hasTrack =
-                playerState is PlayerBlocLoaded &&
                 playerState.currentTrack != null;
             final isBottomSheetOpen = BottomSheetVisibility().isBottomSheetOpen;
 
-            // Posición del miniplayer:
-            // - Normal: 119
-            // - Con bottom sheet abierto: 512 (para que no tape el bottom sheet)
+       
             final miniPlayerBottom = isBottomSheetOpen ? 512 : 119;
-
-            // Obtener el bloc para pasar al MiniPlayer
-            final playerBloc = context.read<PlayerBlocBloc>();
 
             return Scaffold(
               backgroundColor: AppColorsDark.surface,
               body: Stack(
                 children: [
                   child,
-                  // Mini Player con animación suave
+                  
                   if (isVisible && hasTrack)
                     AnimatedPositioned(
                       duration: const Duration(milliseconds: 300),
@@ -118,12 +108,9 @@ class _DashboardShellState extends State<DashboardShell> {
                       left: 0,
                       right: 0,
                       bottom: miniPlayerBottom.toDouble(),
-                      child: BlocProvider.value(
-                        value: playerBloc,
-                        child: const MiniPlayer(),
-                      ),
+                      child: const MiniPlayer(),
                     ),
-                  // Navbar
+                  
                   if (isVisible) ...[
                     Align(
                       alignment: Alignment.bottomCenter,

@@ -13,7 +13,7 @@ import 'package:music_app/features/profile/presentation/cubit/profile_cubit.dart
 part 'player_bloc_event.dart';
 part 'player_bloc_state.dart';
 
-class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocLoaded> {
+class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
   late final GetStreamUrlUseCase _getStreamUrlUseCase;
 
   // AudioPlayer se obtiene de forma lazy para evitar dependencia circular
@@ -42,7 +42,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocLoaded> {
     return _audioPlayerInstance!;
   }
 
-  PlayerBlocBloc() : super(PlayerBlocLoaded.initial()) {
+  PlayerBlocBloc() : super(PlayerBlocState.initial()) {
     _getStreamUrlUseCase = GetIt.I<GetStreamUrlUseCase>();
     _registerEventHandlers();
     // No inicializar streams aquí - se hará cuando el player esté disponible
@@ -279,23 +279,13 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocLoaded> {
 
       // IMPORTANTE: Emitir estado inmediatamente para actualizar la UI
       // No depender solo del stream, ya que puede no estar inicializado
-      if (state is PlayerBlocLoaded) {
-        emit(
-          (state as PlayerBlocLoaded).copyWith(
-            playbackState: PlaybackState.playing,
-            processingState: ProcessingState.ready,
-          ),
-        );
-      } else {
-        emit(
-          const PlayerBlocLoaded(
-            playbackState: PlaybackState.playing,
-            processingState: ProcessingState.ready,
-            connectionState: AudioConnectionState.connected,
-          ),
-        );
-      }
-    } catch (e) {
+      emit(
+        state.copyWith(
+          playbackState: PlaybackState.playing,
+          processingState: ProcessingState.ready,
+        ),
+      );
+        } catch (e) {
       add(AudioErrorEvent('Error al reproducir: $e'));
     }
   }
@@ -305,21 +295,12 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocLoaded> {
       await _audioPlayer.pause();
 
       // IMPORTANTE: Emitir estado inmediatamente para actualizar la UI
-      if (state is PlayerBlocLoaded) {
-        emit(
-          (state as PlayerBlocLoaded).copyWith(
-            playbackState: PlaybackState.paused,
-          ),
-        );
-      } else {
-        emit(
-          const PlayerBlocLoaded(
-            playbackState: PlaybackState.paused,
-            connectionState: AudioConnectionState.connected,
-          ),
-        );
-      }
-    } catch (e) {
+      emit(
+        state.copyWith(
+          playbackState: PlaybackState.paused,
+        ),
+      );
+        } catch (e) {
       add(AudioErrorEvent('Error al pausar: $e'));
     }
   }
@@ -330,15 +311,13 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocLoaded> {
       await _finalizeCurrentHistoryEntry();
 
       await _audioPlayer.stop();
-      if (state is PlayerBlocLoaded) {
-        emit(
-          (state as PlayerBlocLoaded).copyWith(
-            playbackState: PlaybackState.stopped,
-            position: Duration.zero,
-          ),
-        );
-      }
-    } catch (e) {
+      emit(
+        state.copyWith(
+          playbackState: PlaybackState.stopped,
+          position: Duration.zero,
+        ),
+      );
+        } catch (e) {
       add(AudioErrorEvent('Error al detener: $e'));
     }
   }
@@ -347,8 +326,8 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocLoaded> {
     PlayPauseToggleEvent event,
     Emitter<PlayerBlocLoaded> emit,
   ) async {
-    if (state is PlayerBlocLoaded) {
-      final currentState = state as PlayerBlocLoaded;
+    if (state is PlayerBlocState) {
+      final currentState = state as PlayerBlocState;
       if (currentState.isPlaying) {
         add(const PauseEvent());
       } else {
@@ -362,8 +341,8 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocLoaded> {
     Emitter<PlayerBlocLoaded> emit,
   ) async {
     try {
-      if (state is PlayerBlocLoaded) {
-        final currentState = state as PlayerBlocLoaded;
+      if (state is PlayerBlocState) {
+        final currentState = state as PlayerBlocState;
         if (currentState.canPlayNext) {
           await _audioPlayer.seekToNext();
         }
@@ -378,8 +357,8 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocLoaded> {
     Emitter<PlayerBlocLoaded> emit,
   ) async {
     try {
-      if (state is PlayerBlocLoaded) {
-        final currentState = state as PlayerBlocLoaded;
+      if (state is PlayerBlocState) {
+        final currentState = state as PlayerBlocState;
         if (currentState.canPlayPrevious) {
           await _audioPlayer.seekToPrevious();
         }
@@ -407,7 +386,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocLoaded> {
       unawaited(_startNewHistoryEntry(event.track));
 
       emit(
-        PlayerBlocLoaded(
+       state.copyWith(
           isLoading: true,
           error: null,
           currentTrack: event.track,
@@ -442,10 +421,10 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocLoaded> {
 
       if (streamUrl == null || streamUrl.isEmpty) {
         emit(
-          PlayerBlocLoaded(
+          state.copyWith(
             isLoading: false,
-            error: 'No se pudo obtener la URL de streaming para esta canción.',
-            currentTrack: event.track,
+            error:
+                'No se pudo obtener la URL de streaming para esta canción. Intenta descargarla para escuchar offline.',
           ),
         );
         return;
@@ -454,10 +433,9 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocLoaded> {
       await _loadTrackWithUrl(streamUrl, event.track, emit);
     } catch (e) {
       emit(
-        PlayerBlocLoaded(
+        state.copyWith(
           isLoading: false,
           error: 'Error al cargar canción: $e',
-          currentTrack: event.track,
         ),
       );
     }
@@ -514,22 +492,23 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocLoaded> {
       _updateHandlerMediaItem(track);
 
       emit(
-        PlayerBlocLoaded(
-          playlist: [track],
-          isLoading: false,
-          connectionState: AudioConnectionState.connected,
-          currentIndex: 0,
-          currentTrack: track,
-          currentStreamUrl: streamUrl,
-          duration: actualDuration,
-          position: Duration.zero,
-        ),
+      state.copyWith(
+        playbackState: PlaybackState.playing,
+        processingState: ProcessingState.ready,
+        connectionState: AudioConnectionState.connected,
+        currentTrack: track,
+        currentStreamUrl: streamUrl,
+        duration: actualDuration,
+        position: Duration.zero,
+        isLoading: false,
+        error: null,
+      ),
       );
 
       await _audioPlayer.play();
     } catch (e) {
       emit(
-        PlayerBlocLoaded(
+       state.copyWith(
           playlist: [track],
           isLoading: false,
           error: 'Error al cargar audio: $e',
@@ -538,7 +517,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocLoaded> {
           currentTrack: track,
           currentStreamUrl: streamUrl,
           duration: Duration(seconds: track.durationSeconds),
-        ),
+       )
       );
       rethrow;
     }
@@ -561,10 +540,10 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocLoaded> {
 
       if (event.playlist.isEmpty) {
         emit(
-          const PlayerBlocLoaded(
-            isLoading: false,
-            error: 'La playlist está vacía',
-          ),
+         state.copyWith(
+          isLoading: false,
+            error: 'La playlist está vacía', 
+         )
         );
         return;
       }
@@ -584,7 +563,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocLoaded> {
 
       if (audioSources.isEmpty) {
         emit(
-          PlayerBlocLoaded(
+          state.copyWith(
             isLoading: false,
             error: 'No se pudieron cargar las URLs de streaming',
             playlist: event.playlist,
@@ -606,7 +585,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocLoaded> {
         } catch (e) {
           lastError = e as Exception;
           if (retry < 2) {
-            await Future.delayed(Duration(milliseconds: 500 * (retry + 1)));
+            await Future.delayed(Duration(milliseconds: 500 * (retry + 1));
           }
         }
       }
@@ -614,9 +593,9 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocLoaded> {
       if (lastError != null) {
         // Si todos los intentos fallaron, emitir error pero mantener la playlist cargada
         emit(
-          PlayerBlocLoaded(
+          state.copyWith(
             isLoading: false,
-            error: 'Error al cargar audio: ${lastError}. Intenta de nuevo.',
+            error: 'Error al cargar playlist: $lastError',
             playlist: event.playlist,
           ),
         );
@@ -628,7 +607,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocLoaded> {
       
       // Emitir estado
       emit(
-        PlayerBlocLoaded(
+       state.copyWith(
           playbackState: PlaybackState.playing,
           playlist: event.playlist,
           isLoading: false,
@@ -640,18 +619,18 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocLoaded> {
           position: Duration.zero,
           loadedCount: totalTracks,
           totalToLoad: totalTracks,
-        ),
+       )
       );
       
       // Play directamente
       await _audioPlayer.play();
     } catch (e, stackTrace) {
       emit(
-        PlayerBlocLoaded(
-          isLoading: false,
+       state.copyWith(
+         isLoading: false,
           error: 'Error al cargar playlist: $e',
           playlist: event.playlist,
-        ),
+       )
       );
     }
   }
@@ -663,35 +642,33 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocLoaded> {
     Emitter<PlayerBlocLoaded> emit,
   ) async {
     try {
-      if (state is PlayerBlocLoaded) {
-        final currentState = state as PlayerBlocLoaded;
-        if (event.index >= 0 && event.index < currentState.playlist.length) {
-          final track = currentState.playlist[event.index];
+      final currentState = state;
+      if (event.index >= 0 && event.index < currentState.playlist.length) {
+        final track = currentState.playlist[event.index];
 
-          final streamUrl = track.streamUrl;
+        final streamUrl = track.streamUrl;
 
-          if (streamUrl == null || streamUrl.isEmpty) {
-            add(
-              const AudioErrorEvent(
-                'La canción no tiene URL de streaming. Asegúrate de usar include_stream_urls=true en el endpoint.',
-              ),
-            );
-            return;
-          }
-
-          await _audioPlayer.seek(Duration.zero, index: event.index);
-          await _audioPlayer.play();
-
-          emit(
-            currentState.copyWith(
-              currentIndex: event.index,
-              currentTrack: track,
-              currentStreamUrl: streamUrl,
+        if (streamUrl == null || streamUrl.isEmpty) {
+          add(
+            const AudioErrorEvent(
+              'La canción no tiene URL de streaming. Asegúrate de usar include_stream_urls=true en el endpoint.',
             ),
           );
+          return;
         }
+
+        await _audioPlayer.seek(Duration.zero, index: event.index);
+        await _audioPlayer.play();
+
+        emit(
+          currentState.copyWith(
+            currentIndex: event.index,
+            currentTrack: track,
+            currentStreamUrl: streamUrl,
+          ),
+        );
       }
-    } catch (e) {
+        } catch (e) {
       add(
         AudioErrorEvent(
           'Error al reproducir canción en índice ${event.index}: $e',
@@ -705,30 +682,28 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocLoaded> {
     Emitter<PlayerBlocLoaded> emit,
   ) async {
     try {
-      if (state is PlayerBlocLoaded) {
-        final currentState = state as PlayerBlocLoaded;
+      final currentState = state;
 
-        final streamUrl = event.track.streamUrl;
+      final streamUrl = event.track.streamUrl;
 
-        if (streamUrl == null || streamUrl.isEmpty) {
-          add(
-            const AudioErrorEvent(
-              'La canción no tiene URL de streaming. Asegúrate de usar include_stream_urls=true en el endpoint.',
-            ),
-          );
-          return;
-        }
-
-        final newPlaylist = List<NowPlayingData>.from(currentState.playlist)
-          ..add(event.track);
-
-        await _audioPlayer.addAudioSource(
-          AudioSource.uri(Uri.parse(streamUrl), tag: event.track.toMediaItem()),
+      if (streamUrl == null || streamUrl.isEmpty) {
+        add(
+          const AudioErrorEvent(
+            'La canción no tiene URL de streaming. Asegúrate de usar include_stream_urls=true en el endpoint.',
+          ),
         );
-
-        emit(currentState.copyWith(playlist: newPlaylist));
+        return;
       }
-    } catch (e) {
+
+      final newPlaylist = List<NowPlayingData>.from(currentState.playlist)
+        ..add(event.track);
+
+      await _audioPlayer.addAudioSource(
+        AudioSource.uri(Uri.parse(streamUrl), tag: event.track.toMediaItem()),
+      );
+
+      emit(currentState.copyWith(playlist: newPlaylist));
+        } catch (e) {
       add(AudioErrorEvent('Error al agregar canción a playlist: $e'));
     }
   }
@@ -740,18 +715,16 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocLoaded> {
     Emitter<PlayerBlocLoaded> emit,
   ) async {
     try {
-      if (state is PlayerBlocLoaded) {
-        final currentState = state as PlayerBlocLoaded;
-        if (event.index >= 0 && event.index < currentState.playlist.length) {
-          final newPlaylist = List<NowPlayingData>.from(currentState.playlist)
-            ..removeAt(event.index);
+      final currentState = state;
+      if (event.index >= 0 && event.index < currentState.playlist.length) {
+        final newPlaylist = List<NowPlayingData>.from(currentState.playlist)
+          ..removeAt(event.index);
 
-          await _audioPlayer.removeAudioSourceAt(event.index);
+        await _audioPlayer.removeAudioSourceAt(event.index);
 
-          emit(currentState.copyWith(playlist: newPlaylist));
-        }
+        emit(currentState.copyWith(playlist: newPlaylist));
       }
-    } catch (e) {
+        } catch (e) {
       add(AudioErrorEvent('Error al remover canción de playlist: $e'));
     }
   }
@@ -764,10 +737,8 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocLoaded> {
       final clampedVolume = event.volume.clamp(0.0, 1.0);
       await _audioPlayer.setVolume(clampedVolume);
 
-      if (state is PlayerBlocLoaded) {
-        emit((state as PlayerBlocLoaded).copyWith(volume: clampedVolume));
-      }
-    } catch (e) {
+      emit(state.copyWith(volume: clampedVolume));
+        } catch (e) {
       add(AudioErrorEvent('Error al cambiar volumen: $e'));
     }
   }
@@ -780,10 +751,8 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocLoaded> {
       final clampedSpeed = event.speed.clamp(0.5, 2.0);
       await _audioPlayer.setSpeed(clampedSpeed);
 
-      if (state is PlayerBlocLoaded) {
-        emit((state as PlayerBlocLoaded).copyWith(speed: clampedSpeed));
-      }
-    } catch (e) {
+      emit(state.copyWith(speed: clampedSpeed));
+        } catch (e) {
       add(AudioErrorEvent('Error al cambiar velocidad: $e'));
     }
   }
@@ -795,10 +764,8 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocLoaded> {
     try {
       await _audioPlayer.setLoopMode(event.loopMode);
 
-      if (state is PlayerBlocLoaded) {
-        emit((state as PlayerBlocLoaded).copyWith(loopMode: event.loopMode));
-      }
-    } catch (e) {
+      emit(state.copyWith(loopMode: event.loopMode));
+        } catch (e) {
       add(AudioErrorEvent('Error al cambiar modo de repetición: $e'));
     }
   }
@@ -808,15 +775,13 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocLoaded> {
     Emitter<PlayerBlocLoaded> emit,
   ) async {
     try {
-      if (state is PlayerBlocLoaded) {
-        final currentState = state as PlayerBlocLoaded;
-        final newShuffleState = !currentState.isShuffleEnabled;
+      final currentState = state;
+      final newShuffleState = !currentState.isShuffleEnabled;
 
-        await _audioPlayer.setShuffleModeEnabled(newShuffleState);
+      await _audioPlayer.setShuffleModeEnabled(newShuffleState);
 
-        emit(currentState.copyWith(isShuffleEnabled: newShuffleState));
-      }
-    } catch (e) {
+      emit(currentState.copyWith(isShuffleEnabled: newShuffleState));
+        } catch (e) {
       add(AudioErrorEvent('Error al cambiar modo shuffle: $e'));
     }
   }
@@ -825,23 +790,8 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocLoaded> {
     AudioPlayerStateChangedEvent event,
     Emitter<PlayerBlocLoaded> emit,
   ) async {
-    // Si el estado no es PlayerBlocLoaded, crear uno nuevo con los datos del player
-    if (state is! PlayerBlocLoaded) {
-      final playbackState = event.playerState.playing
-          ? PlaybackState.playing
-          : PlaybackState.paused;
-
-      emit(
-        PlayerBlocLoaded(
-          playbackState: playbackState,
-          processingState: event.playerState.processingState,
-          connectionState: AudioConnectionState.connected,
-        ),
-      );
-      return;
-    }
-
-    final currentState = state as PlayerBlocLoaded;
+    // Si el estado no es PlayerBlocState, crear uno nuevo con los datos del player
+    final currentState = state;
     final previousProcessingState = currentState.processingState;
     final playbackState = event.playerState.playing
         ? PlaybackState.playing
@@ -877,24 +827,22 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocLoaded> {
       }
 
       // Verificar el modo de repetición actual
-      if (state is PlayerBlocLoaded) {
-        final currentState = state as PlayerBlocLoaded;
+      final currentState = state;
 
-        // Si está en modo loop.one, no necesitamos avanzar automáticamente
-        if (currentState.loopMode == LoopMode.one) {
-          return;
-        }
-
-        // Verificar si hay siguiente canción
-        if (currentState.canPlayNext) {
-          add(const NextTrackEvent());
-        } else if (currentState.loopMode == LoopMode.all &&
-            currentState.playlist.isNotEmpty) {
-          // Si está en modo loop all y es la última canción, volver al inicio
-          add(const PlayTrackAtIndexEvent(0));
-        }
+      // Si está en modo loop.one, no necesitamos avanzar automáticamente
+      if (currentState.loopMode == LoopMode.one) {
+        return;
       }
-    } catch (e) {
+
+      // Verificar si hay siguiente canción
+      if (currentState.canPlayNext) {
+        add(const NextTrackEvent());
+      } else if (currentState.loopMode == LoopMode.all &&
+          currentState.playlist.isNotEmpty) {
+        // Si está en modo loop all y es la última canción, volver al inicio
+        add(const PlayTrackAtIndexEvent(0));
+      }
+        } catch (e) {
       // Silently fail
     }
   }
@@ -903,97 +851,64 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocLoaded> {
     PositionChangedEvent event,
     Emitter<PlayerBlocLoaded> emit,
   ) async {
-    if (state is PlayerBlocLoaded) {
-      emit((state as PlayerBlocLoaded).copyWith(position: event.position));
+    emit(state.copyWith(position: event.position));
 
-      // Actualizar historial cada ~5 segundos (fire and forget)
-      unawaited(_saveHistoryPlayedDuration(event.position.inSeconds));
-    } else {
-      // Usar estado inicial con copyWith
-      emit(PlayerBlocLoaded.initial().copyWith(
-        position: event.position,
-      ));
+    // Actualizar historial cada ~5 segundos (fire and forget)
+    unawaited(_saveHistoryPlayedDuration(event.position.inSeconds));
     }
-  }
 
   Future<void> _onDurationChanged(
     DurationChangedEvent event,
     Emitter<PlayerBlocLoaded> emit,
   ) async {
-    if (state is PlayerBlocLoaded) {
-      emit((state as PlayerBlocLoaded).copyWith(duration: event.duration));
-    } else {
-      // Usar estado inicial con copyWith
-      emit(PlayerBlocLoaded.initial().copyWith(
-        duration: event.duration,
-      ));
+    emit(state.copyWith(duration: event.duration));
     }
-  }
 
   Future<void> _onBufferedPositionChanged(
     BufferedPositionChangedEvent event,
     Emitter<PlayerBlocLoaded> emit,
   ) async {
-    if (state is PlayerBlocLoaded) {
-      emit(
-        (state as PlayerBlocLoaded).copyWith(
-          bufferedPosition: event.bufferedPosition,
-        ),
-      );
+    emit(
+      state.copyWith(
+        bufferedPosition: event.bufferedPosition,
+      ),
+    );
     }
-  }
 
   Future<void> _onCurrentIndexChanged(
     CurrentIndexChangedEvent event,
     Emitter<PlayerBlocLoaded> emit,
   ) async {
-    if (state is PlayerBlocLoaded) {
-      final currentState = state as PlayerBlocLoaded;
-      final currentTrack =
-          event.index != null && event.index! < currentState.playlist.length
-          ? currentState.playlist[event.index!]
-          : null;
+    final currentState = state;
+    final currentTrack =
+        event.index != null && event.index! < currentState.playlist.length
+        ? currentState.playlist[event.index!]
+        : null;
 
-      // Si cambió el track, crear nueva entrada de historial (fire and forget)
-      if (currentTrack != null && event.index != currentState.currentIndex) {
-        unawaited(_startNewHistoryEntry(currentTrack));
-      }
-
-      emit(
-        currentState.copyWith(
-          currentIndex: event.index,
-          currentTrack: currentTrack,
-        ),
-      );
-    } else if (event.index != null) {
-      // Usar estado inicial con copyWith
-      emit(PlayerBlocLoaded.initial().copyWith(
-        currentIndex: event.index,
-        playlist: [],
-      ));
+    // Si cambió el track, crear nueva entrada de historial (fire and forget)
+    if (currentTrack != null && event.index != currentState.currentIndex) {
+      unawaited(_startNewHistoryEntry(currentTrack));
     }
-  }
+
+    emit(
+      currentState.copyWith(
+        currentIndex: event.index,
+        currentTrack: currentTrack,
+      ),
+    );
+    }
 
   Future<void> _onAudioError(
     AudioErrorEvent event,
     Emitter<PlayerBlocLoaded> emit,
   ) async {
-    if (state is PlayerBlocLoaded) {
-      emit(
-        (state as PlayerBlocLoaded).copyWith(
-          error: event.error,
-          processingState: ProcessingState.idle,
-        ),
-      );
-    } else {
-      emit(
-        PlayerBlocLoaded(
-          error: event.error,
-          processingState: ProcessingState.idle,
-        ),
-      );
+    emit(
+      state.copyWith(
+        error: event.error,
+        processingState: ProcessingState.idle,
+      ),
+    );
     }
-  }
 
   Future<void> _onInitializeAudioService(
     InitializeAudioServiceEvent event,
@@ -1022,20 +937,12 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocLoaded> {
         }
       }
 
-      if (state is PlayerBlocLoaded) {
-        emit(
-          (state as PlayerBlocLoaded).copyWith(
-            connectionState: AudioConnectionState.connected,
-          ),
-        );
-      } else {
-        emit(
-          const PlayerBlocLoaded(
-            connectionState: AudioConnectionState.connected,
-          ),
-        );
-      }
-    } catch (e) {
+      emit(
+        state.copyWith(
+          connectionState: AudioConnectionState.connected,
+        ),
+      );
+        } catch (e) {
       add(AudioErrorEvent('Error initializing audio handler: $e'));
     }
   }
@@ -1045,14 +952,12 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocLoaded> {
     Emitter<PlayerBlocLoaded> emit,
   ) async {
     try {
-      if (state is PlayerBlocLoaded) {
-        emit(
-          (state as PlayerBlocLoaded).copyWith(
-            connectionState: AudioConnectionState.disconnected,
-          ),
-        );
-      }
-    } catch (e) {
+      emit(
+        state.copyWith(
+          connectionState: AudioConnectionState.disconnected,
+        ),
+      );
+        } catch (e) {
       add(AudioErrorEvent('Error al cerrar audio service: $e'));
     }
   }

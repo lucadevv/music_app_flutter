@@ -28,15 +28,15 @@ class PlayerScreen extends StatelessWidget {
       body: SafeArea(
         child: BlocBuilder<PlayerBlocBloc, PlayerBlocState>(
           builder: (context, state) {
-            final isLoaded = state is PlayerBlocLoaded;
+            final isLoaded = state.connectionState == AudioConnectionState.connected || state.connectionState == AudioConnectionState.connecting;
             
             final playlist = isLoaded ? state.playlist : <NowPlayingData>[];
-            print("DEBUG: Playlist length in PlayerScreen: ${playlist.length}");
             final currentIndex = isLoaded ? state.currentIndex : null;
-            print("curent track: ${state is PlayerBlocLoaded ? state.currentTrack?.title : 'N/A'}");
             final currentTrack = isLoaded 
                 ? (state.currentTrack ?? nowPlayingData)
                 : nowPlayingData;
+            
+            print("currentTrack: ${currentTrack.title}, streamUrl: ${state.currentStreamUrl}, isLoaded: $isLoaded");
             
             final isLoading = isLoaded && state.isLoading; final isBuffering = isLoaded && state.isBuffering;
             final hasError = isLoaded && state.hasError;

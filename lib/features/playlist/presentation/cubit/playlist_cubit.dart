@@ -175,7 +175,7 @@ class PlaylistCubit extends Cubit<PlaylistState> with BaseBlocMixin {
 
       // Verificar si el player tiene un track cargado
       final playerState = _playerBloc.state;
-      if (playerState is! PlayerBlocLoaded || 
+      if (playerState is! PlayerBlocState || 
           playerState.currentTrack == null ||
           playerState.hasError) {
         // La canción también falló, cancelar

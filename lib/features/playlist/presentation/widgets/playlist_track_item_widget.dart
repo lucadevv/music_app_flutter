@@ -34,7 +34,7 @@ class PlaylistTrackItemWidget extends StatelessWidget {
     PlayerBlocState playerState,
     List<PlaylistTrack> allTracks,
   ) {
-    if (playerState is! PlayerBlocLoaded) return false;
+    if (playerState is! PlayerBlocState) return false;
     if (playerState.playlist.isEmpty) return false;
 
     final currentPlaylistVideoIds = allTracks
@@ -81,7 +81,7 @@ class PlaylistTrackItemWidget extends StatelessWidget {
       builder: (context, playerState) {
         // Mostrar indicador si es la canción actual (reproduciendo o en pausa)
         final isCurrentTrack =
-            playerState is PlayerBlocLoaded &&
+            playerState is PlayerBlocState &&
             playerState.currentTrack != null &&
             playerState.currentTrack!.videoId == track.videoId;
 
@@ -154,7 +154,7 @@ class PlaylistTrackItemWidget extends StatelessWidget {
                     // Verificar si la canción ya está en la playlist del PlayerBloc
                     final playerState = context.read<PlayerBlocBloc>().state;
                     
-                    if (playerState is PlayerBlocLoaded && 
+                    if (playerState is PlayerBlocState && 
                         playerState.playlist.isNotEmpty) {
                       final trackIndex = playerState.playlist.indexWhere(
                         (t) => t.videoId == track.videoId,

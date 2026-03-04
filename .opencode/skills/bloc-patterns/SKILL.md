@@ -204,7 +204,7 @@ Para acceder desde cualquier widget hijo:
 // Leer estado del player
 BlocBuilder<PlayerBlocBloc, PlayerBlocState>(
   builder: (context, state) {
-    if (state is! PlayerBlocLoaded) return const SizedBox.shrink();
+    if (state is! PlayerBlocState) return const SizedBox.shrink();
     final loaded = state;
     return MiniPlayer(
       track: loaded.currentTrack,

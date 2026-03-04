@@ -1,7 +1,7 @@
 part of 'player_bloc_bloc.dart';
 
 /// Estado único del reproductor
-class PlayerBlocLoaded extends Equatable {
+class PlayerBlocState extends Equatable {
   final PlaybackState playbackState;
   final ProcessingState processingState;
   final AudioConnectionState connectionState;
@@ -22,7 +22,7 @@ class PlayerBlocLoaded extends Equatable {
   final int? loadedCount;
   final int? totalToLoad;
 
-  const PlayerBlocLoaded({
+  const PlayerBlocState({
     this.playbackState = PlaybackState.stopped,
     this.processingState = ProcessingState.idle,
     this.connectionState = AudioConnectionState.disconnected,
@@ -45,10 +45,10 @@ class PlayerBlocLoaded extends Equatable {
   });
 
   /// Factory para estado inicial
-  factory PlayerBlocLoaded.initial() => const PlayerBlocLoaded();
+  factory PlayerBlocState.initial() => const PlayerBlocState();
 
   /// copyWith
-  PlayerBlocLoaded copyWith({
+  PlayerBlocState copyWith({
     PlaybackState? playbackState,
     ProcessingState? processingState,
     AudioConnectionState? connectionState,
@@ -72,7 +72,7 @@ class PlayerBlocLoaded extends Equatable {
     bool clearCurrentTrack = false,
     bool clearCurrentIndex = false,
   }) {
-    return PlayerBlocLoaded(
+    return PlayerBlocState(
       playbackState: playbackState ?? this.playbackState,
       processingState: processingState ?? this.processingState,
       connectionState: connectionState ?? this.connectionState,
