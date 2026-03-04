@@ -31,7 +31,9 @@ class PlayerScreen extends StatelessWidget {
             final isLoaded = state is PlayerBlocLoaded;
             
             final playlist = isLoaded ? state.playlist : <NowPlayingData>[];
+            print("DEBUG: Playlist length in PlayerScreen: ${playlist.length}");
             final currentIndex = isLoaded ? state.currentIndex : null;
+            print("curent track: ${state is PlayerBlocLoaded ? state.currentTrack?.title : 'N/A'}");
             final currentTrack = isLoaded 
                 ? (state.currentTrack ?? nowPlayingData)
                 : nowPlayingData;

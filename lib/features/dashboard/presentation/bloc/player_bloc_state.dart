@@ -1,30 +1,14 @@
 part of 'player_bloc_bloc.dart';
 
-/// Estados del reproductor
-///
-/// SOLID: Single Responsibility Principle (SRP)
-/// Responsable única: Representar el estado del reproductor
-sealed class PlayerBlocState extends Equatable {
-  const PlayerBlocState();
-
-  @override
-  List<Object?> get props => [];
-}
-
-/// Estado inicial del reproductor
-final class PlayerBlocInitial extends PlayerBlocState {
-  const PlayerBlocInitial();
-}
-
-/// Estado del reproductor con toda la información
-class PlayerBlocLoaded extends PlayerBlocState {
+/// Estado único del reproductor
+class PlayerBlocLoaded extends Equatable {
   final PlaybackState playbackState;
-  final ProcessingState processingState; // De just_audio
+  final ProcessingState processingState;
   final AudioConnectionState connectionState;
   final List<NowPlayingData> playlist;
   final int? currentIndex;
   final NowPlayingData? currentTrack;
-  final String? currentStreamUrl; // URL de streaming obtenida del endpoint
+  final String? currentStreamUrl;
   final Duration position;
   final Duration duration;
   final Duration bufferedPosition;
@@ -34,9 +18,9 @@ class PlayerBlocLoaded extends PlayerBlocState {
   final bool isShuffleEnabled;
   final String? error;
   final bool isLoading;
-  final DateTime? loadingCompletedAt; // Timestamp cuando terminó de cargar
-  final int? loadedCount; // Número de canciones cargadas en playlist
-  final int? totalToLoad; // Total de canciones a cargar en playlist
+  final DateTime? loadingCompletedAt;
+  final int? loadedCount;
+  final int? totalToLoad;
 
   const PlayerBlocLoaded({
     this.playbackState = PlaybackState.stopped,
@@ -60,49 +44,10 @@ class PlayerBlocLoaded extends PlayerBlocState {
     this.totalToLoad,
   });
 
-  /// Getters computados para facilitar el uso
-  bool get isPlaying => playbackState == PlaybackState.playing;
-  bool get isPaused => playbackState == PlaybackState.paused;
-  bool get isStopped => playbackState == PlaybackState.stopped;
-  bool get isBuffering => processingState == ProcessingState.buffering;
-  bool get isReady => processingState == ProcessingState.ready;
-  bool get isCompleted => processingState == ProcessingState.completed;
-  bool get hasError => error != null;
-  bool get hasPlaylist => playlist.isNotEmpty;
-  bool get hasCurrentTrack => currentTrack != null;
-  bool get canPlayNext =>
-      hasPlaylist &&
-      currentIndex != null &&
-      currentIndex! < playlist.length - 1;
-  bool get canPlayPrevious =>
-      hasPlaylist && currentIndex != null && currentIndex! > 0;
+  /// Factory para estado inicial
+  factory PlayerBlocLoaded.initial() => const PlayerBlocLoaded();
 
-  /// Verifica si la playlist terminó de cargar (para mostrar indicador verde)
-  bool get isPlaylistFullyLoaded => loadingCompletedAt != null && !isLoading;
-
-  /// Verifica si la playlist está cargando (tiene canciones pendientes)
-  bool get isPlaylistLoading => isLoading && loadedCount != null && totalToLoad != null && loadedCount! < totalToLoad!;
-
-  /// Progreso de carga de la playlist (0.0 a 1.0)
-  double get loadingProgress {
-    if (totalToLoad == null || totalToLoad == 0) return 0.0;
-    if (loadedCount == null) return 0.0;
-    return loadedCount! / totalToLoad!;
-  }
-
-  /// Progreso de reproducción (0.0 a 1.0)
-  double get progress {
-    if (duration.inMilliseconds <= 0) return 0.0;
-    return position.inMilliseconds / duration.inMilliseconds;
-  }
-
-  /// Progreso del buffer (0.0 a 1.0)
-  double get bufferedProgress {
-    if (duration.inMilliseconds <= 0) return 0.0;
-    return bufferedPosition.inMilliseconds / duration.inMilliseconds;
-  }
-
-  /// Método para crear una copia del estado con cambios
+  /// copyWith
   PlayerBlocLoaded copyWith({
     PlaybackState? playbackState,
     ProcessingState? processingState,
@@ -126,22 +71,15 @@ class PlayerBlocLoaded extends PlayerBlocState {
     bool clearError = false,
     bool clearCurrentTrack = false,
     bool clearCurrentIndex = false,
-    bool clearCurrentStreamUrl = false,
   }) {
     return PlayerBlocLoaded(
       playbackState: playbackState ?? this.playbackState,
       processingState: processingState ?? this.processingState,
       connectionState: connectionState ?? this.connectionState,
       playlist: playlist ?? this.playlist,
-      currentIndex: clearCurrentIndex
-          ? null
-          : (currentIndex ?? this.currentIndex),
-      currentTrack: clearCurrentTrack
-          ? null
-          : (currentTrack ?? this.currentTrack),
-      currentStreamUrl: clearCurrentStreamUrl
-          ? null
-          : (currentStreamUrl ?? this.currentStreamUrl),
+      currentIndex: clearCurrentIndex ? null : (currentIndex ?? this.currentIndex),
+      currentTrack: clearCurrentTrack ? null : (currentTrack ?? this.currentTrack),
+      currentStreamUrl: currentStreamUrl ?? this.currentStreamUrl,
       position: position ?? this.position,
       duration: duration ?? this.duration,
       bufferedPosition: bufferedPosition ?? this.bufferedPosition,
@@ -151,10 +89,45 @@ class PlayerBlocLoaded extends PlayerBlocState {
       isShuffleEnabled: isShuffleEnabled ?? this.isShuffleEnabled,
       error: clearError ? null : (error ?? this.error),
       isLoading: isLoading ?? this.isLoading,
-      loadingCompletedAt: isLoading == true ? null : (loadingCompletedAt ?? this.loadingCompletedAt),
+      loadingCompletedAt: loadingCompletedAt ?? this.loadingCompletedAt,
       loadedCount: loadedCount ?? this.loadedCount,
       totalToLoad: totalToLoad ?? this.totalToLoad,
     );
+  }
+
+  /// Getters
+  bool get isPlaying => playbackState == PlaybackState.playing;
+  bool get isPaused => playbackState == PlaybackState.paused;
+  bool get isStopped => playbackState == PlaybackState.stopped;
+  bool get isBuffering => processingState == ProcessingState.buffering;
+  bool get isReady => processingState == ProcessingState.ready;
+  bool get isCompleted => processingState == ProcessingState.completed;
+  bool get hasError => error != null;
+  bool get hasPlaylist => playlist.isNotEmpty;
+  bool get hasCurrentTrack => currentTrack != null;
+  bool get canPlayNext =>
+      hasPlaylist && currentIndex != null && currentIndex! < playlist.length - 1;
+  bool get canPlayPrevious =>
+      hasPlaylist && currentIndex != null && currentIndex! > 0;
+
+  bool get isPlaylistFullyLoaded => loadingCompletedAt != null && !isLoading;
+  bool get isPlaylistLoading =>
+      isLoading && loadedCount != null && totalToLoad != null && loadedCount! < totalToLoad!;
+
+  double get loadingProgress {
+    if (totalToLoad == null || totalToLoad == 0) return 0.0;
+    if (loadedCount == null) return 0.0;
+    return loadedCount! / totalToLoad!;
+  }
+
+  double get progress {
+    if (duration.inMilliseconds <= 0) return 0.0;
+    return position.inMilliseconds / duration.inMilliseconds;
+  }
+
+  double get bufferedProgress {
+    if (duration.inMilliseconds <= 0) return 0.0;
+    return bufferedPosition.inMilliseconds / duration.inMilliseconds;
   }
 
   @override
@@ -180,7 +153,6 @@ class PlayerBlocLoaded extends PlayerBlocState {
         totalToLoad,
       ];
 }
-
 
 enum PlaybackState { stopped, playing, paused }
 

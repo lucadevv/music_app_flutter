@@ -13,7 +13,7 @@ import 'package:music_app/features/profile/presentation/cubit/profile_cubit.dart
 part 'player_bloc_event.dart';
 part 'player_bloc_state.dart';
 
-class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
+class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocLoaded> {
   late final GetStreamUrlUseCase _getStreamUrlUseCase;
 
   // AudioPlayer se obtiene de forma lazy para evitar dependencia circular
@@ -42,7 +42,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     return _audioPlayerInstance!;
   }
 
-  PlayerBlocBloc() : super(const PlayerBlocInitial()) {
+  PlayerBlocBloc() : super(PlayerBlocLoaded.initial()) {
     _getStreamUrlUseCase = GetIt.I<GetStreamUrlUseCase>();
     _registerEventHandlers();
     // No inicializar streams aquí - se hará cuando el player esté disponible
@@ -273,7 +273,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     on<DisposeAudioServiceEvent>(_onDisposeAudioService);
   }
 
-  Future<void> _onPlay(PlayEvent event, Emitter<PlayerBlocState> emit) async {
+  Future<void> _onPlay(PlayEvent event, Emitter<PlayerBlocLoaded> emit) async {
     try {
       await _audioPlayer.play();
 
@@ -300,7 +300,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     }
   }
 
-  Future<void> _onPause(PauseEvent event, Emitter<PlayerBlocState> emit) async {
+  Future<void> _onPause(PauseEvent event, Emitter<PlayerBlocLoaded> emit) async {
     try {
       await _audioPlayer.pause();
 
@@ -324,7 +324,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     }
   }
 
-  Future<void> _onStop(StopEvent event, Emitter<PlayerBlocState> emit) async {
+  Future<void> _onStop(StopEvent event, Emitter<PlayerBlocLoaded> emit) async {
     try {
       // Finalizar entrada de historial actual antes de detener
       await _finalizeCurrentHistoryEntry();
@@ -345,7 +345,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
 
   Future<void> _onPlayPauseToggle(
     PlayPauseToggleEvent event,
-    Emitter<PlayerBlocState> emit,
+    Emitter<PlayerBlocLoaded> emit,
   ) async {
     if (state is PlayerBlocLoaded) {
       final currentState = state as PlayerBlocLoaded;
@@ -359,7 +359,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
 
   Future<void> _onNextTrack(
     NextTrackEvent event,
-    Emitter<PlayerBlocState> emit,
+    Emitter<PlayerBlocLoaded> emit,
   ) async {
     try {
       if (state is PlayerBlocLoaded) {
@@ -375,7 +375,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
 
   Future<void> _onPreviousTrack(
     PreviousTrackEvent event,
-    Emitter<PlayerBlocState> emit,
+    Emitter<PlayerBlocLoaded> emit,
   ) async {
     try {
       if (state is PlayerBlocLoaded) {
@@ -389,7 +389,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     }
   }
 
-  Future<void> _onSeek(SeekEvent event, Emitter<PlayerBlocState> emit) async {
+  Future<void> _onSeek(SeekEvent event, Emitter<PlayerBlocLoaded> emit) async {
     try {
       await _audioPlayer.seek(event.position);
     } catch (e) {
@@ -399,7 +399,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
 
   Future<void> _onLoadTrack(
     LoadTrackEvent event,
-    Emitter<PlayerBlocState> emit,
+    Emitter<PlayerBlocLoaded> emit,
   ) async {
     try {
       // Crear entrada de historial para el nuevo track (fire and forget)
@@ -466,7 +466,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
   Future<void> _loadTrackWithUrl(
     String streamUrl,
     NowPlayingData track,
-    Emitter<PlayerBlocState> emit,
+    Emitter<PlayerBlocLoaded> emit,
   ) async {
     try {
       // Usar setAudioSource con MediaItem para notificaciones
@@ -546,7 +546,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
 
   Future<void> _onLoadPlaylist(
     LoadPlaylistEvent event,
-    Emitter<PlayerBlocState> emit,
+    Emitter<PlayerBlocLoaded> emit,
   ) async {
     try {
       // Si el player no está inicializado, intentar inicializarlo primero
@@ -660,7 +660,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
 
   Future<void> _onPlayTrackAtIndex(
     PlayTrackAtIndexEvent event,
-    Emitter<PlayerBlocState> emit,
+    Emitter<PlayerBlocLoaded> emit,
   ) async {
     try {
       if (state is PlayerBlocLoaded) {
@@ -702,7 +702,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
 
   Future<void> _onAddToPlaylist(
     AddToPlaylistEvent event,
-    Emitter<PlayerBlocState> emit,
+    Emitter<PlayerBlocLoaded> emit,
   ) async {
     try {
       if (state is PlayerBlocLoaded) {
@@ -737,7 +737,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
 
   Future<void> _onRemoveFromPlaylist(
     RemoveFromPlaylistEvent event,
-    Emitter<PlayerBlocState> emit,
+    Emitter<PlayerBlocLoaded> emit,
   ) async {
     try {
       if (state is PlayerBlocLoaded) {
@@ -758,7 +758,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
 
   Future<void> _onSetVolume(
     SetVolumeEvent event,
-    Emitter<PlayerBlocState> emit,
+    Emitter<PlayerBlocLoaded> emit,
   ) async {
     try {
       final clampedVolume = event.volume.clamp(0.0, 1.0);
@@ -774,7 +774,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
 
   Future<void> _onSetSpeed(
     SetSpeedEvent event,
-    Emitter<PlayerBlocState> emit,
+    Emitter<PlayerBlocLoaded> emit,
   ) async {
     try {
       final clampedSpeed = event.speed.clamp(0.5, 2.0);
@@ -790,7 +790,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
 
   Future<void> _onSetLoopMode(
     SetLoopModeEvent event,
-    Emitter<PlayerBlocState> emit,
+    Emitter<PlayerBlocLoaded> emit,
   ) async {
     try {
       await _audioPlayer.setLoopMode(event.loopMode);
@@ -805,7 +805,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
 
   Future<void> _onToggleShuffle(
     ToggleShuffleEvent event,
-    Emitter<PlayerBlocState> emit,
+    Emitter<PlayerBlocLoaded> emit,
   ) async {
     try {
       if (state is PlayerBlocLoaded) {
@@ -823,7 +823,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
 
   Future<void> _onAudioPlayerStateChanged(
     AudioPlayerStateChangedEvent event,
-    Emitter<PlayerBlocState> emit,
+    Emitter<PlayerBlocLoaded> emit,
   ) async {
     // Si el estado no es PlayerBlocLoaded, crear uno nuevo con los datos del player
     if (state is! PlayerBlocLoaded) {
@@ -901,7 +901,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
 
   Future<void> _onPositionChanged(
     PositionChangedEvent event,
-    Emitter<PlayerBlocState> emit,
+    Emitter<PlayerBlocLoaded> emit,
   ) async {
     if (state is PlayerBlocLoaded) {
       emit((state as PlayerBlocLoaded).copyWith(position: event.position));
@@ -909,26 +909,30 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
       // Actualizar historial cada ~5 segundos (fire and forget)
       unawaited(_saveHistoryPlayedDuration(event.position.inSeconds));
     } else {
-      // Crear estado si no existe
-      emit(PlayerBlocLoaded(position: event.position));
+      // Usar estado inicial con copyWith
+      emit(PlayerBlocLoaded.initial().copyWith(
+        position: event.position,
+      ));
     }
   }
 
   Future<void> _onDurationChanged(
     DurationChangedEvent event,
-    Emitter<PlayerBlocState> emit,
+    Emitter<PlayerBlocLoaded> emit,
   ) async {
     if (state is PlayerBlocLoaded) {
       emit((state as PlayerBlocLoaded).copyWith(duration: event.duration));
     } else {
-      // Crear estado si no existe
-      emit(PlayerBlocLoaded(duration: event.duration));
+      // Usar estado inicial con copyWith
+      emit(PlayerBlocLoaded.initial().copyWith(
+        duration: event.duration,
+      ));
     }
   }
 
   Future<void> _onBufferedPositionChanged(
     BufferedPositionChangedEvent event,
-    Emitter<PlayerBlocState> emit,
+    Emitter<PlayerBlocLoaded> emit,
   ) async {
     if (state is PlayerBlocLoaded) {
       emit(
@@ -941,7 +945,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
 
   Future<void> _onCurrentIndexChanged(
     CurrentIndexChangedEvent event,
-    Emitter<PlayerBlocState> emit,
+    Emitter<PlayerBlocLoaded> emit,
   ) async {
     if (state is PlayerBlocLoaded) {
       final currentState = state as PlayerBlocLoaded;
@@ -962,14 +966,17 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
         ),
       );
     } else if (event.index != null) {
-      // Crear estado básico si no existe
-      emit(PlayerBlocLoaded(currentIndex: event.index));
+      // Usar estado inicial con copyWith
+      emit(PlayerBlocLoaded.initial().copyWith(
+        currentIndex: event.index,
+        playlist: [],
+      ));
     }
   }
 
   Future<void> _onAudioError(
     AudioErrorEvent event,
-    Emitter<PlayerBlocState> emit,
+    Emitter<PlayerBlocLoaded> emit,
   ) async {
     if (state is PlayerBlocLoaded) {
       emit(
@@ -990,7 +997,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
 
   Future<void> _onInitializeAudioService(
     InitializeAudioServiceEvent event,
-    Emitter<PlayerBlocState> emit,
+    Emitter<PlayerBlocLoaded> emit,
   ) async {
     try {
       // Intentar obtener el AudioPlayerHandler
@@ -1035,7 +1042,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
 
   Future<void> _onDisposeAudioService(
     DisposeAudioServiceEvent event,
-    Emitter<PlayerBlocState> emit,
+    Emitter<PlayerBlocLoaded> emit,
   ) async {
     try {
       if (state is PlayerBlocLoaded) {
