@@ -151,31 +151,44 @@ class PlaylistTrackItemWidget extends StatelessWidget {
             onTap: isDisabled
                 ? null
                 : () {
-                    // Verificar si la canción ya está en la playlist del PlayerBloc
-                    final playerState = context.read<PlayerBlocBloc>().state;
+                    final playerBloc = context.read<PlayerBlocBloc>();
+                    final playerState = playerBloc.state;
                     
-                    if (playerState is PlayerBlocState && 
-                        playerState.playlist.isNotEmpty) {
-                      final trackIndex = playerState.playlist.indexWhere(
+                    // Verificar si la canción ya está en la playlist del PlayerBloc
+                    bool isInPlaylist = false;
+                    int trackIndex = -1;
+                    
+                    if (playerState.playlist.isNotEmpty) {
+                      trackIndex = playerState.playlist.indexWhere(
                         (t) => t.videoId == track.videoId,
                       );
-                      
-                      if (trackIndex >= 0) {
-                        // Ya está en la playlist - reproducir y navegar
-                        context.read<PlayerBlocBloc>().add(
-                          PlayTrackAtIndexEvent(trackIndex),
-                        );
-                        context.router.push(
-                          PlayerRoute(nowPlayingData: _toNowPlayingData()),
-                        );
-                        return;
-                      }
+                      isInPlaylist = trackIndex >= 0;
                     }
                     
-                    // No está en la playlist - navegar a PlayerScreen
-                    context.router.push(
-                      PlayerRoute(nowPlayingData: _toNowPlayingData()),
-                    );
+                    if (isInPlaylist) {
+                      // Ya está en la playlist - solo navegar (mantiene lo que reproduce)
+                      playerBloc.add(PlayTrackAtIndexEvent(trackIndex));
+                      context.router.push(
+                        PlayerRoute(nowPlayingData: _toNowPlayingData()),
+                      );
+                    } else {
+                      // No está en la playlist - limpiar y reproducir solo esta canción
+                      playerBloc.add(const StopEvent());
+                      // small delay to ensure stop is processed
+                      Future.delayed(const Duration(milliseconds: 100), () {
+                        final nowPlayingData = _toNowPlayingData();
+                        if (nowPlayingData.streamUrl != null && 
+                            nowPlayingData.streamUrl!.isNotEmpty) {
+                          playerBloc.add(LoadPlaylistEvent(
+                            playlist: [nowPlayingData],
+                            startIndex: 0,
+                          ));
+                        }
+                      });
+                      context.router.push(
+                        PlayerRoute(nowPlayingData: _toNowPlayingData()),
+                      );
+                    }
                   },
           ),
         );
