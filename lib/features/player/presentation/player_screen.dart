@@ -16,10 +16,17 @@ import 'package:music_app/features/player/presentation/widgets/player_shimmer_wi
 import 'package:music_app/features/player/presentation/widgets/player_similar_songs_widget.dart';
 
 @RoutePage()
-class PlayerScreen extends StatelessWidget {
+class PlayerScreen extends StatefulWidget {
   final NowPlayingData nowPlayingData;
 
   const PlayerScreen({required this.nowPlayingData, super.key});
+
+  @override
+  State<PlayerScreen> createState() => _PlayerScreenState();
+}
+
+class _PlayerScreenState extends State<PlayerScreen> {
+  bool _hasProcessedNavigation = false;
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +35,14 @@ class PlayerScreen extends StatelessWidget {
       body: SafeArea(
         child: BlocBuilder<PlayerBlocBloc, PlayerBlocState>(
           builder: (context, state) {
+            // Procesar navegación solo una vez cuando el player está listo
+            if (!_hasProcessedNavigation && state.connectionState == AudioConnectionState.connected) {
+              _hasProcessedNavigation = true;
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                _handleNavigation(context, state);
+              });
+            }
+            
             final isLoaded = state.connectionState == AudioConnectionState.connected || state.connectionState == AudioConnectionState.connecting;
             
             final playlist = isLoaded ? state.playlist : <NowPlayingData>[];
@@ -187,6 +202,42 @@ class _SongCarouselState extends State<_SongCarousel> {
         curve: Curves.easeOutCubic,
       );
     }
+  }
+
+  void _handleNavigation(BuildContext context, PlayerBlocState state) {
+    final playerBloc = context.read<PlayerBlocBloc>();
+    final currentVideoId = state.currentTrack?.videoId;
+    final targetVideoId = widget.nowPlayingData.videoId;
+
+    // Si ya está reproduciendo esta canción, no hacer nada
+    if (currentVideoId == targetVideoId) {
+      return;
+    }
+
+    // Verificar si la canción está en la playlist actual
+    if (state.playlist.isNotEmpty) {
+      final trackIndex = state.playlist.indexWhere(
+        (t) => t.videoId == targetVideoId,
+      );
+
+      if (trackIndex >= 0) {
+        // Está en la playlist - cambiar al index
+        playerBloc.add(PlayTrackAtIndexEvent(trackIndex));
+        return;
+      }
+    }
+
+    // NO está en la playlist - limpiar y reproducir solo esta canción
+    playerBloc.add(const StopEvent());
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (widget.nowPlayingData.streamUrl != null &&
+          widget.nowPlayingData.streamUrl!.isNotEmpty) {
+        playerBloc.add(LoadPlaylistEvent(
+          playlist: [widget.nowPlayingData],
+          startIndex: 0,
+        ));
+      }
+    });
   }
 
   @override

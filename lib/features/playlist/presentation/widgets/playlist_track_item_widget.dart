@@ -151,44 +151,10 @@ class PlaylistTrackItemWidget extends StatelessWidget {
             onTap: isDisabled
                 ? null
                 : () {
-                    final playerBloc = context.read<PlayerBlocBloc>();
-                    final playerState = playerBloc.state;
-                    
-                    // Verificar si la canción ya está en la playlist del PlayerBloc
-                    bool isInPlaylist = false;
-                    int trackIndex = -1;
-                    
-                    if (playerState.playlist.isNotEmpty) {
-                      trackIndex = playerState.playlist.indexWhere(
-                        (t) => t.videoId == track.videoId,
-                      );
-                      isInPlaylist = trackIndex >= 0;
-                    }
-                    
-                    if (isInPlaylist) {
-                      // Ya está en la playlist - solo navegar (mantiene lo que reproduce)
-                      playerBloc.add(PlayTrackAtIndexEvent(trackIndex));
-                      context.router.push(
-                        PlayerRoute(nowPlayingData: _toNowPlayingData()),
-                      );
-                    } else {
-                      // No está en la playlist - limpiar y reproducir solo esta canción
-                      playerBloc.add(const StopEvent());
-                      // small delay to ensure stop is processed
-                      Future.delayed(const Duration(milliseconds: 100), () {
-                        final nowPlayingData = _toNowPlayingData();
-                        if (nowPlayingData.streamUrl != null && 
-                            nowPlayingData.streamUrl!.isNotEmpty) {
-                          playerBloc.add(LoadPlaylistEvent(
-                            playlist: [nowPlayingData],
-                            startIndex: 0,
-                          ));
-                        }
-                      });
-                      context.router.push(
-                        PlayerRoute(nowPlayingData: _toNowPlayingData()),
-                      );
-                    }
+                    // Solo navegar - la lógica de reproducción está en PlayerScreen
+                    context.router.push(
+                      PlayerRoute(nowPlayingData: _toNowPlayingData()),
+                    );
                   },
           ),
         );
