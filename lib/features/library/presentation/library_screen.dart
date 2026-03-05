@@ -68,7 +68,10 @@ class _LibraryView extends StatelessWidget {
                     SliverFillRemaining(
                       child: LibraryEmptyState(
                         l10n: l10n,
-                        onExplore: () => context.router.push(const HomeRoute()),
+                        onExplore: () {
+                          // Navegar al tab de home (índice 0)
+                          context.tabsRouter.setActiveIndex(0);
+                        },
                       ),
                     ),
                   const SliverToBoxAdapter(child: SizedBox(height: 100)),

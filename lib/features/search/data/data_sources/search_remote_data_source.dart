@@ -37,7 +37,7 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
       // Codificar la query para URL (espacios -> %20)
       final encodedQuery = Uri.encodeComponent(request.query);
       final endpoint =
-          '/music/search?q=$encodedQuery&filter=${request.filter}&include_stream_urls=true';
+          '/music/search?q=$encodedQuery&filter=${request.filter}&include_stream_urls=false';
 
       final response = await _apiServices.get(endpoint);
 
@@ -86,7 +86,7 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
   }) async {
     try {
       final endpoint =
-          '/music/recent-searches?limit=$limit&include_stream_urls=true';
+          '/music/recent-searches?limit=$limit&include_stream_urls=false';
       final response = await _apiServices.get(endpoint);
 
       // Dio devuelve Response, necesitamos acceder a response.data
@@ -157,17 +157,10 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
               if (item is Map<String, dynamic>) {
                 recentSearches.add(RecentSearchModel.fromJson(item));
               } else if (item is String) {
-                if (kDebugMode)
-                  debugPrint(
-                    'getRecentSearches: Item $i en data es String, saltando: $item',
-                  );
-                continue;
+             
               }
             } catch (e) {
-              if (kDebugMode)
-                debugPrint(
-                  'getRecentSearches: Error parseando item $i en data: $e',
-                );
+             
               continue;
             }
           }
@@ -196,7 +189,7 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
   @override
   Future<Either<AppException, List<MoodGenreModel>>> getCategories() async {
     try {
-      const endpoint = '/music/explore';
+      const endpoint = '/music/explore?include_stream_urls=false';
       final response = await _apiServices.get(endpoint);
 
       final responseData = response is Response ? response.data : response;

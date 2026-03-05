@@ -29,7 +29,7 @@ class MoodGenreCardWidget extends StatelessWidget {
         ),
         child: Center(
           child: Text(
-            moodGenre.name,
+            moodGenre.title,
             style: const TextStyle(
               color: Colors.white,
               fontSize: 13,

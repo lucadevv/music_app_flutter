@@ -98,6 +98,19 @@ class AddToPlaylistEvent extends PlayerBlocEvent {
   List<Object?> get props => [track];
 }
 
+/// Agregar múltiples canciones a la playlist
+class AddMultipleToPlaylistEvent extends PlayerBlocEvent {
+  final List<NowPlayingData> tracks;
+
+  const AddMultipleToPlaylistEvent(this.tracks);
+
+  @override
+  List<Object?> get props => [tracks];
+}
+
+/// Cargar una canción con URL ya resuelta (para playlist loading)
+
+
 /// Remover canción de la playlist
 class RemoveFromPlaylistEvent extends PlayerBlocEvent {
   final int index;
@@ -217,4 +230,9 @@ class InitializeAudioServiceEvent extends PlayerBlocEvent {
 /// Cerrar AudioService
 class DisposeAudioServiceEvent extends PlayerBlocEvent {
   const DisposeAudioServiceEvent();
+}
+
+/// Resetear el player al estado inicial (para cuando se reproduce una canción individual)
+class ResetPlayerEvent extends PlayerBlocEvent {
+  const ResetPlayerEvent();
 }

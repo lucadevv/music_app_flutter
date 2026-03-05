@@ -213,6 +213,16 @@ class NowPlayingData extends Equatable {
     return thumbnails.last; // La última suele ser la más grande
   }
 
+  /// Thumbnail de alta resolución para el Player
+  ///
+  /// Siempre genera maxresdefault.jpg (1280x720) desde el videoId
+  /// Esto garantiza la mejor calidad en la pantalla del player
+  search_thumb.Thumbnail get highResThumbnail => search_thumb.Thumbnail(
+    url: 'https://img.youtube.com/vi/$videoId/maxresdefault.jpg',
+    width: 1280,
+    height: 720,
+  );
+
   /// Convierte NowPlayingData a MediaItem para notificaciones
   ///
   /// Esto es necesario para que las notificaciones y controles
@@ -224,7 +234,7 @@ class NowPlayingData extends Equatable {
       title: title,
       artist: artistsNames,
       duration: durationSeconds > 0 ? Duration(seconds: durationSeconds) : null,
-      artUri: bestThumbnail != null ? Uri.tryParse(bestThumbnail!.url) : null,
+      artUri: Uri.tryParse(highResThumbnail.url),
       extras: {'videoId': videoId, 'streamUrl': streamUrl},
     );
   }

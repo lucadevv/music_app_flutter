@@ -13,9 +13,7 @@ void main() {
   late DownloadSongUseCase useCase;
   late MockDownloadsRepository mockRepository;
 
-  setUpAll(() {
-    registerFallbackValues();
-  });
+  setUpAll(registerFallbackValues);
 
   setUp(() {
     mockRepository = MockDownloadsRepository();

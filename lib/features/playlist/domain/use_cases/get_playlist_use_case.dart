@@ -15,9 +15,15 @@ class GetPlaylistUseCase {
   /// Ejecuta el caso de uso para obtener una playlist
   ///
   /// [id] - El ID de la playlist a obtener
+  /// [startIndex] - Índice inicial para paginación
+  /// [limit] - Número de canciones a obtener (default 10, el servicio Python retorna de 10 en 10)
   ///
   /// Retorna [Either<AppException, PlaylistResponse>]
-  Future<Either<AppException, PlaylistResponse>> call(String id) async {
-    return _repository.getPlaylist(id);
+  Future<Either<AppException, PlaylistResponse>> call(
+    String id, {
+    int startIndex = 0,
+    int limit = 10,
+  }) async {
+    return _repository.getPlaylist(id, startIndex: startIndex, limit: limit);
   }
 }

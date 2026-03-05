@@ -7,14 +7,18 @@ import '../data_sources/playlist_remote_data_source.dart';
 /// Implementación del repositorio de playlist
 ///
 /// SOLID: Dependency Inversion Principle (DIP)
-/// Implementa la interfaz definida en PlaylistRepository
+/// implementa la interfaz definida en PlaylistRepository
 class PlaylistRepositoryImpl implements PlaylistRepository {
   final PlaylistRemoteDataSource _remoteDataSource;
 
   PlaylistRepositoryImpl(this._remoteDataSource);
 
   @override
-  Future<Either<AppException, PlaylistResponse>> getPlaylist(String id) async {
-    return _remoteDataSource.getPlaylist(id);
+  Future<Either<AppException, PlaylistResponse>> getPlaylist(
+    String id, {
+    int startIndex = 0,
+    int limit = 10,
+  }) async {
+    return _remoteDataSource.getPlaylist(id, startIndex: startIndex, limit: limit);
   }
 }

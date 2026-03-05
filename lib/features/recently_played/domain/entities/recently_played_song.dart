@@ -9,6 +9,7 @@ class RecentlyPlayedSong extends Equatable {
   final String duration;
   final int durationSeconds;
   final DateTime? playedAt;
+  final String? streamUrl;
 
   const RecentlyPlayedSong({
     required this.videoId,
@@ -18,6 +19,7 @@ class RecentlyPlayedSong extends Equatable {
     required this.duration,
     this.durationSeconds = 0,
     this.playedAt,
+    this.streamUrl,
   });
 
   /// Create from API response
@@ -32,6 +34,14 @@ class RecentlyPlayedSong extends Equatable {
       }
     } catch (_) {}
 
+    // Extraer stream_url de donde venga (directo o anidado en songData)
+    String? streamUrl;
+    if (json['stream_url'] != null) {
+      streamUrl = json['stream_url'] as String?;
+    } else if (json['songData'] != null && json['songData'] is Map<String, dynamic>) {
+      streamUrl = json['songData']['stream_url'] as String?;
+    }
+
     return RecentlyPlayedSong(
       videoId: json['videoId'] ?? '',
       title: json['title'] ?? 'Unknown',
@@ -39,6 +49,7 @@ class RecentlyPlayedSong extends Equatable {
       thumbnail: json['thumbnail'],
       duration: durationStr.toString(),
       durationSeconds: durationSeconds,
+      streamUrl: streamUrl,
     );
   }
 
@@ -50,5 +61,6 @@ class RecentlyPlayedSong extends Equatable {
     thumbnail,
     duration,
     durationSeconds,
+    streamUrl,
   ];
 }

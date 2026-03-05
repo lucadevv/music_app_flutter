@@ -21,7 +21,7 @@ class MiniPlayer extends StatelessWidget {
     return BlocBuilder<PlayerBlocBloc, PlayerBlocState>(
       bloc: playerBloc,
       builder: (context, state) {
-        if (state is! PlayerBlocLoaded || state.currentTrack == null) {
+        if (state is! PlayerBlocState || state.currentTrack == null) {
           return const SizedBox.shrink();
         }
 
@@ -57,7 +57,7 @@ class MiniPlayer extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: Row(
                       children: [
-                        _TrackThumbnail(thumbnail: track.bestThumbnail?.url),
+                        _TrackThumbnail(thumbnail: track.highResThumbnail.url),
                         const SizedBox(width: 12),
                         Expanded(
                           child: _TrackInfo(
@@ -71,7 +71,7 @@ class MiniPlayer extends StatelessWidget {
                           metadata: SongMetadata(
                             title: track.title,
                             artist: track.artistsNames,
-                            thumbnail: track.bestThumbnail?.url,
+                            thumbnail: track.highResThumbnail.url,
                             duration: track.durationSeconds,
                           ),
                         ),

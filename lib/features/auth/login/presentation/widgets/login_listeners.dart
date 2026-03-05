@@ -11,7 +11,7 @@ import '../cubit/login_cubit.dart' show LoginStatus, LoginCubit, LoginState;
 class LoginListeners extends StatelessWidget {
   final Widget child;
 
-  const LoginListeners({super.key, required this.child});
+  const LoginListeners({required this.child, super.key});
 
   @override
   Widget build(BuildContext context) {

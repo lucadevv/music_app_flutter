@@ -174,7 +174,7 @@ void main() {
     blocTest<DownloadsCubit, DownloadsState>(
       'should clear error when clearError is called',
       build: () => downloadsCubit,
-      seed: () => DownloadsState(
+      seed: () => const DownloadsState(
         status: DownloadsStatus.failure,
         errorMessage: 'Some error',
       ),

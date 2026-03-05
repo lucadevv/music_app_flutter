@@ -63,7 +63,7 @@ import 'package:music_app/features/playlist/data/data_sources/playlist_remote_da
 import 'package:music_app/features/playlist/data/repositories/playlist_repository_impl.dart';
 import 'package:music_app/features/playlist/domain/repositories/playlist_repository.dart';
 import 'package:music_app/features/playlist/domain/use_cases/get_playlist_use_case.dart';
-import 'package:music_app/features/playlist/presentation/cubit/playlist_cubit.dart';
+
 import 'package:music_app/features/profile/data/datasources/profile_remote_data_source.dart';
 import 'package:music_app/features/profile/data/repositories/profile_repository_impl.dart';
 import 'package:music_app/features/profile/domain/repositories/profile_repository.dart';
@@ -97,16 +97,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AppInjection {
   final GetIt _getIt;
   final String _baseUrl;
-  final String _accessToken;
   bool _isInitialized = false;
 
   AppInjection({
     required GetIt getIt,
     required String baseUrl,
-    required String accessToken,
   }) : _getIt = getIt,
-       _baseUrl = baseUrl,
-       _accessToken = accessToken {
+       _baseUrl = baseUrl {
     // Don't call _init() here - call init() explicitly from main.dart
   }
 
@@ -131,7 +128,7 @@ class AppInjection {
 
     if (!_getIt.isRegistered<ApiServices>()) {
       _getIt.registerLazySingleton<ApiServices>(
-        () => DioApiServicesImpl(_baseUrl, accessToken: _accessToken),
+        () => DioApiServicesImpl(_baseUrl),
       );
     } else {}
 
@@ -405,7 +402,7 @@ class AppInjection {
     // Nota: OfflineService se obtiene de forma lazy dentro del BLoC
     if (!_getIt.isRegistered<PlayerBlocBloc>()) {
       _getIt.registerLazySingleton<PlayerBlocBloc>(
-        () => PlayerBlocBloc(_getIt<ApiServices>()),
+        () => PlayerBlocBloc(),
       );
     }
   }
@@ -492,12 +489,8 @@ class AppInjection {
       );
     }
 
-    // Cubits (factory porque cada pantalla necesita su propia instancia)
-    if (!_getIt.isRegistered<PlaylistCubit>()) {
-      _getIt.registerFactory<PlaylistCubit>(
-        () => PlaylistCubit(getPlaylistUseCase: _getIt<GetPlaylistUseCase>()),
-      );
-    }
+    // PlaylistCubit se crea directamente en PlaylistScreen con BlocProvider
+    // No se registra aquí porque necesita PlayerBloc que es un singleton
   }
 
   void _registerDownloadsFeature() {

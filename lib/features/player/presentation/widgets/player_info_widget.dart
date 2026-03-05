@@ -50,7 +50,7 @@ class PlayerInfoWidget extends StatelessWidget {
                 metadata: SongMetadata(
                   title: track.title,
                   artist: track.artistsNames,
-                  thumbnail: track.bestThumbnail?.url,
+                  thumbnail: track.highResThumbnail.url,
                   duration: track.durationSeconds,
                 ),
               ),

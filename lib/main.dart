@@ -22,7 +22,6 @@ void main() async {
   final appInjection = AppInjection(
     getIt: getIt,
     baseUrl: AppConfig.baseUrl,
-    accessToken: AppConfig.accessToken,
   );
 
   // CRITICAL: Call init() to register all dependencies in proper order

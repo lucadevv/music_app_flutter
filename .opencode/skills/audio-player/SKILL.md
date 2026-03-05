@@ -96,14 +96,14 @@ playerBloc.add(SetSpeedEvent(speed: 1.5));     // 0.5 - 2.0
 ## Leer estado del player en widgets
 
 ```dart
-// PlayerBlocLoaded contiene toda la info
+// PlayerBlocState contiene toda la info
 BlocBuilder<PlayerBlocBloc, PlayerBlocState>(
   builder: (context, state) {
     if (state is PlayerBlocInitial) {
       return const SizedBox.shrink(); // no hay nada reproduciéndose
     }
     
-    final loaded = state as PlayerBlocLoaded;
+    final loaded = state as PlayerBlocState;
     
     return Column(
       children: [
@@ -153,7 +153,7 @@ BlocBuilder<PlayerBlocBloc, PlayerBlocState>(
 )
 ```
 
-## Estado PlayerBlocLoaded — propiedades clave
+## Estado PlayerBlocState — propiedades clave
 
 | Propiedad | Tipo | Descripción |
 |-----------|------|-------------|
@@ -181,14 +181,14 @@ El mini-player aparece sobre el bottom nav cuando hay algo reproduciéndose:
 BlocBuilder<PlayerBlocBloc, PlayerBlocState>(
   buildWhen: (prev, curr) {
     // Solo reconstruir cuando cambia el track o el estado play/pause
-    if (prev is PlayerBlocLoaded && curr is PlayerBlocLoaded) {
+    if (prev is PlayerBlocState && curr is PlayerBlocState) {
       return prev.currentTrack != curr.currentTrack ||
              prev.isPlaying != curr.isPlaying;
     }
     return prev.runtimeType != curr.runtimeType;
   },
   builder: (context, state) {
-    if (state is! PlayerBlocLoaded || state.currentTrack == null) {
+    if (state is! PlayerBlocState || state.currentTrack == null) {
       return const SizedBox.shrink();
     }
     return MiniPlayerWidget(state: state);
