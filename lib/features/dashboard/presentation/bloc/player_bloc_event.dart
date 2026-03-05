@@ -98,6 +98,16 @@ class AddToPlaylistEvent extends PlayerBlocEvent {
   List<Object?> get props => [track];
 }
 
+/// Agregar múltiples canciones a la playlist
+class AddMultipleToPlaylistEvent extends PlayerBlocEvent {
+  final List<NowPlayingData> tracks;
+
+  const AddMultipleToPlaylistEvent(this.tracks);
+
+  @override
+  List<Object?> get props => [tracks];
+}
+
 /// Cargar una canción con URL ya resuelta (para playlist loading)
 
 

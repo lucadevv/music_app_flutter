@@ -112,6 +112,22 @@ class PlaylistCubit extends Cubit<PlaylistState> with BaseBlocMixin {
         ));
       },
       (response) {
+        // Filtrar tracks que tienen streamUrl válida
+        final validTracks = response.tracks.where((track) =>
+            track.streamUrl != null && 
+            track.streamUrl!.isNotEmpty &&
+            track.isAvailable).toList();
+        
+        // Convertir a NowPlayingData
+        final nowPlayingTracks = validTracks
+            .map((t) => NowPlayingData.fromPlaylistTrack(t))
+            .toList();
+
+        // Si hay una playlist reproduciéndose, agregar los nuevos tracks al player
+        if (_playerBloc.state.hasCurrentTrack) {
+          _playerBloc.add(AddMultipleToPlaylistEvent(nowPlayingTracks));
+        }
+        
         // Acumular los nuevos tracks
         final newTracks = List<PlaylistTrack>.from(state.allTracks)
           ..addAll(response.tracks);

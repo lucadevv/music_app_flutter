@@ -252,6 +252,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     on<LoadPlaylistEvent>(_onLoadPlaylist);
     on<PlayTrackAtIndexEvent>(_onPlayTrackAtIndex);
     on<AddToPlaylistEvent>(_onAddToPlaylist);
+    on<AddMultipleToPlaylistEvent>(_onAddMultipleToPlaylist);
     on<RemoveFromPlaylistEvent>(_onRemoveFromPlaylist);
 
     on<SetVolumeEvent>(_onSetVolume);
@@ -708,8 +709,44 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
       );
 
       emit(currentState.copyWith(playlist: newPlaylist));
-        } catch (e) {
+    } catch (e) {
       add(AudioErrorEvent('Error al agregar canción a playlist: $e'));
+    }
+  }
+
+  Future<void> _onAddMultipleToPlaylist(
+    AddMultipleToPlaylistEvent event,
+    Emitter<PlayerBlocState> emit,
+  ) async {
+    try {
+      final currentState = state;
+
+      // Filtrar tracks que tienen streamUrl válida
+      final validTracks = event.tracks.where((track) =>
+          track.streamUrl != null && track.streamUrl!.isNotEmpty).toList();
+
+      if (validTracks.isEmpty) {
+        return;
+      }
+
+      // Crear nuevas fuentes de audio
+      final newSources = validTracks.map((track) {
+        final parsedUri = Uri.parse(track.streamUrl!);
+        return AudioSource.uri(parsedUri, tag: track.toMediaItem());
+      }).toList();
+
+      // Agregar todas las fuentes de una vez
+      await _audioPlayer.addAudioSource(
+        ConcatenatingAudioSource(children: newSources),
+      );
+
+      // Actualizar playlist en el estado
+      final newPlaylist = List<NowPlayingData>.from(currentState.playlist)
+        ..addAll(validTracks);
+
+      emit(currentState.copyWith(playlist: newPlaylist));
+    } catch (e) {
+      add(AudioErrorEvent('Error al agregar canciones a playlist: $e'));
     }
   }
 
