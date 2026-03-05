@@ -5,7 +5,7 @@
 /// SOLID: Single Responsibility Principle (SRP)
 /// Responsable única: Representar un mood o género
 class MoodGenre {
-  final String title; // Cambiado de 'name' a 'title' según API
+  final String title;
   final String params;
 
   const MoodGenre({required this.title, required this.params});
