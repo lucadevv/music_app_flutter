@@ -8,10 +8,10 @@ import '../entities/playlist_response.dart';
 /// Define la interfaz que debe implementar el repositorio concreto
 abstract class PlaylistRepository {
   /// Obtiene los datos de una playlist
-  /// Soporta paginación con startIndex y limit
+  /// Soporta paginación con startIndex y limit (default 10)
   Future<Either<AppException, PlaylistResponse>> getPlaylist(
     String id, {
     int startIndex = 0,
-    int limit = 20,
+    int limit = 10,
   });
 }

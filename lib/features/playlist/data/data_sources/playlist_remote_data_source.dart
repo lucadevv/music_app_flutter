@@ -15,11 +15,11 @@ abstract class PlaylistRemoteDataSource {
   /// Obtiene los datos de una playlist
   ///
   /// Endpoint: /api/music/playlists/{id}
-  /// Soporta paginación con startIndex y limit
+  /// Soporta paginación con startIndex y limit (default 10)
   Future<Either<AppException, PlaylistResponse>> getPlaylist(
     String id, {
     int startIndex = 0,
-    int limit = 20,
+    int limit = 10,
   });
 }
 
@@ -32,7 +32,7 @@ class PlaylistRemoteDataSourceImpl implements PlaylistRemoteDataSource {
   Future<Either<AppException, PlaylistResponse>> getPlaylist(
     String id, {
     int startIndex = 0,
-    int limit = 20,
+    int limit = 10,
   }) async {
     try {
       // Validar que el ID no esté vacío

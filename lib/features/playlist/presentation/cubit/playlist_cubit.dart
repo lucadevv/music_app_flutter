@@ -12,15 +12,15 @@ import '../../domain/use_cases/get_playlist_use_case.dart';
 /// Cubit para manejar el estado de la playlist
 /// 
 /// Implementa paginación infinita:
-/// - loadPlaylist() carga los primeros 20 tracks
-/// - loadMore() carga más tracks (20 por página)
+/// - loadPlaylist() carga los primeros 10 tracks
+/// - loadMore() carga más tracks (10 por página)
 /// - playAll() reproduce la playlist completa (acumula todos los tracks)
 class PlaylistCubit extends Cubit<PlaylistState> with BaseBlocMixin {
   final GetPlaylistUseCase _getPlaylistUseCase;
   final PlayerBlocBloc _playerBloc;
   
   String? _currentPlaylistId;
-  static const int _pageSize = 20;
+  static const int _pageSize = 10;
   
   PlaylistCubit({
     required GetPlaylistUseCase getPlaylistUseCase,
@@ -29,7 +29,7 @@ class PlaylistCubit extends Cubit<PlaylistState> with BaseBlocMixin {
         _playerBloc = playerBloc,
         super(const PlaylistState());
 
-  /// Carga los datos iniciales de una playlist (primeros 20 tracks)
+  /// Carga los datos iniciales de una playlist (primeros 10 tracks)
   Future<void> loadPlaylist(String id) async {
     if (state.status == PlaylistStatus.loading) {
       return;

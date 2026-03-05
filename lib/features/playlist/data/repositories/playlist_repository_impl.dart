@@ -17,7 +17,7 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
   Future<Either<AppException, PlaylistResponse>> getPlaylist(
     String id, {
     int startIndex = 0,
-    int limit = 20,
+    int limit = 10,
   }) async {
     return _remoteDataSource.getPlaylist(id, startIndex: startIndex, limit: limit);
   }
