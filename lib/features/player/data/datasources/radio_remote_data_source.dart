@@ -16,8 +16,13 @@ class RadioRemoteDataSourceImpl implements RadioRemoteDataSource {
   Future<List<Map<String, dynamic>>> getRadioPlaylist(String videoId, {int limit = 10}) async {
     try {
       final response = await _apiServices.get(
-        '/music/radio/$videoId',
-        queryParameters: {'limit': limit, 'include_stream_urls': true},
+        '/music/watch/',
+        queryParameters: {
+          'video_id': videoId,
+          'radio': true,
+          'limit': limit,
+          'include_stream_urls': true,
+        },
       );
       
       final data = response is Response ? response.data : response;
