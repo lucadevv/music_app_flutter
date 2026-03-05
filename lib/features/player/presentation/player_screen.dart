@@ -28,6 +28,9 @@ class PlayerScreen extends StatefulWidget {
 class _PlayerScreenState extends State<PlayerScreen> {
   bool _hasProcessedNavigation = false;
 
+  // Getter para acceder a nowPlayingData desde widget
+  NowPlayingData get _nowPlayingData => widget.nowPlayingData;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,8 +51,8 @@ class _PlayerScreenState extends State<PlayerScreen> {
             final playlist = isLoaded ? state.playlist : <NowPlayingData>[];
             final currentIndex = isLoaded ? state.currentIndex : null;
             final currentTrack = isLoaded 
-                ? (state.currentTrack ?? nowPlayingData)
-                : nowPlayingData;
+                ? (state.currentTrack ?? _nowPlayingData)
+                : _nowPlayingData;
             
             final isLoading = isLoaded && state.isLoading; final isBuffering = isLoaded && state.isBuffering;
             final hasError = isLoaded && state.hasError;
@@ -200,14 +203,13 @@ class _SongCarouselState extends State<_SongCarousel> {
         page,
         duration: const Duration(milliseconds: 400),
         curve: Curves.easeOutCubic,
-      );
-    }
+    );
   }
 
   void _handleNavigation(BuildContext context, PlayerBlocState state) {
     final playerBloc = context.read<PlayerBlocBloc>();
     final currentVideoId = state.currentTrack?.videoId;
-    final targetVideoId = widget.nowPlayingData.videoId;
+    final targetVideoId = _nowPlayingData.videoId;
 
     // Si ya está reproduciendo esta canción, no hacer nada
     if (currentVideoId == targetVideoId) {
@@ -230,15 +232,16 @@ class _SongCarouselState extends State<_SongCarousel> {
     // NO está en la playlist - limpiar y reproducir solo esta canción
     playerBloc.add(const StopEvent());
     Future.delayed(const Duration(milliseconds: 100), () {
-      if (widget.nowPlayingData.streamUrl != null &&
-          widget.nowPlayingData.streamUrl!.isNotEmpty) {
+      if (_nowPlayingData.streamUrl != null &&
+          _nowPlayingData.streamUrl!.isNotEmpty) {
         playerBloc.add(LoadPlaylistEvent(
-          playlist: [widget.nowPlayingData],
+          playlist: [_nowPlayingData],
           startIndex: 0,
         ));
       }
     });
   }
+}
 
   @override
   void dispose() {
