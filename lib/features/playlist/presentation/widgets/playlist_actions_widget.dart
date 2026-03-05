@@ -45,24 +45,41 @@ class PlaylistActionsWidget extends StatelessWidget {
 
     return BlocBuilder<PlaylistCubit, PlaylistState>(
       builder: (context, playlistState) {
-        return BlocBuilder<PlayerBlocBloc, PlayerBlocState>(
-          builder: (context, playerState) {
-            // Estado de carga del cubit
+        return BlocListener<PlayerBlocBloc, PlayerBlocState>(
+          listenWhen: (previous, current) {
+            // Llamar completeLoading cuando:
+            // - Esta playlist estaba cargando
+            // - El player confirma reproducción (posición >= 5s o reproduciendo)
+            final wasLoading = playlistState.loadingPlaylistId == playlist.id;
+            final isNowPlaying = current.position.inSeconds >= 5 || current.isPlaying;
+            return wasLoading && isNowPlaying;
+          },
+          listener: (context, state) {
+            playlistCubit.completeLoading();
+          },
+          child: BlocBuilder<PlayerBlocBloc, PlayerBlocState>(
+            builder: (context, playerState) {
+              // Estado de carga del cubit
             final isLoadingForPlay = playlistState.isLoadingForPlay;
-            final loadedCount = playlistState.loadedCount;
-            final totalCount = playlistState.totalCount;
+            final loadingPlaylistId = playlistState.loadingPlaylistId;
+            final isThisPlaylistLoading = loadingPlaylistId == playlist.id;
 
             // Verificar si la playlist actual está reproduciéndose
             final isCurrentPlaylist = _isCurrentPlaylistPlaying(playerState);
-            final hasCurrentTrack = playerState.currentTrack != null;
             final isPlaying = playerState.isPlaying;
 
             // El botón muestra:
-            // - Loading si está cargando la primera canción
+            // - Loading solo la primera vez que se inicia playAll de ESTA playlist
             // - Play si no hay canción reproduciéndose O si es otra playlist
             // - Pause si es la misma playlist y está reproduciéndose
-            final isLoadingFirstSong = isLoadingForPlay && loadedCount < 1;
             final showPause = isCurrentPlaylist && isPlaying;
+
+            // Mostrar loading solo si:
+            // - Es esta playlist la que está cargando, Y
+            // - El player no ha confirmado reproducción (posición < 5s o buffering)
+            final showLoading = isThisPlaylistLoading && 
+                !showPause && 
+                (playerState.position.inSeconds < 5 || playerState.isBuffering);
 
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
@@ -70,11 +87,11 @@ class PlaylistActionsWidget extends StatelessWidget {
                 children: [
                   // Botón de play/pause
                   GestureDetector(
-                    onTap: isLoadingFirstSong
+                    onTap: showLoading
                         ? null
                         : () {
                             // Si es la misma playlist y hay algo reproducido, togglear
-                            if (isCurrentPlaylist && hasCurrentTrack) {
+                            if (isCurrentPlaylist && playerState.hasCurrentTrack) {
                               playerBloc.add(const PlayPauseToggleEvent());
                             } else {
                               // Es otra playlist o no hay nada - cargar esta playlist
@@ -95,7 +112,7 @@ class PlaylistActionsWidget extends StatelessWidget {
                           ),
                         ],
                       ),
-                      child: isLoadingFirstSong
+                      child: showLoading
                           ? const SizedBox(
                               width: 28,
                               height: 28,
@@ -138,6 +155,7 @@ class PlaylistActionsWidget extends StatelessWidget {
               ),
             );
           },
+          ),
         );
       },
     );

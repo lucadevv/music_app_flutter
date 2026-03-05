@@ -16,6 +16,7 @@ class PlaylistState extends Equatable {
   final int loadedCount;
   final int totalCount;
   final bool isLoadingForPlay;
+  final String? loadingPlaylistId; // ID de la playlist que está cargando
   
   // Estado de paginación
   final int currentPage;
@@ -29,6 +30,7 @@ class PlaylistState extends Equatable {
     this.loadedCount = 0,
     this.totalCount = 0,
     this.isLoadingForPlay = false,
+    this.loadingPlaylistId,
     this.currentPage = 0,
     this.hasMore = true,
     this.allTracks = const [],
@@ -41,9 +43,11 @@ class PlaylistState extends Equatable {
     int? loadedCount,
     int? totalCount,
     bool? isLoadingForPlay,
+    String? loadingPlaylistId,
     int? currentPage,
     bool? hasMore,
     List<PlaylistTrack>? allTracks,
+    bool clearLoadingPlaylistId = false,
   }) {
     return PlaylistState(
       status: status ?? this.status,
@@ -52,6 +56,7 @@ class PlaylistState extends Equatable {
       loadedCount: loadedCount ?? this.loadedCount,
       totalCount: totalCount ?? this.totalCount,
       isLoadingForPlay: isLoadingForPlay ?? this.isLoadingForPlay,
+      loadingPlaylistId: clearLoadingPlaylistId ? null : (loadingPlaylistId ?? this.loadingPlaylistId),
       currentPage: currentPage ?? this.currentPage,
       hasMore: hasMore ?? this.hasMore,
       allTracks: allTracks ?? this.allTracks,
@@ -72,5 +77,5 @@ class PlaylistState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [status, response, errorMessage, loadedCount, totalCount, isLoadingForPlay, currentPage, hasMore, allTracks];
+  List<Object?> get props => [status, response, errorMessage, loadedCount, totalCount, isLoadingForPlay, loadingPlaylistId, currentPage, hasMore, allTracks];
 }

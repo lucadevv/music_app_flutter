@@ -190,11 +190,12 @@ class PlaylistCubit extends Cubit<PlaylistState> with BaseBlocMixin {
         .map((t) => NowPlayingData.fromPlaylistTrack(t))
         .toList();
 
-    // Resetear estado de carga
+    // Resetear estado de carga con el ID de la playlist
     emit(state.copyWith(
       isLoadingForPlay: true,
       loadedCount: 0,
       totalCount: nowPlayingTracks.length,
+      loadingPlaylistId: state.response?.id,
     ));
 
     // Reiniciar el player antes de cargar
@@ -210,11 +211,8 @@ class PlaylistCubit extends Cubit<PlaylistState> with BaseBlocMixin {
       startIndex: 0,
     ));
 
-    // Carga completa
-    emit(state.copyWith(
-      isLoadingForPlay: false,
-      loadedCount: nowPlayingTracks.length,
-    ));
+    // NO completamos el loading aquí - lo completamos cuando el player confirma reproducción
+    // Esto permite que el widget muestre el loading hasta que realmente reproduzca
   }
 
   /// Cancela la carga de la playlist
@@ -223,6 +221,16 @@ class PlaylistCubit extends Cubit<PlaylistState> with BaseBlocMixin {
       isLoadingForPlay: false,
       loadedCount: 0,
       totalCount: 0,
+      clearLoadingPlaylistId: true,
+    ));
+  }
+
+  /// Completa el loading cuando el player confirma reproducción
+  void completeLoading() {
+    emit(state.copyWith(
+      isLoadingForPlay: false,
+      loadedCount: state.totalCount,
+      clearLoadingPlaylistId: true,
     ));
   }
 
