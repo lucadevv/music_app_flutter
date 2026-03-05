@@ -73,6 +73,15 @@ class _HomeScreenState extends State<HomeScreen> {
                             );
                           }
                         },
+                        onAlbumTap: (item) {
+                          // Navegar al álbum si tiene browseId
+                          if (item.browseId != null &&
+                              item.browseId!.isNotEmpty) {
+                            context.router.push(
+                              AlbumRoute(albumId: item.browseId!),
+                            );
+                          }
+                        },
                       ),
                     ),
                   ),

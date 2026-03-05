@@ -76,25 +76,53 @@ class HomeCubit extends Cubit<HomeState> with BaseBlocMixin {
   /// Reproduce un HomeContentItem como una sola canción (primer track o videoId directo)
   /// Retorna el NowPlayingData para navegación
   NowPlayingData? playContentItemAsSingle(HomeContentItem item) {
+    // DEBUG: Verificar que el item tiene los datos correctos
+    print('DEBUG playContentItemAsSingle:');
+    print('  - contentType: ${item.contentType}');
+    print('  - videoId: ${item.videoId}');
+    print('  - title: ${item.title}');
+    print('  - streamUrl: ${item.streamUrl}');
+    print('  - has streamUrl: ${item.streamUrl != null && item.streamUrl!.isNotEmpty}');
+    
     NowPlayingData? nowPlayingData;
 
-    // Si tiene videoId directo, usarlo
-    if (item.videoId != null && item.videoId!.isNotEmpty) {
-      nowPlayingData = NowPlayingData.fromBasic(
-        videoId: item.videoId!,
-        title: item.title,
-        artistNames: item.artists.map((a) => a.name).toList(),
-        albumName: item.album?.name ?? '',
-        albumId: item.album?.id,
-        duration: '0:00',
-        views: item.views,
-        isExplicit: item.isExplicit,
-        thumbnails: item.thumbnails,
-        thumbnail: item.thumbnail,
-        streamUrl: item.streamUrl,
-      );
-      _playerBloc.add(LoadTrackEvent(nowPlayingData));
-      return nowPlayingData;
+    // Determinar tipo de contenido
+    switch (item.contentType) {
+      case HomeContentType.song:
+        // Es una canción - reproducir directamente
+        if (item.videoId != null && item.videoId!.isNotEmpty) {
+          nowPlayingData = NowPlayingData.fromBasic(
+            videoId: item.videoId!,
+            title: item.title,
+            artistNames: item.artists.map((a) => a.name).toList(),
+            albumName: item.album?.name ?? '',
+            albumId: item.album?.id,
+            duration: '0:00',
+            views: item.views,
+            isExplicit: item.isExplicit,
+            thumbnails: item.thumbnails,
+            thumbnail: item.thumbnail,
+            streamUrl: item.streamUrl,
+          );
+          print('DEBUG: Creando NowPlayingData con streamUrl: ${nowPlayingData.streamUrl}');
+          _playerBloc.add(LoadTrackEvent(nowPlayingData));
+          return nowPlayingData;
+        }
+        break;
+        
+      case HomeContentType.album:
+        // Es un álbum - no se reproduce directamente, se navega al álbum
+        print('DEBUG: Es un álbum, no se reproduce directamente');
+        break;
+        
+      case HomeContentType.playlist:
+        // Es una playlist - no se reproduce directamente, se navega a la playlist
+        print('DEBUG: Es una playlist, no se reproduce directamente');
+        break;
+        
+      case HomeContentType.unknown:
+        print('DEBUG: Tipo desconocido');
+        break;
     }
 
     // No hay tracks anidados disponibles en HomeContentItem; retornar lo que haya cargado

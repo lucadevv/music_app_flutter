@@ -204,6 +204,200 @@ class PlaylistCardWidget extends StatelessWidget {
   }
 }
 
+/// Widget para mostrar un álbum en formato card horizontal
+///
+/// PATTERN: Widget reutilizable para Albums
+class AlbumCardWidget extends StatelessWidget {
+  final HomeContentItem item;
+  final VoidCallback? onTap;
+
+  const AlbumCardWidget({required this.item, super.key, this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final thumbnail = item.thumbnails.isNotEmpty ? item.thumbnails.last : null;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 160,
+        margin: const EdgeInsets.only(right: 16),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: AppColorsDark.primaryContainer,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+                ),
+                child: thumbnail != null
+                    ? ClipRRect(
+                        borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(12),
+                        ),
+                        child: CachedNetworkImage(
+                          imageUrl: thumbnail.url,
+                          width: double.infinity,
+                          height: double.infinity,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => const Center(
+                            child: CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                AppColorsDark.primary,
+                              ),
+                            ),
+                          ),
+                          errorWidget: (context, url, error) => const Icon(
+                            Icons.album,
+                            size: 60,
+                            color: AppColorsDark.primary,
+                          ),
+                        ),
+                      )
+                    : const Center(
+                        child: Icon(
+                          Icons.album,
+                          size: 60,
+                          color: AppColorsDark.primary,
+                        ),
+                      ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.title,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  if (item.artists.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      item.artists.map((a) => a.name).join(', '),
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.6),
+                        fontSize: 12,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Widget para mostrar un álbum en formato lista vertical
+class AlbumListItemWidget extends StatelessWidget {
+  final HomeContentItem item;
+  final VoidCallback? onTap;
+
+  const AlbumListItemWidget({
+    required this.item,
+    super.key,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final thumbnail = item.thumbnails.isNotEmpty ? item.thumbnails.last : null;
+    final artistsNames = item.artists.map((a) => a.name).join(', ');
+
+    return GestureDetector(
+      onTap: onTap,
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+        leading: thumbnail != null
+            ? ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: CachedNetworkImage(
+                  imageUrl: thumbnail.url,
+                  width: 56,
+                  height: 56,
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => Container(
+                    width: 56,
+                    height: 56,
+                    color: AppColorsDark.primaryContainer,
+                    child: const Center(
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          AppColorsDark.primary,
+                        ),
+                      ),
+                    ),
+                  ),
+                  errorWidget: (context, url, error) => Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: AppColorsDark.primaryContainer,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(
+                      Icons.album,
+                      color: AppColorsDark.primary,
+                    ),
+                  ),
+                ),
+              )
+            : Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: AppColorsDark.primaryContainer,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.album,
+                  color: AppColorsDark.primary,
+                ),
+              ),
+        title: Text(
+          item.title,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        subtitle: Text(
+          'Álbum • ${artistsNames.isNotEmpty ? artistsNames : "Various Artists"}',
+          style: TextStyle(
+            color: Colors.white.withValues(alpha: 0.6),
+            fontSize: 14,
+          ),
+        ),
+        trailing: IconButton(
+          icon: Icon(
+            Icons.more_vert,
+            color: Colors.white.withValues(alpha: 0.6),
+          ),
+          onPressed: () {},
+        ),
+      ),
+    );
+  }
+}
+
 /// Widget para mostrar una canción en formato lista vertical
 class SongListItemWidget extends StatelessWidget {
   final HomeContentItem item;

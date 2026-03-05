@@ -379,20 +379,24 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     LoadTrackEvent event,
     Emitter<PlayerBlocState> emit,
   ) async {
+    print('DEBUG PlayerBloc _onLoadTrack:');
+    print('  - track.videoId: ${event.track.videoId}');
+    print('  - track.title: ${event.track.title}');
+    print('  - track.streamUrl presente: ${event.track.streamUrl != null && event.track.streamUrl!.isNotEmpty}');
+    
     try {
-      // Crear entrada de historial para el nuevo track (fire and forget)
-      // Se hace antes de emitir el estado para que no bloquee la UI
-      unawaited(_startNewHistoryEntry(event.track));
+      // Resetear el player antes de cargar
+      print('DEBUG _onLoadTrack: Reset player...');
+      try {
+        await _audioPlayer.stop();
+        await _audioPlayer.seek(Duration.zero);
+        await _audioPlayer.setVolume(1.0);
+        await Future.delayed(const Duration(milliseconds: 100));
+      } catch (e) {
+        print('DEBUG _onLoadTrack: Error al resetear: $e');
+      }
 
-      emit(
-       state.copyWith(
-          isLoading: true,
-          error: null,
-          currentTrack: event.track,
-        ),
-      );
-
-      String? streamUrl;
+      String? streamUrl = event.track.streamUrl;
 
       // PRIMERO: Verificar si la canción está descargada localmente
       final offlineService = await _getOfflineService();
@@ -424,7 +428,9 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
       }
 
       await _loadTrackWithUrl(streamUrl, event.track, emit);
+      print('DEBUG _onLoadTrack: _loadTrackWithUrl completado');
     } catch (e) {
+      print('DEBUG _onLoadTrack ERROR: $e');
       emit(
         state.copyWith(
           isLoading: false,
@@ -439,14 +445,25 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     NowPlayingData track,
     Emitter<PlayerBlocState> emit,
   ) async {
+    print('DEBUG _loadTrackWithUrl: INICIO');
+    print('DEBUG _loadTrackWithUrl: streamUrl = ${streamUrl.substring(0, 50)}...');
+    
+    // Verificar que el player esté conectado
+    print('DEBUG _loadTrackWithUrl: connectionState = ${state.connectionState}');
+    
     try {
       // La URL ya viene codificada del backend, solo parsear
       final parsedUri = Uri.parse(streamUrl);
+      print('DEBUG _loadTrackWithUrl: Uri.parse OK');
       
       // Usar setAudioSource con MediaItem para notificaciones
-      await _audioPlayer.setAudioSource(
-        AudioSource.uri(parsedUri, tag: track.toMediaItem()),
-      );
+      print('DEBUG _loadTrackWithUrl: Llamando setAudioSource...');
+      
+      // Crear un ConcatenatingAudioSource con un solo elemento
+      // Esto es más estable que usar AudioSource.uri directamente
+      final audioSource = AudioSource.uri(parsedUri, tag: track.toMediaItem());
+      await _audioPlayer.setAudioSource(audioSource, preload: false);
+      print('DEBUG _loadTrackWithUrl: setAudioSource OK');
 
       // Esperar a que el audio esté listo (processingState ready)
       try {
@@ -500,19 +517,22 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
         error: null,
       ),
       );
-
+      print('DEBUG _loadTrackWithUrl: Estado emitido, ahora play()');
       await _audioPlayer.play();
+      print('DEBUG _loadTrackWithUrl: play() completado');
     } catch (e) {
+      print('DEBUG _loadTrackWithUrl ERROR: $e');
+      print('DEBUG _loadTrackWithUrl StackTrace: ${StackTrace.current}');
       emit(
        state.copyWith(
-          playlist: [track],
-          isLoading: false,
-          error: 'Error al cargar audio: $e',
-          connectionState: AudioConnectionState.disconnected,
-          currentIndex: 0,
-          currentTrack: track,
-          currentStreamUrl: streamUrl,
-          duration: Duration(seconds: track.durationSeconds),
+        playlist: [track],
+        isLoading: false,
+        error: 'Error al cargar audio: $e',
+        connectionState: AudioConnectionState.disconnected,
+        currentIndex: 0,
+        currentTrack: track,
+        currentStreamUrl: streamUrl,
+        duration: Duration(seconds: track.durationSeconds),
        )
       );
       rethrow;
