@@ -153,10 +153,10 @@ SearchResponse createTestSearchResponse({
 // ============ Test Data - Home Response ============
 
 MoodGenre createTestMoodGenre({
-  String name = 'Test Mood',
+  String title = 'Test Mood',
   String params = 'test_params',
 }) {
-  return MoodGenre(title: name, params: params);
+  return MoodGenre(title: title, params: params);
 }
 
 ChartSong createTestChartSong({
