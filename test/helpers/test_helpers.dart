@@ -156,7 +156,7 @@ MoodGenre createTestMoodGenre({
   String name = 'Test Mood',
   String params = 'test_params',
 }) {
-  return MoodGenre(name: name, params: params);
+  return MoodGenre(title: name, params: params);
 }
 
 ChartSong createTestChartSong({
@@ -218,8 +218,8 @@ Charts createTestCharts() {
 
 HomeResponse createTestHomeResponse() {
   return HomeResponse(
-    moods: [createTestMoodGenre(name: 'Happy', params: 'happy')],
-    genres: [createTestMoodGenre(name: 'Pop', params: 'pop')],
+    moods: [createTestMoodGenre(title: 'Happy', params: 'happy')],
+    genres: [createTestMoodGenre(title: 'Pop', params: 'pop')],
     charts: createTestCharts(),
     sections: [createTestHomeSection(title: 'Trending Now')],
   );
