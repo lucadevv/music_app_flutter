@@ -45,7 +45,27 @@ class PlayerBlocState extends Equatable {
   });
 
   /// Factory para estado inicial
-  factory PlayerBlocState.initial() => const PlayerBlocState();
+  factory PlayerBlocState.initial() => const PlayerBlocState(
+        playbackState: PlaybackState.stopped,
+        processingState: ProcessingState.idle,
+        connectionState: AudioConnectionState.disconnected,
+        playlist: [],
+        currentIndex: null,
+        currentTrack: null,
+        currentStreamUrl: null,
+        position: Duration.zero,
+        duration: Duration.zero,
+        bufferedPosition: Duration.zero,
+        volume: 1.0,
+        speed: 1.0,
+        loopMode: LoopMode.off,
+        isShuffleEnabled: false,
+        error: null,
+        isLoading: false,
+        loadingCompletedAt: null,
+        loadedCount: null,
+        totalToLoad: null,
+  );
 
   /// copyWith
   PlayerBlocState copyWith({

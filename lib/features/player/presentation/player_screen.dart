@@ -228,18 +228,31 @@ class _SongCarouselState extends State<_SongCarousel> {
   @override
   void didUpdateWidget(_SongCarousel oldWidget) {
     super.didUpdateWidget(oldWidget);
+    
+    // Si cambió el índice significativamente (más de 2 posiciones), hacer scroll
     if (oldWidget.currentIndex != widget.currentIndex) {
-      _animateToPage(widget.currentIndex);
+      _scrollToIndex(widget.currentIndex);
     }
   }
 
-  void _animateToPage(int page) {
-    if (_pageController.hasClients) {
-      _pageController.animateToPage(
-        page,
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.easeOutCubic,
-      );
+  void _scrollToIndex(int index) {
+    if (!_pageController.hasClients) return;
+    if (index < 0 || index >= widget.playlist.length) return;
+    
+    // Usar jumpToPage que funciona para páginas no cargadas aún
+    // Esto es necesario porque PageView.builder carga lazy
+    try {
+      _pageController.jumpToPage(index);
+    } catch (_) {
+      // Si jumpToPage falla (página no construida), intentar con animateTo
+      // Calcular la posición aproximada
+      final viewportWidth = _pageController.position.viewportDimension;
+      final itemWidth = viewportWidth * 0.8;
+      final targetPosition = index * itemWidth;
+      
+      try {
+        _pageController.jumpTo(targetPosition);
+      } catch (_) {}
     }
   }
 
@@ -261,6 +274,8 @@ class _SongCarouselState extends State<_SongCarousel> {
             context.read<PlayerBlocBloc>().add(PlayTrackAtIndexEvent(index));
           },
           itemCount: widget.playlist.length,
+          // Usar physics para permitir scroll a páginas no construidas
+          physics: const BouncingScrollPhysics(),
           itemBuilder: (context, index) {
             final track = widget.playlist[index];
             return Center(
