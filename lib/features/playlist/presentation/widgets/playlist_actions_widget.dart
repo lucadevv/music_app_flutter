@@ -26,35 +26,14 @@ class PlaylistActionsWidget extends StatelessWidget {
     return sortedThumbnails.first.url;
   }
 
-  bool _isPlaylistLoaded(PlayerBlocState playerState) {
+  /// Verifica si la playlist actual es la que está reproduciéndose
+  bool _isCurrentPlaylistPlaying(PlayerBlocState playerState) {
     if (playerState.playlist.isEmpty) return false;
+    if (playerState.currentTrack == null) return false;
 
-    final currentPlaylistVideoIds = playlist.tracks
-        .where(
-          (track) =>
-              track.videoId != null &&
-              track.videoId!.isNotEmpty &&
-              track.isAvailable,
-        )
-        .map((track) => track.videoId!)
-        .toList();
-
-    final loadedPlaylistVideoIds = playerState.playlist
-        .where((track) => track.videoId.isNotEmpty)
-        .map((track) => track.videoId)
-        .toList();
-
-    if (currentPlaylistVideoIds.length != loadedPlaylistVideoIds.length) {
-      return false;
-    }
-
-    for (int i = 0; i < currentPlaylistVideoIds.length; i++) {
-      if (currentPlaylistVideoIds[i] != loadedPlaylistVideoIds[i]) {
-        return false;
-      }
-    }
-
-    return true;
+    // Verificar si el videoId del track actual está en esta playlist
+    final currentVideoId = playerState.currentTrack.videoId;
+    return playlist.tracks.any((track) => track.videoId == currentVideoId);
   }
 
   @override
@@ -71,13 +50,17 @@ class PlaylistActionsWidget extends StatelessWidget {
             final loadedCount = playlistState.loadedCount;
             final totalCount = playlistState.totalCount;
 
-            // Determinar si está reproduciendo: 
-            // Si hay currentTrack en el player, está reproduciendo o en pausa
+            // Verificar si la playlist actual está reproduciéndose
+            final isCurrentPlaylist = _isCurrentPlaylistPlaying(playerState);
             final hasCurrentTrack = playerState.currentTrack != null;
             final isPlaying = playerState.isPlaying;
 
-            // El loading del botón solo cuando está cargando la primera
+            // El botón muestra:
+            // - Loading si está cargando la primera canción
+            // - Play si no hay canción reproduciéndose O si es otra playlist
+            // - Pause si es la misma playlist y está reproduciéndose
             final isLoadingFirstSong = isLoadingForPlay && loadedCount < 1;
+            final showPause = isCurrentPlaylist && isPlaying;
 
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
@@ -88,11 +71,11 @@ class PlaylistActionsWidget extends StatelessWidget {
                     onTap: isLoadingFirstSong
                         ? null
                         : () {
-                            // Si hay una canción (reproduciendo o pausa), togglear
-                            if (hasCurrentTrack) {
+                            // Si es la misma playlist y hay algo reproducido, togglear
+                            if (isCurrentPlaylist && hasCurrentTrack) {
                               playerBloc.add(const PlayPauseToggleEvent());
                             } else {
-                              // No hay nada - cargar playlist desde cubit
+                              // Es otra playlist o no hay nada - cargar esta playlist
                               playlistCubit.playAll();
                             }
                           },
@@ -122,7 +105,7 @@ class PlaylistActionsWidget extends StatelessWidget {
                               ),
                             )
                           : Icon(
-                              isPlaying ? Icons.pause : Icons.play_arrow,
+                              showPause ? Icons.pause : Icons.play_arrow,
                               color: Colors.white,
                               size: 36,
                             ),
@@ -143,13 +126,6 @@ class PlaylistActionsWidget extends StatelessWidget {
                       trackCount: playlist.trackCount,
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  // Botón de descarga con progreso
-                  _buildDownloadWithProgress(
-                    isPlaylistLoading: isLoadingForPlay,
-                    loadedCount: loadedCount,
-                    totalToLoad: totalCount,
-                  ),
                   const Spacer(),
                   // Botón de shuffle
                   IconButton(
@@ -162,77 +138,6 @@ class PlaylistActionsWidget extends StatelessWidget {
           },
         );
       },
-    );
-  }
-
-  Widget _buildDownloadWithProgress({
-    required bool isPlaylistLoading,
-    int? loadedCount,
-    int? totalToLoad,
-  }) {
-    // Si está cargando, mostrar progreso
-    if (isPlaylistLoading && loadedCount != null && totalToLoad != null && totalToLoad > 0) {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: AppColorsDark.primary.withValues(alpha: 0.3),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(
-              width: 16,
-              height: 16,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-              ),
-            ),
-            const SizedBox(width: 6),
-            Text(
-              '$loadedCount/$totalToLoad',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    // Si terminó de cargar, mostrar check
-    if (loadedCount != null && totalToLoad != null && loadedCount >= totalToLoad && totalToLoad > 0) {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: Colors.green.withValues(alpha: 0.3),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: const Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.check, color: Colors.white, size: 16),
-            SizedBox(width: 4),
-            Text(
-              'Lista',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    // Botón normal de descarga
-    return IconButton(
-      icon: const Icon(Icons.download, color: Colors.white, size: 28),
-      onPressed: () {},
     );
   }
 }
