@@ -547,9 +547,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
       for (final track in event.playlist) {
         if (track.streamUrl != null && track.streamUrl!.isNotEmpty) {
           try {
-            final rawUrl = track.streamUrl!;
-            final parsedUri = Uri.parse(rawUrl);
-          
+            final parsedUri = Uri.parse(track.streamUrl!);
             audioSources.add(
               AudioSource.uri(
                 parsedUri,
@@ -577,15 +575,12 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
       Exception? lastError;
       for (int retry = 0; retry < 3; retry++) {
         try {
-          print("DEBUG: Calling setAudioSource with ${audioSources.length} tracks...");
           await _audioPlayer.setAudioSource(
             ConcatenatingAudioSource(children: audioSources),
           );
-          print("DEBUG: setAudioSource SUCCESS!");
           break; // Éxito
         } catch (e) {
           lastError = e as Exception;
-          print("DEBUG: setAudioSource failed (retry $retry): $e");
           if (retry < 2) {
             await Future.delayed(Duration(milliseconds: 500 * (retry + 1)));
           }
@@ -594,7 +589,6 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
 
       // Habilitar loop de playlist para que pase a la siguiente canción automáticamente
       await _audioPlayer.setLoopMode(LoopMode.all);
-      print("DEBUG: LoopMode set to LoopMode.all");
 
       if (lastError != null) {
         emit(
@@ -609,10 +603,10 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
       
       // Esperar a que el player procese
       await Future.delayed(const Duration(milliseconds: 500));
-      
+       
       final firstTrack = event.playlist[safeStartIndex];
       final actualDuration = Duration(seconds: firstTrack.durationSeconds);
-      
+       
       // Emitir estado
       emit(
        state.copyWith(
@@ -629,14 +623,9 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
           totalToLoad: totalTracks,
        )
       );
-      
-      print("DEBUG: Calling _audioPlayer.play()...");
+       
       // Play directamente
       await _audioPlayer.play();
-      print("DEBUG: _audioPlayer.play() called, player.playing: ${_audioPlayer.playing}");
-      print("DEBUG: player.processingState: ${_audioPlayer.processingState}");
-      print("DEBUG: player.sequence.length: ${_audioPlayer.sequence.length}");
-      print("DEBUG: player.currentIndex: ${_audioPlayer.currentIndex}");
     } catch (e) {
       emit(
        state.copyWith(
@@ -867,7 +856,6 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     PositionChangedEvent event,
     Emitter<PlayerBlocState> emit,
   ) async {
-    print("DEBUG: position changed: ${event.position.inSeconds}s");
     emit(state.copyWith(position: event.position));
 
     // Actualizar historial cada ~5 segundos (fire and forget)
@@ -896,14 +884,11 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     CurrentIndexChangedEvent event,
     Emitter<PlayerBlocState> emit,
   ) async {
-    print("DEBUG: _onCurrentIndexChanged called with index: ${event.index}");
     final currentState = state;
     final currentTrack =
         event.index != null && event.index! < currentState.playlist.length
         ? currentState.playlist[event.index!]
         : null;
-
-    print("DEBUG: currentTrack: ${currentTrack?.title}, currentIndex: ${event.index}");
 
     // Si cambió el track, crear nueva entrada de historial (fire and forget)
     if (currentTrack != null && event.index != currentState.currentIndex) {

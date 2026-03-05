@@ -32,7 +32,9 @@ class PlaylistActionsWidget extends StatelessWidget {
     if (playerState.currentTrack == null) return false;
 
     // Verificar si el videoId del track actual está en esta playlist
-    final currentVideoId = playerState.currentTrack.videoId;
+    final currentVideoId = playerState.currentTrack?.videoId;
+    if (currentVideoId == null) return false;
+    
     return playlist.tracks.any((track) => track.videoId == currentVideoId);
   }
 
