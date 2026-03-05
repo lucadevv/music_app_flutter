@@ -269,6 +269,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
 
     on<InitializeAudioServiceEvent>(_onInitializeAudioService);
     on<DisposeAudioServiceEvent>(_onDisposeAudioService);
+    on<ResetPlayerEvent>(_onResetPlayer);
   }
 
   Future<void> _onPlay(PlayEvent event, Emitter<PlayerBlocState> emit) async {
@@ -1001,6 +1002,26 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
       );
         } catch (e) {
       add(AudioErrorEvent('Error al cerrar audio service: $e'));
+    }
+  }
+
+  Future<void> _onResetPlayer(
+    ResetPlayerEvent event,
+    Emitter<PlayerBlocState> emit,
+  ) async {
+    try {
+      // Detener el audio
+      await _audioPlayer.stop();
+      
+      // Limpiar la playlist
+      await _audioPlayer.setAudioSource(
+        ConcatenatingAudioSource(children: []),
+      );
+
+      // Emitir estado inicial
+      emit(PlayerBlocState.initial());
+        } catch (e) {
+      add(AudioErrorEvent('Error al resetear player: $e'));
     }
   }
 

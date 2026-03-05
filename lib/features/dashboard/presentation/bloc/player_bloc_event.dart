@@ -231,3 +231,8 @@ class InitializeAudioServiceEvent extends PlayerBlocEvent {
 class DisposeAudioServiceEvent extends PlayerBlocEvent {
   const DisposeAudioServiceEvent();
 }
+
+/// Resetear el player al estado inicial (para cuando se reproduce una canción individual)
+class ResetPlayerEvent extends PlayerBlocEvent {
+  const ResetPlayerEvent();
+}

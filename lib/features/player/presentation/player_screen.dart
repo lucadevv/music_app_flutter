@@ -54,8 +54,8 @@ class _PlayerScreenState extends State<PlayerScreen> {
       }
     }
 
-    // NO está en la playlist - limpiar y reproducir solo esta canción
-    playerBloc.add(const StopEvent());
+    // NO está en la playlist - resetear player completamente y reproducir solo esta canción
+    playerBloc.add(const ResetPlayerEvent());
     Future.delayed(const Duration(milliseconds: 100), () {
       if (_nowPlayingData.streamUrl != null &&
           _nowPlayingData.streamUrl!.isNotEmpty) {
