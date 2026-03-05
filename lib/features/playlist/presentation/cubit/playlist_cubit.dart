@@ -1,29 +1,35 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 import 'package:music_app/core/bloc/base_bloc_mixin.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
-import 'package:music_app/features/player/domain/usecases/get_stream_url_usecase.dart';
+import 'package:music_app/features/playlist/domain/entities/playlist_response.dart';
+import 'package:music_app/features/playlist/domain/entities/playlist_track.dart';
 import 'package:music_app/features/playlist/presentation/cubit/playlist_state.dart';
 import '../../domain/use_cases/get_playlist_use_case.dart';
 
 /// Cubit para manejar el estado de la playlist
+/// 
+/// Implementa paginación infinita:
+/// - loadPlaylist() carga los primeros 20 tracks
+/// - loadMore() carga más tracks (20 por página)
+/// - playAll() reproduce la playlist completa (acumula todos los tracks)
 class PlaylistCubit extends Cubit<PlaylistState> with BaseBlocMixin {
   final GetPlaylistUseCase _getPlaylistUseCase;
   final PlayerBlocBloc _playerBloc;
-  final GetStreamUrlUseCase _getStreamUrlUseCase;
+  
+  String? _currentPlaylistId;
+  static const int _pageSize = 20;
   
   PlaylistCubit({
     required GetPlaylistUseCase getPlaylistUseCase,
     required PlayerBlocBloc playerBloc,
   })  : _getPlaylistUseCase = getPlaylistUseCase,
         _playerBloc = playerBloc,
-        _getStreamUrlUseCase = GetIt.I<GetStreamUrlUseCase>(),
         super(const PlaylistState());
 
-  /// Carga los datos de una playlist
+  /// Carga los datos iniciales de una playlist (primeros 20 tracks)
   Future<void> loadPlaylist(String id) async {
     if (state.status == PlaylistStatus.loading) {
       return;
@@ -40,9 +46,16 @@ class PlaylistCubit extends Cubit<PlaylistState> with BaseBlocMixin {
       return;
     }
 
-    emit(state.copyWith(status: PlaylistStatus.loading, errorMessage: null));
+    _currentPlaylistId = id;
+    emit(state.copyWith(
+      status: PlaylistStatus.loading,
+      errorMessage: null,
+      currentPage: 0,
+      hasMore: true,
+      allTracks: [],
+    ));
 
-    final result = await _getPlaylistUseCase(id);
+    final result = await _getPlaylistUseCase(id, startIndex: 0, limit: _pageSize);
 
     result.fold(
       (failure) {
@@ -55,41 +68,125 @@ class PlaylistCubit extends Cubit<PlaylistState> with BaseBlocMixin {
         );
       },
       (response) {
+        final hasMore = response.tracks.length >= _pageSize;
         emit(
           state.copyWith(
             status: PlaylistStatus.success,
             response: response,
             errorMessage: null,
+            currentPage: 0,
+            hasMore: hasMore,
+            allTracks: List.from(response.tracks),
           ),
         );
       },
     );
   }
 
+  /// Carga más tracks (paginación infinita)
+  Future<void> loadMore() async {
+    // No cargar si ya está cargando, no hay más, o no hay playlist
+    if (state.status == PlaylistStatus.loadingMore || 
+        !state.hasMore ||
+        _currentPlaylistId == null ||
+        state.response == null) {
+      return;
+    }
+
+    emit(state.copyWith(status: PlaylistStatus.loadingMore));
+
+    final nextPage = state.currentPage + 1;
+    final startIndex = nextPage * _pageSize;
+
+    final result = await _getPlaylistUseCase(
+      _currentPlaylistId!,
+      startIndex: startIndex,
+      limit: _pageSize,
+    );
+
+    result.fold(
+      (failure) {
+        // Si falla, mantener el estado actual
+        emit(state.copyWith(
+          status: PlaylistStatus.success,
+        ));
+      },
+      (response) {
+        // Acumular los nuevos tracks
+        final newTracks = List<PlaylistTrack>.from(state.allTracks)
+          ..addAll(response.tracks);
+        
+        final hasMore = response.tracks.length >= _pageSize;
+        
+        // Actualizar tracks en el response existente (el objeto es inmutable, crear nuevo)
+        final updatedTracks = List<PlaylistTrack>.from(state.response!.tracks)
+          ..addAll(response.tracks);
+
+        emit(state.copyWith(
+          status: PlaylistStatus.success,
+          currentPage: nextPage,
+          hasMore: hasMore,
+          allTracks: newTracks,
+          // Actualizar el response con los tracks acumulados
+          response: _createUpdatedResponse(state.response!, updatedTracks),
+        ));
+      },
+    );
+  }
+
+  /// Crea una copia del PlaylistResponse con tracks actualizados
+  PlaylistResponse _createUpdatedResponse(PlaylistResponse original, List<PlaylistTrack> newTracks) {
+    return PlaylistResponse(
+      owned: original.owned,
+      id: original.id,
+      privacy: original.privacy,
+      description: original.description,
+      views: original.views,
+      duration: original.duration,
+      trackCount: original.trackCount,
+      title: original.title,
+      thumbnails: original.thumbnails,
+      author: original.author,
+      year: original.year,
+      related: original.related,
+      tracks: newTracks,
+      durationSeconds: original.durationSeconds,
+    );
+  }
+
   /// Reproduce la playlist desde el inicio
   /// 
-  /// Flujo:
-  /// 1. Intenta cargar la primera canción disponible
-  /// 2. Si falla, intenta con la siguiente, y así sucesivamente
-  /// 3. Una vez que encuentra una que funcione, carga el resto secuencialmente
+  /// Los tracks ya tienen streamUrl del endpoint (include_stream_urls=true)
+  /// Solo convierte a NowPlayingData y envía toda la playlist al player
   Future<void> playAll() async {
     if (state.response == null) return;
     if (state.isLoadingForPlay) return;
 
-    // Obtener tracks disponibles
-    final availableTracks = state.response!.tracks
-        .where(
-          (track) =>
-              track.videoId != null &&
-              track.videoId!.isNotEmpty &&
-              track.isAvailable,
-        )
+    // Usar los tracks acumulados o los del response
+    final availableTracks = state.allTracks.isNotEmpty 
+        ? state.allTracks
+        : state.response!.tracks;
+    
+    // Filtrar tracks que tienen streamUrl (ya viene del endpoint)
+    final validTracks = availableTracks
+        .where((track) =>
+            track.videoId != null &&
+            track.videoId!.isNotEmpty &&
+            track.isAvailable &&
+            track.streamUrl != null &&
+            track.streamUrl!.isNotEmpty)
         .toList();
 
-    if (availableTracks.isEmpty) return;
+    if (validTracks.isEmpty) {
+      emit(state.copyWith(
+        isLoadingForPlay: false,
+        errorMessage: 'No hay canciones disponibles para reproducir',
+      ));
+      return;
+    }
 
-    // Convertir a NowPlayingData
-    final nowPlayingTracks = availableTracks
+    // Convertir a NowPlayingData (ya tienen streamUrl del endpoint)
+    final nowPlayingTracks = validTracks
         .map((t) => NowPlayingData.fromPlaylistTrack(t))
         .toList();
 
@@ -106,127 +203,18 @@ class PlaylistCubit extends Cubit<PlaylistState> with BaseBlocMixin {
     // Pequeño delay para asegurar que el stop se procese
     await Future.delayed(const Duration(milliseconds: 100));
 
-    try {
-      // === FASE 1: Encontrar primera canción válida ===
-      // Intentar con cada canción hasta encontrar una que funcione
-      int startIndex = 0;
-      NowPlayingData? firstTrackWithUrl;
-      
-      while (startIndex < nowPlayingTracks.length) {
-        // Verificar si el Cubit fue cerrado antes de continuar
-        if (isClosed) return;
-        
-        final streamUrl = await _getStreamUrlUseCase(
-          nowPlayingTracks[startIndex].videoId, 
-          bypassCache: true,
-        );
-        
-        // Verificar si fue cerrado durante el await
-        if (isClosed) return;
-        
-        if (streamUrl != null && streamUrl.isNotEmpty) {
-          final track = nowPlayingTracks[startIndex];
-          firstTrackWithUrl = NowPlayingData(
-            videoId: track.videoId,
-            title: track.title,
-            artists: track.artists,
-            album: track.album,
-            duration: track.duration,
-            durationSeconds: track.durationSeconds,
-            views: track.views,
-            isExplicit: track.isExplicit,
-            inLibrary: track.inLibrary,
-            thumbnails: track.thumbnails,
-            streamUrl: streamUrl,
-            thumbnail: track.thumbnail,
-          );
-          break; // Encontramos una canción válida
-        }
-        
-        // Esta canción falló, intentar con la siguiente
-        startIndex++;
-      }
+    // Enviar toda la playlist de una vez al PlayerBloc
+    // El player se encarga de reproducir la primera canción
+    _playerBloc.add(LoadPlaylistEvent(
+      playlist: nowPlayingTracks,
+      startIndex: 0,
+    ));
 
-      // Verificar si fue cerrado
-      if (isClosed) return;
-
-      // Si ninguna canción funcionó
-      if (firstTrackWithUrl == null) {
-        emit(state.copyWith(
-          isLoadingForPlay: false,
-          errorMessage: 'No se pudo reproducir ninguna canción de la playlist',
-        ));
-        return;
-      }
-
-      // Enviar LoadPlaylistEvent con primera canción válida
-      _playerBloc.add(LoadPlaylistEvent(
-        playlist: [firstTrackWithUrl],
-        startIndex: 0,
-      ));
-
-      emit(state.copyWith(loadedCount: startIndex + 1));
-
-      // Esperar un poco para ver si la canción se reproduce correctamente
-      await Future.delayed(const Duration(seconds: 2));
-
-      // Verificar si fue cerrado durante el delay
-      if (isClosed) return;
-
-      // Verificar si el player tiene un track cargado
-      final playerState = _playerBloc.state;
-      if (playerState is! PlayerBlocState || 
-          playerState.currentTrack == null ||
-          playerState.hasError) {
-        // La canción también falló, cancelar
-        emit(state.copyWith(isLoadingForPlay: false));
-        return;
-      }
-
-      // === FASE 2: Cargar resto secuencialmente ===
-      for (int i = 1; i < nowPlayingTracks.length; i++) {
-        // Verificar si fue cerrado antes de cada canción
-        if (isClosed) return;
-        
-        // Delay para evitar rate limiting
-        await Future.delayed(const Duration(milliseconds: 800));
-        
-        // Verificar si fue cerrado durante el delay
-        if (isClosed) return;
-        
-        final track = nowPlayingTracks[i];
-        final url = await _getStreamUrlUseCase(track.videoId);
-        
-        if (url != null && url.isNotEmpty) {
-          final trackWithUrl = NowPlayingData(
-            videoId: track.videoId,
-            title: track.title,
-            artists: track.artists,
-            album: track.album,
-            duration: track.duration,
-            durationSeconds: track.durationSeconds,
-            views: track.views,
-            isExplicit: track.isExplicit,
-            inLibrary: track.inLibrary,
-            thumbnails: track.thumbnails,
-            streamUrl: url,
-            thumbnail: track.thumbnail,
-          );
-          _playerBloc.add(AddToPlaylistEvent(trackWithUrl));
-          emit(state.copyWith(loadedCount: i + 1));
-        }
-      }
-
-      // Carga completa
-      emit(state.copyWith(
-        isLoadingForPlay: false,
-        loadedCount: nowPlayingTracks.length,
-      ));
-    } catch (e) {
-      if (!isClosed) {
-        emit(state.copyWith(isLoadingForPlay: false));
-      }
-    }
+    // Carga completa
+    emit(state.copyWith(
+      isLoadingForPlay: false,
+      loadedCount: nowPlayingTracks.length,
+    ));
   }
 
   /// Cancela la carga de la playlist
@@ -240,6 +228,7 @@ class PlaylistCubit extends Cubit<PlaylistState> with BaseBlocMixin {
 
   /// Reinicia el estado del cubit
   void reset() {
+    _currentPlaylistId = null;
     emit(const PlaylistState());
   }
 }

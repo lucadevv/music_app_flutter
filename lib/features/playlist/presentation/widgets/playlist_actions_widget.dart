@@ -27,7 +27,6 @@ class PlaylistActionsWidget extends StatelessWidget {
   }
 
   bool _isPlaylistLoaded(PlayerBlocState playerState) {
-    if (playerState is! PlayerBlocState) return false;
     if (playerState.playlist.isEmpty) return false;
 
     final currentPlaylistVideoIds = playlist.tracks
@@ -74,10 +73,8 @@ class PlaylistActionsWidget extends StatelessWidget {
 
             // Determinar si está reproduciendo: 
             // Si hay currentTrack en el player, está reproduciendo o en pausa
-            final hasCurrentTrack = playerState is PlayerBlocState &&
-                playerState.currentTrack != null;
-            final isPlaying = playerState is PlayerBlocState &&
-                playerState.isPlaying;
+            final hasCurrentTrack = playerState.currentTrack != null;
+            final isPlaying = playerState.isPlaying;
 
             // El loading del botón solo cuando está cargando la primera
             final isLoadingFirstSong = isLoadingForPlay && loadedCount < 1;

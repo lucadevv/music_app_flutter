@@ -37,6 +37,8 @@ class PlaylistScreen extends StatefulWidget implements AutoRouteWrapper {
 }
 
 class _PlaylistScreenState extends State<PlaylistScreen> {
+  final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
@@ -46,6 +48,24 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
         context.read<PlaylistCubit>().loadPlaylist(widget.id);
       }
     });
+
+    // Listener para infinite scroll
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    // Carg más cuando llegue al 80% del scroll
+    if (_scrollController.position.pixels >= 
+        _scrollController.position.maxScrollExtent * 0.8) {
+      context.read<PlaylistCubit>().loadMore();
+    }
   }
 
   @override
@@ -58,10 +78,9 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
         body: BlocBuilder<PlayerBlocBloc, PlayerBlocState>(
           bloc: playerBloc,
           builder: (context, playerState) {
-            // Ya no necesitamos el overlay de loading porque el botón tiene indicador
             return BlocBuilder<PlaylistCubit, PlaylistState>(
               builder: (context, playlistState) {
-                // Mostrar loading
+                // Mostrar loading inicial
                 if (playlistState.status == PlaylistStatus.loading ||
                     playlistState.status == PlaylistStatus.initial) {
                   return const PlaylistLoadingWidget();
@@ -82,26 +101,37 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                   return const PlaylistLoadingWidget();
                 }
 
-                // Obtener la mejor thumbnail del estado
-                // final bestThumbnail obtenido de playlistState (no se usa aún)
-
-                  return Stack(
-                    children: [
-                      // Backdrop difuminado (se conservará si se reintroduce la UI con la thumbnail)
-                      // PlaylistBackdropWidget(thumbnail: bestThumbnail),
-
-                      // Contenido con CustomScrollView
-                      CustomScrollView(
-                        slivers: [
-                          // App Bar con imagen mejorado
-                          SliverAppBar(
-                            expandedHeight: 400,
-                            pinned: true,
-                            floating: false,
-                            snap: false,
-                            backgroundColor: Colors.transparent,
-                            elevation: 0,
-                            leading: Container(
+                return Stack(
+                  children: [
+                    // Contenido con CustomScrollView
+                    CustomScrollView(
+                      controller: _scrollController,
+                      slivers: [
+                        // App Bar con imagen mejorado
+                        SliverAppBar(
+                          expandedHeight: 400,
+                          pinned: true,
+                          floating: false,
+                          snap: false,
+                          backgroundColor: Colors.transparent,
+                          elevation: 0,
+                          leading: Container(
+                            margin: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.3),
+                              shape: BoxShape.circle,
+                            ),
+                            child: IconButton(
+                              icon: const Icon(
+                                Icons.arrow_back,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                              onPressed: () => context.router.pop(),
+                            ),
+                          ),
+                          actions: [
+                            Container(
                               margin: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
                                 color: Colors.black.withValues(alpha: 0.3),
@@ -109,88 +139,121 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                               ),
                               child: IconButton(
                                 icon: const Icon(
-                                  Icons.arrow_back,
+                                  Icons.search,
                                   color: Colors.white,
                                   size: 20,
                                 ),
-                                onPressed: () => context.router.pop(),
+                                onPressed: () {},
                               ),
                             ),
-                            actions: [
-                              Container(
-                                margin: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withValues(alpha: 0.3),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: IconButton(
-                                  icon: const Icon(
-                                    Icons.search,
-                                    color: Colors.white,
-                                    size: 20,
-                                  ),
-                                  onPressed: () {},
-                                ),
+                            Container(
+                              margin: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withValues(alpha: 0.3),
+                                shape: BoxShape.circle,
                               ),
-                              Container(
-                                margin: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withValues(alpha: 0.3),
-                                  shape: BoxShape.circle,
+                              child: IconButton(
+                                icon: const Icon(
+                                  Icons.more_vert,
+                                  color: Colors.white,
+                                  size: 20,
                                 ),
-                                child: IconButton(
-                                  icon: const Icon(
-                                    Icons.more_vert,
-                                    color: Colors.white,
-                                    size: 20,
-                                  ),
-                                  onPressed: () {},
-                                ),
-                              ),
-                            ],
-                            flexibleSpace: FlexibleSpaceBar(
-                              titlePadding: const EdgeInsets.only(
-                                left: 16,
-                                bottom: 16,
-                                right: 16,
-                              ),
-
-                              background: PlaylistHeaderWidget(
-                                playlist: playlist,
+                                onPressed: () {},
                               ),
                             ),
-                          ),
+                          ],
+                          flexibleSpace: FlexibleSpaceBar(
+                            titlePadding: const EdgeInsets.only(
+                              left: 16,
+                              bottom: 16,
+                              right: 16,
+                            ),
 
-                          // Action buttons
-                          SliverToBoxAdapter(
-                            child: PlaylistActionsWidget(playlist: playlist),
+                            background: PlaylistHeaderWidget(
+                              playlist: playlist,
+                            ),
                           ),
+                        ),
 
-                          // Lista de tracks
-                          SliverList(
-                            delegate: SliverChildBuilderDelegate((
-                              context,
-                              index,
-                            ) {
-                              final track = playlist.tracks[index];
-                              return PlaylistTrackItemWidget(
-                                track: track,
-                                allTracks: playlist.tracks,
-                              );
-                            }, childCount: playlist.tracks.length),
-                          ),
+                        // Action buttons
+                        SliverToBoxAdapter(
+                          child: PlaylistActionsWidget(playlist: playlist),
+                        ),
 
+                        // Lista de tracks con infinite scroll
+                        _buildTrackList(playlistState),
+
+                        // Indicador de carga más
+                        if (playlistState.status == PlaylistStatus.loadingMore)
                           const SliverToBoxAdapter(
-                            child: SizedBox(height: 100),
+                            child: Padding(
+                              padding: EdgeInsets.all(16),
+                              child: Center(
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white54,
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
-                        ],
-                      ),
-                    ],
-                  );
-                },
-              
+
+                        // Mensaje de "cargar más" si hay más
+                        if (playlistState.hasMore && 
+                            playlistState.status != PlaylistStatus.loadingMore)
+                          SliverToBoxAdapter(
+                            child: _buildLoadMoreButton(playlistState),
+                          ),
+
+                        const SliverToBoxAdapter(
+                          child: SizedBox(height: 100),
+                        ),
+                      ],
+                    ),
+                  ],
+                );
+              },
             );
           },
+        ),
+      ),
+    );
+  }
+
+  /// Construye la lista de tracks
+  Widget _buildTrackList(PlaylistState playlistState) {
+    final playlist = playlistState.response!;
+    final tracks = playlist.tracks;
+
+    return SliverList(
+      delegate: SliverChildBuilderDelegate(
+        (context, index) {
+          final track = tracks[index];
+          return PlaylistTrackItemWidget(
+            track: track,
+            allTracks: tracks,
+          );
+        },
+        childCount: tracks.length,
+      ),
+    );
+  }
+
+  /// Botón para cargar más tracks
+  Widget _buildLoadMoreButton(PlaylistState playlistState) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: TextButton(
+        onPressed: () {
+          context.read<PlaylistCubit>().loadMore();
+        },
+        child: Text(
+          'Cargar más canciones (${playlistState.allTracks.length}/${playlistState.response?.trackCount ?? '?'})',
+          style: const TextStyle(
+            color: Colors.white54,
+            fontSize: 14,
+          ),
         ),
       ),
     );

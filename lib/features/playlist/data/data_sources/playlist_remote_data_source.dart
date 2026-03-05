@@ -15,7 +15,12 @@ abstract class PlaylistRemoteDataSource {
   /// Obtiene los datos de una playlist
   ///
   /// Endpoint: /api/music/playlists/{id}
-  Future<Either<AppException, PlaylistResponse>> getPlaylist(String id);
+  /// Soporta paginación con startIndex y limit
+  Future<Either<AppException, PlaylistResponse>> getPlaylist(
+    String id, {
+    int startIndex = 0,
+    int limit = 20,
+  });
 }
 
 class PlaylistRemoteDataSourceImpl implements PlaylistRemoteDataSource {
@@ -24,7 +29,11 @@ class PlaylistRemoteDataSourceImpl implements PlaylistRemoteDataSource {
   PlaylistRemoteDataSourceImpl(this._apiServices);
 
   @override
-  Future<Either<AppException, PlaylistResponse>> getPlaylist(String id) async {
+  Future<Either<AppException, PlaylistResponse>> getPlaylist(
+    String id, {
+    int startIndex = 0,
+    int limit = 20,
+  }) async {
     try {
       // Validar que el ID no esté vacío
       if (id.isEmpty) {
@@ -35,11 +44,7 @@ class PlaylistRemoteDataSourceImpl implements PlaylistRemoteDataSource {
         return const Left(exception);
       }
 
-      final endpoint = '/music/playlists/$id?include_stream_urls=false';
-      if (kDebugMode) {
-        debugPrint('getPlaylist: Loading playlist with ID: $id');
-        debugPrint('getPlaylist: Endpoint: $endpoint');
-      }
+      final endpoint = '/music/playlists/$id?include_stream_urls=true&start_index=$startIndex&limit=$limit';
       final response = await _apiServices.get(endpoint);
 
       // Dio devuelve Response, necesitamos acceder a response.data

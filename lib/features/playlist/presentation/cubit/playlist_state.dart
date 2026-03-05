@@ -1,9 +1,10 @@
 import 'package:equatable/equatable.dart';
 import 'package:music_app/features/search/domain/entities/thumbnail.dart';
 import '../../domain/entities/playlist_response.dart';
+import '../../domain/entities/playlist_track.dart';
 
 /// Estados posibles del cubit de playlist
-enum PlaylistStatus { initial, loading, success, failure }
+enum PlaylistStatus { initial, loading, loadingMore, success, failure }
 
 /// Estado del cubit de playlist
 class PlaylistState extends Equatable {
@@ -15,6 +16,11 @@ class PlaylistState extends Equatable {
   final int loadedCount;
   final int totalCount;
   final bool isLoadingForPlay;
+  
+  // Estado de paginación
+  final int currentPage;
+  final bool hasMore;
+  final List<PlaylistTrack> allTracks; // Tracks acumulados para reproducción
 
   const PlaylistState({
     this.status = PlaylistStatus.initial,
@@ -23,6 +29,9 @@ class PlaylistState extends Equatable {
     this.loadedCount = 0,
     this.totalCount = 0,
     this.isLoadingForPlay = false,
+    this.currentPage = 0,
+    this.hasMore = true,
+    this.allTracks = const [],
   });
 
   PlaylistState copyWith({
@@ -32,6 +41,9 @@ class PlaylistState extends Equatable {
     int? loadedCount,
     int? totalCount,
     bool? isLoadingForPlay,
+    int? currentPage,
+    bool? hasMore,
+    List<PlaylistTrack>? allTracks,
   }) {
     return PlaylistState(
       status: status ?? this.status,
@@ -40,6 +52,9 @@ class PlaylistState extends Equatable {
       loadedCount: loadedCount ?? this.loadedCount,
       totalCount: totalCount ?? this.totalCount,
       isLoadingForPlay: isLoadingForPlay ?? this.isLoadingForPlay,
+      currentPage: currentPage ?? this.currentPage,
+      hasMore: hasMore ?? this.hasMore,
+      allTracks: allTracks ?? this.allTracks,
     );
   }
 
@@ -57,5 +72,5 @@ class PlaylistState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [status, response, errorMessage, loadedCount, totalCount, isLoadingForPlay];
+  List<Object?> get props => [status, response, errorMessage, loadedCount, totalCount, isLoadingForPlay, currentPage, hasMore, allTracks];
 }

@@ -36,8 +36,6 @@ class PlayerScreen extends StatelessWidget {
                 ? (state.currentTrack ?? nowPlayingData)
                 : nowPlayingData;
             
-            print("currentTrack: ${currentTrack.title}, streamUrl: ${state.currentStreamUrl}, isLoaded: $isLoaded");
-            
             final isLoading = isLoaded && state.isLoading; final isBuffering = isLoaded && state.isBuffering;
             final hasError = isLoaded && state.hasError;
             final errorMessage = isLoaded ? state.error : null;
