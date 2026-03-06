@@ -94,6 +94,11 @@ class _SearchScreenState extends State<SearchScreen> {
                     SliverToBoxAdapter(
                       child: SearchResultsWidget(
                         results: searchState.responseEntity!.results,
+                        hasMore: searchState.hasMore,
+                        isLoadingMore: searchState.status == SearchStatus.loadingMore,
+                        onLoadMore: () {
+                          context.read<SearchCubit>().loadMore();
+                        },
                       ),
                     ),
 

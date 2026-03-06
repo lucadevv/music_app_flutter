@@ -18,8 +18,13 @@ import 'package:music_app/features/player/presentation/widgets/player_similar_so
 @RoutePage()
 class PlayerScreen extends StatefulWidget {
   final NowPlayingData nowPlayingData;
+  final bool playAsSingle; // Si true, reproduce solo esta canción (limpia la cola)
 
-  const PlayerScreen({required this.nowPlayingData, super.key});
+  const PlayerScreen({
+    required this.nowPlayingData,
+    this.playAsSingle = false,
+    super.key,
+  });
 
   @override
   State<PlayerScreen> createState() => _PlayerScreenState();
@@ -41,6 +46,12 @@ class _PlayerScreenState extends State<PlayerScreen> {
       return;
     }
 
+    // Si playAsSingle es true, siempre limpiar la cola y reproducir solo esta canción
+    if (widget.playAsSingle) {
+      playerBloc.add(LoadTrackEvent(_nowPlayingData, sourceId: null));
+      return;
+    }
+
     // Verificar si la canción está en la playlist actual
     if (state.playlist.isNotEmpty) {
       final trackIndex = state.playlist.indexWhere(
@@ -54,17 +65,8 @@ class _PlayerScreenState extends State<PlayerScreen> {
       }
     }
 
-    // NO está en la playlist - resetear player completamente y reproducir solo esta canción
-    playerBloc.add(const ResetPlayerEvent());
-    Future.delayed(const Duration(milliseconds: 100), () {
-      if (_nowPlayingData.streamUrl != null &&
-          _nowPlayingData.streamUrl!.isNotEmpty) {
-        playerBloc.add(LoadPlaylistEvent(
-          playlist: [_nowPlayingData],
-          startIndex: 0,
-        ));
-      }
-    });
+    // NO está en la playlist - reproducir como canción individual (limpia la cola)
+    playerBloc.add(LoadTrackEvent(_nowPlayingData, sourceId: null));
   }
 
   @override
@@ -113,8 +115,8 @@ class _PlayerScreenState extends State<PlayerScreen> {
                     // Header
                     const SliverToBoxAdapter(child: PlayerHeaderWidget()),
 
-                    // Carrusel de canciones (si hay playlist)
-                    if (playlist.isNotEmpty)
+                    // Carrusel de canciones (solo si hay playlist Y NO es playAsSingle)
+                    if (playlist.length > 1 && !widget.playAsSingle)
                       SliverToBoxAdapter(
                         child: _SongCarousel(
                           playlist: playlist,
@@ -125,13 +127,16 @@ class _PlayerScreenState extends State<PlayerScreen> {
                       SliverToBoxAdapter(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 24),
-                          child: PlayerArtworkWidget(
-                            thumbnail: currentTrack.highResThumbnail,
-                            videoId: currentTrack.videoId,
-                            isLoading: isLoading,
+                          child: Center(
+                            child: PlayerArtworkWidget(
+                              thumbnail: currentTrack.highResThumbnail,
+                              videoId: currentTrack.videoId,
+                              isLoading: isLoading,
+                            ),
                           ),
                         ),
                       ),
+                         
 
                     // Info, Progress y Controls
                     SliverToBoxAdapter(
@@ -157,6 +162,22 @@ class _PlayerScreenState extends State<PlayerScreen> {
                               onPlayPause: () => context.read<PlayerBlocBloc>().add(const PlayPauseToggleEvent()),
                               onNext: () => context.read<PlayerBlocBloc>().add(const NextTrackEvent()),
                               onPrevious: () => context.read<PlayerBlocBloc>().add(const PreviousTrackEvent()),
+                              onShuffle: playlist.length > 1 
+                                  ? () => context.read<PlayerBlocBloc>().add(const ToggleShuffleEvent())
+                                  : null,
+                              onRepeat: () {
+                                // Cycle: off -> one -> all -> off
+                                final currentMode = repeatMode;
+                                LoopMode nextMode;
+                                if (currentMode == LoopMode.off) {
+                                  nextMode = LoopMode.one;
+                                } else if (currentMode == LoopMode.one) {
+                                  nextMode = LoopMode.all;
+                                } else {
+                                  nextMode = LoopMode.off;
+                                }
+                                context.read<PlayerBlocBloc>().add(SetLoopModeEvent(nextMode));
+                              },
                             ),
                             const SizedBox(height: 24),
                           ],

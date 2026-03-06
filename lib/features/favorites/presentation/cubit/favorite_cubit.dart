@@ -104,6 +104,7 @@ class FavoriteCubit extends Cubit<FavoriteState> with BaseBlocMixin {
               artist: metadata?.artist,
               thumbnail: metadata?.thumbnail,
               duration: metadata?.duration,
+              streamUrl: metadata?.streamUrl,
             );
             break;
           case FavoriteType.playlist:
@@ -290,12 +291,32 @@ class FavoriteCubit extends Cubit<FavoriteState> with BaseBlocMixin {
   }
 
   /// Reproduce todas las canciones
+  /// Si ya hay una canción de la lista reproduciéndose, continúa desde esa posición
   void playAllSongs(List<FavoriteSong> songs) {
     if (songs.isEmpty) return;
 
     final playlist = songs.map(_mapToNowPlaying).toList();
-    _playerBloc.add(LoadPlaylistEvent(playlist: playlist, startIndex: 0));
-  }
+
+    // Verificar si hay una canción reproduciéndose actualmente que esté en la playlist
+    int startIndex = 0;
+    final currentTrack = _playerBloc.state.currentTrack;
+    
+    if (currentTrack != null) {
+      // Buscar el índice de la canción actual en la nueva playlist
+      final currentIndex = playlist.indexWhere(
+        (track) => track.videoId == currentTrack.videoId,
+      );
+      if (currentIndex != -1) {
+        startIndex = currentIndex;
+      }
+    }
+
+     _playerBloc.add(LoadPlaylistEvent(
+       playlist: playlist,
+       startIndex: startIndex,
+       sourceId: 'favorites',
+     ));
+   }
 
   /// Elimina una canción de favoritos
   void removeSong(FavoriteSong song) {
@@ -318,6 +339,7 @@ class FavoriteCubit extends Cubit<FavoriteState> with BaseBlocMixin {
           : '0:00',
       durationSeconds: song.duration,
       thumbnailUrl: song.thumbnail,
+      streamUrl: song.streamUrl,
     );
   }
 

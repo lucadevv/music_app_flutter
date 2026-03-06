@@ -31,6 +31,24 @@ class RadioRemoteDataSourceImpl implements RadioRemoteDataSource {
         return tracks?.cast<Map<String, dynamic>>() ?? [];
       }
       return [];
+    } on DioException catch (e) {
+      // Manejar errores específicos de Dio
+      if (e.type == DioExceptionType.cancel) {
+        // Petición cancelada - retornar lista vacía silenciosamente
+        return [];
+      }
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
+        // Timeout - retornar lista vacía silenciosamente
+        return [];
+      }
+      if (e.type == DioExceptionType.connectionError) {
+        // Error de conexión - retornar lista vacía silenciosamente
+        return [];
+      }
+      // Otros errores de Dio - relanzar
+      rethrow;
     } catch (e) {
       rethrow;
     }

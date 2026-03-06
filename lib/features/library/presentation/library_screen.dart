@@ -326,16 +326,16 @@ class _LibraryView extends StatelessWidget {
                 : state.favoriteSongs.length,
             itemBuilder: (context, index) {
               final song = state.favoriteSongs[index];
-              return SongListItemWidget(
-                song: song,
-                onTap: () {
-                  final nowPlayingData = context.read<LibraryCubit>().playSong(
-                    song,
-                  );
-                  context.router.push(
-                    PlayerRoute(nowPlayingData: nowPlayingData),
-                  );
-                },
+                return SongListItemWidget(
+                 song: song,
+                 onTap: () {
+                   final nowPlayingData = context.read<LibraryCubit>().playSong(
+                     song,
+                   );
+                   context.router.push(
+                     PlayerRoute(nowPlayingData: nowPlayingData, playAsSingle: true),
+                   );
+                 },
                 onOptionsTap: () => _showSongOptions(context, song, l10n),
               );
             },

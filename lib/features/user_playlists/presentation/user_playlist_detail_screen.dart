@@ -177,44 +177,72 @@ class _UserPlaylistDetailView extends StatelessWidget {
 
         // Botones de acción
         SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                // Botón play
-                ElevatedButton.icon(
-                  onPressed: () => cubit.playAll(),
-                  icon: const Icon(Icons.play_arrow),
-                  label: Text(l10n.play),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColorsDark.primary,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 32,
-                      vertical: 12,
-                    ),
-                  ),
-                ),
-              ],
+          child: BlocSelector<PlayerBlocBloc, PlayerBlocState, ({String? sourceId, bool isPlaying, bool hasCurrentTrack})>(
+            selector: (state) => (
+              sourceId: state.sourceId,
+              isPlaying: state.isPlaying,
+              hasCurrentTrack: state.hasCurrentTrack,
             ),
+            builder: (context, playerData) {
+              final isCurrentPlaylist = playerData.sourceId == playlist.id;
+              final isPlaying = playerData.isPlaying;
+              final hasCurrentTrack = playerData.hasCurrentTrack;
+              
+              // DEBUG: Verificar valores
+              print('DEBUG BlocSelector: sourceId=${playerData.sourceId}, playlist.id=${playlist.id}, isCurrentPlaylist=$isCurrentPlaylist, isPlaying=$isPlaying');
+
+              return Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        if (isCurrentPlaylist && hasCurrentTrack) {
+                          // Si es la misma playlist, toggle play/pause
+                          context.read<PlayerBlocBloc>().add(const PlayPauseToggleEvent());
+                        } else {
+                          // Si es otra playlist, cargar y reproducir
+                          cubit.playAll();
+                        }
+                      },
+                      icon: Icon(isCurrentPlaylist && isPlaying ? Icons.pause : Icons.play_arrow),
+                      label: Text(isCurrentPlaylist && isPlaying ? l10n.pause : l10n.play),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColorsDark.primary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 32,
+                          vertical: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
         ),
 
         // Lista de canciones
         SliverList(
-          delegate: SliverChildBuilderDelegate((context, index) {
-            final song = playlist.songs[index];
-            return _PlaylistSongItem(
-              title: song.title,
-              artist: song.artist,
-              duration: song.duration,
-              thumbnail: song.thumbnail,
-              onTap: () => cubit.playSong(index),
-              onOptionsTap: () {
-                // TODO: Show song options
-              },
-            );
-          }, childCount: playlist.songs.length),
+          delegate: SliverChildBuilderDelegate(
+            (context, index) {
+              final song = playlist.songs[index];
+              return _PlaylistSongItem(
+                title: song.title,
+                artist: song.artist,
+                duration: song.duration,
+                thumbnail: song.thumbnail,
+                onTap: () {
+                  cubit.playSong(index);
+                },
+                onOptionsTap: () {
+                  // TODO: Show options menu
+                },
+              );
+            },
+            childCount: playlist.songs.length,
+          ),
         ),
       ],
     );

@@ -6,15 +6,15 @@ class SongMetadata {
   final String? artist;
   final String? thumbnail;
   final int? duration;
+  final String? streamUrl;
 
-  const SongMetadata({this.title, this.artist, this.thumbnail, this.duration});
-
-  Map<String, dynamic> toJson() => {
-    if (title != null) 'title': title,
-    if (artist != null) 'artist': artist,
-    if (thumbnail != null) 'thumbnail': thumbnail,
-    if (duration != null) 'duration': duration,
-  };
+  const SongMetadata({
+    this.title,
+    this.artist,
+    this.thumbnail,
+    this.duration,
+    this.streamUrl,
+  });
 }
 
 class PlaylistMetadata {
@@ -107,6 +107,7 @@ class LibraryService {
     String? artist,
     String? thumbnail,
     int? duration,
+    String? streamUrl,
   }) async {
     try {
       await _apiServices.post(
@@ -117,6 +118,7 @@ class LibraryService {
           if (artist != null) 'artist': artist,
           if (thumbnail != null) 'thumbnail': thumbnail,
           if (duration != null) 'duration': duration,
+          if (streamUrl != null) 'streamUrl': streamUrl,
         },
       );
     } catch (e) {
@@ -385,6 +387,7 @@ class FavoriteSong {
   final String artist;
   final String? thumbnail;
   final int? duration;
+  final String? streamUrl;
   final DateTime createdAt;
 
   FavoriteSong({
@@ -396,6 +399,7 @@ class FavoriteSong {
     required this.createdAt,
     this.thumbnail,
     this.duration,
+    this.streamUrl,
   });
 
   factory FavoriteSong.fromJson(Map<String, dynamic> json) {
@@ -408,6 +412,7 @@ class FavoriteSong {
       artist: song?['artist'] ?? '',
       thumbnail: song?['thumbnail'],
       duration: song?['duration'],
+      streamUrl: song?['streamUrl'] ?? song?['audioUrl'],
       createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
     );
   }
@@ -589,6 +594,7 @@ class UserPlaylistSong {
   final String artist;
   final String? thumbnail;
   final int? duration;
+  final String? streamUrl;
 
   UserPlaylistSong({
     required this.id,
@@ -597,6 +603,7 @@ class UserPlaylistSong {
     required this.artist,
     this.thumbnail,
     this.duration,
+    this.streamUrl,
   });
 
   factory UserPlaylistSong.fromJson(Map<String, dynamic> json) {
@@ -607,6 +614,7 @@ class UserPlaylistSong {
       artist: json['artist'] ?? '',
       thumbnail: json['thumbnail'],
       duration: json['duration'],
+      streamUrl: json['streamUrl'],
     );
   }
 }

@@ -225,6 +225,7 @@ class PlaylistCubit extends Cubit<PlaylistState> with BaseBlocMixin {
     _playerBloc.add(LoadPlaylistEvent(
       playlist: nowPlayingTracks,
       startIndex: 0,
+      sourceId: state.response?.id, // Identificador de la playlist
     ));
 
     // NO completamos el loading aquí - lo completamos cuando el player confirma reproducción

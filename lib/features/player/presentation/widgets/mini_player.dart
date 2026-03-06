@@ -73,6 +73,7 @@ class MiniPlayer extends StatelessWidget {
                             artist: track.artistsNames,
                             thumbnail: track.highResThumbnail.url,
                             duration: track.durationSeconds,
+                            streamUrl: track.streamUrl,
                           ),
                         ),
                         _PlayerControls(

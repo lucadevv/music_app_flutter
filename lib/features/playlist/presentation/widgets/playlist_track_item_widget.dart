@@ -151,9 +151,12 @@ class PlaylistTrackItemWidget extends StatelessWidget {
             onTap: isDisabled
                 ? null
                 : () {
-                    // Solo navegar - la lógica de reproducción está en PlayerScreen
+                    // Reproducir solo esta canción (limpia la cola)
                     context.router.push(
-                      PlayerRoute(nowPlayingData: _toNowPlayingData()),
+                      PlayerRoute(
+                        nowPlayingData: _toNowPlayingData(),
+                        playAsSingle: true,
+                      ),
                     );
                   },
           ),

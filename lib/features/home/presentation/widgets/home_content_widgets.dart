@@ -485,17 +485,18 @@ class SongListItemWidget extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
         ),
         trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            FavoriteButton(
-              videoId: item.videoId ?? '',
-              size: 22,
-              metadata: SongMetadata(
-                title: item.title,
-                artist: artistsNames,
-                thumbnail: thumbnail?.url,
-              ),
-            ),
+           mainAxisSize: MainAxisSize.min,
+           children: [
+             FavoriteButton(
+               videoId: item.videoId ?? '',
+               size: 22,
+               metadata: SongMetadata(
+                 title: item.title,
+                 artist: artistsNames,
+                 thumbnail: thumbnail?.url,
+                 streamUrl: item.streamUrl,
+               ),
+             ),
             IconButton(
               icon: Icon(
                 Icons.more_vert,

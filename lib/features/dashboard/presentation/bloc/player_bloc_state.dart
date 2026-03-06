@@ -21,6 +21,7 @@ class PlayerBlocState extends Equatable {
   final DateTime? loadingCompletedAt;
   final int? loadedCount;
   final int? totalToLoad;
+  final String? sourceId;
 
   const PlayerBlocState({
     this.playbackState = PlaybackState.stopped,
@@ -42,6 +43,7 @@ class PlayerBlocState extends Equatable {
     this.loadingCompletedAt,
     this.loadedCount,
     this.totalToLoad,
+    this.sourceId,
   });
 
   /// Factory para estado inicial
@@ -65,6 +67,7 @@ class PlayerBlocState extends Equatable {
         loadingCompletedAt: null,
         loadedCount: null,
         totalToLoad: null,
+        sourceId: null,
   );
 
   /// copyWith
@@ -88,9 +91,11 @@ class PlayerBlocState extends Equatable {
     DateTime? loadingCompletedAt,
     int? loadedCount,
     int? totalToLoad,
+    String? sourceId,
     bool clearError = false,
     bool clearCurrentTrack = false,
     bool clearCurrentIndex = false,
+    bool clearSourceId = false,
   }) {
     return PlayerBlocState(
       playbackState: playbackState ?? this.playbackState,
@@ -112,6 +117,7 @@ class PlayerBlocState extends Equatable {
       loadingCompletedAt: loadingCompletedAt ?? this.loadingCompletedAt,
       loadedCount: loadedCount ?? this.loadedCount,
       totalToLoad: totalToLoad ?? this.totalToLoad,
+      sourceId: clearSourceId ? null : (sourceId ?? this.sourceId),
     );
   }
 
@@ -171,6 +177,7 @@ class PlayerBlocState extends Equatable {
         loadingCompletedAt,
         loadedCount,
         totalToLoad,
+        sourceId,
       ];
 }
 

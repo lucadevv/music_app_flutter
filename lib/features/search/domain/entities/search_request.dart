@@ -2,6 +2,11 @@
 class SearchRequest {
   final String query;
   final String filter; // 'songs', 'artists', 'albums', etc.
+  final int startIndex; // Para paginación
 
-  const SearchRequest({required this.query, this.filter = 'songs'});
+  const SearchRequest({
+    required this.query,
+    this.filter = 'songs',
+    this.startIndex = 0,
+  });
 }

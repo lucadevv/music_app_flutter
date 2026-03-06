@@ -7,16 +7,55 @@ import 'package:music_app/features/favorites/presentation/widgets/favorite_butto
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 import 'package:music_app/features/song_options/presentation/widgets/song_options_bottom_sheet.dart';
+
 import '../../domain/entities/song.dart';
 
-class SearchResultsWidget extends StatelessWidget {
+class SearchResultsWidget extends StatefulWidget {
   final List<Song> results;
+  final bool hasMore;
+  final VoidCallback? onLoadMore;
+  final bool isLoadingMore;
 
-  const SearchResultsWidget({required this.results, super.key});
+  const SearchResultsWidget({
+    required this.results,
+    this.hasMore = false,
+    this.onLoadMore,
+    this.isLoadingMore = false,
+    super.key,
+  });
+
+  @override
+  State<SearchResultsWidget> createState() => _SearchResultsWidgetState();
+}
+
+class _SearchResultsWidgetState extends State<SearchResultsWidget> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      if (widget.hasMore && !widget.isLoadingMore && widget.onLoadMore != null) {
+        widget.onLoadMore!();
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (results.isEmpty) {
+    if (widget.results.isEmpty) {
       return const Center(
         child: Padding(
           padding: EdgeInsets.all(24.0),
@@ -29,12 +68,25 @@ class SearchResultsWidget extends StatelessWidget {
     }
 
     return ListView.builder(
+      controller: _scrollController,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      itemCount: results.length,
+      itemCount: widget.results.length + (widget.hasMore ? 1 : 0),
       itemBuilder: (context, index) {
-        final song = results[index];
+        // Mostrar indicador de carga al final
+        if (index == widget.results.length) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16),
+            child: Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(AppColorsDark.primary),
+              ),
+            ),
+          );
+        }
+
+        final song = widget.results[index];
         return _SongItem(song: song);
       },
     );

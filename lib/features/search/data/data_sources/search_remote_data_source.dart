@@ -36,8 +36,10 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
     try {
       // Codificar la query para URL (espacios -> %20)
       final encodedQuery = Uri.encodeComponent(request.query);
-      final endpoint =
-          '/music/search?q=$encodedQuery&filter=${request.filter}&include_stream_urls=false';
+      
+      // Construir endpoint con paginación
+      final endpoint = '/music/search?q=$encodedQuery&filter=${request.filter}'
+          '&start_index=${request.startIndex}&include_stream_urls=false';
 
       final response = await _apiServices.get(endpoint);
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/favorites/presentation/cubit/favorite_cubit.dart';
@@ -26,17 +27,12 @@ class PlaylistActionsWidget extends StatelessWidget {
     return sortedThumbnails.first.url;
   }
 
-  /// Verifica si la playlist actual es la que está reproduciéndose
-  bool _isCurrentPlaylistPlaying(PlayerBlocState playerState) {
-    if (playerState.playlist.isEmpty) return false;
-    if (playerState.currentTrack == null) return false;
-
-    // Verificar si el videoId del track actual está en esta playlist
-    final currentVideoId = playerState.currentTrack?.videoId;
-    if (currentVideoId == null) return false;
-    
-    return playlist.tracks.any((track) => track.videoId == currentVideoId);
-  }
+   /// Verifica si la playlist actual es la que está reproduciéndose
+   bool _isCurrentPlaylistPlaying(PlayerBlocState playerState) {
+     // Compare sourceId with this playlist's ID
+     // This ensures we show PLAY even if the song is in multiple playlists
+     return playerState.sourceId == playlist.id && playerState.isPlaying;
+   }
 
   @override
   Widget build(BuildContext context) {
@@ -67,6 +63,9 @@ class PlaylistActionsWidget extends StatelessWidget {
             // Verificar si la playlist actual está reproduciéndose
             final isCurrentPlaylist = _isCurrentPlaylistPlaying(playerState);
             final isPlaying = playerState.isPlaying;
+            
+            // DEBUG: Verificar valores
+            print('DEBUG playlist_actions: sourceId=${playerState.sourceId}, playlist.id=${playlist.id}, isCurrentPlaylist=$isCurrentPlaylist, isPlaying=$isPlaying');
 
             // El botón muestra:
             // - Loading solo la primera vez que se inicia playAll de ESTA playlist
@@ -145,11 +144,55 @@ class PlaylistActionsWidget extends StatelessWidget {
                       trackCount: playlist.trackCount,
                     ),
                   ),
-                  const Spacer(),
+                  const SizedBox(width: 8),
                   // Botón de shuffle
                   IconButton(
-                    icon: const Icon(Icons.shuffle, color: Colors.white, size: 28),
-                    onPressed: () {},
+                    icon: Icon(
+                      Icons.shuffle,
+                      color: playerState.isShuffleEnabled 
+                          ? AppColorsDark.primary 
+                          : Colors.white,
+                      size: 28,
+                    ),
+                    onPressed: playlist.tracks.length > 1
+                        ? () => playerBloc.add(const ToggleShuffleEvent())
+                        : null,
+                  ),
+                  const SizedBox(width: 8),
+                  // Botón de loop
+                  IconButton(
+                    icon: Icon(
+                      playerState.loopMode == LoopMode.one 
+                          ? Icons.repeat_one 
+                          : Icons.repeat,
+                      color: playerState.loopMode != LoopMode.off
+                          ? AppColorsDark.primary
+                          : Colors.white,
+                      size: 28,
+                    ),
+                    onPressed: () {
+                      // Cycle: off -> one -> all -> off
+                      final currentMode = playerState.loopMode;
+                      LoopMode nextMode;
+                      if (currentMode == LoopMode.off) {
+                        nextMode = LoopMode.one;
+                      } else if (currentMode == LoopMode.one) {
+                        nextMode = LoopMode.all;
+                      } else {
+                        nextMode = LoopMode.off;
+                      }
+                      playerBloc.add(SetLoopModeEvent(nextMode));
+                    },
+                  ),
+                  const SizedBox(width: 8),
+                  // Botón de descarga (solo visual por ahora)
+                  IconButton(
+                    icon: const Icon(
+                      Icons.download_outlined,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                    onPressed: null, // Sin funcionalidad por ahora
                   ),
                 ],
               ),

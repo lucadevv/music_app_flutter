@@ -26,6 +26,7 @@ class LikedDataSource {
       artist: song.artist,
       thumbnail: song.thumbnail,
       duration: song.duration,
+      streamUrl: song.streamUrl,
       addedAt: song.createdAt,
     )).toList();
   }
@@ -38,6 +39,7 @@ class LikedDataSource {
       artist: song.artist,
       thumbnail: song.thumbnail,
       duration: song.duration,
+      streamUrl: song.streamUrl,
     );
     // Also save to local cache
     await _localDataSource.cacheLikedSong(song);

@@ -51,7 +51,9 @@ class PlayerControlsWidget extends StatelessWidget {
         IconButton(
           icon: Icon(
             Icons.shuffle,
-            color: isShuffleEnabled ? AppColorsDark.primary : Colors.white,
+            color: onShuffle == null
+                ? Colors.white.withValues(alpha: 0.3)
+                : (isShuffleEnabled ? AppColorsDark.primary : Colors.white),
           ),
           onPressed: onShuffle,
         ),
@@ -98,7 +100,9 @@ class PlayerControlsWidget extends StatelessWidget {
         IconButton(
           icon: Icon(
             loopMode == LoopMode.one ? Icons.repeat_one : Icons.repeat,
-            color: _getRepeatColor(),
+            color: onRepeat == null
+                ? Colors.white.withValues(alpha: 0.3)
+                : _getRepeatColor(),
           ),
           onPressed: onRepeat,
         ),

@@ -383,6 +383,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     print('  - track.videoId: ${event.track.videoId}');
     print('  - track.title: ${event.track.title}');
     print('  - track.streamUrl presente: ${event.track.streamUrl != null && event.track.streamUrl!.isNotEmpty}');
+    print('  - sourceId: ${event.sourceId}');
     
     try {
       // Resetear el player antes de cargar
@@ -427,7 +428,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
         return;
       }
 
-      await _loadTrackWithUrl(streamUrl, event.track, emit);
+      await _loadTrackWithUrl(streamUrl, event.track, emit, sourceId: event.sourceId);
       print('DEBUG _onLoadTrack: _loadTrackWithUrl completado');
     } catch (e) {
       print('DEBUG _onLoadTrack ERROR: $e');
@@ -443,10 +444,12 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
   Future<void> _loadTrackWithUrl(
     String streamUrl,
     NowPlayingData track,
-    Emitter<PlayerBlocState> emit,
-  ) async {
+    Emitter<PlayerBlocState> emit, {
+    String? sourceId,
+  }) async {
     print('DEBUG _loadTrackWithUrl: INICIO');
     print('DEBUG _loadTrackWithUrl: streamUrl = ${streamUrl.substring(0, 50)}...');
+    print('DEBUG _loadTrackWithUrl: sourceId = $sourceId');
     
     // Verificar que el player esté conectado
     print('DEBUG _loadTrackWithUrl: connectionState = ${state.connectionState}');
@@ -506,15 +509,18 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
 
       emit(
       state.copyWith(
+        playlist: [track], // Limpiar playlist - solo esta canción
         playbackState: PlaybackState.playing,
         processingState: ProcessingState.ready,
         connectionState: AudioConnectionState.connected,
         currentTrack: track,
         currentStreamUrl: streamUrl,
+        currentIndex: 0, // Resetear índice
         duration: actualDuration,
         position: Duration.zero,
         isLoading: false,
         error: null,
+        sourceId: sourceId ?? state.sourceId, // Use provided sourceId or preserve existing
       ),
       );
       print('DEBUG _loadTrackWithUrl: Estado emitido, ahora play()');
@@ -525,16 +531,17 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
       print('DEBUG _loadTrackWithUrl StackTrace: ${StackTrace.current}');
       emit(
        state.copyWith(
-        playlist: [track],
-        isLoading: false,
-        error: 'Error al cargar audio: $e',
-        connectionState: AudioConnectionState.disconnected,
-        currentIndex: 0,
-        currentTrack: track,
-        currentStreamUrl: streamUrl,
-        duration: Duration(seconds: track.durationSeconds),
-       )
-      );
+         playlist: [track],
+         isLoading: false,
+         error: 'Error al cargar audio: $e',
+         connectionState: AudioConnectionState.disconnected,
+         currentIndex: 0,
+         currentTrack: track,
+         currentStreamUrl: streamUrl,
+         duration: Duration(seconds: track.durationSeconds),
+         sourceId: sourceId ?? state.sourceId, // Use provided sourceId or preserve existing
+        )
+       );
       rethrow;
     }
   }
@@ -628,6 +635,9 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
        
       final firstTrack = event.playlist[safeStartIndex];
       final actualDuration = Duration(seconds: firstTrack.durationSeconds);
+      
+      // DEBUG: Verificar sourceId
+      print('DEBUG _onLoadPlaylist: event.sourceId=${event.sourceId}');
        
       // Emitir estado
       emit(
@@ -643,8 +653,11 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
           position: Duration.zero,
           loadedCount: totalTracks,
           totalToLoad: totalTracks,
+          sourceId: event.sourceId,
        )
       );
+      
+      print('DEBUG _onLoadPlaylist: Estado emitido con sourceId=${state.sourceId}');
        
       // Play directamente
       await _audioPlayer.play();
@@ -689,6 +702,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
             currentIndex: event.index,
             currentTrack: track,
             currentStreamUrl: streamUrl,
+            sourceId: currentState.sourceId, // Preserve sourceId
           ),
         );
       }
