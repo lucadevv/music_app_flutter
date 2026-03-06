@@ -28,19 +28,19 @@ class PlayerArtworkWidget extends StatelessWidget {
       child: Stack(
         children: [
           Container(
-            width: 300,
-            height: 300,
+            width: double.infinity,
+            height: 380,
             decoration: BoxDecoration(
-              color: AppColorsDark.primaryContainer,
-              borderRadius: BorderRadius.circular(20),
+              color: AppColorsDark.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(36),
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(36),
               child: thumbnail != null
                   ? CachedNetworkImage(
                       imageUrl: thumbnail!.url,
-                      width: 300,
-                      height: 300,
+                      width: double.infinity,
+                      height: 380,
                       fit: BoxFit.cover,
                       placeholder: (context, url) => _PlaceholderWidget(),
                       errorWidget: (context, url, error) => _ErrorWidget(),

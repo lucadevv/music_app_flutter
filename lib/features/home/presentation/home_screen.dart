@@ -11,7 +11,7 @@ import 'package:music_app/features/home/presentation/widgets/home_header_widget.
 import 'package:music_app/features/home/presentation/widgets/home_listeners.dart';
 import 'package:music_app/features/home/presentation/widgets/home_loading_widget.dart';
 import 'package:music_app/features/home/presentation/widgets/home_section_widget.dart';
-import 'package:music_app/features/home/presentation/widgets/mood_genres_grid_widget.dart';
+import 'package:music_app/features/home/presentation/widgets/categories_row_widget.dart';
 
 @RoutePage()
 class HomeScreen extends StatefulWidget {
@@ -55,44 +55,38 @@ class _HomeScreenState extends State<HomeScreen> {
 
               return CustomScrollView(
                 slivers: [
-                  // Header con saludo
+                  // Header with greeting & search bar
                   const SliverToBoxAdapter(child: HomeHeaderWidget()),
 
-                  // Secciones de contenido (tendencias, etc.) - igual que en el shimmer
+                  // Categories (Moods & Genres)
+                  SliverToBoxAdapter(
+                    child: CategoriesRowWidget(
+                      moods: homeResponse.moods,
+                      genres: homeResponse.genres,
+                    ),
+                  ),
+
+                  // Content Sections (Trending, Recently Listened, etc)
                   ...homeResponse.sections.map(
                     (section) => SliverToBoxAdapter(
                       child: HomeSectionWidget(
                         section: section,
                         onSongTap: _playSong,
                         onPlaylistTap: (item) {
-                          // Navegar a la playlist si tiene ID
-                          if (item.playlistId != null &&
-                              item.playlistId!.isNotEmpty) {
-                            context.router.push(
-                              PlaylistRoute(id: item.playlistId!),
-                            );
+                          if (item.playlistId != null && item.playlistId!.isNotEmpty) {
+                            context.router.push(PlaylistRoute(id: item.playlistId!));
                           }
                         },
                         onAlbumTap: (item) {
-                          // Navegar al álbum si tiene browseId
-                          if (item.browseId != null &&
-                              item.browseId!.isNotEmpty) {
-                            context.router.push(
-                              AlbumRoute(albumId: item.browseId!),
-                            );
+                          if (item.browseId != null && item.browseId!.isNotEmpty) {
+                            context.router.push(AlbumRoute(albumId: item.browseId!));
                           }
                         },
                       ),
                     ),
                   ),
-
-                  // GridView de categorías (moods y genres combinados) - al final como en el shimmer
-                  MoodGenresGridWidget(
-                    moods: homeResponse.moods,
-                    genres: homeResponse.genres,
-                  ),
-
-                  const SliverToBoxAdapter(child: SizedBox(height: 100)),
+                  
+                  const SliverToBoxAdapter(child: SizedBox(height: 120)), // Space for bottom nav
                 ],
               );
             },

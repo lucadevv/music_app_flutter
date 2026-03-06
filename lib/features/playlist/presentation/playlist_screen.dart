@@ -11,7 +11,9 @@ import 'package:music_app/features/playlist/presentation/widgets/playlist_header
 import 'package:music_app/features/playlist/presentation/widgets/playlist_listeners.dart';
 import 'package:music_app/features/playlist/presentation/widgets/playlist_loading_widget.dart';
 import 'package:music_app/features/playlist/presentation/widgets/playlist_track_item_widget.dart';
+import 'dart:ui';
 import 'package:music_app/main.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 
 @RoutePage()
 class PlaylistScreen extends StatefulWidget implements AutoRouteWrapper {
@@ -74,7 +76,7 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
 
     return PlaylistListeners(
       child: Scaffold(
-        backgroundColor: const Color(0xFF0D0D0D),
+        backgroundColor: AppColorsDark.surface,
         body: BlocBuilder<PlayerBlocBloc, PlayerBlocState>(
           bloc: playerBloc,
           builder: (context, playerState) {
@@ -162,15 +164,19 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                               ),
                             ),
                           ],
-                          flexibleSpace: FlexibleSpaceBar(
-                            titlePadding: const EdgeInsets.only(
-                              left: 16,
-                              bottom: 16,
-                              right: 16,
-                            ),
-
-                            background: PlaylistHeaderWidget(
-                              playlist: playlist,
+                          flexibleSpace: ClipRRect(
+                            child: BackdropFilter(
+                              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                              child: FlexibleSpaceBar(
+                                titlePadding: const EdgeInsets.only(
+                                  left: 16,
+                                  bottom: 16,
+                                  right: 16,
+                                ),
+                                background: PlaylistHeaderWidget(
+                                  playlist: playlist,
+                                ),
+                              ),
                             ),
                           ),
                         ),

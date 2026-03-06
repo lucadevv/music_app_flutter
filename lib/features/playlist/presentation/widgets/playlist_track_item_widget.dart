@@ -151,11 +151,30 @@ class PlaylistTrackItemWidget extends StatelessWidget {
             onTap: isDisabled
                 ? null
                 : () {
-                    // Reproducir solo esta canción (limpia la cola)
+                    // Extract all valid tracks to NowPlayingData
+                    final validTracks = allTracks
+                        .where((t) => t.isAvailable && t.videoId != null && t.videoId!.isNotEmpty && t.streamUrl != null && t.streamUrl!.isNotEmpty)
+                        .toList();
+                        
+                    if (validTracks.isEmpty) return;
+                    
+                    final nowPlayingTracks = validTracks.map((t) => NowPlayingData.fromPlaylistTrack(t)).toList();
+                    final index = validTracks.indexWhere((t) => t.videoId == track.videoId);
+                    
+                    // Stop current playback to avoid race conditions with setting source
+                    playerBloc.add(const StopEvent());
+                    
+                    // Load the whole playlist starting from the pressed track
+                    playerBloc.add(LoadPlaylistEvent(
+                      playlist: nowPlayingTracks,
+                      startIndex: index >= 0 ? index : 0,
+                    ));
+                    
+                    // Navigate to player
                     context.router.push(
                       PlayerRoute(
                         nowPlayingData: _toNowPlayingData(),
-                        playAsSingle: true,
+                        playAsSingle: false,
                       ),
                     );
                   },

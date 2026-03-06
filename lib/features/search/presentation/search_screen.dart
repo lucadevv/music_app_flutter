@@ -12,6 +12,7 @@ import 'package:music_app/features/search/presentation/widgets/search_listeners.
 import 'package:music_app/features/search/presentation/widgets/search_results_widget.dart';
 import 'package:music_app/features/search/presentation/widgets/trending_artists_widget.dart'
     show RecentSearchesWidget;
+import 'package:music_app/core/theme/app_colors_dark.dart';
 
 @RoutePage()
 class SearchScreen extends StatefulWidget {
@@ -50,7 +51,7 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget build(BuildContext context) {
     return SearchListeners(
       child: Scaffold(
-        backgroundColor: const Color(0xFF0D0D0D),
+        backgroundColor: AppColorsDark.surface,
         body: SafeArea(
           child: BlocBuilder<OrquestadorSearchCubit, OrquestadorSearchState>(
             builder: (context, orquestadorState) {

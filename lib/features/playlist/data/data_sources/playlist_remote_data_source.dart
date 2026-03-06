@@ -52,9 +52,11 @@ class PlaylistRemoteDataSourceImpl implements PlaylistRemoteDataSource {
 
       if (responseData is Map<String, dynamic>) {
         // Usar isolate para playlists grandes
-        final playlist = await PlaylistResponseParsingIsolate.parseInIsolate(
+        final playlistModel = await PlaylistResponseParsingIsolate.parseInIsolate(
           responseData,
         );
+        // Convertir PlaylistResponseModel a PlaylistResponse (casting seguro porque PlaylistResponseModel extiende PlaylistResponse)
+        final playlist = playlistModel as PlaylistResponse;
         return Right(playlist);
       } else {
         const exception = ServerException(

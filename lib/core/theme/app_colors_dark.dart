@@ -3,35 +3,35 @@ import 'package:flutter/material.dart';
 class AppColorsDark {
   // const AppColorsDark._();
 
-  // Primary - Vibrante púrpura/rosa para app de música
-  static const Color primary = Color(0xFFBB86FC);
+  // Primary - Cyan vibrante para app de música moderna
+  static const Color primary = Color(0xFF00E5FF);
   static const Color onPrimary = Color(0xFF000000);
-  static const Color primaryContainer = Color(0xFF6200EE);
-  static const Color onPrimaryContainer = Color(0xFFE1BEE7);
-  static const Color primaryFixed = Color(0xFFE1BEE7);
-  static const Color primaryFixedDim = Color(0xFFBB86FC);
+  static const Color primaryContainer = Color(0xFF00ACC1);
+  static const Color onPrimaryContainer = Color(0xFFE0FFFF);
+  static const Color primaryFixed = Color(0xFFE0FFFF);
+  static const Color primaryFixedDim = Color(0xFF00E5FF);
   static const Color onPrimaryFixed = Color(0xFF000000);
-  static const Color onPrimaryFixedVariant = Color(0xFF6200EE);
+  static const Color onPrimaryFixedVariant = Color(0xFF00ACC1);
 
-  // Secondary - Azul vibrante complementario
-  static const Color secondary = Color(0xFF03DAC6);
+  // Secondary - Gris/blanco para elementos neutros secundarios
+  static const Color secondary = Color(0xFFFFFFFF);
   static const Color onSecondary = Color(0xFF000000);
-  static const Color secondaryContainer = Color(0xFF018786);
-  static const Color onSecondaryContainer = Color(0xFFB2DFDB);
-  static const Color secondaryFixed = Color(0xFFB2DFDB);
-  static const Color secondaryFixedDim = Color(0xFF03DAC6);
+  static const Color secondaryContainer = Color(0xFFE0E0E0);
+  static const Color onSecondaryContainer = Color(0xFF333333);
+  static const Color secondaryFixed = Color(0xFFE0E0E0);
+  static const Color secondaryFixedDim = Color(0xFFFFFFFF);
   static const Color onSecondaryFixed = Color(0xFF000000);
-  static const Color onSecondaryFixedVariant = Color(0xFF018786);
+  static const Color onSecondaryFixedVariant = Color(0xFF333333);
 
-  // Tertiary - Rosa/rojo para acentos
-  static const Color tertiary = Color(0xFFFF6B9D);
-  static const Color onTertiary = Color(0xFF000000);
-  static const Color tertiaryContainer = Color(0xFFC2185B);
-  static const Color onTertiaryContainer = Color(0xFFFFE0E6);
-  static const Color tertiaryFixed = Color(0xFFFFE0E6);
-  static const Color tertiaryFixedDim = Color(0xFFFF6B9D);
-  static const Color onTertiaryFixed = Color(0xFF000000);
-  static const Color onTertiaryFixedVariant = Color(0xFFC2185B);
+  // Tertiary - Acentos alternativos si se requieren
+  static const Color tertiary = Color(0xFF7C4DFF);
+  static const Color onTertiary = Color(0xFFFFFFFF);
+  static const Color tertiaryContainer = Color(0xFF6200EA);
+  static const Color onTertiaryContainer = Color(0xFFE8EAF6);
+  static const Color tertiaryFixed = Color(0xFFE8EAF6);
+  static const Color tertiaryFixedDim = Color(0xFF7C4DFF);
+  static const Color onTertiaryFixed = Color(0xFFFFFFFF);
+  static const Color onTertiaryFixedVariant = Color(0xFF6200EA);
 
   // Error
   static const Color error = Color(0xFFCF6679);
@@ -39,28 +39,28 @@ class AppColorsDark {
   static const Color errorContainer = Color(0xFFB00020);
   static const Color onErrorContainer = Color(0xFFFFDAD6);
 
-  // Surface - Negros profundos para fondo de música
-  static const Color surface = Color(0xFF121212);
+  // Surface - Negros profundos para fondo de música (estilo Spotify/Apple Music oscuro)
+  static const Color surface = Color(0xFF0D0D12);
   static const Color onSurface = Color(0xFFFFFFFF);
   static const Color surfaceDim = Color(0xFF000000);
-  static const Color surfaceBright = Color(0xFF2C2C2C);
-  static const Color surfaceContainerLowest = Color(0xFF000000);
-  static const Color surfaceContainerLow = Color(0xFF1A1A1A);
-  static const Color surfaceContainer = Color(0xFF1E1E1E);
-  static const Color surfaceContainerHigh = Color(0xFF2A2A2A);
-  static const Color surfaceContainerHighest = Color(0xFF353535);
+  static const Color surfaceBright = Color(0xFF1E1E26);
+  static const Color surfaceContainerLowest = Color(0xFF06060A);
+  static const Color surfaceContainerLow = Color(0xFF15151C);
+  static const Color surfaceContainer = Color(0xFF1C1C24);
+  static const Color surfaceContainerHigh = Color(0xFF262632);
+  static const Color surfaceContainerHighest = Color(0xFF333342);
 
-  static const Color onSurfaceVariant = Color(0xFFB3B3B3);
-  static const Color outline = Color(0xFF5C5C5C);
-  static const Color outlineVariant = Color(0xFF3A3A3A);
+  static const Color onSurfaceVariant = Color(0xFF9E9E9E);
+  static const Color outline = Color(0xFF424242);
+  static const Color outlineVariant = Color(0xFF212121);
 
   static const Color shadow = Color(0xFF000000);
   static const Color scrim = Color(0xFF000000);
 
-  static const Color inverseSurface = Color(0xFFE1E1E1);
-  static const Color onInverseSurface = Color(0xFF121212);
-  static const Color inversePrimary = Color(0xFF6200EE);
-  static const Color surfaceTint = Color(0xFFBB86FC);
+  static const Color inverseSurface = Color(0xFFE0E0E0);
+  static const Color onInverseSurface = Color(0xFF0D0D12);
+  static const Color inversePrimary = Color(0xFF0083B0);
+  static const Color surfaceTint = Color(0xFF00E5FF);
 }
 
 ColorScheme createDarkColorScheme() {

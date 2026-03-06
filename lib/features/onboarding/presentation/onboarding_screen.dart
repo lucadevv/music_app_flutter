@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/services/local/onboarding_service.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
@@ -15,40 +16,7 @@ class OnboardingScreen extends StatefulWidget {
 }
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
-  final PageController _pageController = PageController();
-  int _currentPage = 0;
   bool _isCompleting = false;
-
-  late List<OnboardingPageData> _pages;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final l10n = AppLocalizations.of(context)!;
-    _pages = [
-      OnboardingPageData(
-        title: l10n.discoverNewMusic,
-        description: l10n.discoverNewMusicDesc,
-        icon: Icons.music_note,
-      ),
-      OnboardingPageData(
-        title: l10n.createYourPlaylists,
-        description: l10n.createYourPlaylistsDesc,
-        icon: Icons.playlist_add,
-      ),
-      OnboardingPageData(
-        title: l10n.listenWithoutLimits,
-        description: l10n.listenWithoutLimitsDesc,
-        icon: Icons.headphones,
-      ),
-    ];
-  }
-
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
 
   Future<void> _completeOnboardingAndNavigate() async {
     if (_isCompleting) return;
@@ -69,167 +37,150 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     }
   }
 
-  void _nextPage() {
-    if (_currentPage < _pages.length - 1) {
-      _pageController.nextPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-    } else {
-      _completeOnboardingAndNavigate();
-    }
-  }
-
-  void _skip() {
-    _completeOnboardingAndNavigate();
-  }
-
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-
+    // We use hardcoded texts as per the design to show the visual, 
+    // but ideally these should be in AppLocalizations.
     return Scaffold(
       backgroundColor: AppColorsDark.surface,
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Skip button
-            Align(
-              alignment: Alignment.topRight,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: TextButton(
-                  onPressed: _isCompleting ? null : _skip,
-                  child: Text(
-                    l10n.skip,
-                    style: TextStyle(
-                      color: _isCompleting
-                          ? AppColorsDark.onSurfaceVariant.withValues(
-                              alpha: 0.5,
-                            )
-                          : AppColorsDark.onSurfaceVariant,
-                      fontSize: 16,
-                    ),
-                  ),
+      body: Stack(
+        children: [
+          // 1. Background Grid of Images (Masonry-like)
+          Positioned(
+            top: -50,
+            left: -20,
+            right: -20,
+            child: Transform.rotate(
+              angle: -0.05,
+              child: _buildImageGrid(),
+            ),
+          ),
+
+          // 2. Bottom Content Gradient and Texts
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              height: MediaQuery.of(context).size.height * 0.5,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    AppColorsDark.surface.withValues(alpha: 0.0),
+                    AppColorsDark.surface.withValues(alpha: 0.8),
+                    AppColorsDark.surface,
+                    AppColorsDark.surface,
+                  ],
+                  stops: const [0.0, 0.3, 0.6, 1.0],
                 ),
               ),
-            ),
-
-            // PageView
-            Expanded(
-              child: PageView.builder(
-                controller: _pageController,
-                onPageChanged: (index) {
-                  setState(() {
-                    _currentPage = index;
-                  });
-                },
-                itemCount: _pages.length,
-                itemBuilder: (context, index) {
-                  return _OnboardingPageWidget(page: _pages[index]);
-                },
-              ),
-            ),
-
-            // Page indicators
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(
-                _pages.length,
-                (index) => PageIndicator(isActive: index == _currentPage),
-              ),
-            ),
-
-            const SizedBox(height: 32),
-
-            // Next/Get Started button
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 24.0,
-                vertical: 16.0,
-              ),
-              child: SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: _isCompleting ? null : _nextPage,
-                  style: FilledButton.styleFrom(
-                    backgroundColor: AppColorsDark.primary,
-                    foregroundColor: AppColorsDark.onPrimary,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
-                  child: _isCompleting
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    RichText(
+                      text: const TextSpan(
+                        style: TextStyle(
+                          fontSize: 40,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Poppins',
+                          height: 1.1,
+                          color: Colors.white,
+                        ),
+                        children: [
+                          TextSpan(text: 'Dive Into Your\n'),
+                          TextSpan(
+                            text: 'RhythmoTune.',
+                            style: TextStyle(color: AppColorsDark.primary),
                           ),
-                        )
-                      : Text(
-                          _currentPage == _pages.length - 1
-                              ? l10n.getStarted
-                              : l10n.next,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Experience seamless music enjoyment,\ncrafted for every moment.',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: AppColorsDark.onSurfaceVariant,
+                        fontFamily: 'Poppins',
+                        height: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 40),
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton(
+                        onPressed: _isCompleting ? null : _completeOnboardingAndNavigate,
+                        style: FilledButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.black,
+                          padding: const EdgeInsets.symmetric(vertical: 18),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
                           ),
                         ),
+                        child: _isCompleting
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.black,
+                                ),
+                              )
+                            : const Text(
+                                'Start Explore',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-
-            const SizedBox(height: 32),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
-}
 
-class _OnboardingPageWidget extends StatelessWidget {
-  final OnboardingPageData page;
-
-  const _OnboardingPageWidget({required this.page});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(32.0),
-      child: Column(
+  Widget _buildImageGrid() {
+    return const SizedBox(
+      height: 600,
+      child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            width: 200,
-            height: 200,
-            decoration: const BoxDecoration(
-              color: AppColorsDark.primaryContainer,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(page.icon, size: 100, color: AppColorsDark.primary),
-          ),
-          const SizedBox(height: 48),
-          Text(
-            page.title,
-            style: const TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: AppColorsDark.onSurface,
-            ),
-            textAlign: TextAlign.center,
+          Column(
+            children: [
+              _GridImage(url: 'https://images.unsplash.com/photo-1493225457124-a1a2a5f5f4a4?q=80&w=400&fit=crop', height: 180),
+              SizedBox(height: 16),
+              _GridImage(url: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=400&fit=crop', height: 240),
+              SizedBox(height: 16),
+              _GridImage(url: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=400&fit=crop', height: 180),
+            ],
           ),
           const SizedBox(height: 16),
-          Text(
-            page.description,
-            style: const TextStyle(
-              fontSize: 16,
-              color: AppColorsDark.onSurfaceVariant,
-              height: 1.5,
-            ),
-            textAlign: TextAlign.center,
+          const Column(
+            children: [
+              SizedBox(height: 80),
+              _GridImage(url: 'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=400&fit=crop', height: 240),
+              SizedBox(height: 16),
+              _GridImage(url: 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?q=80&w=400&fit=crop', height: 200),
+            ],
+          ),
+          const SizedBox(width: 16),
+          const Column(
+            children: [
+              SizedBox(height: 30),
+              _GridImage(url: 'https://images.unsplash.com/photo-1501612780327-45045538702b?q=80&w=400&fit=crop', height: 200),
+              SizedBox(height: 16),
+              _GridImage(url: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=400&fit=crop', height: 250),
+            ],
           ),
         ],
       ),
@@ -237,33 +188,37 @@ class _OnboardingPageWidget extends StatelessWidget {
   }
 }
 
-class PageIndicator extends StatelessWidget {
-  final bool isActive;
+class _GridImage extends StatelessWidget {
+  final String url;
+  final double height;
 
-  const PageIndicator({required this.isActive, super.key});
+  const _GridImage({required this.url, required this.height});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 4),
-      width: isActive ? 24 : 8,
-      height: 8,
+      width: 130,
+      height: height,
       decoration: BoxDecoration(
-        color: isActive ? AppColorsDark.primary : AppColorsDark.outlineVariant,
-        borderRadius: BorderRadius.circular(4),
+        color: AppColorsDark.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.3),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: CachedNetworkImage(
+          imageUrl: url,
+          fit: BoxFit.cover,
+          placeholder: (context, url) => Container(color: AppColorsDark.surfaceContainerHigh),
+          errorWidget: (context, url, error) => const Icon(Icons.music_note, color: Colors.grey),
+        ),
       ),
     );
   }
-}
-
-class OnboardingPageData {
-  final String title;
-  final String description;
-  final IconData icon;
-
-  OnboardingPageData({
-    required this.title,
-    required this.description,
-    required this.icon,
-  });
 }

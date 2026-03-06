@@ -7,6 +7,7 @@ import 'package:music_app/core/utils/bottom_sheet_visibility.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/player/presentation/widgets/mini_player.dart';
 import 'package:music_app/l10n/app_localizations.dart';
+import 'package:music_app/core/widgets/glass_bottom_nav.dart';
 
 @RoutePage()
 class DashboardShell extends StatefulWidget implements AutoRouteWrapper {
@@ -114,42 +115,11 @@ class _DashboardShellState extends State<DashboardShell> {
                   if (isVisible) ...[
                     Align(
                       alignment: Alignment.bottomCenter,
-                      child: Container(
-                        height: 79,
-                        width: double.infinity,
-                        margin: const EdgeInsets.symmetric(
-                          horizontal: 30,
-                        ).copyWith(bottom: 32),
-                        decoration: BoxDecoration(
-                          color: AppColorsDark.surfaceContainerHigh,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 26),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              _ItemNavbar(
-                                icon: navItems[0]['icon'] as IconData,
-                                label: navItems[0]['label'] as String,
-                                isActive: tabsRouter.activeIndex == 0,
-                                onTap: () => tabsRouter.setActiveIndex(0),
-                              ),
-                              _ItemNavbar(
-                                icon: navItems[1]['icon'] as IconData,
-                                label: navItems[1]['label'] as String,
-                                isActive: tabsRouter.activeIndex == 1,
-                                onTap: () => tabsRouter.setActiveIndex(1),
-                              ),
-                              _ItemNavbar(
-                                icon: navItems[2]['icon'] as IconData,
-                                label: navItems[2]['label'] as String,
-                                isActive: tabsRouter.activeIndex == 2,
-                                onTap: () => tabsRouter.setActiveIndex(2),
-                              ),
-                            ],
-                          ),
-                        ),
+                      child: GlassBottomNav(
+                        currentIndex: tabsRouter.activeIndex,
+                        onTap: (index) => tabsRouter.setActiveIndex(index),
+                        outlinedIcons: const [Icons.home_outlined, Icons.search_outlined, Icons.library_music_outlined],
+                        filledIcons: const [Icons.home, Icons.search, Icons.library_music],
                       ),
                     ),
                   ],
@@ -163,46 +133,4 @@ class _DashboardShellState extends State<DashboardShell> {
   }
 }
 
-class _ItemNavbar extends StatelessWidget {
-  const _ItemNavbar({
-    required this.icon,
-    required this.label,
-    required this.isActive,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final bool isActive;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            size: 26,
-            color: isActive
-                ? AppColorsDark.primary
-                : AppColorsDark.onSurfaceVariant,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: isActive
-                  ? AppColorsDark.primary
-                  : AppColorsDark.onSurfaceVariant,
-              fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+// Removed _ItemNavbar class as it's replaced by GlassBottomNav

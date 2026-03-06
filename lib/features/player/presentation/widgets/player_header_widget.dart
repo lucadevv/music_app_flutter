@@ -17,11 +17,11 @@ class PlayerHeaderWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           IconButton(
-            icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white),
+            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
             onPressed: () => context.router.pop(),
           ),
           const Text(
-            'Now Playing',
+            'Music Player',
             style: TextStyle(
               color: Colors.white,
               fontSize: 16,

@@ -296,18 +296,7 @@ class _PlayerSimilarSongsWidgetState extends State<PlayerSimilarSongsWidget> {
   }
 }
 
-/// Helper function to parse duration string to seconds
-int _parseDurationToSeconds(String duration) {
-  try {
-    final parts = duration.split(':');
-    if (parts.length == 2) {
-      return int.parse(parts[0]) * 60 + int.parse(parts[1]);
-    } else if (parts.length == 3) {
-      return int.parse(parts[0]) * 3600 + int.parse(parts[1]) * 60 + int.parse(parts[2]);
-    }
-  } catch (_) {}
-  return 0;
-}
+// Removed _parseDurationToSeconds as it was unused
 
 class _SimilarSongItem extends StatelessWidget {
   final String title;
@@ -315,8 +304,6 @@ class _SimilarSongItem extends StatelessWidget {
   final String videoId;
   final String? thumbnail;
   final int? durationSeconds;
-  final String? streamUrl;
-  final bool isLoading;
   final VoidCallback? onTap;
 
   const _SimilarSongItem({
@@ -325,55 +312,11 @@ class _SimilarSongItem extends StatelessWidget {
     required this.videoId,
     this.thumbnail,
     this.durationSeconds,
-    this.streamUrl,
-    this.isLoading = false,
     this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading) {
-      return ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
-        leading: Container(
-          width: 48,
-          height: 48,
-          decoration: BoxDecoration(
-            color: AppColorsDark.primaryContainer,
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: const Center(
-            child: SizedBox(
-              width: 24,
-              height: 24,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(AppColorsDark.primary),
-              ),
-            ),
-          ),
-        ),
-        title: Container(
-          height: 16,
-          width: 150,
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(4),
-          ),
-        ),
-        subtitle: Padding(
-          padding: const EdgeInsets.only(top: 4),
-          child: Container(
-            height: 12,
-            width: 100,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(4),
-            ),
-          ),
-        ),
-      );
-    }
 
     final durationText = _formatDuration(durationSeconds);
 
@@ -389,7 +332,7 @@ class _SimilarSongItem extends StatelessWidget {
               ? CachedNetworkImage(
                   imageUrl: thumbnail!,
                   fit: BoxFit.cover,
-                  errorWidget: (_, __, ___) =>
+                  errorWidget: (context, url, error) =>
                       const Icon(Icons.music_note, color: AppColorsDark.primary),
                 )
               : const Icon(Icons.music_note, color: AppColorsDark.primary),
