@@ -151,26 +151,33 @@ class PlaylistTrackItemWidget extends StatelessWidget {
             onTap: isDisabled
                 ? null
                 : () {
-                    // Extract all valid tracks to NowPlayingData
+                    // Filtrar tracks válidos
                     final validTracks = allTracks
-                        .where((t) => t.isAvailable && t.videoId != null && t.videoId!.isNotEmpty && t.streamUrl != null && t.streamUrl!.isNotEmpty)
+                        .where((t) =>
+                            t.isAvailable &&
+                            t.videoId != null &&
+                            t.videoId!.isNotEmpty &&
+                            t.streamUrl != null &&
+                            t.streamUrl!.isNotEmpty)
                         .toList();
-                        
+
                     if (validTracks.isEmpty) return;
-                    
-                    final nowPlayingTracks = validTracks.map((t) => NowPlayingData.fromPlaylistTrack(t)).toList();
+
+                    // Convertir a NowPlayingData
+                    final nowPlayingTracks = validTracks
+                        .map((t) => NowPlayingData.fromPlaylistTrack(t))
+                        .toList();
+
+                    // Encontrar el índice de la canción seleccionada
                     final index = validTracks.indexWhere((t) => t.videoId == track.videoId);
-                    
-                    // Stop current playback to avoid race conditions with setting source
-                    playerBloc.add(const StopEvent());
-                    
-                    // Load the whole playlist starting from the pressed track
+
+                    // Cargar toda la playlist empezando desde la canción seleccionada
                     playerBloc.add(LoadPlaylistEvent(
                       playlist: nowPlayingTracks,
                       startIndex: index >= 0 ? index : 0,
                     ));
-                    
-                    // Navigate to player
+
+                    // Navegar al player (playAsSingle: false para ver el carousel)
                     context.router.push(
                       PlayerRoute(
                         nowPlayingData: _toNowPlayingData(),

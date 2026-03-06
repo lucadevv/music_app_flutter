@@ -9,9 +9,6 @@ import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/playlist/domain/entities/playlist_response.dart';
 import 'package:music_app/features/playlist/presentation/cubit/playlist_cubit.dart';
 import 'package:music_app/features/playlist/presentation/cubit/playlist_state.dart';
-import 'package:auto_route/auto_route.dart';
-import 'package:music_app/core/app_router/app_routes.gr.dart';
-import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 
 /// Widget para los botones de acción de la playlist
 class PlaylistActionsWidget extends StatelessWidget {
@@ -95,31 +92,9 @@ class PlaylistActionsWidget extends StatelessWidget {
                             // Si es la misma playlist y hay algo reproducido, togglear
                             if (isCurrentPlaylist && playerState.hasCurrentTrack) {
                               playerBloc.add(const PlayPauseToggleEvent());
-                              if (playerState.currentTrack != null) {
-                                context.router.push(
-                                  PlayerRoute(
-                                    nowPlayingData: playerState.currentTrack!,
-                                    playAsSingle: false,
-                                  ),
-                                );
-                              }
                             } else {
                               // Es otra playlist o no hay nada - cargar esta playlist
                               playlistCubit.playAll();
-                              
-                              // Navegar al reproductor de forma segura
-                              if (playlist.tracks.isNotEmpty) {
-                                final firstValidTrack = playlist.tracks.firstWhere(
-                                  (t) => t.isAvailable && t.videoId != null && t.videoId!.isNotEmpty,
-                                  orElse: () => playlist.tracks.first,
-                                );
-                                context.router.push(
-                                  PlayerRoute(
-                                    nowPlayingData: NowPlayingData.fromPlaylistTrack(firstValidTrack),
-                                    playAsSingle: false,
-                                  ),
-                                );
-                              }
                             }
                           },
                     child: Container(
