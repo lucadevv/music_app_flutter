@@ -30,27 +30,52 @@ class QuickAccessChip extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(20),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              AppColorsDark.primary.withValues(alpha: 0.2),
+              AppColorsDark.primary.withValues(alpha: 0.1),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(
+            color: AppColorsDark.primary.withValues(alpha: 0.3),
+            width: 1,
+          ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: AppColorsDark.primary, size: 18),
-            const SizedBox(width: 8),
+            Icon(icon, color: AppColorsDark.primary, size: 20),
+            const SizedBox(width: 10),
             Text(
               label,
-              style: const TextStyle(color: Colors.white, fontSize: 14),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                fontFamily: 'Poppins',
+              ),
             ),
             if (count > 0) ...[
-              const SizedBox(width: 4),
-              Text(
-                '($count)',
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.6),
-                  fontSize: 12,
+              const SizedBox(width: 6),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: AppColorsDark.primary.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '$count',
+                  style: const TextStyle(
+                    color: AppColorsDark.primary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Poppins',
+                  ),
                 ),
               ),
             ],
@@ -76,15 +101,15 @@ class PlaylistCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: SizedBox(
-        width: 140,
+        width: 150,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(16),
               child: Container(
-                height: 130,
-                width: 140,
+                height: 150,
+                width: 150,
                 color: AppColorsDark.primaryContainer,
                 child: playlist.thumbnail != null
                     ? CachedNetworkImage(
@@ -96,13 +121,14 @@ class PlaylistCard extends StatelessWidget {
                     : _buildPlaceholder(),
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             Text(
               playlist.name,
               style: const TextStyle(
                 color: Colors.white,
-                fontSize: 13,
+                fontSize: 14,
                 fontWeight: FontWeight.w500,
+                fontFamily: 'Poppins',
               ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
@@ -112,7 +138,8 @@ class PlaylistCard extends StatelessWidget {
                 '${playlist.songCount} songs',
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.6),
-                  fontSize: 11,
+                  fontSize: 12,
+                  fontFamily: 'Poppins',
                 ),
               ),
           ],
@@ -149,12 +176,12 @@ class SongListItemWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       leading: ClipRRect(
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(12),
         child: Container(
-          width: 48,
-          height: 48,
+          width: 52,
+          height: 52,
           color: AppColorsDark.primaryContainer,
           child: song.thumbnail != null
               ? CachedNetworkImage(
@@ -174,6 +201,7 @@ class SongListItemWidget extends StatelessWidget {
           color: Colors.white,
           fontSize: 15,
           fontWeight: FontWeight.w500,
+          fontFamily: 'Poppins',
         ),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
@@ -183,6 +211,7 @@ class SongListItemWidget extends StatelessWidget {
         style: TextStyle(
           color: Colors.white.withValues(alpha: 0.6),
           fontSize: 13,
+          fontFamily: 'Poppins',
         ),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
@@ -236,17 +265,33 @@ class LibraryEmptyState extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.library_music,
-            size: 64,
-            color: Colors.white.withValues(alpha: 0.3),
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  AppColorsDark.primary.withValues(alpha: 0.15),
+                  AppColorsDark.primary.withValues(alpha: 0.05),
+                ],
+              ),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.library_music,
+              size: 64,
+              color: AppColorsDark.primary.withValues(alpha: 0.5),
+            ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
           Text(
             l10n.yourLibraryIsEmpty,
-            style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.7),
-              fontSize: 18,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Poppins',
             ),
           ),
           const SizedBox(height: 8),
@@ -255,9 +300,10 @@ class LibraryEmptyState extends StatelessWidget {
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.5),
               fontSize: 14,
+              fontFamily: 'Poppins',
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 32),
           ElevatedButton.icon(
             onPressed: onExplore,
             icon: const Icon(Icons.explore),
@@ -265,6 +311,15 @@ class LibraryEmptyState extends StatelessWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColorsDark.primary,
               foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(28),
+              ),
+              textStyle: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                fontFamily: 'Poppins',
+              ),
             ),
           ),
         ],
@@ -287,20 +342,26 @@ class ProfileAvatar extends StatelessWidget {
   Widget build(BuildContext context) {
     if (avatarUrl != null && avatarUrl!.isNotEmpty) {
       return Container(
-        width: 32,
-        height: 32,
-        decoration: const BoxDecoration(shape: BoxShape.circle),
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.1),
+            width: 1,
+          ),
+        ),
         child: ClipOval(
           child: CachedNetworkImage(
             imageUrl: avatarUrl!,
             fit: BoxFit.cover,
-            placeholder: (_, _) => _buildInitials(32),
-            errorWidget: (_, _, _) => _buildInitials(32),
+            placeholder: (_, _) => _buildInitials(40),
+            errorWidget: (_, _, _) => _buildInitials(40),
           ),
         ),
       );
     }
-    return _buildInitials(32);
+    return _buildInitials(40);
   }
 
   Widget _buildInitials(double size) {
@@ -317,14 +378,26 @@ class ProfileAvatar extends StatelessWidget {
           ],
         ),
         shape: BoxShape.circle,
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.1),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColorsDark.primary.withValues(alpha: 0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Center(
         child: Text(
-          initials,
+          initials.isNotEmpty ? initials : 'U',
           style: TextStyle(
             color: Colors.white,
-            fontSize: size * 0.4,
+            fontSize: size * 0.35,
             fontWeight: FontWeight.bold,
+            fontFamily: 'Poppins',
           ),
         ),
       ),

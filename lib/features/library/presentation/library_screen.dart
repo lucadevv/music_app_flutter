@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
+import 'package:music_app/core/widgets/custom_search_bar.dart';
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/library/presentation/cubit/library_cubit.dart';
 import 'package:music_app/features/library/presentation/widgets/library_widgets.dart';
@@ -36,7 +37,7 @@ class _LibraryView extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0D0D0D),
+      backgroundColor: AppColorsDark.surface,
       body: BlocBuilder<LibraryCubit, LibraryState>(
         builder: (context, state) {
           return RefreshIndicator(
@@ -74,7 +75,7 @@ class _LibraryView extends StatelessWidget {
                         },
                       ),
                     ),
-                  const SliverToBoxAdapter(child: SizedBox(height: 100)),
+                  const SliverToBoxAdapter(child: SizedBox(height: 120)),
                 ],
               ],
             ),
@@ -84,59 +85,89 @@ class _LibraryView extends StatelessWidget {
     );
   }
 
-  SliverAppBar _buildHeader(BuildContext context, AppLocalizations l10n) {
-    return SliverAppBar(
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      pinned: true,
-      leading: BlocBuilder<ProfileCubit, ProfileState>(
-        builder: (context, profileState) {
-          return IconButton(
-            icon: ProfileAvatar(
-              avatarUrl: profileState.avatarUrl,
-              initials: profileState.initials,
-            ),
-            onPressed: () => context.router.push(const MyProfileRoute()),
-          );
-        },
-      ),
-      title: Text(
-        l10n.yourLibrary,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 24,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      actions: [
-        PopupMenuButton<String>(
-          icon: Icon(Icons.add, color: Colors.white.withValues(alpha: 0.8)),
-          color: AppColorsDark.surfaceContainerHigh,
-          onSelected: (value) {
-            if (value == 'create_playlist') {
-              _showCreatePlaylistDialog(context);
-            }
-          },
-          itemBuilder: (context) => [
-            PopupMenuItem<String>(
-              value: 'create_playlist',
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.playlist_add,
-                    color: Colors.white.withValues(alpha: 0.8),
+  SliverToBoxAdapter _buildHeader(BuildContext context, AppLocalizations l10n) {
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  l10n.yourLibrary,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Poppins',
                   ),
-                  const SizedBox(width: 12),
-                  Text(
-                    l10n.createPlaylist,
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                ],
-              ),
+                ),
+                Row(
+                  children: [
+                    BlocBuilder<ProfileCubit, ProfileState>(
+                      builder: (context, profileState) {
+                        return GestureDetector(
+                          onTap: () => context.router.push(const MyProfileRoute()),
+                          child: ProfileAvatar(
+                            avatarUrl: profileState.avatarUrl,
+                            initials: profileState.initials.isNotEmpty 
+                                ? profileState.initials 
+                                : 'U',
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(width: 8),
+                    PopupMenuButton<String>(
+                      icon: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1E1E26),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          Icons.add,
+                          color: Colors.white.withValues(alpha: 0.8),
+                          size: 20,
+                        ),
+                      ),
+                      color: AppColorsDark.surfaceContainerHigh,
+                      onSelected: (value) {
+                        if (value == 'create_playlist') {
+                          _showCreatePlaylistDialog(context);
+                        }
+                      },
+                      itemBuilder: (context) => [
+                        PopupMenuItem<String>(
+                          value: 'create_playlist',
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.playlist_add,
+                                color: Colors.white.withValues(alpha: 0.8),
+                              ),
+                              const SizedBox(width: 12),
+                              Text(
+                                l10n.createPlaylist,
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
             ),
+            const SizedBox(height: 24),
+            const CustomSearchBar(),
           ],
         ),
-      ],
+      ),
     );
   }
 
@@ -173,34 +204,58 @@ class _LibraryView extends StatelessWidget {
   ) {
     return SliverToBoxAdapter(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-        child: Wrap(
-          spacing: 8,
-          runSpacing: 8,
+        padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            QuickAccessChip(
-              icon: Icons.favorite,
-              label: l10n.likedSongs,
-              count: state.totalSongs,
-              onTap: () => context.router.push(const LikedSongsRoute()),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Quick Access',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+                Icon(
+                  Icons.chevron_right,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ],
             ),
-            QuickAccessChip(
-              icon: Icons.history,
-              label: l10n.recentlyPlayed,
-              count: 0,
-              onTap: () => context.router.push(const RecentlyPlayedRoute()),
-            ),
-            QuickAccessChip(
-              icon: Icons.playlist_play,
-              label: l10n.myPlaylists,
-              count: state.totalPlaylists,
-              onTap: () => context.router.push(const UserPlaylistsRoute()),
-            ),
-            QuickAccessChip(
-              icon: Icons.library_music,
-              label: l10n.genres,
-              count: state.totalGenres,
-              onTap: () {},
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                QuickAccessChip(
+                  icon: Icons.favorite,
+                  label: l10n.likedSongs,
+                  count: state.totalSongs,
+                  onTap: () => context.router.push(const LikedSongsRoute()),
+                ),
+                QuickAccessChip(
+                  icon: Icons.history,
+                  label: l10n.recentlyPlayed,
+                  count: 0,
+                  onTap: () => context.router.push(const RecentlyPlayedRoute()),
+                ),
+                QuickAccessChip(
+                  icon: Icons.playlist_play,
+                  label: l10n.myPlaylists,
+                  count: state.totalPlaylists,
+                  onTap: () => context.router.push(const UserPlaylistsRoute()),
+                ),
+                QuickAccessChip(
+                  icon: Icons.library_music,
+                  label: l10n.genres,
+                  count: state.totalGenres,
+                  onTap: () {},
+                ),
+              ],
             ),
           ],
         ),
@@ -218,7 +273,7 @@ class _LibraryView extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
+            padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -226,37 +281,31 @@ class _LibraryView extends StatelessWidget {
                   l10n.playlists,
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
+                    fontFamily: 'Poppins',
                   ),
                 ),
                 if (state.totalPlaylists > 5)
-                  TextButton(
-                    onPressed: () =>
-                        context.router.push(const UserPlaylistsRoute()),
-                    child: Text(
-                      l10n.seeAll,
-                      style: const TextStyle(
-                        color: AppColorsDark.primary,
-                        fontSize: 14,
-                      ),
-                    ),
+                  Icon(
+                    Icons.chevron_right,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
               ],
             ),
           ),
           SizedBox(
-            height: 180,
+            height: 200,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               itemCount: state.allPlaylists.length > 10
                   ? 10
                   : state.allPlaylists.length,
               itemBuilder: (context, index) {
                 final playlist = state.allPlaylists[index];
                 return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  padding: const EdgeInsets.only(right: 12),
                   child: PlaylistCard(
                     playlist: playlist,
                     onTap: () {
@@ -290,7 +339,7 @@ class _LibraryView extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
+            padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -298,21 +347,15 @@ class _LibraryView extends StatelessWidget {
                   l10n.likedSongs,
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
+                    fontFamily: 'Poppins',
                   ),
                 ),
                 if (state.totalSongs > 5)
-                  TextButton(
-                    onPressed: () =>
-                        context.router.push(const LikedSongsRoute()),
-                    child: Text(
-                      l10n.seeAll,
-                      style: const TextStyle(
-                        color: AppColorsDark.primary,
-                        fontSize: 14,
-                      ),
-                    ),
+                  Icon(
+                    Icons.chevron_right,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
               ],
             ),
@@ -320,7 +363,7 @@ class _LibraryView extends StatelessWidget {
           ListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             itemCount: state.favoriteSongs.length > 10
                 ? 10
                 : state.favoriteSongs.length,
@@ -371,9 +414,12 @@ class _LibraryView extends StatelessWidget {
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: AppColorsDark.surfaceContainerHigh,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
         title: Text(
           l10n.createPlaylist,
-          style: const TextStyle(color: Colors.white),
+          style: const TextStyle(color: Colors.white, fontFamily: 'Poppins'),
         ),
         content: TextField(
           controller: nameController,
@@ -415,6 +461,10 @@ class _LibraryView extends StatelessWidget {
           SnackBar(
             content: Text('${l10n.createPlaylist}: $result'),
             backgroundColor: AppColorsDark.primary,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
         );
       }
