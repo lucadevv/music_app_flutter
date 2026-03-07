@@ -1,4 +1,6 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/widgets/category_chip.dart';
 import 'package:music_app/features/home/domain/entities/mood_genre.dart';
 
@@ -21,15 +23,14 @@ class _CategoriesRowWidgetState extends State<CategoriesRowWidget> {
 
   @override
   Widget build(BuildContext context) {
-    // Collect specific names to match design or use actual data.
-    // The design shows 'All', 'Relax', 'Sad', 'Party', 'Romance'.
-    // We will inject 'All' as the first item manually.
-    final allCategories = ['All', ...widget.moods.map((e) => e.title), ...widget.genres.map((e) => e.title)];
+    // Combine moods and genres into a single list
+    final allMoodGenres = [...widget.moods, ...widget.genres];
     
-    // In case there are no items, we fallback to hardcoded to match design visual
-    final displayCategories = allCategories.length > 1 
-        ? allCategories 
-        : ['All', 'Relax', 'Sad', 'Party', 'Romance', 'Focus'];
+    // Create display categories with "All" as first item
+    final displayCategories = <String>['All', ...allMoodGenres.map((e) => e.title)];
+    
+    // Fallback if no data
+    final hasData = allMoodGenres.isNotEmpty;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -70,6 +71,24 @@ class _CategoriesRowWidgetState extends State<CategoriesRowWidget> {
                   setState(() {
                     _selectedIndex = index;
                   });
+                  
+                  // Navigate based on selection
+                  if (index == 0) {
+                    // "All" - navigate to a general view or do nothing
+                    // For now, we'll navigate to the first available mood/genre
+                    if (hasData && allMoodGenres.first.params.isNotEmpty) {
+                      context.router.push(MoodGenreRoute(params: allMoodGenres.first.params));
+                    }
+                  } else if (hasData) {
+                    // Navigate to the selected mood/genre
+                    final selectedIndex = index - 1; // -1 because "All" is at index 0
+                    if (selectedIndex < allMoodGenres.length) {
+                      final selectedMoodGenre = allMoodGenres[selectedIndex];
+                      if (selectedMoodGenre.params.isNotEmpty) {
+                        context.router.push(MoodGenreRoute(params: selectedMoodGenre.params));
+                      }
+                    }
+                  }
                 },
               );
             },
