@@ -67,7 +67,6 @@ import 'package:music_app/features/playlist/domain/use_cases/get_playlist_use_ca
 import 'package:music_app/features/profile/data/datasources/profile_remote_data_source.dart';
 import 'package:music_app/features/profile/data/repositories/profile_repository_impl.dart';
 import 'package:music_app/features/profile/domain/repositories/profile_repository.dart';
-import 'package:music_app/features/profile/domain/use_cases/get_library_stats_use_case.dart';
 import 'package:music_app/features/profile/domain/use_cases/get_profile_use_case.dart';
 import 'package:music_app/features/profile/domain/use_cases/get_settings_use_case.dart';
 import 'package:music_app/features/profile/domain/use_cases/logout_use_case.dart';
@@ -79,7 +78,9 @@ import 'package:music_app/features/search/data/repositories/search_repository_im
 import 'package:music_app/features/search/domain/repositories/search_repository.dart';
 import 'package:music_app/features/search/domain/usecases/get_categories_usecase.dart';
 import 'package:music_app/features/search/domain/use_cases/get_recent_searches_use_case.dart';
+import 'package:music_app/features/recently_played/domain/usecases/record_listen_usecase.dart';
 import 'package:music_app/features/search/domain/use_cases/search_use_case.dart';
+import 'package:music_app/features/search/domain/use_cases/update_selected_song_use_case.dart';
 import 'package:music_app/features/search/presentation/cubit/categories_cubit.dart';
 import 'package:music_app/features/search/presentation/cubit/recent_searches_cubit.dart';
 import 'package:music_app/features/search/presentation/cubit/search_cubit.dart';
@@ -223,6 +224,9 @@ class AppInjection {
     _registerHomeFeature();
     _registerMoodGenreFeature();
     _registerPlaylistFeature();
+    // CRITICAL: OfflineFeature must be registered BEFORE DownloadsFeature
+    // because DownloadsLocalDataSource depends on OfflineService
+    _registerOfflineFeature();
     _registerDownloadsFeature();
     _registerLibraryFeature();
     _registerArtistFeature();
@@ -231,7 +235,6 @@ class AppInjection {
     _registerRecentlyPlayedFeature();
     // CRITICAL: This must be awaited - ProfileCubit depends on AuthManager being ready
     await _registerProfileFeature();
-    _registerOfflineFeature();
   }
 
   void _registerAuthFeature() {
@@ -347,6 +350,12 @@ class AppInjection {
     if (!_getIt.isRegistered<GetCategoriesUseCase>()) {
       _getIt.registerLazySingleton<GetCategoriesUseCase>(
         () => GetCategoriesUseCase(_getIt<SearchRemoteDataSource>()),
+      );
+    }
+
+    if (!_getIt.isRegistered<UpdateSelectedSongUseCase>()) {
+      _getIt.registerLazySingleton<UpdateSelectedSongUseCase>(
+        () => UpdateSelectedSongUseCase(_getIt<SearchRepository>()),
       );
     }
 
@@ -498,7 +507,7 @@ class AppInjection {
     if (!_getIt.isRegistered<DownloadsLocalDataSource>()) {
       _getIt.registerLazySingletonAsync<DownloadsLocalDataSource>(() async {
         final dataSource = DownloadsLocalDataSourceImpl(
-          _getIt<OfflineService>(),
+          await _getIt.getAsync<OfflineService>(),
         );
         await dataSource.init();
         return dataSource;
@@ -637,6 +646,13 @@ class AppInjection {
         () => GetRecentlyPlayedUseCase(_getIt<RecentlyPlayedRepository>()),
       );
     }
+
+    // Record Listen Use Case
+    if (!_getIt.isRegistered<RecordListenUseCase>()) {
+      _getIt.registerLazySingleton<RecordListenUseCase>(
+        () => RecordListenUseCase(_getIt<RecentlyPlayedRepository>()),
+      );
+    }
   }
 
   /// Register ProfileFeature - MUST wait for AuthManager to be ready
@@ -645,7 +661,7 @@ class AppInjection {
     // Data layer
     if (!_getIt.isRegistered<ProfileRemoteDataSource>()) {
       _getIt.registerLazySingleton<ProfileRemoteDataSource>(
-        () => ProfileRemoteDataSource(_getIt<ApiServices>()),
+        () => ProfileRemoteDataSource(_getIt<ApiServices>(), _getIt<AuthManager>()),
       );
     }
 
@@ -680,12 +696,6 @@ class AppInjection {
       );
     }
 
-    if (!_getIt.isRegistered<GetLibraryStatsUseCase>()) {
-      _getIt.registerFactory<GetLibraryStatsUseCase>(
-        () => GetLibraryStatsUseCase(_getIt<ProfileRepository>()),
-      );
-    }
-
     if (!_getIt.isRegistered<LogoutUseCase>()) {
       _getIt.registerFactory<LogoutUseCase>(
         () => LogoutUseCase(_getIt<ProfileRepository>()),
@@ -693,11 +703,12 @@ class AppInjection {
     }
 
     // Singleton para compartir estado entre pantallas
-    // CRITICAL: Must wait for AuthManager to be ready before creating ProfileCubit
+    // CRITICAL: Must wait for AuthManager and OfflineService to be ready before creating ProfileCubit
     if (!_getIt.isRegistered<ProfileCubit>()) {
       try {
         // Use getAsync to wait for the lazy singleton async to be instantiated
         final authMgr = await _getIt.getAsync<AuthManager>();
+        final offlineService = await _getIt.getAsync<OfflineService>();
 
         _getIt.registerSingleton<ProfileCubit>(
           ProfileCubit(
@@ -705,9 +716,10 @@ class AppInjection {
             updateProfileUseCase: _getIt<UpdateProfileUseCase>(),
             getSettingsUseCase: _getIt<GetSettingsUseCase>(),
             updateSettingsUseCase: _getIt<UpdateSettingsUseCase>(),
-            getLibraryStatsUseCase: _getIt<GetLibraryStatsUseCase>(),
             logoutUseCase: _getIt<LogoutUseCase>(),
             authManager: authMgr,
+            offlineService: offlineService,
+            favoriteCubit: _getIt<FavoriteCubit>(),
           ),
         );
       } catch (e) {
