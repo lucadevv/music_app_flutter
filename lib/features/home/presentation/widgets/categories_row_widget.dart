@@ -10,9 +10,9 @@ class CategoriesRowWidget extends StatefulWidget {
   final List<MoodGenre> genres;
 
   const CategoriesRowWidget({
-    super.key,
     required this.moods,
     required this.genres,
+    super.key,
   });
 
   @override
