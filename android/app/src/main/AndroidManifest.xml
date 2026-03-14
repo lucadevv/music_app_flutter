@@ -22,7 +22,7 @@
         <!-- Google Sign In -->
         <meta-data
             android:name="com.google.android.gms.client_id"
-            android:value="188268615112-10f5gk4607bkrqsfcmouubaisdg5j318.apps.googleusercontent.com" />
+            android:value="188268615112-sna6c7pbq7n3d3pdc5qp2ippb1nron7o.apps.googleusercontent.com" />
         
         <!-- MainActivity - audio_service maneja la configuración automáticamente -->
         <activity
