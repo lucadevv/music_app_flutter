@@ -41,15 +41,13 @@ class HomeContentItem extends Equatable {
 
   const HomeContentItem({
     required this.title,
-    this.videoId,
+    required this.thumbnails, required this.artists, this.videoId,
     this.playlistId,
     this.browseId,
     this.audioPlaylistId,
     this.type,
     this.videoType,
-    required this.thumbnails,
     this.isExplicit = false,
-    required this.artists,
     this.views = '0',
     this.album,
     this.description,
@@ -84,6 +82,18 @@ class HomeContentItem extends Equatable {
 
   /// Verifica si es un álbum
   bool get isAlbum => browseId != null && browseId!.isNotEmpty;
+
+  /// Método de Dominio: Retorna true si este item hace match con un string de búsqueda.
+  /// Evita que la UI tenga que implementar algoritmos de filtrado local.
+  bool matchesQuery(String query) {
+    if (query.trim().isEmpty) return true;
+    final lowerQuery = query.toLowerCase();
+    
+    final matchesTitle = title.toLowerCase().contains(lowerQuery);
+    final matchesArtist = artists.any((a) => a.name.toLowerCase().contains(lowerQuery));
+
+    return matchesTitle || matchesArtist;
+  }
 
   /// Copia con nuevos valores (PATTERN: Builder / CopyWith)
   HomeContentItem copyWith({

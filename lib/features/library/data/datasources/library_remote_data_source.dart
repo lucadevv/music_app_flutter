@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_dynamic_calls
 import 'package:dio/dio.dart';
 import 'package:music_app/core/services/network/api_services.dart';
 
@@ -79,11 +80,11 @@ class LibraryRemoteDataSource {
         '/library/songs',
         data: {
           'videoId': videoId,
-          if (title != null) 'title': title,
-          if (artist != null) 'artist': artist,
-          if (thumbnail != null) 'thumbnail': thumbnail,
-          if (duration != null) 'duration': duration,
-          if (streamUrl != null) 'streamUrl': streamUrl,
+          'title': ?title,
+          'artist': ?artist,
+          'thumbnail': ?thumbnail,
+          'duration': ?duration,
+          'streamUrl': ?streamUrl,
         },
       );
     } catch (e) {

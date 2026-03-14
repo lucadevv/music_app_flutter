@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:music_app/core/managers/auth/auth_manager.dart';
 import 'package:music_app/core/services/network/api_services.dart';
+import 'package:music_app/features/profile/data/models/library_stats_model.dart';
 import 'package:music_app/features/profile/data/models/user_profile_model.dart';
 import 'package:music_app/features/profile/data/models/user_settings_model.dart';
-import 'package:music_app/features/profile/data/models/library_stats_model.dart';
 
 /// Remote data source for profile feature.
 /// Handles all API calls to the backend.
@@ -34,9 +34,9 @@ class ProfileRemoteDataSource {
       final response = await _api.put(
         '/auth/me',
         data: {
-          if (name != null) 'name': name,
-          if (email != null) 'email': email,
-          if (avatar != null) 'avatar': avatar,
+          'name': ?name,
+          'email': ?email,
+          'avatar': ?avatar,
         },
       );
       final data = response is Response ? response.data : response;

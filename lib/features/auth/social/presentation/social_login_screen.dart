@@ -1,4 +1,4 @@
-import 'dart:ui';
+// ignore_for_file: unused_element
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,9 +8,12 @@ import 'package:music_app/core/widgets/language_selector.dart';
 import 'package:music_app/features/auth/login/presentation/cubit/login_cubit.dart';
 import 'package:music_app/features/auth/login/presentation/widgets/login_listeners.dart';
 import 'package:music_app/features/auth/presentation/cubit/orquestador_auth_cubit.dart';
+import 'package:music_app/features/auth/presentation/widgets/auth_blur_overlay.dart';
+import 'package:music_app/features/auth/presentation/widgets/auth_divider.dart';
+import 'package:music_app/features/auth/presentation/widgets/auth_video_background.dart';
+import 'package:music_app/features/auth/presentation/widgets/social_auth_buttons.dart';
 import 'package:music_app/l10n/app_localizations.dart';
 import 'package:music_app/main.dart';
-import 'package:video_player/video_player.dart';
 
 @RoutePage()
 class SocialLoginScreen extends StatefulWidget implements AutoRouteWrapper {
@@ -33,93 +36,16 @@ class SocialLoginScreen extends StatefulWidget implements AutoRouteWrapper {
   State<SocialLoginScreen> createState() => _SocialLoginScreenState();
 }
 
-class _SocialLoginScreenState extends State<SocialLoginScreen>
-    with AutoRouteAware, WidgetsBindingObserver {
-  VideoPlayerController? _videoController;
-  bool _videoInitialized = false;
-  final bool _enableVideo = true;
-  AutoRouteObserver? _observer;
-
+class _SocialLoginScreenState extends State<SocialLoginScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
-
-    final observers = RouterScope.of(context).navigatorObservers;
-    _observer = observers.whereType<AutoRouteObserver>().firstOrNull;
-    _observer?.subscribe(this, context.routeData);
-    // Delay video init to avoid platform connection issues
-    Future.delayed(const Duration(milliseconds: 500), () {
-      if (mounted) _initializeVideo();
-    });
     // Reset auth state on init
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         context.read<OrquestadorAuthCubit>().resetLoginState();
       }
     });
-  }
-
-  void _onRouteChange() {
-    // Check if this screen is currently visible after navigation
-    if (mounted) {
-      final currentRoute = AutoRouter.of(context).current.name;
-      // If we're on this screen and video is initialized, play
-      if (currentRoute == 'SocialLoginRoute' && _videoInitialized) {
-        _videoController?.play();
-      }
-    }
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    // Pause when app goes to background
-    if (state == AppLifecycleState.paused) {
-      _videoController?.pause();
-    }
-    // Resume when app comes back to foreground
-    else if (state == AppLifecycleState.resumed) {
-      _videoController?.play();
-    }
-  }
-
-  Future<void> _initializeVideo() async {
-    if (!mounted) return;
-    try {
-      _videoController = VideoPlayerController.asset(
-        'assets/video/video_login.mp4',
-      );
-      await _videoController!.initialize();
-      if (!mounted) return;
-      await _videoController!.setLooping(true);
-      await _videoController!.setVolume(0);
-      await _videoController!.play();
-      _videoInitialized = true;
-      if (mounted) setState(() {});
-    } catch (e) {
-      debugPrint('Video init error: $e');
-    }
-  }
-
-  @override
-  void deactivate() {
-    // Pause video when leaving this screen
-    _videoController?.pause();
-    super.deactivate();
-  }
-
-  @override
-  void didPopNext() {
-    _videoController?.play();
-    super.didPopNext();
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    _observer?.unsubscribe(this);
-    _videoController?.dispose();
-    super.dispose();
   }
 
   @override
@@ -132,29 +58,8 @@ class _SocialLoginScreenState extends State<SocialLoginScreen>
         body: Stack(
           fit: StackFit.expand,
           children: [
-            // Video Background (only if initialized)
-            if (_enableVideo &&
-                _videoInitialized &&
-                _videoController != null &&
-                _videoController!.value.isInitialized)
-              SizedBox.expand(
-                child: FittedBox(
-                  fit: BoxFit.cover,
-                  child: SizedBox(
-                    width: _videoController!.value.size.width,
-                    height: _videoController!.value.size.height,
-                    child: VideoPlayer(_videoController!),
-                  ),
-                ),
-              ),
-
-            // Blur overlay (always show)
-            BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-              child: Container(
-                color: AppColorsDark.surface.withValues(alpha: 0.7),
-              ),
-            ),
+            const AuthVideoBackground(videoPath: 'assets/video/video_login.mp4'),
+            const AuthBlurOverlay(),
 
             // Content
             SafeArea(
@@ -211,71 +116,11 @@ class _SocialLoginScreenState extends State<SocialLoginScreen>
                         const SizedBox(height: 48),
 
                         // Botones sociales
-                        BlocBuilder<LoginCubit, LoginState>(
-                          builder: (context, state) {
-                            final isLoading = state.isLoadingFor(
-                              OAuthProviderType.google,
-                            );
-                            return _SocialButton(
-                              icon: Icons.g_mobiledata,
-                              label: l10n.continueWithGoogle,
-                              onPressed: isLoading
-                                  ? null
-                                  : () {
-                                      context
-                                          .read<LoginCubit>()
-                                          .signInWithGoogle();
-                                    },
-                            );
-                          },
-                        ),
-                        const SizedBox(height: 16),
-                        BlocBuilder<LoginCubit, LoginState>(
-                          builder: (context, state) {
-                            final isLoading = state.isLoadingFor(
-                              OAuthProviderType.apple,
-                            );
-                            return _SocialButton(
-                              icon: Icons.apple,
-                              label: l10n.continueWithApple,
-                              onPressed: isLoading
-                                  ? null
-                                  : () {
-                                      context
-                                          .read<LoginCubit>()
-                                          .signInWithApple();
-                                    },
-                            );
-                          },
-                        ),
+                        const SocialAuthButtons(isVertical: true),
                         const SizedBox(height: 32),
 
                         // Divider
-                        Row(
-                          children: [
-                            const Expanded(
-                              child: Divider(
-                                color: AppColorsDark.outlineVariant,
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
-                              child: Text(
-                                l10n.or,
-                                style: const TextStyle(
-                                  color: AppColorsDark.onSurfaceVariant,
-                                ),
-                              ),
-                            ),
-                            const Expanded(
-                              child: Divider(
-                                color: AppColorsDark.outlineVariant,
-                              ),
-                            ),
-                          ],
-                        ),
+                        const AuthDivider(),
                         const SizedBox(height: 32),
 
                         // Botón iniciar sesión con email
@@ -345,58 +190,6 @@ class _SocialLoginScreenState extends State<SocialLoginScreen>
           ],
         ),
       ),
-    );
-  }
-}
-
-class _SocialButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback? onPressed;
-
-  const _SocialButton({
-    required this.icon,
-    required this.label,
-    this.onPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isLoading = onPressed == null;
-    return FilledButton(
-      onPressed: onPressed,
-      style: FilledButton.styleFrom(
-        backgroundColor: AppColorsDark.surfaceContainerHigh,
-        foregroundColor: AppColorsDark.onSurface,
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        minimumSize: const Size(double.infinity, 56),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      ),
-      child: isLoading
-          ? const SizedBox(
-              height: 20,
-              width: 20,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  AppColorsDark.onSurface,
-                ),
-              ),
-            )
-          : Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(icon, size: 24),
-                const SizedBox(width: 12),
-                Text(
-                  label,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
     );
   }
 }

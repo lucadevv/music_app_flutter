@@ -57,6 +57,17 @@ class SeekEvent extends PlayerBlocEvent {
 
 // ========== Eventos de playlist ==========
 
+/// Solicita reproducir una pista, delegando la decisión de navegación al BLoC.
+class PlayRequestEvent extends PlayerBlocEvent {
+  final NowPlayingData track;
+  final bool playAsSingle;
+
+  const PlayRequestEvent(this.track, {this.playAsSingle = false});
+
+  @override
+  List<Object?> get props => [track, playAsSingle];
+}
+
 /// Cargar una sola canción
 class LoadTrackEvent extends PlayerBlocEvent {
   final NowPlayingData track;

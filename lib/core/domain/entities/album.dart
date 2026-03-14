@@ -176,9 +176,7 @@ class AlbumSong extends Equatable {
   const AlbumSong({
     required this.videoId,
     required this.title,
-    this.thumbnail,
-    required this.durationSeconds,
-    required this.trackNumber,
+    required this.durationSeconds, required this.trackNumber, this.thumbnail,
     this.artistName,
     this.artists = const [],
   });

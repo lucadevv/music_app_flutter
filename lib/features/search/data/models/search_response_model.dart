@@ -6,11 +6,19 @@ class SearchResponseModel extends SearchResponse {
   const SearchResponseModel({required super.results, required super.query});
 
   factory SearchResponseModel.fromJson(Map<String, dynamic> json) {
+    final resultsList = json['results'] as List<dynamic>? ?? [];
+    
+    final parsedResults = resultsList
+        .whereType<Map<String, dynamic>>()
+        .map((result) {
+          try { return SongModel.fromJson(result); } catch (_) { return null; }
+        })
+        .whereType<SongModel>()
+        .toList();
+
     return SearchResponseModel(
-      results: (json['results'] as List<dynamic>)
-          .map((result) => SongModel.fromJson(result as Map<String, dynamic>))
-          .toList(),
-      query: json['query'] as String,
+      results: parsedResults,
+      query: json['query'] as String? ?? '',
     );
   }
 

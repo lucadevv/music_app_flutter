@@ -6,12 +6,12 @@ import 'package:music_app/features/home/domain/entities/home_content_item.dart';
 import 'package:music_app/features/home/presentation/cubit/home_cubit.dart'
     show HomeCubit, HomeStatus;
 import 'package:music_app/features/home/presentation/cubit/orquestador_home_cubit.dart';
-import 'package:music_app/features/home/presentation/widgets/home_error_widget.dart';
-import 'package:music_app/features/home/presentation/widgets/home_header_widget.dart';
-import 'package:music_app/features/home/presentation/widgets/home_listeners.dart';
-import 'package:music_app/features/home/presentation/widgets/home_loading_widget.dart';
-import 'package:music_app/features/home/presentation/widgets/home_section_widget.dart';
-import 'package:music_app/features/home/presentation/widgets/categories_row_widget.dart';
+import 'package:music_app/features/home/presentation/widgets/atoms/home_error_widget.dart';
+import 'package:music_app/features/home/presentation/widgets/molecules/home_header_widget.dart';
+import 'package:music_app/features/home/presentation/widgets/organisms/categories_row_widget.dart';
+import 'package:music_app/features/home/presentation/widgets/organisms/home_listeners.dart';
+import 'package:music_app/features/home/presentation/widgets/organisms/home_loading_widget.dart';
+import 'package:music_app/features/home/presentation/widgets/organisms/home_section_widget.dart';
 import 'package:music_app/features/profile/presentation/cubit/profile_cubit.dart';
 
 @RoutePage()
@@ -24,7 +24,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _searchController = TextEditingController();
-  String _searchQuery = '';
 
   @override
   void initState() {
@@ -48,9 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _onSearchChanged(String value) {
-    setState(() {
-      _searchQuery = value.toLowerCase();
-    });
+    context.read<OrquestadorHomeCubit>().filterHome(value);
   }
 
   @override
@@ -61,6 +58,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: BlocBuilder<OrquestadorHomeCubit, OrquestadorHomeState>(
             builder: (context, orquestadorState) {
               final state = orquestadorState.homeState;
+              final filterQueryTextEmpty = _searchController.text.isEmpty;
 
               // Mostrar shimmer cuando está cargando o en estado inicial
               if (state.status == HomeStatus.loading ||
@@ -77,22 +75,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 return const SizedBox.shrink();
               }
 
-              // Filtrar secciones si hay búsqueda
-              final filteredSections = _searchQuery.isEmpty
-                  ? homeResponse.sections
-                  : homeResponse.sections.map((section) {
-                      // Filtrar los items dentro de cada sección
-                      final filteredItems = section.contents.where((item) {
-                        final title = item.title.toLowerCase();
-                        // Buscar en artistas
-                        final artists = item.artists.map((a) => a.name.toLowerCase()).join(' ');
-                        return title.contains(_searchQuery) || 
-                               artists.contains(_searchQuery);
-                      }).toList();
-                      
-                      // Retornar sección con items filtrados
-                      return section.copyWith(contents: filteredItems);
-                    }).where((section) => section.contents.isNotEmpty).toList();
+              // Obtenemos las secciones ya filtradas por el dominio (HomeState)
+              final filteredSections = state.filteredSections;
 
               return CustomScrollView(
                 slivers: [
@@ -105,7 +89,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
 
                   // Categories (Moods & Genres) - solo mostrar si no hay búsqueda
-                  if (_searchQuery.isEmpty)
+                  if (filterQueryTextEmpty)
                     SliverToBoxAdapter(
                       child: CategoriesRowWidget(
                         moods: homeResponse.moods,
@@ -114,7 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
 
                   // Mostrar mensaje si no hay resultados
-                  if (_searchQuery.isNotEmpty && filteredSections.isEmpty)
+                  if (!filterQueryTextEmpty && filteredSections.isEmpty)
                     SliverFillRemaining(
                       child: Center(
                         child: Column(
@@ -127,7 +111,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              'No results for "$_searchQuery"',
+                              'No results for "${_searchController.text}"',
                               style: TextStyle(
                                 color: Colors.white.withValues(alpha: 0.7),
                                 fontSize: 16,

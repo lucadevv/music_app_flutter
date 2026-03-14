@@ -4,16 +4,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
-import 'package:music_app/features/player/presentation/widgets/lyrics_widget.dart';
-import 'package:music_app/features/player/presentation/widgets/player_artwork_widget.dart';
-import 'package:music_app/features/player/presentation/widgets/player_backdrop_widget.dart';
-import 'package:music_app/features/player/presentation/widgets/player_controls_widget.dart';
-import 'package:music_app/features/player/presentation/widgets/player_error_widget.dart';
-import 'package:music_app/features/player/presentation/widgets/player_header_widget.dart';
-import 'package:music_app/features/player/presentation/widgets/player_info_widget.dart';
-import 'package:music_app/features/player/presentation/widgets/player_progress_bar_widget.dart';
-import 'package:music_app/features/player/presentation/widgets/player_shimmer_widgets.dart';
-import 'package:music_app/features/player/presentation/widgets/player_similar_songs_widget.dart';
+import 'package:music_app/features/player/presentation/widgets/atoms/player_backdrop_widget.dart';
+import 'package:music_app/features/player/presentation/widgets/atoms/player_error_widget.dart';
+import 'package:music_app/features/player/presentation/widgets/molecules/player_artwork_widget.dart';
+import 'package:music_app/features/player/presentation/widgets/molecules/player_controls_widget.dart';
+import 'package:music_app/features/player/presentation/widgets/molecules/player_header_widget.dart';
+import 'package:music_app/features/player/presentation/widgets/molecules/player_info_widget.dart';
+import 'package:music_app/features/player/presentation/widgets/molecules/player_progress_bar_widget.dart';
+import 'package:music_app/features/player/presentation/widgets/organisms/lyrics_widget.dart';
+import 'package:music_app/features/player/presentation/widgets/organisms/player_shimmer_widgets.dart';
+import 'package:music_app/features/player/presentation/widgets/organisms/player_similar_songs_widget.dart';
 
 @RoutePage()
 class PlayerScreen extends StatefulWidget {
@@ -31,43 +31,10 @@ class PlayerScreen extends StatefulWidget {
 }
 
 class _PlayerScreenState extends State<PlayerScreen> {
-  bool _hasProcessedNavigation = false;
+  bool _initialPlayRequested = false;
 
   // Getter para acceder a nowPlayingData desde widget
   NowPlayingData get _nowPlayingData => widget.nowPlayingData;
-
-  void _handleNavigation(BuildContext context, PlayerBlocState state) {
-    final playerBloc = context.read<PlayerBlocBloc>();
-    final currentVideoId = state.currentTrack?.videoId;
-    final targetVideoId = _nowPlayingData.videoId;
-
-    // Si ya está reproduciendo esta canción, no hacer nada
-    if (currentVideoId == targetVideoId) {
-      return;
-    }
-
-    // Si playAsSingle es true, siempre limpiar la cola y reproducir solo esta canción
-    if (widget.playAsSingle) {
-      playerBloc.add(LoadTrackEvent(_nowPlayingData, sourceId: null));
-      return;
-    }
-
-    // Verificar si la canción está en la playlist actual
-    if (state.playlist.isNotEmpty) {
-      final trackIndex = state.playlist.indexWhere(
-        (t) => t.videoId == targetVideoId,
-      );
-
-      if (trackIndex >= 0) {
-        // Está en la playlist - cambiar al index
-        playerBloc.add(PlayTrackAtIndexEvent(trackIndex));
-        return;
-      }
-    }
-
-    // NO está en la playlist - reproducir como canción individual (limpia la cola)
-    playerBloc.add(LoadTrackEvent(_nowPlayingData, sourceId: null));
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,11 +45,16 @@ class _PlayerScreenState extends State<PlayerScreen> {
         left: false,
         child: BlocBuilder<PlayerBlocBloc, PlayerBlocState>(
           builder: (context, state) {
-            // Procesar navegación solo una vez cuando el player está listo
-            if (!_hasProcessedNavigation && state.connectionState == AudioConnectionState.connected) {
-              _hasProcessedNavigation = true;
+            // Lanzar la reproducción la primera vez que entramos
+            if (!_initialPlayRequested && state.connectionState == AudioConnectionState.connected) {
+              _initialPlayRequested = true;
               WidgetsBinding.instance.addPostFrameCallback((_) {
-                _handleNavigation(context, state);
+                context.read<PlayerBlocBloc>().add(
+                  PlayRequestEvent(
+                    _nowPlayingData,
+                    playAsSingle: widget.playAsSingle,
+                  ),
+                );
               });
             }
             

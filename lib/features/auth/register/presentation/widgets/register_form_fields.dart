@@ -74,7 +74,7 @@ class RegisterFormFields extends StatelessWidget {
               hintText: 'Pérez',
               prefixIcon: Icons.person_outline,
               errorText: formNotifier.lastNameError,
-              onChanged: (value) => formNotifier.validateLastName(value),
+              onChanged: formNotifier.validateLastName,
             );
           },
         ),
@@ -99,7 +99,7 @@ class RegisterFormFields extends StatelessWidget {
                   onSuffixIconPressed: () {
                     obscurePassword.value = !obscurePassword.value;
                   },
-                  onChanged: (value) => formNotifier.validatePassword(value),
+                  onChanged: formNotifier.validatePassword,
                 );
               },
             );

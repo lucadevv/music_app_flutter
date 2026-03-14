@@ -1,9 +1,11 @@
+// ignore_for_file: unnecessary_underscores
 import 'package:auto_route/auto_route.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
+import 'package:music_app/core/widgets/shimmer_widgets.dart';
 import 'package:music_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:music_app/l10n/app_localizations.dart';
 
@@ -46,16 +48,14 @@ class _ProfileView extends StatelessWidget {
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
           onPressed: () => context.router.pop(),
         ),
       ),
       body: BlocBuilder<ProfileCubit, ProfileState>(
         builder: (context, state) {
           if (state.isLoading) {
-            return const Center(
-              child: CircularProgressIndicator(color: AppColorsDark.primary),
-            );
+            return const _ProfileLoadingView();
           }
 
           return ListView(
@@ -229,6 +229,74 @@ class _SettingsItem extends StatelessWidget {
         color: Colors.white.withValues(alpha: 0.6),
       ),
       onTap: onTap,
+    );
+  }
+}
+
+class _ProfileLoadingView extends StatelessWidget {
+  const _ProfileLoadingView();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      children: const [
+        // Fake Profile Header
+        Padding(
+          padding: EdgeInsets.all(24.0),
+          child: Row(
+            children: [
+              ShimmerContainer(
+                width: 60,
+                height: 60,
+                borderRadius: 30,
+              ),
+              SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextShimmer(width: 150, height: 24),
+                    SizedBox(height: 8),
+                    TextShimmer(width: 200, height: 14),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.chevron_right,
+                color: Colors.white54,
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 24),
+          child: Divider(color: Colors.white12),
+        ),
+        SizedBox(height: 16),
+        // Fake Option
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          child: Row(
+            children: [
+              ShimmerContainer(width: 24, height: 24, borderRadius: 12),
+              SizedBox(width: 16),
+              TextShimmer(width: 120, height: 16),
+            ],
+          ),
+        ),
+        // Fake Option 2
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          child: Row(
+            children: [
+              ShimmerContainer(width: 24, height: 24, borderRadius: 12),
+              SizedBox(width: 16),
+              TextShimmer(width: 160, height: 16),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

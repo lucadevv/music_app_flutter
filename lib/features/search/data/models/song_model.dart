@@ -1,3 +1,4 @@
+// ignore_for_file: deprecated_member_use_from_same_package
 import '../../domain/entities/song.dart' as domain;
 import 'search_album_model.dart';
 import 'search_artist_model.dart';

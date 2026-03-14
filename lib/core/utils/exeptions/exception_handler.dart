@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
 
 import 'app_exceptions.dart';
 
@@ -25,22 +24,22 @@ class ExceptionHandler {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
-        return NetworkException('Tiempo de conexión agotado', code: 408);
+        return const NetworkException('Tiempo de conexión agotado', code: 408);
 
       case DioExceptionType.badResponse:
         return _handleResponseError(error);
 
       case DioExceptionType.cancel:
-        return NetworkException('Solicitud cancelada');
+        return const NetworkException('Solicitud cancelada');
 
       case DioExceptionType.unknown:
         return NetworkException('Error de conexión', details: error.message);
 
       case DioExceptionType.badCertificate:
-        return NetworkException('Error de certificado SSL');
+        return const NetworkException('Error de certificado SSL');
 
       case DioExceptionType.connectionError:
-        return NetworkException('Error de conexión de red');
+        return const NetworkException('Error de conexión de red');
     }
   }
 

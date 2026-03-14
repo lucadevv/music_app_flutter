@@ -22,6 +22,7 @@ class PlaylistState extends Equatable {
   final int currentPage;
   final bool hasMore;
   final List<PlaylistTrack> allTracks; // Tracks acumulados para reproducción
+  final String _filterQuery;
 
   const PlaylistState({
     this.status = PlaylistStatus.initial,
@@ -34,7 +35,15 @@ class PlaylistState extends Equatable {
     this.currentPage = 0,
     this.hasMore = true,
     this.allTracks = const [],
-  });
+    String filterQuery = '',
+  }) : _filterQuery = filterQuery;
+
+  /// Retorna los tracks de la respuesta actual filtrados por query (Lógica de Dominio)
+  List<PlaylistTrack> get filteredResponseTracks {
+    if (response == null) return [];
+    if (_filterQuery.isEmpty) return response!.tracks;
+    return response!.tracks.where((track) => track.matchesQuery(_filterQuery)).toList();
+  }
 
   PlaylistState copyWith({
     PlaylistStatus? status,
@@ -47,6 +56,7 @@ class PlaylistState extends Equatable {
     int? currentPage,
     bool? hasMore,
     List<PlaylistTrack>? allTracks,
+    String? filterQuery,
     bool clearLoadingPlaylistId = false,
   }) {
     return PlaylistState(
@@ -60,6 +70,7 @@ class PlaylistState extends Equatable {
       currentPage: currentPage ?? this.currentPage,
       hasMore: hasMore ?? this.hasMore,
       allTracks: allTracks ?? this.allTracks,
+      filterQuery: filterQuery ?? _filterQuery,
     );
   }
 

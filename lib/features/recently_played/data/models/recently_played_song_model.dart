@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_dynamic_calls
 import '../../domain/entities/recently_played_song.dart';
 
 /// Modelo de datos para RecentlyPlayedSong.
@@ -9,8 +10,7 @@ class RecentlyPlayedSongModel extends RecentlyPlayedSong {
     required super.videoId,
     required super.title,
     required super.artist,
-    super.thumbnail,
-    required super.duration,
+    required super.duration, super.thumbnail,
     super.durationSeconds = 0,
     super.playedAt,
     super.streamUrl,

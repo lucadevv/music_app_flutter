@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_slow_async_io
 import 'dart:io';
 
 import 'package:music_app/data/offline/models/offline_song.dart';

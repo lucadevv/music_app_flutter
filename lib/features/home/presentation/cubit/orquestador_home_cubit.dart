@@ -2,17 +2,16 @@ import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:music_app/features/home/domain/entities/chart_song.dart';
 import 'package:music_app/features/home/domain/entities/home_content_item.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 import 'package:music_app/features/playlist/presentation/cubit/playlist_state.dart';
 
-import 'home_cubit.dart' show HomeCubit, HomeState, HomeStatus;
 import '../../../mood_genre/presentation/cubit/mood_genre_cubit.dart'
     show MoodGenreCubit, MoodGenreState, MoodGenreStatus;
 import '../../../playlist/presentation/cubit/playlist_cubit.dart'
     show PlaylistCubit;
+import 'home_cubit.dart' show HomeCubit, HomeState, HomeStatus;
 
 part 'orquestador_home_effect.dart';
 part 'orquestador_home_state.dart';
@@ -36,9 +35,7 @@ class OrquestadorHomeCubit extends Cubit<OrquestadorHomeState> {
 
   void _startListening() {
     // Escuchar cambios del HomeCubit
-    _homeSubscription = _homeCubit.stream.listen((homeState) {
-      _updateHomeState(homeState);
-    });
+    _homeSubscription = _homeCubit.stream.listen(_updateHomeState);
   }
 
   /// Registra un MoodGenreCubit para escuchar sus cambios
@@ -47,9 +44,7 @@ class OrquestadorHomeCubit extends Cubit<OrquestadorHomeState> {
       _moodGenreSubscription?.cancel();
     }
     _moodGenreCubit = moodGenreCubit;
-    _moodGenreSubscription = _moodGenreCubit!.stream.listen((moodGenreState) {
-      _updateMoodGenreState(moodGenreState);
-    });
+    _moodGenreSubscription = _moodGenreCubit!.stream.listen(_updateMoodGenreState);
     // Actualizar el estado inicial
     _updateMoodGenreState(moodGenreCubit.state);
   }
@@ -143,6 +138,11 @@ class OrquestadorHomeCubit extends Cubit<OrquestadorHomeState> {
   /// Actualiza el estado del home manualmente (para compatibilidad)
   void updateHomeState(HomeState state) {
     _updateHomeState(state);
+  }
+
+  /// Filtra el contenido del HomeCubit
+  void filterHome(String query) {
+    _homeCubit.filterHome(query);
   }
 
   /// Actualiza el estado de mood/genre manualmente (para compatibilidad)

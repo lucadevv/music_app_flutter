@@ -24,9 +24,7 @@ void main() {
   late RemoveDownloadUseCase removeDownloadUseCase;
   late CheckDownloadStatusUseCase checkDownloadStatusUseCase;
 
-  setUpAll(() {
-    registerFallbackValues();
-  });
+  setUpAll(registerFallbackValues);
 
   setUp(() {
     mockRepository = MockDownloadsRepository();
@@ -251,7 +249,7 @@ void main() {
       final state = DownloadsState(
         status: DownloadsStatus.success,
         downloadedSongs: createTestDownloadedSongs(),
-        downloadingIds: {'downloading1'},
+        downloadingIds: const {'downloading1'},
       );
 
       // Assert
@@ -263,12 +261,12 @@ void main() {
     });
 
     test('state isLoading should be true when status is loading', () {
-      final state = DownloadsState(status: DownloadsStatus.loading);
+      const state = DownloadsState(status: DownloadsStatus.loading);
       expect(state.isLoading, isTrue);
     });
 
     test('state isFailure should be true when status is failure', () {
-      final state = DownloadsState(status: DownloadsStatus.failure);
+      const state = DownloadsState(status: DownloadsStatus.failure);
       expect(state.isFailure, isTrue);
     });
   });

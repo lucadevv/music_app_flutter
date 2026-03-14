@@ -1,7 +1,7 @@
+// ignore_for_file: dead_code, dead_null_aware_expression, unused_element
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/core/utils/extension/sizedbox_extension.dart';
@@ -9,7 +9,11 @@ import 'package:music_app/core/widgets/custom_search_bar.dart';
 import 'package:music_app/core/widgets/shimmer_widgets.dart';
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/library/presentation/cubit/library_cubit.dart';
-import 'package:music_app/features/library/presentation/widgets/library_widgets.dart';
+import 'package:music_app/features/library/presentation/widgets/atoms/profile_avatar.dart';
+import 'package:music_app/features/library/presentation/widgets/molecules/playlist_card.dart';
+import 'package:music_app/features/library/presentation/widgets/molecules/quick_access_chip.dart';
+import 'package:music_app/features/library/presentation/widgets/organisms/song_list_item_widget.dart';
+import 'package:music_app/features/library/presentation/widgets/templates/library_empty_state.dart';
 import 'package:music_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:music_app/features/song_options/presentation/widgets/song_options_bottom_sheet.dart';
 import 'package:music_app/l10n/app_localizations.dart';
@@ -121,7 +125,7 @@ class _LibraryViewState extends State<_LibraryView> {
     final filteredPlaylists = _searchQuery.isEmpty
         ? allPlaylists
         : allPlaylists.where((p) {
-            final name = p.name?.toLowerCase() ?? '';
+            final name = p.name.toLowerCase() ?? '';
             return name.contains(_searchQuery);
           }).toList();
 
@@ -129,8 +133,8 @@ class _LibraryViewState extends State<_LibraryView> {
     final filteredSongs = _searchQuery.isEmpty
         ? state.favoriteSongs
         : state.favoriteSongs.where((s) {
-            final title = s.title?.toLowerCase() ?? '';
-            final artist = s.artist?.toLowerCase() ?? '';
+            final title = s.title.toLowerCase() ?? '';
+            final artist = s.artist.toLowerCase() ?? '';
             return title.contains(_searchQuery) || artist.contains(_searchQuery);
           }).toList();
 
@@ -406,9 +410,9 @@ class _LibraryViewState extends State<_LibraryView> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
+                const Text(
                   'Quick Access',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Colors.white,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -674,52 +678,83 @@ class _LibraryLoadingView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.all(20),
+      physics: const NeverScrollableScrollPhysics(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
-          // Header shimmer
-          TextShimmer(width: 150, height: 24),
-          SizedBox(height: 24),
-          SearchBarShimmer(),
-          SizedBox(height: 32),
-          
+        children: [
           // Quick access shimmer
-          TextShimmer(width: 120, height: 20),
-          SizedBox(height: 16),
-          Row(
-            children: [
-              ShimmerContainer(width: 100, height: 80, borderRadius: 12),
-              SizedBox(width: 8),
-              ShimmerContainer(width: 100, height: 80, borderRadius: 12),
-              SizedBox(width: 8),
-              ShimmerContainer(width: 100, height: 80, borderRadius: 12),
-            ],
-          ),
-          SizedBox(height: 32),
-          
-          // Playlists section shimmer
-          TextShimmer(width: 100, height: 20),
-          SizedBox(height: 16),
-          SizedBox(
-            height: 200,
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                ThumbnailShimmer(width: 160, height: 160),
-                SizedBox(width: 12),
-                ThumbnailShimmer(width: 160, height: 160),
+                const TextShimmer(width: 140, height: 24),
+                Icon(
+                  Icons.chevron_right,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                ),
               ],
             ),
           ),
-          SizedBox(height: 32),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: List.generate(4, (index) {
+                 // Clone real dimensions of QuickAccessChip
+                 return Container(
+                    width: (MediaQuery.of(context).size.width - 48) / 2,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: AppColorsDark.surfaceContainerHigh,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                 );
+              }),
+            ),
+          ),
+          const SizedBox(height: 32),
+          
+          // Playlists section shimmer
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: TextShimmer(width: 100, height: 24),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            height: 200,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              itemCount: 4,
+              itemBuilder: (context, index) {
+                return const Padding(
+                  padding: EdgeInsets.only(right: 12),
+                  child: Column(
+                    children: [
+                      ThumbnailShimmer(width: 156, height: 156),
+                      SizedBox(height: 8),
+                      TextShimmer(width: 120, height: 16),
+                      SizedBox(height: 4),
+                      TextShimmer(width: 60, height: 12),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 32),
           
           // Songs section shimmer
-          TextShimmer(width: 80, height: 20),
-          SizedBox(height: 16),
-          SongListItemShimmer(),
-          SongListItemShimmer(),
-          SongListItemShimmer(),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: TextShimmer(width: 120, height: 24),
+          ),
+          const SizedBox(height: 16),
+          const SongListItemShimmer(),
+          const SongListItemShimmer(),
+          const SongListItemShimmer(),
         ],
       ),
     );

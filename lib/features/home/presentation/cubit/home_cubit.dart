@@ -1,9 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/bloc/base_bloc_mixin.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/home/domain/entities/chart_song.dart';
 import 'package:music_app/features/home/domain/entities/home_content_item.dart';
 import 'package:music_app/features/home/domain/entities/home_response.dart';
+import 'package:music_app/features/home/domain/entities/home_section.dart';
 import 'package:music_app/features/home/domain/use_cases/get_home_use_case.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 
@@ -62,6 +64,11 @@ class HomeCubit extends Cubit<HomeState> with BaseBlocMixin {
     final playlist = [nowPlaying];
     _playerBloc.add(LoadPlaylistEvent(playlist: playlist, startIndex: 0));
   }
+  
+  /// Filtra las secciones del home en base a un string de búsqueda.
+  void filterHome(String query) {
+    emit(state.copyWith(filterQuery: query));
+  }
 
   /// Reproduce una canción específica de un item de contenido
   void playContentItemTrack(HomeContentItem item, int trackIndex) {
@@ -77,12 +84,12 @@ class HomeCubit extends Cubit<HomeState> with BaseBlocMixin {
   /// Retorna el NowPlayingData para navegación
   NowPlayingData? playContentItemAsSingle(HomeContentItem item) {
     // DEBUG: Verificar que el item tiene los datos correctos
-    print('DEBUG playContentItemAsSingle:');
-    print('  - contentType: ${item.contentType}');
-    print('  - videoId: ${item.videoId}');
-    print('  - title: ${item.title}');
-    print('  - streamUrl: ${item.streamUrl}');
-    print('  - has streamUrl: ${item.streamUrl != null && item.streamUrl!.isNotEmpty}');
+    debugPrint('DEBUG playContentItemAsSingle:');
+    debugPrint('  - contentType: ${item.contentType}');
+    debugPrint('  - videoId: ${item.videoId}');
+    debugPrint('  - title: ${item.title}');
+    debugPrint('  - streamUrl: ${item.streamUrl}');
+    debugPrint('  - has streamUrl: ${item.streamUrl != null && item.streamUrl!.isNotEmpty}');
     
     NowPlayingData? nowPlayingData;
 
@@ -104,7 +111,7 @@ class HomeCubit extends Cubit<HomeState> with BaseBlocMixin {
             thumbnail: item.thumbnail,
             streamUrl: item.streamUrl,
           );
-          print('DEBUG: Creando NowPlayingData con streamUrl: ${nowPlayingData.streamUrl}');
+          debugPrint('DEBUG: Creando NowPlayingData con streamUrl: ${nowPlayingData.streamUrl}');
           _playerBloc.add(LoadTrackEvent(nowPlayingData));
           return nowPlayingData;
         }
@@ -112,16 +119,16 @@ class HomeCubit extends Cubit<HomeState> with BaseBlocMixin {
         
       case HomeContentType.album:
         // Es un álbum - no se reproduce directamente, se navega al álbum
-        print('DEBUG: Es un álbum, no se reproduce directamente');
+        debugPrint('DEBUG: Es un álbum, no se reproduce directamente');
         break;
         
       case HomeContentType.playlist:
         // Es una playlist - no se reproduce directamente, se navega a la playlist
-        print('DEBUG: Es una playlist, no se reproduce directamente');
+        debugPrint('DEBUG: Es una playlist, no se reproduce directamente');
         break;
         
       case HomeContentType.unknown:
-        print('DEBUG: Tipo desconocido');
+        debugPrint('DEBUG: Tipo desconocido');
         break;
     }
 

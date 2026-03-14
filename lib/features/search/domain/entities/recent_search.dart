@@ -1,3 +1,4 @@
+// ignore_for_file: deprecated_member_use_from_same_package
 import 'song.dart';
 
 /// Entidad del dominio para una búsqueda reciente

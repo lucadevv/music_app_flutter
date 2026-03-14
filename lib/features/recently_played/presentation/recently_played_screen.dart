@@ -2,8 +2,9 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
-import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/core/presentation/widgets/song_list_item.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
+import 'package:music_app/core/widgets/shimmer_widgets.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/recently_played/domain/entities/recently_played_song.dart';
 import 'package:music_app/features/recently_played/domain/usecases/get_recently_played_usecase.dart';
@@ -42,11 +43,10 @@ class _RecentlyPlayedView extends StatelessWidget {
             slivers: [
               _buildHeader(context, state, l10n),
               if (state.status == RecentlyPlayedStatus.loading)
-                const SliverFillRemaining(
-                  child: Center(
-                    child: CircularProgressIndicator(
-                      color: AppColorsDark.primary,
-                    ),
+                SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) => const SongListItemShimmer(),
+                    childCount: 10,
                   ),
                 )
               else if (state.status == RecentlyPlayedStatus.failure)
@@ -74,7 +74,7 @@ class _RecentlyPlayedView extends StatelessWidget {
       pinned: true,
       backgroundColor: Colors.transparent,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.white),
+        icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
         onPressed: () => context.router.maybePop(),
       ),
       actions: [

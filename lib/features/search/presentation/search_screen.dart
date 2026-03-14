@@ -1,21 +1,18 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:music_app/main.dart';
-import 'package:music_app/features/search/domain/use_cases/update_selected_song_use_case.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/search/presentation/cubit/orquestador_search_cubit.dart';
 import 'package:music_app/features/search/presentation/cubit/recent_searches_cubit.dart';
 import 'package:music_app/features/search/presentation/cubit/search_cubit.dart'
     show SearchCubit, SearchStatus;
-import 'package:music_app/features/search/presentation/widgets/categories_grid_widget.dart';
-
-import 'package:music_app/features/search/presentation/widgets/search_bar_widget.dart';
-import 'package:music_app/features/search/presentation/widgets/search_listeners.dart';
-import 'package:music_app/features/search/presentation/widgets/search_results_widget.dart';
-import 'package:music_app/features/search/presentation/widgets/trending_artists_widget.dart'
+import 'package:music_app/features/search/presentation/widgets/molecules/search_bar_widget.dart';
+import 'package:music_app/features/search/presentation/widgets/organisms/categories_grid_widget.dart';
+import 'package:music_app/features/search/presentation/widgets/organisms/search_loading_view.dart';
+import 'package:music_app/features/search/presentation/widgets/organisms/search_results_widget.dart';
+import 'package:music_app/features/search/presentation/widgets/organisms/trending_artists_widget.dart'
     show RecentSearchesWidget;
-import 'package:music_app/core/theme/app_colors_dark.dart';
-import 'package:music_app/core/widgets/shimmer_widgets.dart';
+import 'package:music_app/features/search/presentation/widgets/search_listeners.dart';
 
 @RoutePage()
 class SearchScreen extends StatefulWidget {
@@ -81,7 +78,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   // Mostrar loading shimmer si está buscando
                   if (isLoading)
                     const SliverToBoxAdapter(
-                      child: _SearchLoadingView(),
+                      child: SearchLoadingView(),
                     ),
 
                   // Mostrar resultados si hay búsqueda
@@ -90,7 +87,6 @@ class _SearchScreenState extends State<SearchScreen> {
                       child: SearchResultsWidget(
                         results: searchState.responseEntity!.results,
                         query: searchState.query,
-                        updateSelectedSongUseCase: getIt<UpdateSelectedSongUseCase>(),
                         hasMore: searchState.hasMore,
                         isLoadingMore: searchState.status == SearchStatus.loadingMore,
                         onLoadMore: () {
@@ -119,36 +115,4 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 }
 
-/// Widget de loading con shimmer para SearchScreen
-class _SearchLoadingView extends StatelessWidget {
-  const _SearchLoadingView();
 
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
-          // Search bar shimmer
-          SearchBarShimmer(),
-          SizedBox(height: 24),
-          
-          // Trending artists shimmer
-          TextShimmer(width: 100, height: 20),
-          SizedBox(height: 16),
-          ArtistListItemShimmer(),
-          ArtistListItemShimmer(),
-          ArtistListItemShimmer(),
-          
-          SizedBox(height: 24),
-          
-          // Categories shimmer
-          TextShimmer(width: 120, height: 20),
-          SizedBox(height: 16),
-          CategoriesGridShimmer(itemCount: 6, crossAxisCount: 2),
-        ],
-      ),
-    );
-  }
-}

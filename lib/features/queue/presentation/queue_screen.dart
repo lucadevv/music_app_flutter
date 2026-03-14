@@ -1,10 +1,11 @@
+// ignore_for_file: unused_element
 import 'package:auto_route/auto_route.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
-import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/core/presentation/widgets/song_list_item.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 import 'package:music_app/l10n/app_localizations.dart';
@@ -22,10 +23,6 @@ class QueueScreen extends StatelessWidget {
       appBar: _buildAppBar(context, l10n),
       body: BlocBuilder<PlayerBlocBloc, PlayerBlocState>(
         builder: (context, state) {
-          if (state is! PlayerBlocState) {
-            return _buildEmptyQueue(context, l10n);
-          }
-
           return Column(
             children: [
               // Now playing
@@ -64,7 +61,7 @@ class QueueScreen extends StatelessWidget {
           onPressed: () {
             // Limpiar la playlist (usar LoadPlaylistEvent con lista vacía)
             final state = context.read<PlayerBlocBloc>().state;
-            if (state is PlayerBlocState && state.playlist.isNotEmpty) {
+            if (state.playlist.isNotEmpty) {
               context.read<PlayerBlocBloc>().add(
                 const LoadPlaylistEvent(playlist: [], startIndex: 0),
               );

@@ -1,6 +1,6 @@
+// ignore_for_file: unintended_html_in_doc_comment
 import 'package:dio/dio.dart';
 import 'package:music_app/core/services/network/api_services.dart';
-import 'package:music_app/features/recently_played/data/models/recently_played_song_model.dart';
 
 /// Remote data source for recently played songs.
 /// Sigue el patrón de Clean Architecture: retorna Map<String, dynamic> 

@@ -12,9 +12,8 @@ class MoodGenreErrorWidget extends StatelessWidget {
   final String params;
 
   const MoodGenreErrorWidget({
-    super.key,
+    required this.params, super.key,
     this.errorMessage,
-    required this.params,
   });
 
   @override

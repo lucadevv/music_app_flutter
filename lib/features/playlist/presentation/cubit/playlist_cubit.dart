@@ -59,6 +59,7 @@ class PlaylistCubit extends Cubit<PlaylistState> with BaseBlocMixin {
 
     result.fold(
       (failure) {
+        if (isClosed) return;
         final String errorMessage = getErrorMessage(failure);
         emit(
           state.copyWith(
@@ -68,6 +69,7 @@ class PlaylistCubit extends Cubit<PlaylistState> with BaseBlocMixin {
         );
       },
       (response) {
+        if (isClosed) return;
         final hasMore = response.tracks.length >= _pageSize;
         emit(
           state.copyWith(
@@ -106,12 +108,14 @@ class PlaylistCubit extends Cubit<PlaylistState> with BaseBlocMixin {
 
     result.fold(
       (failure) {
+        if (isClosed) return;
         // Si falla, mantener el estado actual
         emit(state.copyWith(
           status: PlaylistStatus.success,
         ));
       },
       (response) {
+        if (isClosed) return;
         // Filtrar tracks que tienen streamUrl válida
         final validTracks = response.tracks.where((track) =>
             track.streamUrl != null && 
@@ -120,7 +124,7 @@ class PlaylistCubit extends Cubit<PlaylistState> with BaseBlocMixin {
         
         // Convertir a NowPlayingData
         final nowPlayingTracks = validTracks
-            .map((t) => NowPlayingData.fromPlaylistTrack(t))
+            .map(NowPlayingData.fromPlaylistTrack)
             .toList();
 
         // Si hay una playlist reproduciéndose, agregar los nuevos tracks al player
@@ -203,7 +207,7 @@ class PlaylistCubit extends Cubit<PlaylistState> with BaseBlocMixin {
 
     // Convertir a NowPlayingData (ya tienen streamUrl del endpoint)
     final nowPlayingTracks = validTracks
-        .map((t) => NowPlayingData.fromPlaylistTrack(t))
+        .map(NowPlayingData.fromPlaylistTrack)
         .toList();
 
     // Resetear estado de carga con el ID de la playlist
@@ -240,6 +244,11 @@ class PlaylistCubit extends Cubit<PlaylistState> with BaseBlocMixin {
       totalCount: 0,
       clearLoadingPlaylistId: true,
     ));
+  }
+
+  /// Filtra la playlist guardando el string de búsqueda.
+  void filterPlaylist(String query) {
+    emit(state.copyWith(filterQuery: query));
   }
 
   /// Completa el loading cuando el player confirma reproducción

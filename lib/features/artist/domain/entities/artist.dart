@@ -36,8 +36,7 @@ class ArtistSong {
   const ArtistSong({
     required this.videoId,
     required this.title,
-    this.thumbnail,
-    required this.durationSeconds,
+    required this.durationSeconds, this.thumbnail,
     this.views = 0,
   });
 

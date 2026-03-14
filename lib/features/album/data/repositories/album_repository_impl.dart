@@ -1,3 +1,4 @@
+// ignore_for_file: deprecated_member_use_from_same_package, avoid_dynamic_calls
 import 'package:dio/dio.dart';
 import 'package:music_app/core/services/network/api_services.dart';
 import 'package:music_app/features/album/domain/entities/album.dart';

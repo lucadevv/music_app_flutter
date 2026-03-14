@@ -1,3 +1,4 @@
+// ignore_for_file: deprecated_member_use_from_same_package
 import 'package:auto_route/auto_route.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -69,7 +70,12 @@ class _ArtistView extends StatelessWidget {
 
           final artist = state.artist;
           if (artist == null) {
-            return const Center(child: CircularProgressIndicator());
+            return Center(
+              child: Text(
+                'Artista no encontrado',
+                style: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
+              ),
+            );
           }
 
           return RefreshIndicator(
@@ -174,7 +180,7 @@ class _ArtistView extends StatelessWidget {
       pinned: true,
       backgroundColor: Colors.transparent,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.white),
+        icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
         onPressed: () => context.router.pop(),
       ),
       actions: [
@@ -421,7 +427,7 @@ class _ArtistLoadingView extends StatelessWidget {
           pinned: true,
           backgroundColor: Colors.transparent,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
             onPressed: () => context.router.pop(),
           ),
           flexibleSpace: FlexibleSpaceBar(
@@ -437,12 +443,12 @@ class _ArtistLoadingView extends StatelessWidget {
             ),
           ),
         ),
-        SliverToBoxAdapter(
+        const SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(24),
             child: Row(
-              children: const [
-                ButtonShimmer(width: 100, height: 48),
+              children: [
+                Expanded(child: ButtonShimmer(height: 48)),
                 SizedBox(width: 16),
                 ShimmerContainer(width: 48, height: 48, borderRadius: 24),
                 SizedBox(width: 8),
@@ -480,9 +486,9 @@ class _ArtistLoadingView extends StatelessWidget {
                 return Container(
                   width: 140,
                   margin: const EdgeInsets.only(right: 12),
-                  child: Column(
+                  child: const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
+                    children: [
                       ThumbnailShimmer(width: 140, height: 130),
                       SizedBox(height: 8),
                       TextShimmer(height: 14),

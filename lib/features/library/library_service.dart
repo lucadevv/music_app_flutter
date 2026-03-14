@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_dynamic_calls
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:music_app/core/services/network/api_services.dart';
@@ -117,10 +118,10 @@ class LibraryService {
       // 3. El backend obtiene stream URLs dinámicamente en getFavoriteSongs
       final data = {
         'videoId': videoId,
-        if (title != null) 'title': title,
-        if (artist != null) 'artist': artist,
-        if (thumbnail != null) 'thumbnail': thumbnail,
-        if (duration != null) 'duration': duration,
+        'title': ?title,
+        'artist': ?artist,
+        'thumbnail': ?thumbnail,
+        'duration': ?duration,
       };
       debugPrint('LibraryService.addFavoriteSong: Sending data = $data');
       await _apiServices.post(
@@ -161,10 +162,10 @@ class LibraryService {
     try {
       final data = {
         'externalPlaylistId': externalPlaylistId,
-        if (name != null) 'name': name,
-        if (thumbnail != null) 'thumbnail': thumbnail,
-        if (description != null) 'description': description,
-        if (trackCount != null) 'trackCount': trackCount,
+        'name': ?name,
+        'thumbnail': ?thumbnail,
+        'description': ?description,
+        'trackCount': ?trackCount,
       };
       debugPrint('LibraryService.addFavoritePlaylist: Sending data = $data');
       await _apiServices.post(
@@ -201,7 +202,7 @@ class LibraryService {
     try {
       final data = {
         'externalParams': externalParams,
-        if (name != null) 'name': name,
+        'name': ?name,
       };
       debugPrint('LibraryService.addFavoriteGenre: Sending data = $data');
       await _apiServices.post(

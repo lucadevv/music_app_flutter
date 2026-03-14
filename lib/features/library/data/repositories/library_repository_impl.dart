@@ -42,7 +42,7 @@ class LibraryRepositoryImpl implements LibraryRepository {
       );
       final response = FavoriteSongsResponse.fromJson(data);
       final songs = response.data
-          .map((s) => SongMapper.fromFavoriteSong(s))
+          .map(SongMapper.fromFavoriteSong)
           .toList();
       return Right(songs);
     } catch (e) {

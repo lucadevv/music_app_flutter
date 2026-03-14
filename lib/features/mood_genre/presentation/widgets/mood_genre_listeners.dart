@@ -12,7 +12,7 @@ import '../cubit/mood_genre_cubit.dart';
 class MoodGenreListeners extends StatefulWidget {
   final Widget child;
 
-  const MoodGenreListeners({super.key, required this.child});
+  const MoodGenreListeners({required this.child, super.key});
 
   @override
   State<MoodGenreListeners> createState() => _MoodGenreListenersState();

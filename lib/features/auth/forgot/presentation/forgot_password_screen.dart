@@ -1,5 +1,6 @@
+// ignore_for_file: unawaited_futures
 import 'dart:ui';
-import 'package:flutter/foundation.dart';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
@@ -21,8 +22,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _emailController = TextEditingController();
   bool _emailSent = false;
   VideoPlayerController? _videoController;
-  bool _videoInitialized = false;
-  bool _enableVideo = true;
+//   bool _videoInitialized = false;
+  final bool _enableVideo = true;
 
   @override
   void initState() {
@@ -42,7 +43,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       _videoController!.setLooping(true);
       _videoController!.setVolume(0);
       await _videoController!.play();
-      _videoInitialized = true;
+//       _videoInitialized = true;
       if (mounted) setState(() {});
     } catch (e) {
       // Video failed to load
@@ -106,7 +107,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.arrow_back, color: AppColorsDark.onSurface),
+                      icon: const Icon(Icons.arrow_back_ios_new, color: AppColorsDark.onSurface),
                       onPressed: () => context.router.pop(),
                     ),
                     LanguageSelector(

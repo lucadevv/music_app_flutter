@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_slow_async_io, avoid_dynamic_calls
 import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';

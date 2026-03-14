@@ -22,9 +22,7 @@ class SongListItem extends StatelessWidget {
   final VoidCallback? onTap;
 
   const SongListItem({
-    super.key,
-    required this.title,
-    required this.artist,
+    required this.title, required this.artist, super.key,
     this.thumbnail,
     this.trailing,
     this.onTap,
@@ -85,9 +83,7 @@ class SongListItemWithFavorite extends StatelessWidget {
   final VoidCallback? onFavoriteToggle;
 
   const SongListItemWithFavorite({
-    super.key,
-    required this.title,
-    required this.artist,
+    required this.title, required this.artist, super.key,
     this.thumbnail,
     this.isFavorite = false,
     this.onTap,
@@ -122,9 +118,7 @@ class SongListItemWithRemove extends StatelessWidget {
   final VoidCallback? onRemove;
 
   const SongListItemWithRemove({
-    super.key,
-    required this.title,
-    required this.artist,
+    required this.title, required this.artist, super.key,
     this.thumbnail,
     this.onTap,
     this.onRemove,
@@ -158,11 +152,8 @@ class SongListItemWithTrailing extends StatelessWidget {
   final VoidCallback? onTap;
 
   const SongListItemWithTrailing({
-    super.key,
-    required this.title,
-    required this.artist,
+    required this.title, required this.artist, required this.trailing, super.key,
     this.thumbnail,
-    required this.trailing,
     this.onTap,
   });
 
@@ -190,8 +181,7 @@ class SongListItemFromEntity extends StatelessWidget {
   final VoidCallback? onTap;
 
   const SongListItemFromEntity({
-    super.key,
-    required this.song,
+    required this.song, super.key,
     this.trailing,
     this.onTap,
   });
@@ -218,8 +208,7 @@ class SongListItemWithFavoriteFromEntity extends StatelessWidget {
   final VoidCallback? onFavoriteToggle;
 
   const SongListItemWithFavoriteFromEntity({
-    super.key,
-    required this.song,
+    required this.song, super.key,
     this.isFavorite = false,
     this.onTap,
     this.onFavoriteToggle,
@@ -247,8 +236,7 @@ class SongListItemWithRemoveFromEntity extends StatelessWidget {
   final VoidCallback? onRemove;
 
   const SongListItemWithRemoveFromEntity({
-    super.key,
-    required this.song,
+    required this.song, super.key,
     this.onTap,
     this.onRemove,
   });

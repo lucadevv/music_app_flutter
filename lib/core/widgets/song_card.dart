@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
 
 class SongCard extends StatelessWidget {
   final String title;
@@ -10,11 +10,7 @@ class SongCard extends StatelessWidget {
   final double height;
 
   const SongCard({
-    super.key,
-    required this.title,
-    required this.artist,
-    required this.imageUrl,
-    required this.onTap,
+    required this.title, required this.artist, required this.imageUrl, required this.onTap, super.key,
     this.width = 160,
     this.height = 200,
   });

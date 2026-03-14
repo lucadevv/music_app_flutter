@@ -1,6 +1,8 @@
+// ignore_for_file: unawaited_futures, deprecated_member_use
 import 'dart:async';
-import 'dart:math';
+
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:just_audio/just_audio.dart';
@@ -210,18 +212,18 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
 
   /// Registra la reproducción en el servidor (historial online)
   Future<void> _recordListenToServer(String videoId) async {
-    print('DEBUG _recordListenToServer: Iniciando para videoId=$videoId');
+    debugPrint('DEBUG _recordListenToServer: Iniciando para videoId=$videoId');
     try {
       if (GetIt.I.isRegistered<RecordListenUseCase>()) {
-        print('DEBUG _recordListenToServer: RecordListenUseCase registrado, llamando...');
+        debugPrint('DEBUG _recordListenToServer: RecordListenUseCase registrado, llamando...');
         final recordListenUseCase = GetIt.I<RecordListenUseCase>();
         final result = await recordListenUseCase(videoId);
-        print('DEBUG _recordListenToServer: Resultado=$result');
+        debugPrint('DEBUG _recordListenToServer: Resultado=$result');
       } else {
-        print('DEBUG _recordListenToServer: RecordListenUseCase NO REGISTRADO');
+        debugPrint('DEBUG _recordListenToServer: RecordListenUseCase NO REGISTRADO');
       }
     } catch (e) {
-      print('DEBUG _recordListenToServer: ERROR=$e');
+      debugPrint('DEBUG _recordListenToServer: ERROR=$e');
       // Silently fail - el historial online no debe afectar la reproducción
     }
   }
@@ -267,6 +269,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     on<PreviousTrackEvent>(_onPreviousTrack);
     on<SeekEvent>(_onSeek);
 
+    on<PlayRequestEvent>(_onPlayRequest);
     on<LoadTrackEvent>(_onLoadTrack);
     on<LoadPlaylistEvent>(_onLoadPlaylist);
     on<PlayTrackAtIndexEvent>(_onPlayTrackAtIndex);
@@ -344,28 +347,24 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     PlayPauseToggleEvent event,
     Emitter<PlayerBlocState> emit,
   ) async {
-    if (state is PlayerBlocState) {
-      final currentState = state as PlayerBlocState;
-      if (currentState.isPlaying) {
-        add(const PauseEvent());
-      } else {
-        add(const PlayEvent());
-      }
+    final currentState = state;
+    if (currentState.isPlaying) {
+      add(const PauseEvent());
+    } else {
+      add(const PlayEvent());
     }
-  }
+    }
 
   Future<void> _onNextTrack(
     NextTrackEvent event,
     Emitter<PlayerBlocState> emit,
   ) async {
     try {
-      if (state is PlayerBlocState) {
-        final currentState = state as PlayerBlocState;
-        if (currentState.canPlayNext) {
-          await _audioPlayer.seekToNext();
-        }
+      final currentState = state;
+      if (currentState.canPlayNext) {
+        await _audioPlayer.seekToNext();
       }
-    } catch (e) {
+        } catch (e) {
       add(AudioErrorEvent('Error al cambiar a siguiente: $e'));
     }
   }
@@ -375,13 +374,11 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     Emitter<PlayerBlocState> emit,
   ) async {
     try {
-      if (state is PlayerBlocState) {
-        final currentState = state as PlayerBlocState;
-        if (currentState.canPlayPrevious) {
-          await _audioPlayer.seekToPrevious();
-        }
+      final currentState = state;
+      if (currentState.canPlayPrevious) {
+        await _audioPlayer.seekToPrevious();
       }
-    } catch (e) {
+        } catch (e) {
       add(AudioErrorEvent('Error al cambiar a anterior: $e'));
     }
   }
@@ -394,26 +391,61 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     }
   }
 
+  Future<void> _onPlayRequest(
+    PlayRequestEvent event,
+    Emitter<PlayerBlocState> emit,
+  ) async {
+    final currentVideoId = state.currentTrack?.videoId;
+    final targetVideoId = event.track.videoId;
+
+    // Si ya está reproduciendo esta canción, no hacer nada
+    if (currentVideoId == targetVideoId) {
+      return;
+    }
+
+    // Si playAsSingle es true, siempre limpiar la cola y reproducir solo esta canción
+    if (event.playAsSingle) {
+      add(LoadTrackEvent(event.track, sourceId: null));
+      return;
+    }
+
+    // Verificar si la canción está en la playlist actual
+    if (state.playlist.isNotEmpty) {
+      final trackIndex = state.playlist.indexWhere(
+        (t) => t.videoId == targetVideoId,
+      );
+
+      if (trackIndex >= 0) {
+        // Está en la playlist - cambiar al index
+        add(PlayTrackAtIndexEvent(trackIndex));
+        return;
+      }
+    }
+
+    // NO está en la playlist - reproducir como canción individual (limpia la cola)
+    add(LoadTrackEvent(event.track, sourceId: null));
+  }
+
   Future<void> _onLoadTrack(
     LoadTrackEvent event,
     Emitter<PlayerBlocState> emit,
   ) async {
-    print('DEBUG PlayerBloc _onLoadTrack:');
-    print('  - track.videoId: ${event.track.videoId}');
-    print('  - track.title: ${event.track.title}');
-    print('  - track.streamUrl presente: ${event.track.streamUrl != null && event.track.streamUrl!.isNotEmpty}');
-    print('  - sourceId: ${event.sourceId}');
+    debugPrint('DEBUG PlayerBloc _onLoadTrack:');
+    debugPrint('  - track.videoId: ${event.track.videoId}');
+    debugPrint('  - track.title: ${event.track.title}');
+    debugPrint('  - track.streamUrl presente: ${event.track.streamUrl != null && event.track.streamUrl!.isNotEmpty}');
+    debugPrint('  - sourceId: ${event.sourceId}');
     
     try {
       // Resetear el player antes de cargar
-      print('DEBUG _onLoadTrack: Reset player...');
+      debugPrint('DEBUG _onLoadTrack: Reset player...');
       try {
         await _audioPlayer.stop();
         await _audioPlayer.seek(Duration.zero);
         await _audioPlayer.setVolume(1.0);
         await Future.delayed(const Duration(milliseconds: 100));
       } catch (e) {
-        print('DEBUG _onLoadTrack: Error al resetear: $e');
+        debugPrint('DEBUG _onLoadTrack: Error al resetear: $e');
       }
 
       String? streamUrl = event.track.streamUrl;
@@ -448,9 +480,9 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
       }
 
       await _loadTrackWithUrl(streamUrl, event.track, emit, sourceId: event.sourceId);
-      print('DEBUG _onLoadTrack: _loadTrackWithUrl completado');
+      debugPrint('DEBUG _onLoadTrack: _loadTrackWithUrl completado');
     } catch (e) {
-      print('DEBUG _onLoadTrack ERROR: $e');
+      debugPrint('DEBUG _onLoadTrack ERROR: $e');
       emit(
         state.copyWith(
           isLoading: false,
@@ -466,26 +498,26 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     Emitter<PlayerBlocState> emit, {
     String? sourceId,
   }) async {
-    print('DEBUG _loadTrackWithUrl: INICIO');
-    print('DEBUG _loadTrackWithUrl: streamUrl = ${streamUrl.substring(0, 50)}...');
-    print('DEBUG _loadTrackWithUrl: sourceId = $sourceId');
+    debugPrint('DEBUG _loadTrackWithUrl: INICIO');
+    debugPrint('DEBUG _loadTrackWithUrl: streamUrl = ${streamUrl.substring(0, 50)}...');
+    debugPrint('DEBUG _loadTrackWithUrl: sourceId = $sourceId');
     
     // Verificar que el player esté conectado
-    print('DEBUG _loadTrackWithUrl: connectionState = ${state.connectionState}');
+    debugPrint('DEBUG _loadTrackWithUrl: connectionState = ${state.connectionState}');
     
     try {
       // La URL ya viene codificada del backend, solo parsear
       final parsedUri = Uri.parse(streamUrl);
-      print('DEBUG _loadTrackWithUrl: Uri.parse OK');
+      debugPrint('DEBUG _loadTrackWithUrl: Uri.parse OK');
       
       // Usar setAudioSource con MediaItem para notificaciones
-      print('DEBUG _loadTrackWithUrl: Llamando setAudioSource...');
+      debugPrint('DEBUG _loadTrackWithUrl: Llamando setAudioSource...');
       
       // Crear un ConcatenatingAudioSource con un solo elemento
       // Esto es más estable que usar AudioSource.uri directamente
       final audioSource = AudioSource.uri(parsedUri, tag: track.toMediaItem());
       await _audioPlayer.setAudioSource(audioSource, preload: false);
-      print('DEBUG _loadTrackWithUrl: setAudioSource OK');
+      debugPrint('DEBUG _loadTrackWithUrl: setAudioSource OK');
 
       // Esperar a que el audio esté listo (processingState ready)
       try {
@@ -542,15 +574,15 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
         sourceId: sourceId ?? state.sourceId, // Use provided sourceId or preserve existing
       ),
       );
-      print('DEBUG _loadTrackWithUrl: Estado emitido, ahora play()');
+      debugPrint('DEBUG _loadTrackWithUrl: Estado emitido, ahora play()');
       await _audioPlayer.play();
-      print('DEBUG _loadTrackWithUrl: play() completado');
+      debugPrint('DEBUG _loadTrackWithUrl: play() completado');
 
       // Registrar la reproducción en el historial del servidor
       _recordListenToServer(track.videoId);
     } catch (e) {
-      print('DEBUG _loadTrackWithUrl ERROR: $e');
-      print('DEBUG _loadTrackWithUrl StackTrace: ${StackTrace.current}');
+      debugPrint('DEBUG _loadTrackWithUrl ERROR: $e');
+      debugPrint('DEBUG _loadTrackWithUrl StackTrace: ${StackTrace.current}');
       emit(
        state.copyWith(
          playlist: [track],
@@ -662,7 +694,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
       _updateHandlerMediaItem(firstTrack);
       
       // DEBUG: Verificar sourceId
-      print('DEBUG _onLoadPlaylist: event.sourceId=${event.sourceId}');
+      debugPrint('DEBUG _onLoadPlaylist: event.sourceId=${event.sourceId}');
         
       // Emitir estado
       emit(
@@ -682,7 +714,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
        )
       );
       
-print('DEBUG _onLoadPlaylist: Estado emitido con sourceId=${state.sourceId}');
+debugPrint('DEBUG _onLoadPlaylist: Estado emitido con sourceId=${state.sourceId}');
         
       // Play directamente
       await _audioPlayer.play();

@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/bloc/base_bloc_mixin.dart';
 import 'package:music_app/features/home/domain/entities/mood_genre.dart';
-import 'package:music_app/features/search/domain/usecases/get_categories_usecase.dart';
+import 'package:music_app/features/search/domain/use_cases/get_categories_usecase.dart';
 
 part 'categories_state.dart';
 

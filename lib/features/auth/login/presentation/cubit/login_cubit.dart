@@ -1,3 +1,4 @@
+// ignore_for_file: unawaited_futures
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -5,7 +6,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/bloc/base_bloc_mixin.dart';
 import 'package:music_app/core/managers/auth/auth_manager.dart';
 import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
-import 'package:music_app/features/auth/data/services/oauth_service.dart';
 import 'package:music_app/features/auth/register/domain/entities/register_response.dart';
 import 'package:music_app/main.dart';
 
@@ -118,7 +118,7 @@ class LoginCubit extends Cubit<LoginState> with BaseBlocMixin {
 
     if (isClosed) return;
 
-    response.fold(
+    await response.fold(
       (failure) {
         // Si el usuario canceló, volver a initial silenciosamente
         if (failure is CancelledException) {
@@ -128,7 +128,7 @@ class LoginCubit extends Cubit<LoginState> with BaseBlocMixin {
           ));
           return;
         }
-        String errorMessage = getErrorMessage(failure);
+        final String errorMessage = getErrorMessage(failure);
         emit(
           state.copyWith(
             status: LoginStatus.failure,

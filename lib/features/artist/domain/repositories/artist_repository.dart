@@ -1,3 +1,4 @@
+// ignore_for_file: deprecated_member_use_from_same_package
 import 'package:music_app/features/artist/domain/entities/artist.dart';
 
 /// Repository contract for artist data

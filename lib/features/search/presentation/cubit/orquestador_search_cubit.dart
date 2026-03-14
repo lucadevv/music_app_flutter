@@ -1,7 +1,10 @@
+// ignore_for_file: deprecated_member_use_from_same_package
 import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:music_app/features/search/domain/entities/song.dart';
+import 'package:music_app/features/search/domain/use_cases/update_selected_song_use_case.dart';
 
 import '../cubit/recent_searches_cubit.dart'
     show RecentSearchesCubit, RecentSearchesState;
@@ -15,6 +18,7 @@ part 'orquestador_search_state.dart';
 class OrquestadorSearchCubit extends Cubit<OrquestadorSearchState> {
   final SearchCubit _searchCubit;
   final RecentSearchesCubit _recentSearchesCubit;
+  final UpdateSelectedSongUseCase _updateSelectedSongUseCase;
 
   StreamSubscription? _searchSubscription;
   StreamSubscription? _recentSearchesSubscription;
@@ -22,10 +26,22 @@ class OrquestadorSearchCubit extends Cubit<OrquestadorSearchState> {
   OrquestadorSearchCubit({
     required SearchCubit searchCubit,
     required RecentSearchesCubit recentSearchesCubit,
+    required UpdateSelectedSongUseCase updateSelectedSongUseCase,
   }) : _searchCubit = searchCubit,
        _recentSearchesCubit = recentSearchesCubit,
+       _updateSelectedSongUseCase = updateSelectedSongUseCase,
        super(OrquestadorSearchState.initial()) {
     _startListening();
+  }
+
+  void saveSelectedSong(Song song, String query) {
+     _updateSelectedSongUseCase(
+      query: query,
+      videoId: song.videoId,
+      song: song,
+    );
+     // Recargar lista de busquedas luego de insertar
+     _recentSearchesCubit.getRecentSearches();
   }
 
   void _startListening() {

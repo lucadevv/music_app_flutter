@@ -250,8 +250,7 @@ class PlaylistTrack extends Equatable {
   final String? thumbnail;
 
   const PlaylistTrack({
-    this.videoId,
-    required this.title,
+    required this.title, this.videoId,
     this.artists = const [],
     this.album,
     this.likeStatus,

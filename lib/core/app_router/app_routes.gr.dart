@@ -84,12 +84,12 @@ import 'package:music_app/features/user_playlists/presentation/user_playlists_sc
 /// [_i1.AlbumScreen]
 class AlbumRoute extends _i35.PageRouteInfo<AlbumRouteArgs> {
   AlbumRoute({
-    _i36.Key? key,
     required String albumId,
+    _i36.Key? key,
     List<_i35.PageRouteInfo>? children,
   }) : super(
          AlbumRoute.name,
-         args: AlbumRouteArgs(key: key, albumId: albumId),
+         args: AlbumRouteArgs(albumId: albumId, key: key),
          rawPathParams: {'id': albumId},
          initialChildren: children,
        );
@@ -103,32 +103,32 @@ class AlbumRoute extends _i35.PageRouteInfo<AlbumRouteArgs> {
       final args = data.argsAs<AlbumRouteArgs>(
         orElse: () => AlbumRouteArgs(albumId: pathParams.getString('id')),
       );
-      return _i1.AlbumScreen(key: args.key, albumId: args.albumId);
+      return _i1.AlbumScreen(albumId: args.albumId, key: args.key);
     },
   );
 }
 
 class AlbumRouteArgs {
-  const AlbumRouteArgs({this.key, required this.albumId});
-
-  final _i36.Key? key;
+  const AlbumRouteArgs({required this.albumId, this.key});
 
   final String albumId;
 
+  final _i36.Key? key;
+
   @override
   String toString() {
-    return 'AlbumRouteArgs{key: $key, albumId: $albumId}';
+    return 'AlbumRouteArgs{albumId: $albumId, key: $key}';
   }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other is! AlbumRouteArgs) return false;
-    return key == other.key && albumId == other.albumId;
+    return albumId == other.albumId && key == other.key;
   }
 
   @override
-  int get hashCode => key.hashCode ^ albumId.hashCode;
+  int get hashCode => albumId.hashCode ^ key.hashCode;
 }
 
 /// generated route for
@@ -394,12 +394,12 @@ class LogoutRoute extends _i35.PageRouteInfo<void> {
 /// [_i16.MoodGenreScreen]
 class MoodGenreRoute extends _i35.PageRouteInfo<MoodGenreRouteArgs> {
   MoodGenreRoute({
-    _i36.Key? key,
     required String params,
+    _i36.Key? key,
     List<_i35.PageRouteInfo>? children,
   }) : super(
          MoodGenreRoute.name,
-         args: MoodGenreRouteArgs(key: key, params: params),
+         args: MoodGenreRouteArgs(params: params, key: key),
          initialChildren: children,
        );
 
@@ -410,33 +410,33 @@ class MoodGenreRoute extends _i35.PageRouteInfo<MoodGenreRouteArgs> {
     builder: (data) {
       final args = data.argsAs<MoodGenreRouteArgs>();
       return _i35.WrappedRoute(
-        child: _i16.MoodGenreScreen(key: args.key, params: args.params),
+        child: _i16.MoodGenreScreen(params: args.params, key: args.key),
       );
     },
   );
 }
 
 class MoodGenreRouteArgs {
-  const MoodGenreRouteArgs({this.key, required this.params});
-
-  final _i36.Key? key;
+  const MoodGenreRouteArgs({required this.params, this.key});
 
   final String params;
 
+  final _i36.Key? key;
+
   @override
   String toString() {
-    return 'MoodGenreRouteArgs{key: $key, params: $params}';
+    return 'MoodGenreRouteArgs{params: $params, key: $key}';
   }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other is! MoodGenreRouteArgs) return false;
-    return key == other.key && params == other.params;
+    return params == other.params && key == other.key;
   }
 
   @override
-  int get hashCode => key.hashCode ^ params.hashCode;
+  int get hashCode => params.hashCode ^ key.hashCode;
 }
 
 /// generated route for

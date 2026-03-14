@@ -6,10 +6,7 @@ class CategoryChip extends StatelessWidget {
   final VoidCallback onTap;
 
   const CategoryChip({
-    super.key,
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
+    required this.label, required this.isSelected, required this.onTap, super.key,
   });
 
   @override

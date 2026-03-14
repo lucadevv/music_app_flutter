@@ -32,7 +32,7 @@ class PlaylistResponseModel extends PlaylistResponse {
       if (json['thumbnails'] != null) {
         final thumbnailsData = json['thumbnails'];
         if (thumbnailsData is List) {
-          for (var thumb in thumbnailsData) {
+          for (final thumb in thumbnailsData) {
             if (thumb is Map<String, dynamic>) {
               try {
                 thumbnailsList.add(ThumbnailModel.fromJson(thumb));
@@ -78,10 +78,11 @@ class PlaylistResponseModel extends PlaylistResponse {
                 }
               }
             } else {
-              if (kDebugMode)
+              if (kDebugMode) {
                 debugPrint(
                   'PlaylistResponseModel: Track $i no es Map, tipo: ${track.runtimeType}',
                 );
+              }
             }
           }
         }

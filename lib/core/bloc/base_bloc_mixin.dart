@@ -1,4 +1,5 @@
 import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
+import 'package:music_app/core/utils/failures/failure.dart';
 
 /// SOLID: Mixin Pattern + Single Responsibility Principle (SRP)
 ///
@@ -19,7 +20,9 @@ mixin BaseBlocMixin {
   /// Centraliza la lógica de extracción de mensajes de error,
   /// permitiendo personalizar el mensaje según el tipo de excepción
   /// en el futuro sin modificar todos los blocs.
-  String getErrorMessage(AppException exception) {
-    return exception.message;
+  String getErrorMessage(dynamic error) {
+    if (error is AppException) return error.message;
+    if (error is Failure) return error.message;
+    return error.toString();
   }
 }
