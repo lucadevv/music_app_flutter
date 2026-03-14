@@ -47,7 +47,7 @@ class SocialAuthButtons extends StatelessWidget {
                 onPressed: isAnyLoading
                     ? null
                     : () {
-                        context.read<LoginCubit>().signInWithApple();
+                        // context.read<LoginCubit>().signInWithApple();
                       },
               );
             },
