@@ -4,6 +4,7 @@ import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/auth/presentation/cubit/orquestador_auth_cubit.dart';
 import 'package:music_app/features/auth/register/presentation/cubit/register_cubit.dart'
     show RegisterStatus;
+import 'package:music_app/l10n/app_localizations.dart';
 
 class RegisterButton extends StatelessWidget {
   final VoidCallback onPressed;
@@ -12,6 +13,8 @@ class RegisterButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return BlocBuilder<OrquestadorAuthCubit, OrquestadorAuthState>(
       builder: (context, state) {
         final isLoading = state.registerState.status == RegisterStatus.loading;
@@ -36,9 +39,9 @@ class RegisterButton extends StatelessWidget {
                     ),
                   ),
                 )
-              : const Text(
-                  'Registrarse',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              : Text(
+                  l10n.register,
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
         );
       },

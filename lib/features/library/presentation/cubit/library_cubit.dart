@@ -203,13 +203,25 @@ class LibraryCubit extends Cubit<LibraryState> with BaseBlocMixin {
     String videoId,
     String songIdOrVideoId, {
     bool currentlyFavorite = false,
+    String? title,
+    String? artist,
+    String? thumbnail,
+    int? duration,
+    String? streamUrl,
   }) async {
     try {
       if (currentlyFavorite) {
         // El backend ahora acepta videoId directamente
         await _libraryService.removeFavoriteSong(videoId);
       } else {
-        await _libraryService.addFavoriteSong(videoId);
+        await _libraryService.addFavoriteSong(
+          videoId,
+          title: title,
+          artist: artist,
+          thumbnail: thumbnail,
+          duration: duration,
+          streamUrl: streamUrl,
+        );
       }
 
       if (isClosed) return;
@@ -230,14 +242,33 @@ class LibraryCubit extends Cubit<LibraryState> with BaseBlocMixin {
 
   /// Reproduce todas las canciones de favoritos
   /// Retorna el primer NowPlayingData para navegación
+  /// Si ya hay una canción de la lista reproduciéndose, continúa desde esa posición
   NowPlayingData? playAllFavoriteSongs(List<FavoriteSong> songs) {
     if (songs.isEmpty) return null;
 
     final playlist = songs.map(_mapFavoriteSongToNowPlaying).toList();
 
-    _playerBloc.add(LoadPlaylistEvent(playlist: playlist, startIndex: 0));
-    return playlist.first;
-  }
+    // Verificar si hay una canción reproduciéndose actualmente que esté en la playlist
+    int startIndex = 0;
+    final currentTrack = _playerBloc.state.currentTrack;
+    
+    if (currentTrack != null) {
+      // Buscar el índice de la canción actual en la nueva playlist
+      final currentIndex = playlist.indexWhere(
+        (track) => track.videoId == currentTrack.videoId,
+      );
+      if (currentIndex != -1) {
+        startIndex = currentIndex;
+      }
+    }
+
+     _playerBloc.add(LoadPlaylistEvent(
+       playlist: playlist,
+       startIndex: startIndex,
+       sourceId: 'library',
+     ));
+     return playlist[startIndex];
+   }
 
   /// Helper: map a FavoriteSong to NowPlayingData using existing fields
   NowPlayingData _mapFavoriteSongToNowPlaying(FavoriteSong song) {
@@ -251,6 +282,7 @@ class LibraryCubit extends Cubit<LibraryState> with BaseBlocMixin {
           : '0:00',
       durationSeconds: song.duration,
       thumbnailUrl: song.thumbnail,
+      streamUrl: song.streamUrl,
     );
   }
 

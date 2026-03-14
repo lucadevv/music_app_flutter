@@ -103,7 +103,7 @@ class AppTheme {
         color: colorScheme.surfaceContainer,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
       ),
 
       checkboxTheme: CheckboxThemeData(
@@ -119,13 +119,14 @@ class AppTheme {
       ),
 
       chipTheme: ChipThemeData(
-        backgroundColor: colorScheme.surfaceContainerHigh,
+        backgroundColor: Colors.transparent,
         deleteIconColor: colorScheme.onSurfaceVariant,
         disabledColor: colorScheme.onSurface.withValues(alpha: 0.12),
-        selectedColor: colorScheme.primaryContainer,
+        selectedColor: colorScheme.primary,
         secondarySelectedColor: colorScheme.secondaryContainer,
-        labelPadding: const EdgeInsets.symmetric(horizontal: 12),
+        labelPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         labelStyle: TextStyle(color: colorScheme.onSurface, fontSize: 14),
+        shape: StadiumBorder(side: BorderSide(color: colorScheme.outlineVariant)),
         secondaryLabelStyle: TextStyle(
           color: colorScheme.onPrimaryContainer,
           fontSize: 14,
@@ -180,7 +181,7 @@ class AppTheme {
             fontFamily: 'Poppins',
           ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(30),
           ),
         ),
       ),
@@ -213,7 +214,7 @@ class AppTheme {
             fontFamily: 'Poppins',
           ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(30),
           ),
         ),
       ),
@@ -316,7 +317,7 @@ class AppTheme {
             fontFamily: 'Poppins',
           ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(30),
           ),
         ),
       ),
@@ -349,6 +350,7 @@ class AppTheme {
         ),
         surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
         elevation: const WidgetStatePropertyAll(0),
+        shape: const WidgetStatePropertyAll(StadiumBorder()),
         textStyle: WidgetStatePropertyAll(
           TextStyle(color: colorScheme.onSurface, fontFamily: 'Poppins'),
         ),

@@ -47,9 +47,15 @@ class UserPlaylistDetailCubit extends Cubit<UserPlaylistDetailState>
     }
   }
 
-  /// Reproduce una canción en específico índice
-  void playSong(int index) {
-    if (state.playlist == null || state.playlist!.songs.isEmpty) return;
+  /// Reproduce todas las canciones
+  /// Si already have a song playing from this playlist, toggle play/pause
+  /// Otherwise, load entire playlist with sourceId
+  void playAll() {
+    print('DEBUG ========== playAll() LLAMADO ==========');
+    if (state.playlist == null || state.playlist!.songs.isEmpty) {
+      print('DEBUG playAll: playlist es null o vacía, retornando');
+      return;
+    }
 
     final playlist = state.playlist!.songs
         .map(
@@ -63,17 +69,68 @@ class UserPlaylistDetailCubit extends Cubit<UserPlaylistDetailState>
                 : '0:00',
             durationSeconds: s.duration,
             thumbnailUrl: s.thumbnail,
+            streamUrl: s.streamUrl,
           ),
         )
         .toList();
 
-    _playerBloc.add(LoadPlaylistEvent(playlist: playlist, startIndex: index));
+    print('DEBUG playAll: Cargando playlist con ${playlist.length} canciones');
+    print('DEBUG playAll: sourceId = ${state.playlist!.id}');
+
+    // SIMPLIFICADO: Always use LoadPlaylistEvent to load entire playlist
+    _playerBloc.add(LoadPlaylistEvent(
+      playlist: playlist,
+      startIndex: 0,
+      sourceId: state.playlist!.id,
+    ));
+    print('DEBUG playAll: LoadPlaylistEvent enviado');
   }
 
-  /// Reproduce todas las canciones desde el inicio
-  void playAll() {
-    playSong(0);
+  /// Reproduce una canción específica de la playlist
+  void playSong(int index) {
+    print('DEBUG ========== playSong($index) LLAMADO ==========');
+    if (state.playlist == null || state.playlist!.songs.isEmpty) {
+      print('DEBUG playSong: playlist es null o vacía, retornando');
+      return;
+    }
+
+    if (index < 0 || index >= state.playlist!.songs.length) {
+      print('DEBUG playSong: índice fuera de rango');
+      return;
+    }
+
+    final playlist = state.playlist!.songs
+        .map(
+          (s) => NowPlayingData.fromBasic(
+            videoId: s.videoId,
+            title: s.title,
+            artistNames: [s.artist],
+            albumName: '',
+            duration: s.duration != null
+                ? _formatDuration(s.duration!)
+                : '0:00',
+            durationSeconds: s.duration,
+            thumbnailUrl: s.thumbnail,
+            streamUrl: s.streamUrl,
+          ),
+        )
+        .toList();
+
+    print('DEBUG playSong: Cargando playlist desde índice $index');
+    print('DEBUG playSong: sourceId = ${state.playlist!.id}');
+
+    _playerBloc.add(LoadPlaylistEvent(
+      playlist: playlist,
+      startIndex: index,
+      sourceId: state.playlist!.id,
+    ));
   }
+
+  String _formatDuration(int seconds) {
+    final minutes = seconds ~/ 60;
+    final secs = seconds % 60;
+    return '$minutes:${secs.toString().padLeft(2, '0')}';
+}
 
   /// Actualiza el nombre de la playlist
   Future<void> updatePlaylist(String playlistId, String name) async {
@@ -102,11 +159,5 @@ class UserPlaylistDetailCubit extends Cubit<UserPlaylistDetailState>
     } catch (e) {
       emit(state.copyWith(errorMessage: e.toString()));
     }
-  }
-
-  String _formatDuration(int seconds) {
-    final minutes = seconds ~/ 60;
-    final secs = seconds % 60;
-    return '$minutes:${secs.toString().padLeft(2, '0')}';
   }
 }

@@ -13,7 +13,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32"/>
     
     <application
-        android:label="music_app"
+        android:label="Vibeat"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true"
@@ -22,7 +22,7 @@
         <!-- Google Sign In -->
         <meta-data
             android:name="com.google.android.gms.client_id"
-            android:value="YOUR_CLIENT_ID" />
+            android:value="188268615112-10f5gk4607bkrqsfcmouubaisdg5j318.apps.googleusercontent.com" />
         
         <!-- MainActivity - audio_service maneja la configuración automáticamente -->
         <activity

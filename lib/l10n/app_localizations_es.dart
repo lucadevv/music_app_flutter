@@ -60,6 +60,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get offlineMode => 'Modo sin conexión';
 
   @override
+  String get offline => 'Offline';
+
+  @override
   String get noInternetConnection => 'Sin conexión a internet';
 
   @override
@@ -363,7 +366,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get register => 'Registrarse';
 
   @override
-  String get welcome => 'Bienvenido';
+  String get welcome => 'Bienvenido a Vibeat';
 
   @override
   String get signInToContinue => 'Inicia sesión para continuar';
@@ -538,4 +541,93 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get radio => 'Radio';
+
+  @override
+  String hello(String name) {
+    return '¡Hola, $name!';
+  }
+
+  @override
+  String get selectCategories => 'Seleccionar categorías';
+
+  @override
+  String get searchFor => 'Buscar canción, artista o álbum...';
+
+  @override
+  String get all => 'Todo';
+
+  @override
+  String get diveIntoYour => 'Sumérgete en tu';
+
+  @override
+  String get vibeat => 'Vibeat.';
+
+  @override
+  String get onboardingSubtitle =>
+      'Disfruta de una experiencia musical sin interrupciones,\ncreada para cada momento.';
+
+  @override
+  String get startExplore => 'Empezar a Explorar';
+
+  @override
+  String get recoverPassword => 'Recuperar contraseña';
+
+  @override
+  String get emailSent => 'Email enviado';
+
+  @override
+  String get checkInbox =>
+      'Revisa tu bandeja de entrada para restablecer tu contraseña';
+
+  @override
+  String get enterEmailInstructions =>
+      'Ingresa tu email y te enviaremos las instrucciones para restablecer tu contraseña';
+
+  @override
+  String get createAccount => 'Crear cuenta';
+
+  @override
+  String get signUpToStart => 'Regístrate para comenzar';
+
+  @override
+  String get firstName => 'Nombre';
+
+  @override
+  String get lastName => 'Apellido';
+
+  @override
+  String get confirmPassword => 'Confirmar contraseña';
+
+  @override
+  String get minimum8Characters => 'Mínimo 8 caracteres';
+
+  @override
+  String get repeatYourPassword => 'Repite tu contraseña';
+
+  @override
+  String get alreadyHaveAccount => '¿Ya tienes una cuenta?';
+
+  @override
+  String get signIn => 'Iniciar sesión';
+
+  @override
+  String get emailLabel => 'Email';
+
+  @override
+  String get emailPlaceholder => 'tu@email.com';
+
+  @override
+  String get pleaseEnterEmail => 'Por favor ingresa tu email';
+
+  @override
+  String get enterValidEmail => 'Ingresa un email válido';
+
+  @override
+  String get sendInstructions => 'Enviar instrucciones';
+
+  @override
+  String get backToLogin => 'Volver a iniciar sesión';
+
+  @override
+  String get successfullyLoggedIn => 'Sesión iniciada exitosamente';
 }

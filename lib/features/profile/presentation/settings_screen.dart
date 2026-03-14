@@ -7,7 +7,6 @@ import 'package:music_app/core/bloc/locale_cubit.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:music_app/l10n/app_localizations.dart';
-import 'package:music_app/main.dart';
 
 @RoutePage()
 class SettingsScreen extends StatelessWidget {
@@ -15,17 +14,16 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (_) => getIt<ProfileCubit>()
-            ..loadProfile()
-            ..loadSettings(),
-        ),
-        BlocProvider(create: (_) => getIt<LocaleCubit>()),
-      ],
-      child: const _SettingsView(),
-    );
+    // Cargar datos del perfil al entrar a la pantalla
+    // Los Cubits LocaleCubit y ProfileCubit son singletons proporcionados en app.dart
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final profileCubit = context.read<ProfileCubit>();
+      if (!profileCubit.state.isLoading && profileCubit.state.profile == null) {
+        profileCubit.loadProfile();
+        profileCubit.loadSettings();
+      }
+    });
+    return const _SettingsView();
   }
 }
 

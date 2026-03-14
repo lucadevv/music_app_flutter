@@ -34,7 +34,7 @@ class PlaylistTrackItemWidget extends StatelessWidget {
     PlayerBlocState playerState,
     List<PlaylistTrack> allTracks,
   ) {
-    if (playerState is! PlayerBlocLoaded) return false;
+    if (playerState is! PlayerBlocState) return false;
     if (playerState.playlist.isEmpty) return false;
 
     final currentPlaylistVideoIds = allTracks
@@ -79,11 +79,13 @@ class PlaylistTrackItemWidget extends StatelessWidget {
     return BlocBuilder<PlayerBlocBloc, PlayerBlocState>(
       bloc: playerBloc,
       builder: (context, playerState) {
-        final isCurrentlyPlaying =
-            playerState is PlayerBlocLoaded &&
+        // Mostrar indicador si es la canción actual (reproduciendo o en pausa)
+        final isCurrentTrack =
+            playerState is PlayerBlocState &&
             playerState.currentTrack != null &&
-            playerState.currentTrack!.videoId == track.videoId &&
-            playerState.isPlaying;
+            playerState.currentTrack!.videoId == track.videoId;
+
+        final isCurrentlyPlaying = isCurrentTrack && playerState.isPlaying;
 
         final isPlaylistLoaded = _isPlaylistLoaded(playerState, allTracks);
 
@@ -105,13 +107,19 @@ class PlaylistTrackItemWidget extends StatelessWidget {
                           color: AppColorsDark.primary,
                           size: 20,
                         )
-                      : Icon(
-                          Icons.play_arrow,
-                          color: Colors.white.withValues(
-                            alpha: isDisabled ? 0.3 : 0.6,
-                          ),
-                          size: 20,
-                        ),
+                      : isCurrentTrack
+                          ? Icon(
+                              Icons.pause,
+                              color: AppColorsDark.primary,
+                              size: 20,
+                            )
+                          : Icon(
+                              Icons.play_arrow,
+                              color: Colors.white.withValues(
+                                alpha: isDisabled ? 0.3 : 0.6,
+                              ),
+                              size: 20,
+                            ),
                 ),
                 const SizedBox(width: 8),
                 // Botón de favorito
@@ -143,20 +151,39 @@ class PlaylistTrackItemWidget extends StatelessWidget {
             onTap: isDisabled
                 ? null
                 : () {
-                    if (isPlaylistLoaded) {
-                      if (playerState is PlayerBlocLoaded) {
-                        final trackIndex = playerState.playlist.indexWhere(
-                          (t) => t.videoId == track.videoId,
-                        );
-                        if (trackIndex >= 0) {
-                          playerBloc.add(PlayTrackAtIndexEvent(trackIndex));
-                        }
-                      }
-                    } else {
-                      context.router.push(
-                        PlayerRoute(nowPlayingData: _toNowPlayingData()),
-                      );
-                    }
+                    // Filtrar tracks válidos
+                    final validTracks = allTracks
+                        .where((t) =>
+                            t.isAvailable &&
+                            t.videoId != null &&
+                            t.videoId!.isNotEmpty &&
+                            t.streamUrl != null &&
+                            t.streamUrl!.isNotEmpty)
+                        .toList();
+
+                    if (validTracks.isEmpty) return;
+
+                    // Convertir a NowPlayingData
+                    final nowPlayingTracks = validTracks
+                        .map((t) => NowPlayingData.fromPlaylistTrack(t))
+                        .toList();
+
+                    // Encontrar el índice de la canción seleccionada
+                    final index = validTracks.indexWhere((t) => t.videoId == track.videoId);
+
+                    // Cargar toda la playlist empezando desde la canción seleccionada
+                    playerBloc.add(LoadPlaylistEvent(
+                      playlist: nowPlayingTracks,
+                      startIndex: index >= 0 ? index : 0,
+                    ));
+
+                    // Navegar al player (playAsSingle: false para ver el carousel)
+                    context.router.push(
+                      PlayerRoute(
+                        nowPlayingData: _toNowPlayingData(),
+                        playAsSingle: false,
+                      ),
+                    );
                   },
           ),
         );

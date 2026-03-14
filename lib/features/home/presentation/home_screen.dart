@@ -11,7 +11,8 @@ import 'package:music_app/features/home/presentation/widgets/home_header_widget.
 import 'package:music_app/features/home/presentation/widgets/home_listeners.dart';
 import 'package:music_app/features/home/presentation/widgets/home_loading_widget.dart';
 import 'package:music_app/features/home/presentation/widgets/home_section_widget.dart';
-import 'package:music_app/features/home/presentation/widgets/mood_genres_grid_widget.dart';
+import 'package:music_app/features/home/presentation/widgets/categories_row_widget.dart';
+import 'package:music_app/features/profile/presentation/cubit/profile_cubit.dart';
 
 @RoutePage()
 class HomeScreen extends StatefulWidget {
@@ -22,11 +23,34 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
   @override
   void initState() {
     super.initState();
     // Cargar datos del home al iniciar (no resetear para mantener el estado)
     context.read<HomeCubit>().loadHome();
+    
+    // Asegurar que el perfil esté cargado para mostrar avatar en el header
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final profileCubit = context.read<ProfileCubit>();
+      if (profileCubit.state.profile == null && !profileCubit.state.isLoading) {
+        profileCubit.loadProfile();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged(String value) {
+    setState(() {
+      _searchQuery = value.toLowerCase();
+    });
   }
 
   @override
@@ -53,37 +77,88 @@ class _HomeScreenState extends State<HomeScreen> {
                 return const SizedBox.shrink();
               }
 
+              // Filtrar secciones si hay búsqueda
+              final filteredSections = _searchQuery.isEmpty
+                  ? homeResponse.sections
+                  : homeResponse.sections.map((section) {
+                      // Filtrar los items dentro de cada sección
+                      final filteredItems = section.contents.where((item) {
+                        final title = item.title.toLowerCase();
+                        // Buscar en artistas
+                        final artists = item.artists.map((a) => a.name.toLowerCase()).join(' ');
+                        return title.contains(_searchQuery) || 
+                               artists.contains(_searchQuery);
+                      }).toList();
+                      
+                      // Retornar sección con items filtrados
+                      return section.copyWith(contents: filteredItems);
+                    }).where((section) => section.contents.isNotEmpty).toList();
+
               return CustomScrollView(
                 slivers: [
-                  // Header con saludo
-                  const SliverToBoxAdapter(child: HomeHeaderWidget()),
+                  // Header with greeting & search bar
+                  SliverToBoxAdapter(
+                    child: HomeHeaderWidget(
+                      searchController: _searchController,
+                      onSearchChanged: _onSearchChanged,
+                    ),
+                  ),
 
-                  // Secciones de contenido (tendencias, etc.) - igual que en el shimmer
-                  ...homeResponse.sections.map(
+                  // Categories (Moods & Genres) - solo mostrar si no hay búsqueda
+                  if (_searchQuery.isEmpty)
+                    SliverToBoxAdapter(
+                      child: CategoriesRowWidget(
+                        moods: homeResponse.moods,
+                        genres: homeResponse.genres,
+                      ),
+                    ),
+
+                  // Mostrar mensaje si no hay resultados
+                  if (_searchQuery.isNotEmpty && filteredSections.isEmpty)
+                    SliverFillRemaining(
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.search_off,
+                              size: 64,
+                              color: Colors.white.withValues(alpha: 0.5),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'No results for "$_searchQuery"',
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.7),
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                  // Content Sections (Filtered or All)
+                  ...filteredSections.map(
                     (section) => SliverToBoxAdapter(
                       child: HomeSectionWidget(
                         section: section,
                         onSongTap: _playSong,
                         onPlaylistTap: (item) {
-                          // Navegar a la playlist si tiene ID
-                          if (item.playlistId != null &&
-                              item.playlistId!.isNotEmpty) {
-                            context.router.push(
-                              PlaylistRoute(id: item.playlistId!),
-                            );
+                          if (item.playlistId != null && item.playlistId!.isNotEmpty) {
+                            context.router.push(PlaylistRoute(id: item.playlistId!));
+                          }
+                        },
+                        onAlbumTap: (item) {
+                          if (item.browseId != null && item.browseId!.isNotEmpty) {
+                            context.router.push(AlbumRoute(albumId: item.browseId!));
                           }
                         },
                       ),
                     ),
                   ),
-
-                  // GridView de categorías (moods y genres combinados) - al final como en el shimmer
-                  MoodGenresGridWidget(
-                    moods: homeResponse.moods,
-                    genres: homeResponse.genres,
-                  ),
-
-                  const SliverToBoxAdapter(child: SizedBox(height: 100)),
+                   
+                  const SliverToBoxAdapter(child: SizedBox(height: 120)), // Space for bottom nav
                 ],
               );
             },

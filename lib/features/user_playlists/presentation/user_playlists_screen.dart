@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/library/library_service.dart';
@@ -17,7 +18,7 @@ class UserPlaylistsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) =>
-          UserPlaylistsCubit(libraryService: context.read<LibraryService>())
+          UserPlaylistsCubit(libraryService: GetIt.I<LibraryService>())
             ..loadAllPlaylists(),
       child: const _UserPlaylistsView(),
     );

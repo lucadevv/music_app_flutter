@@ -106,13 +106,13 @@ class _LyricsWidgetState extends State<LyricsWidget> {
     return BlocBuilder<PlayerBlocBloc, PlayerBlocState>(
       buildWhen: (previous, current) {
         // Solo reconstruir cuando cambie la posición
-        if (previous is PlayerBlocLoaded && current is PlayerBlocLoaded) {
+        if (previous is PlayerBlocState && current is PlayerBlocState) {
           return previous.position != current.position;
         }
         return true;
       },
       builder: (context, playerState) {
-        if (playerState is PlayerBlocLoaded) {
+        if (playerState is PlayerBlocState) {
           // Calcular índice de línea actual
           final newIndex = LyricLine.getCurrentLineIndex(
             _parsedLyrics,

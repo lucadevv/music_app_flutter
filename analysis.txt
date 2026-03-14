@@ -1,0 +1,72 @@
+   info • Required named parameters should be before optional named parameters • lib/core/widgets/animations.dart:12:19 • always_put_required_named_parameters_first
+   info • Required named parameters should be before optional named parameters • lib/core/widgets/animations.dart:65:19 • always_put_required_named_parameters_first
+   info • Required named parameters should be before optional named parameters • lib/core/widgets/animations.dart:127:19 • always_put_required_named_parameters_first
+   info • Required named parameters should be before optional named parameters • lib/core/widgets/animations.dart:189:19 • always_put_required_named_parameters_first
+   info • Required named parameters should be before optional named parameters • lib/core/widgets/animations.dart:190:19 • always_put_required_named_parameters_first
+   info • Required named parameters should be before optional named parameters • lib/core/widgets/animations.dart:254:19 • always_put_required_named_parameters_first
+   info • Required named parameters should be before optional named parameters • lib/core/widgets/animations.dart:308:19 • always_put_required_named_parameters_first
+   info • Required named parameters should be before optional named parameters • lib/core/widgets/animations.dart:378:19 • always_put_required_named_parameters_first
+   info • Required named parameters should be before optional named parameters • lib/core/widgets/category_chip.dart:10:19 • always_put_required_named_parameters_first
+   info • Required named parameters should be before optional named parameters • lib/core/widgets/category_chip.dart:11:19 • always_put_required_named_parameters_first
+   info • Required named parameters should be before optional named parameters • lib/core/widgets/category_chip.dart:12:19 • always_put_required_named_parameters_first
+   info • Place 'dart:' imports before other imports • lib/core/widgets/glass_bottom_nav.dart:2:1 • directives_ordering
+   info • Required named parameters should be before optional named parameters • lib/core/widgets/glass_bottom_nav.dart:10:19 • always_put_required_named_parameters_first
+   info • Required named parameters should be before optional named parameters • lib/core/widgets/glass_bottom_nav.dart:11:19 • always_put_required_named_parameters_first
+   info • Sort directive sections alphabetically • lib/core/widgets/song_card.dart:2:1 • directives_ordering
+   info • Required named parameters should be before optional named parameters • lib/core/widgets/song_card.dart:14:19 • always_put_required_named_parameters_first
+   info • Required named parameters should be before optional named parameters • lib/core/widgets/song_card.dart:15:19 • always_put_required_named_parameters_first
+   info • Required named parameters should be before optional named parameters • lib/core/widgets/song_card.dart:16:19 • always_put_required_named_parameters_first
+   info • Required named parameters should be before optional named parameters • lib/core/widgets/song_card.dart:17:19 • always_put_required_named_parameters_first
+   info • Don't invoke 'print' in production code • lib/features/home/presentation/cubit/home_cubit.dart:80:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/home/presentation/cubit/home_cubit.dart:81:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/home/presentation/cubit/home_cubit.dart:82:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/home/presentation/cubit/home_cubit.dart:83:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/home/presentation/cubit/home_cubit.dart:84:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/home/presentation/cubit/home_cubit.dart:85:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/home/presentation/cubit/home_cubit.dart:107:11 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/home/presentation/cubit/home_cubit.dart:115:9 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/home/presentation/cubit/home_cubit.dart:120:9 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/home/presentation/cubit/home_cubit.dart:124:9 • avoid_print
+   info • Sort directive sections alphabetically • lib/features/home/presentation/cubit/orquestador_home_cubit.dart:12:1 • directives_ordering
+   info • Closure should be a tearoff • lib/features/home/presentation/cubit/orquestador_home_cubit.dart:39:50 • unnecessary_lambdas
+   info • Closure should be a tearoff • lib/features/home/presentation/cubit/orquestador_home_cubit.dart:50:61 • unnecessary_lambdas
+   info • Sort directive sections alphabetically • lib/features/home/presentation/home_screen.dart:14:1 • directives_ordering
+   info • Sort directive sections alphabetically • lib/features/home/presentation/home_screen.dart:15:1 • directives_ordering
+   info • Required named parameters should be before optional named parameters • lib/features/home/presentation/widgets/categories_row_widget.dart:11:19 • always_put_required_named_parameters_first
+   info • Required named parameters should be before optional named parameters • lib/features/home/presentation/widgets/categories_row_widget.dart:12:19 • always_put_required_named_parameters_first
+   info • Required named parameters should be before optional named parameters • lib/features/home/presentation/widgets/home_listeners.dart:13:49 • always_put_required_named_parameters_first
+   info • Required named parameters should be before optional named parameters • lib/features/home/presentation/widgets/home_section_widget.dart:15:19 • always_put_required_named_parameters_first
+   info • Required named parameters should be before optional named parameters • lib/features/home/presentation/widgets/home_section_widget.dart:16:19 • always_put_required_named_parameters_first
+   info • Sort directive sections alphabetically • lib/features/onboarding/presentation/onboarding_screen.dart:3:1 • directives_ordering
+warning • Unused import: 'package:music_app/l10n/app_localizations.dart' • lib/features/onboarding/presentation/onboarding_screen.dart:7:8 • unused_import
+warning • Unnecessary type check; the result is always 'true' • lib/features/player/presentation/widgets/lyrics_widget.dart:109:13 • unnecessary_type_check
+warning • Unnecessary type check; the result is always 'true' • lib/features/player/presentation/widgets/lyrics_widget.dart:109:44 • unnecessary_type_check
+warning • Dead code • lib/features/player/presentation/widgets/lyrics_widget.dart:112:9 • dead_code
+warning • Unnecessary type check; the result is always 'true' • lib/features/player/presentation/widgets/lyrics_widget.dart:115:13 • unnecessary_type_check
+warning • Unnecessary type check; the result is always 'false' • lib/features/player/presentation/widgets/mini_player.dart:24:13 • unnecessary_type_check
+warning • Unused import: 'package:music_app/core/presentation/widgets/song_list_item.dart' • lib/features/player/presentation/widgets/player_similar_songs_widget.dart:5:8 • unused_import
+warning • Unused import: 'package:music_app/features/favorites/presentation/cubit/favorite_cubit.dart' • lib/features/player/presentation/widgets/player_similar_songs_widget.dart:8:8 • unused_import
+warning • Unused import: 'package:music_app/features/favorites/presentation/widgets/favorite_button.dart' • lib/features/player/presentation/widgets/player_similar_songs_widget.dart:9:8 • unused_import
+warning • Unused import: 'package:music_app/features/library/library_service.dart' • lib/features/player/presentation/widgets/player_similar_songs_widget.dart:11:8 • unused_import
+   info • Required named parameters should be before optional named parameters • lib/features/player/presentation/widgets/player_similar_songs_widget.dart:23:60 • always_put_required_named_parameters_first
+   info • Use 'late' for private members with a non-nullable type • lib/features/player/presentation/widgets/player_similar_songs_widget.dart:36:11 • use_late_for_private_fields_and_variables
+warning • The value of the field '_currentLoadingVideoId' isn't used • lib/features/player/presentation/widgets/player_similar_songs_widget.dart:36:11 • unused_field
+   info • Method invocation or property access on a 'dynamic' target • lib/features/player/presentation/widgets/player_similar_songs_widget.dart:225:23 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/player/presentation/widgets/player_similar_songs_widget.dart:226:25 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/player/presentation/widgets/player_similar_songs_widget.dart:228:13 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/player/presentation/widgets/player_similar_songs_widget.dart:228:42 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/player/presentation/widgets/player_similar_songs_widget.dart:229:16 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/player/presentation/widgets/player_similar_songs_widget.dart:230:31 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/player/presentation/widgets/player_similar_songs_widget.dart:232:15 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/player/presentation/widgets/player_similar_songs_widget.dart:233:30 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/player/presentation/widgets/player_similar_songs_widget.dart:234:27 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/player/presentation/widgets/player_similar_songs_widget.dart:235:26 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/player/presentation/widgets/player_similar_songs_widget.dart:240:25 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/player/presentation/widgets/player_similar_songs_widget.dart:241:15 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/player/presentation/widgets/player_similar_songs_widget.dart:242:41 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/player/presentation/widgets/player_similar_songs_widget.dart:242:68 • avoid_dynamic_calls
+warning • The declaration '_parseDurationToSeconds' isn't referenced • lib/features/player/presentation/widgets/player_similar_songs_widget.dart:300:5 • unused_element
+warning • A value for optional parameter 'streamUrl' isn't ever given • lib/features/player/presentation/widgets/player_similar_songs_widget.dart:328:10 • unused_element_parameter
+warning • A value for optional parameter 'isLoading' isn't ever given • lib/features/player/presentation/widgets/player_similar_songs_widget.dart:329:10 • unused_element_parameter
+   info • Unnecessary use of multiple underscores • lib/features/player/presentation/widgets/player_similar_songs_widget.dart:392:36 • unnecessary_underscores
+   info • Unnecessary use of multiple underscores • lib/features/player/presentation/widgets/player_similar_songs_widget.dart:392:40 • unnecessary_underscores

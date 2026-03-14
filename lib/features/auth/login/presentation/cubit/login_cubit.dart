@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:music_app/core/bloc/base_bloc_mixin.dart';
 import 'package:music_app/core/managers/auth/auth_manager.dart';
+import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
+import 'package:music_app/features/auth/data/services/oauth_service.dart';
 import 'package:music_app/features/auth/register/domain/entities/register_response.dart';
 import 'package:music_app/main.dart';
 
@@ -60,7 +62,10 @@ class LoginCubit extends Cubit<LoginState> with BaseBlocMixin {
       return;
     }
 
-    emit(state.copyWith(status: LoginStatus.loading));
+    emit(state.copyWith(
+      status: LoginStatus.loading,
+      loadingProvider: OAuthProviderType.google,
+    ));
 
     final response = await _googleSignInUseCase();
 
@@ -68,11 +73,20 @@ class LoginCubit extends Cubit<LoginState> with BaseBlocMixin {
 
     await response.fold(
       (failure) {
+        // Si el usuario canceló, volver a initial silenciosamente
+        if (failure is CancelledException) {
+          emit(state.copyWith(
+            status: LoginStatus.initial,
+            clearLoadingProvider: true,
+          ));
+          return;
+        }
         final String errorMessage = getErrorMessage(failure);
         emit(
           state.copyWith(
             status: LoginStatus.failure,
             errorMessage: errorMessage,
+            clearLoadingProvider: true,
           ),
         );
       },
@@ -95,7 +109,10 @@ class LoginCubit extends Cubit<LoginState> with BaseBlocMixin {
       return;
     }
 
-    emit(state.copyWith(status: LoginStatus.loading));
+    emit(state.copyWith(
+      status: LoginStatus.loading,
+      loadingProvider: OAuthProviderType.apple,
+    ));
 
     final response = await _appleSignInUseCase();
 
@@ -103,11 +120,20 @@ class LoginCubit extends Cubit<LoginState> with BaseBlocMixin {
 
     response.fold(
       (failure) {
+        // Si el usuario canceló, volver a initial silenciosamente
+        if (failure is CancelledException) {
+          emit(state.copyWith(
+            status: LoginStatus.initial,
+            clearLoadingProvider: true,
+          ));
+          return;
+        }
         String errorMessage = getErrorMessage(failure);
         emit(
           state.copyWith(
             status: LoginStatus.failure,
             errorMessage: errorMessage,
+            clearLoadingProvider: true,
           ),
         );
       },

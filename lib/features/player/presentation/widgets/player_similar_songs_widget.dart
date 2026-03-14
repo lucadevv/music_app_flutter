@@ -1,10 +1,13 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:music_app/core/presentation/widgets/song_list_item.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/favorites/presentation/cubit/favorite_cubit.dart';
 import 'package:music_app/features/favorites/presentation/widgets/favorite_button.dart';
+import 'package:music_app/features/home/presentation/widgets/home_shimmer.dart';
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 import 'package:music_app/features/player/domain/usecases/get_radio_playlist_usecase.dart';
@@ -30,11 +33,13 @@ class _PlayerSimilarSongsWidgetState extends State<PlayerSimilarSongsWidget> {
   bool _isLoading = true;
   String? _error;
   bool _isDisposed = false;
+  String? _currentLoadingVideoId; // Track which videoId is being loaded
 
   @override
   void initState() {
     super.initState();
     _getRadioPlaylistUseCase = GetIt.I<GetRadioPlaylistUseCase>();
+    _currentLoadingVideoId = widget.videoId;
     _loadRadioPlaylist();
   }
 
@@ -48,12 +53,31 @@ class _PlayerSimilarSongsWidgetState extends State<PlayerSimilarSongsWidget> {
   void didUpdateWidget(PlayerSimilarSongsWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.videoId != widget.videoId) {
+      // Reset state immediately for new videoId
+      _currentLoadingVideoId = widget.videoId;
+      _radioTracks = [];
+      _error = null;
+      _isLoading = true;
       _loadRadioPlaylist();
     }
   }
 
   Future<void> _loadRadioPlaylist() async {
     if (_isDisposed) return;
+    
+    // Guardar el videoId actual que se va a cargar
+    final loadingVideoId = widget.videoId;
+    
+    // No cargar si el videoId está vacío
+    if (loadingVideoId.isEmpty) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _radioTracks = [];
+        });
+      }
+      return;
+    }
 
     if (mounted) {
       setState(() {
@@ -63,9 +87,15 @@ class _PlayerSimilarSongsWidgetState extends State<PlayerSimilarSongsWidget> {
     }
 
     try {
-      final tracks = await _getRadioPlaylistUseCase(widget.videoId, limit: 10);
+      final tracks = await _getRadioPlaylistUseCase(loadingVideoId, limit: 10);
 
       if (_isDisposed) return;
+      
+      // Verificar que el videoId sigue siendo el mismo antes de actualizar
+      if (widget.videoId != loadingVideoId) {
+        // El videoId cambió mientras cargábamos, ignorar esta respuesta
+        return;
+      }
 
       if (mounted) {
         setState(() {
@@ -75,6 +105,38 @@ class _PlayerSimilarSongsWidgetState extends State<PlayerSimilarSongsWidget> {
       }
     } catch (e) {
       if (_isDisposed) return;
+      
+      // Verificar que el videoId sigue siendo el mismo
+      if (widget.videoId != loadingVideoId) {
+        return;
+      }
+
+      // Ignorar errores de cancelación/interrupción de conexión
+      final errorString = e.toString().toLowerCase();
+      final isIgnorableError = 
+          errorString.contains('cancelled') ||
+          errorString.contains('interrupted') ||
+          errorString.contains('loading interrupted') ||
+          errorString.contains('connection') && errorString.contains('closed') ||
+          errorString.contains('socketexception') ||
+          errorString.contains('timeout') ||
+          errorString.contains('resetear player') ||
+          errorString.contains('bad response') ||
+          errorString.contains('500') ||
+          errorString.contains('502') ||
+          errorString.contains('503') ||
+          errorString.contains('dioexception');
+      
+      if (isIgnorableError) {
+        // No mostrar error al usuario, simplemente cargar en silencio
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+            _radioTracks = [];
+          });
+        }
+        return;
+      }
 
       if (mounted) {
         setState(() {
@@ -92,14 +154,17 @@ class _PlayerSimilarSongsWidgetState extends State<PlayerSimilarSongsWidget> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-            l10n.songsSimilarToThis,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+        Padding(
+          padding: const EdgeInsets.only(left: 16),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              l10n.songsSimilarToThis,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ),
@@ -120,11 +185,9 @@ class _PlayerSimilarSongsWidgetState extends State<PlayerSimilarSongsWidget> {
     return Column(
       children: List.generate(
         4,
-        (index) => const _SimilarSongItem(
-          title: 'Loading...',
-          artist: '',
-          videoId: '',
-          isLoading: true,
+        (index) => const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: SongListItemsShimmer(),
         ),
       ),
     );
@@ -207,12 +270,14 @@ class _PlayerSimilarSongsWidgetState extends State<PlayerSimilarSongsWidget> {
     required String? streamUrl,
     required String duration,
   }) {
-    // Convert duration string to seconds
+    // Convert duration string to seconds (handles "M:SS" and "H:MM:SS" formats)
     int durationSeconds = 0;
     try {
       final parts = duration.split(':');
       if (parts.length == 2) {
         durationSeconds = int.parse(parts[0]) * 60 + int.parse(parts[1]);
+      } else if (parts.length == 3) {
+        durationSeconds = int.parse(parts[0]) * 3600 + int.parse(parts[1]) * 60 + int.parse(parts[2]);
       }
     } catch (_) {}
 
@@ -227,9 +292,11 @@ class _PlayerSimilarSongsWidgetState extends State<PlayerSimilarSongsWidget> {
       streamUrl: streamUrl,
     );
 
-    context.read<PlayerBlocBloc>().add(LoadTrackEvent(nowPlayingData));
+    context.read<PlayerBlocBloc>().add(LoadTrackEvent(nowPlayingData, sourceId: 'radio'));
   }
 }
+
+// Removed _parseDurationToSeconds as it was unused
 
 class _SimilarSongItem extends StatelessWidget {
   final String title;
@@ -237,7 +304,6 @@ class _SimilarSongItem extends StatelessWidget {
   final String videoId;
   final String? thumbnail;
   final int? durationSeconds;
-  final bool isLoading;
   final VoidCallback? onTap;
 
   const _SimilarSongItem({
@@ -246,41 +312,68 @@ class _SimilarSongItem extends StatelessWidget {
     required this.videoId,
     this.thumbnail,
     this.durationSeconds,
-    this.isLoading = false,
     this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return SongListItem(
-      title: isLoading ? 'Loading...' : title,
-      artist: isLoading ? '' : artist,
-      thumbnail: thumbnail,
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (videoId.isNotEmpty)
-            FavoriteButton(
-              videoId: videoId,
-              type: FavoriteType.song,
-              size: 22,
-              metadata: SongMetadata(
-                title: title,
-                artist: artist,
-                thumbnail: thumbnail,
-                duration: durationSeconds,
-              ),
-            ),
-          IconButton(
-            icon: Icon(
-              Icons.more_vert,
-              color: Colors.white.withValues(alpha: 0.6),
-            ),
-            onPressed: onTap,
-          ),
-        ],
+
+    final durationText = _formatDuration(durationSeconds);
+
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+      leading: ClipRRect(
+        borderRadius: BorderRadius.circular(4),
+        child: Container(
+          width: 48,
+          height: 48,
+          color: AppColorsDark.primaryContainer,
+          child: thumbnail != null
+              ? CachedNetworkImage(
+                  imageUrl: thumbnail!,
+                  fit: BoxFit.cover,
+                  errorWidget: (context, url, error) =>
+                      const Icon(Icons.music_note, color: AppColorsDark.primary),
+                )
+              : const Icon(Icons.music_note, color: AppColorsDark.primary),
+        ),
       ),
+      title: Text(
+        title,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 15,
+          fontWeight: FontWeight.w500,
+        ),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+      subtitle: Text(
+        artist,
+        style: TextStyle(
+          color: Colors.white.withValues(alpha: 0.6),
+          fontSize: 13,
+        ),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+      trailing: durationText != null
+          ? Text(
+              durationText,
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.6),
+                fontSize: 13,
+              ),
+            )
+          : null,
       onTap: onTap,
     );
+  }
+
+  String? _formatDuration(int? seconds) {
+    if (seconds == null || seconds == 0) return null;
+    final minutes = seconds ~/ 60;
+    final remainingSeconds = seconds % 60;
+    return '$minutes:${remainingSeconds.toString().padLeft(2, '0')}';
   }
 }

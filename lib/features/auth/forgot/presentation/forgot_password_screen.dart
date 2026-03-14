@@ -1,7 +1,12 @@
+import 'dart:ui';
+import 'package:flutter/foundation.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
+import 'package:music_app/core/widgets/language_selector.dart';
+import 'package:music_app/l10n/app_localizations.dart';
+import 'package:video_player/video_player.dart';
 
 @RoutePage()
 class ForgotPasswordScreen extends StatefulWidget {
@@ -15,10 +20,39 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   bool _emailSent = false;
+  VideoPlayerController? _videoController;
+  bool _videoInitialized = false;
+  bool _enableVideo = true;
+
+  @override
+  void initState() {
+    super.initState();
+    // Delay video init to avoid platform connection issues
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (mounted) _initializeVideo();
+    });
+  }
+
+  Future<void> _initializeVideo() async {
+    if (!mounted) return;
+    try {
+      _videoController = VideoPlayerController.asset('assets/video/video_login.mp4');
+      await _videoController!.initialize();
+      if (!mounted) return;
+      _videoController!.setLooping(true);
+      _videoController!.setVolume(0);
+      await _videoController!.play();
+      _videoInitialized = true;
+      if (mounted) setState(() {});
+    } catch (e) {
+      // Video failed to load
+    }
+  }
 
   @override
   void dispose() {
     _emailController.dispose();
+    _videoController?.dispose();
     super.dispose();
   }
 
@@ -32,17 +66,60 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Scaffold(
       backgroundColor: AppColorsDark.surface,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColorsDark.onSurface),
-          onPressed: () => context.router.pop(),
-        ),
-      ),
-      body: SafeArea(
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          // Video Background
+          if (_enableVideo && _videoController != null && _videoController!.value.isInitialized)
+            SizedBox.expand(
+              child: FittedBox(
+                fit: BoxFit.cover,
+                child: SizedBox(
+                  width: _videoController!.value.size.width,
+                  height: _videoController!.value.size.height,
+                  child: VideoPlayer(_videoController!),
+                ),
+              ),
+            ),
+          
+          // Blur overlay
+          BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+            child: Container(
+              color: AppColorsDark.surface.withValues(alpha: 0.7),
+            ),
+          ),
+
+          // AppBar transparente
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back, color: AppColorsDark.onSurface),
+                      onPressed: () => context.router.pop(),
+                    ),
+                    LanguageSelector(
+                      backgroundColor: Colors.white.withValues(alpha: 0.1),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          // Body
+          SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
           child: Form(
@@ -68,7 +145,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
                 // Título
                 Text(
-                  _emailSent ? 'Email enviado' : 'Recuperar contraseña',
+                  _emailSent ? l10n.emailSent : l10n.recoverPassword,
                   style: const TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
@@ -79,8 +156,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 const SizedBox(height: 8),
                 Text(
                   _emailSent
-                      ? 'Revisa tu bandeja de entrada para restablecer tu contraseña'
-                      : 'Ingresa tu email y te enviaremos las instrucciones para restablecer tu contraseña',
+                      ? l10n.checkInbox
+                      : l10n.enterEmailInstructions,
                   style: const TextStyle(
                     fontSize: 16,
                     color: AppColorsDark.onSurfaceVariant,
@@ -95,8 +172,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
-                      labelText: 'Email',
-                      hintText: 'tu@email.com',
+                      labelText: l10n.emailLabel,
+                      hintText: l10n.emailPlaceholder,
                       prefixIcon: const Icon(
                         Icons.email,
                         color: AppColorsDark.primary,
@@ -117,10 +194,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     style: const TextStyle(color: AppColorsDark.onSurface),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Por favor ingresa tu email';
+                        return l10n.pleaseEnterEmail;
                       }
                       if (!value.contains('@')) {
-                        return 'Ingresa un email válido';
+                        return l10n.enterValidEmail;
                       }
                       return null;
                     },
@@ -138,9 +215,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         borderRadius: BorderRadius.circular(20),
                       ),
                     ),
-                    child: const Text(
-                      'Enviar instrucciones',
-                      style: TextStyle(
+                    child: Text(
+                      l10n.sendInstructions,
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
@@ -166,9 +243,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         borderRadius: BorderRadius.circular(20),
                       ),
                     ),
-                    child: const Text(
-                      'Volver a iniciar sesión',
-                      style: TextStyle(
+                    child: Text(
+                      l10n.backToLogin,
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
@@ -182,9 +259,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   onPressed: () {
                     context.router.push(const LoginRoute());
                   },
-                  child: const Text(
-                    'Volver a iniciar sesión',
-                    style: TextStyle(
+                  child: Text(
+                    l10n.backToLogin,
+                    style: const TextStyle(
                       color: AppColorsDark.primary,
                       fontSize: 14,
                     ),
@@ -192,8 +269,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 ),
               ],
             ),
-          ),
-        ),
+          ),),),
+        ],
       ),
     );
   }

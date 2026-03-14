@@ -59,6 +59,7 @@ class RecentlyPlayedCubit extends Cubit<RecentlyPlayedState>
       duration: song.duration,
       durationSeconds: song.durationSeconds,
       thumbnailUrl: song.thumbnail,
+      streamUrl: song.streamUrl, // Incluir streamUrl si está disponible
     );
 
     _playerBloc.add(LoadTrackEvent(nowPlayingData));

@@ -60,22 +60,28 @@ class SeekEvent extends PlayerBlocEvent {
 /// Cargar una sola canción
 class LoadTrackEvent extends PlayerBlocEvent {
   final NowPlayingData track;
+  final String? sourceId;
 
-  const LoadTrackEvent(this.track);
+  const LoadTrackEvent(this.track, {this.sourceId});
 
   @override
-  List<Object?> get props => [track];
+  List<Object?> get props => [track, sourceId];
 }
 
 /// Cargar una playlist
 class LoadPlaylistEvent extends PlayerBlocEvent {
   final List<NowPlayingData> playlist;
   final int? startIndex;
+  final String? sourceId;
 
-  const LoadPlaylistEvent({required this.playlist, this.startIndex});
+  const LoadPlaylistEvent({
+    required this.playlist,
+    this.startIndex,
+    this.sourceId,
+  });
 
   @override
-  List<Object?> get props => [playlist, startIndex];
+  List<Object?> get props => [playlist, startIndex, sourceId];
 }
 
 /// Reproducir canción en un índice específico
@@ -97,6 +103,20 @@ class AddToPlaylistEvent extends PlayerBlocEvent {
   @override
   List<Object?> get props => [track];
 }
+
+/// Agregar múltiples canciones a la playlist
+class AddMultipleToPlaylistEvent extends PlayerBlocEvent {
+  final List<NowPlayingData> tracks;
+  final String? sourceId;
+
+  const AddMultipleToPlaylistEvent(this.tracks, {this.sourceId});
+
+  @override
+  List<Object?> get props => [tracks, sourceId];
+}
+
+/// Cargar una canción con URL ya resuelta (para playlist loading)
+
 
 /// Remover canción de la playlist
 class RemoveFromPlaylistEvent extends PlayerBlocEvent {
@@ -217,4 +237,9 @@ class InitializeAudioServiceEvent extends PlayerBlocEvent {
 /// Cerrar AudioService
 class DisposeAudioServiceEvent extends PlayerBlocEvent {
   const DisposeAudioServiceEvent();
+}
+
+/// Resetear el player al estado inicial (para cuando se reproduce una canción individual)
+class ResetPlayerEvent extends PlayerBlocEvent {
+  const ResetPlayerEvent();
 }

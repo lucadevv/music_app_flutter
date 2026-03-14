@@ -23,7 +23,7 @@ class SongOptionsRepositoryImpl implements SongOptionsRepository {
   @override
   Future<Either<AppException, SongOptionEntity>> toggleFavorite(SongOptionEntity song) async {
     try {
-      await _dataSource.toggleFavorite(song.videoId, song.isFavorite);
+      await _dataSource.toggleFavorite(song);
       return Right(song.copyWith(isFavorite: !song.isFavorite));
     } catch (e) {
       return Left(UnknownException(e.toString()));

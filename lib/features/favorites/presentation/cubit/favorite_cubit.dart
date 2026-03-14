@@ -83,7 +83,9 @@ class FavoriteCubit extends Cubit<FavoriteState> with BaseBlocMixin {
         // Remover de favoritos
         switch (type) {
           case FavoriteType.song:
-            await _libraryService.removeFavoriteSong(songId ?? videoId);
+            // Buscar songId del mapeo si no se proporcionó
+            final effectiveSongId = songId ?? state.getSongIdForVideoId(videoId) ?? videoId;
+            await _libraryService.removeFavoriteSong(effectiveSongId);
             break;
           case FavoriteType.playlist:
             await _libraryService.removeFavoritePlaylist(videoId);
@@ -98,15 +100,18 @@ class FavoriteCubit extends Cubit<FavoriteState> with BaseBlocMixin {
         // Agregar a favoritos
         switch (type) {
           case FavoriteType.song:
+            debugPrint('FavoriteCubit: Adding song to favorites - videoId: $videoId, title: ${metadata?.title}');
             await _libraryService.addFavoriteSong(
               videoId,
               title: metadata?.title,
               artist: metadata?.artist,
               thumbnail: metadata?.thumbnail,
               duration: metadata?.duration,
+              streamUrl: metadata?.streamUrl,
             );
             break;
           case FavoriteType.playlist:
+            debugPrint('FavoriteCubit: Adding playlist to favorites - videoId: $videoId, name: ${playlistMetadata?.name}');
             await _libraryService.addFavoritePlaylist(
               videoId,
               name: playlistMetadata?.name,
@@ -121,6 +126,7 @@ class FavoriteCubit extends Cubit<FavoriteState> with BaseBlocMixin {
             );
             break;
           case FavoriteType.genre:
+            debugPrint('FavoriteCubit: Adding genre to favorites - externalParams: $videoId');
             await _libraryService.addFavoriteGenre(videoId);
             break;
         }
@@ -169,6 +175,12 @@ class FavoriteCubit extends Cubit<FavoriteState> with BaseBlocMixin {
 
       if (isClosed) return;
 
+      // Crear mapeo videoId -> songId para poder eliminar correctamente
+      final songIdByVideoId = <String, String>{};
+      for (final song in songsResponse.data) {
+        songIdByVideoId[song.videoId] = song.songId;
+      }
+
       emit(
         FavoriteState(
           favoriteSongs: songsResponse.data.map((s) => s.videoId).toSet(),
@@ -178,6 +190,7 @@ class FavoriteCubit extends Cubit<FavoriteState> with BaseBlocMixin {
           favoriteGenres: genresResponse.data
               .map((g) => g.externalParams)
               .toSet(),
+          songIdByVideoId: songIdByVideoId,
           isLoading: false,
         ),
       );
@@ -290,12 +303,32 @@ class FavoriteCubit extends Cubit<FavoriteState> with BaseBlocMixin {
   }
 
   /// Reproduce todas las canciones
+  /// Si ya hay una canción de la lista reproduciéndose, continúa desde esa posición
   void playAllSongs(List<FavoriteSong> songs) {
     if (songs.isEmpty) return;
 
     final playlist = songs.map(_mapToNowPlaying).toList();
-    _playerBloc.add(LoadPlaylistEvent(playlist: playlist, startIndex: 0));
-  }
+
+    // Verificar si hay una canción reproduciéndose actualmente que esté en la playlist
+    int startIndex = 0;
+    final currentTrack = _playerBloc.state.currentTrack;
+    
+    if (currentTrack != null) {
+      // Buscar el índice de la canción actual en la nueva playlist
+      final currentIndex = playlist.indexWhere(
+        (track) => track.videoId == currentTrack.videoId,
+      );
+      if (currentIndex != -1) {
+        startIndex = currentIndex;
+      }
+    }
+
+     _playerBloc.add(LoadPlaylistEvent(
+       playlist: playlist,
+       startIndex: startIndex,
+       sourceId: 'favorites',
+     ));
+   }
 
   /// Elimina una canción de favoritos
   void removeSong(FavoriteSong song) {
@@ -318,6 +351,7 @@ class FavoriteCubit extends Cubit<FavoriteState> with BaseBlocMixin {
           : '0:00',
       durationSeconds: song.duration,
       thumbnailUrl: song.thumbnail,
+      streamUrl: song.streamUrl,
     );
   }
 

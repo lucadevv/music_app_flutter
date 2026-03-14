@@ -22,7 +22,7 @@ class QueueScreen extends StatelessWidget {
       appBar: _buildAppBar(context, l10n),
       body: BlocBuilder<PlayerBlocBloc, PlayerBlocState>(
         builder: (context, state) {
-          if (state is! PlayerBlocLoaded) {
+          if (state is! PlayerBlocState) {
             return _buildEmptyQueue(context, l10n);
           }
 
@@ -64,7 +64,7 @@ class QueueScreen extends StatelessWidget {
           onPressed: () {
             // Limpiar la playlist (usar LoadPlaylistEvent con lista vacía)
             final state = context.read<PlayerBlocBloc>().state;
-            if (state is PlayerBlocLoaded && state.playlist.isNotEmpty) {
+            if (state is PlayerBlocState && state.playlist.isNotEmpty) {
               context.read<PlayerBlocBloc>().add(
                 const LoadPlaylistEvent(playlist: [], startIndex: 0),
               );
@@ -101,7 +101,7 @@ class QueueScreen extends StatelessWidget {
 
   Widget _buildNowPlaying(
     BuildContext context,
-    PlayerBlocLoaded state,
+    PlayerBlocState state,
     AppLocalizations l10n,
   ) {
     final track = state.currentTrack;
@@ -214,7 +214,7 @@ class QueueScreen extends StatelessWidget {
 
   Widget _buildQueueList(
     BuildContext context,
-    PlayerBlocLoaded state,
+    PlayerBlocState state,
     AppLocalizations l10n,
   ) {
     final queue = state.playlist;

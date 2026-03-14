@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:music_app/core/managers/auth/auth_manager.dart';
 import 'package:music_app/core/services/network/api_services.dart';
 import 'package:music_app/features/profile/data/models/user_profile_model.dart';
 import 'package:music_app/features/profile/data/models/user_settings_model.dart';
@@ -8,8 +9,9 @@ import 'package:music_app/features/profile/data/models/library_stats_model.dart'
 /// Handles all API calls to the backend.
 class ProfileRemoteDataSource {
   final ApiServices _api;
+  final AuthManager _authManager;
 
-  ProfileRemoteDataSource(this._api);
+  ProfileRemoteDataSource(this._api, this._authManager);
 
   /// Get the current user's profile
   Future<UserProfileModel> getProfile() async {
@@ -83,7 +85,8 @@ class ProfileRemoteDataSource {
   /// Logout the current user
   Future<void> logout() async {
     try {
-      await _api.post('/auth/logout');
+      final refreshToken = await _authManager.getCurrentRefreshToken();
+      await _api.post('/auth/logout', data: {'refreshToken': refreshToken});
     } catch (e) {
       rethrow;
     }

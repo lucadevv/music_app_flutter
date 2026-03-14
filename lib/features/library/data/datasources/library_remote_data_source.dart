@@ -66,13 +66,13 @@ class LibraryRemoteDataSource {
     }
   }
 
-  /// Add song to favorites
   Future<void> addFavoriteSong({
     required String videoId,
     String? title,
     String? artist,
     String? thumbnail,
     int? duration,
+    String? streamUrl,
   }) async {
     try {
       await _api.post(
@@ -83,6 +83,7 @@ class LibraryRemoteDataSource {
           if (artist != null) 'artist': artist,
           if (thumbnail != null) 'thumbnail': thumbnail,
           if (duration != null) 'duration': duration,
+          if (streamUrl != null) 'streamUrl': streamUrl,
         },
       );
     } catch (e) {

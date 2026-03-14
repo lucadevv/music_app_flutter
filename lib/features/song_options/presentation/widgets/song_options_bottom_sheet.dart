@@ -289,6 +289,7 @@ class SongOptionsBottomSheet extends StatelessWidget {
               thumbnail: song.thumbnail,
               duration: song.durationSeconds,
               isFavorite: song.isFavorite,
+              streamUrl: song.streamUrl,
             ),
 
             // Opción: Agregar a playlist
@@ -388,6 +389,7 @@ class _FavoriteOptionTile extends StatelessWidget {
   final String? thumbnail;
   final int? duration;
   final bool isFavorite;
+  final String? streamUrl;
 
   const _FavoriteOptionTile({
     required this.videoId,
@@ -396,6 +398,7 @@ class _FavoriteOptionTile extends StatelessWidget {
     required this.isFavorite,
     this.thumbnail,
     this.duration,
+    this.streamUrl,
   });
 
   @override
@@ -416,6 +419,7 @@ class _FavoriteOptionTile extends StatelessWidget {
             artist: artist,
             thumbnail: thumbnail,
             duration: duration,
+            streamUrl: streamUrl,
           ),
         );
       },

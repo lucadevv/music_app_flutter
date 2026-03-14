@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
+import 'package:music_app/l10n/app_localizations.dart';
 
 class RegisterHeader extends StatelessWidget {
   const RegisterHeader({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Crear cuenta',
+          l10n.createAccount,
           style: TextStyle(
             fontSize: 32,
             fontWeight: FontWeight.bold,
@@ -19,7 +22,7 @@ class RegisterHeader extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          'Regístrate para comenzar',
+          l10n.signUpToStart,
           style: TextStyle(fontSize: 16, color: AppColorsDark.onSurfaceVariant),
         ),
         const SizedBox(height: 32),

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/profile/presentation/cubit/profile_cubit.dart';
-import 'package:music_app/main.dart';
 
 @RoutePage()
 class EqualizerScreen extends StatelessWidget {
@@ -11,10 +10,8 @@ class EqualizerScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => getIt<ProfileCubit>(),
-      child: const _EqualizerView(),
-    );
+    // ProfileCubit es singleton, ya está proporcionado en app.dart
+    return const _EqualizerView();
   }
 }
 

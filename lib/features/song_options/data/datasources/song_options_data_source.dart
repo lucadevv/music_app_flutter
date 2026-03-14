@@ -24,12 +24,19 @@ class SongOptionsDataSource {
     );
   }
 
-  /// Toggle favorite
-  Future<void> toggleFavorite(String videoId, bool isFavorite) async {
-    if (isFavorite) {
-      await _libraryService.removeFavoriteSong(videoId);
+  /// Toggle favorite - passes full metadata
+  Future<void> toggleFavorite(SongOptionEntity song) async {
+    if (song.isFavorite) {
+      await _libraryService.removeFavoriteSong(song.videoId);
     } else {
-      await _libraryService.addFavoriteSong(videoId);
+      await _libraryService.addFavoriteSong(
+        song.videoId,
+        title: song.title,
+        artist: song.artist,
+        thumbnail: song.thumbnail,
+        duration: song.durationSeconds,
+        streamUrl: song.streamUrl,
+      );
     }
   }
 

@@ -6,6 +6,7 @@ import 'package:get_it/get_it.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/presentation/widgets/song_list_item.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
+import 'package:music_app/core/widgets/shimmer_widgets.dart';
 import 'package:music_app/features/album/domain/entities/album.dart';
 import 'package:music_app/features/album/presentation/cubit/album_cubit.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
@@ -41,9 +42,7 @@ class _AlbumView extends StatelessWidget {
       body: BlocBuilder<AlbumCubit, AlbumState>(
         builder: (context, state) {
           if (state.status == AlbumStatus.loading) {
-            return const Center(
-              child: CircularProgressIndicator(color: AppColorsDark.primary),
-            );
+            return const _AlbumLoadingView();
           }
 
           if (state.status == AlbumStatus.failure) {
@@ -323,6 +322,85 @@ class _AlbumSongItem extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Widget de loading con shimmer para AlbumScreen
+class _AlbumLoadingView extends StatelessWidget {
+  const _AlbumLoadingView();
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomScrollView(
+      slivers: [
+        // App Bar con shimmer
+        SliverAppBar(
+          expandedHeight: 300,
+          pinned: true,
+          backgroundColor: Colors.transparent,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () => context.router.pop(),
+          ),
+          flexibleSpace: FlexibleSpaceBar(
+            background: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [AppColorsDark.primaryContainer, Color(0xFF0D0D0D)],
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    // Album artwork shimmer
+                    ThumbnailShimmer(width: 180, height: 180),
+                    SizedBox(height: 16),
+                    // Title shimmer
+                    TextShimmer(width: 200, height: 24),
+                    SizedBox(height: 8),
+                    // Subtitle shimmer
+                    TextShimmer(width: 120, height: 14),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        
+        // Action buttons shimmer
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Row(
+              children: const [
+                ButtonShimmer(width: 100, height: 48),
+                SizedBox(width: 16),
+                ShimmerContainer(width: 48, height: 48, borderRadius: 24),
+                SizedBox(width: 8),
+                ShimmerContainer(width: 48, height: 48, borderRadius: 24),
+                SizedBox(width: 8),
+                ShimmerContainer(width: 48, height: 48, borderRadius: 24),
+              ],
+            ),
+          ),
+        ),
+        
+        // Songs list shimmer
+        SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, index) => const SongListItemShimmer(),
+            childCount: 10,
+          ),
+        ),
+        
+        const SliverToBoxAdapter(child: SizedBox(height: 100)),
+      ],
     );
   }
 }

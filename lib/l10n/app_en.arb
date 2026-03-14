@@ -17,6 +17,7 @@
   "downloaded": "Downloaded",
   "removeDownload": "Remove Download",
   "offlineMode": "Offline Mode",
+  "offline": "Offline",
   "noInternetConnection": "No internet connection",
   "errorOccurred": "An error occurred",
   "tryAgain": "Try Again",
@@ -128,7 +129,7 @@
   "noAccount": "Don't have an account?",
   "register": "Register",
 
-  "welcome": "Welcome",
+  "welcome": "Welcome Vibeat",
   "signInToContinue": "Sign in to continue",
   "continueWithGoogle": "Continue with Google",
   "continueWithApple": "Continue with Apple",
@@ -192,5 +193,45 @@
   "google": "Google",
   "apple": "Apple",
   "songsSimilarToThis": "Songs similar to this",
-  "radio": "Radio"
+  "radio": "Radio",
+  "hello": "Hello, {name}!",
+  "@hello": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "selectCategories": "Select Categories",
+  "searchFor": "Search for a song, artist or album...",
+  "all": "All",
+  
+  "diveIntoYour": "Dive Into Your",
+  "vibeat": "Vibeat.",
+  "onboardingSubtitle": "Experience seamless music enjoyment,\ncrafted for every moment.",
+  "startExplore": "Start Explore",
+  
+  "recoverPassword": "Recover password",
+  "emailSent": "Email sent",
+  "checkInbox": "Check your inbox for instructions to reset your password",
+  "enterEmailInstructions": "Enter your email and we will send you instructions to reset your password",
+
+  "createAccount": "Create account",
+  "signUpToStart": "Sign up to get started",
+  "firstName": "First name",
+  "lastName": "Last name",
+  "confirmPassword": "Confirm password",
+  "minimum8Characters": "Minimum 8 characters",
+  "repeatYourPassword": "Repeat your password",
+  "register": "Register",
+  "alreadyHaveAccount": "Already have an account?",
+  "signIn": "Sign in",
+
+  "emailLabel": "Email",
+  "emailPlaceholder": "your@email.com",
+  "pleaseEnterEmail": "Please enter your email",
+  "enterValidEmail": "Enter a valid email",
+  "sendInstructions": "Send instructions",
+  "backToLogin": "Back to login",
+  "successfullyLoggedIn": "Successfully logged in"
 }

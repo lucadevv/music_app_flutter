@@ -8,6 +8,7 @@ import 'package:music_app/features/home/data/models/mood_genre_model.dart';
 import 'package:music_app/features/search/data/models/recent_search_model.dart';
 import 'package:music_app/features/search/domain/entities/recent_search.dart';
 import '../../domain/entities/search_request.dart';
+import '../../domain/entities/song.dart';
 import '../models/search_response_model.dart';
 
 /// Data source remoto para operaciones de búsqueda
@@ -22,6 +23,13 @@ abstract class SearchRemoteDataSource {
 
   /// Obtiene las categorías (moods/genres) para la pantalla de búsqueda
   Future<Either<AppException, List<MoodGenreModel>>> getCategories();
+
+  /// Actualiza la canción seleccionada en una búsqueda reciente
+  Future<Either<AppException, void>> updateSelectedSong({
+    required String query,
+    required String videoId,
+    required Song song,
+  });
 }
 
 class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
@@ -36,8 +44,10 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
     try {
       // Codificar la query para URL (espacios -> %20)
       final encodedQuery = Uri.encodeComponent(request.query);
-      final endpoint =
-          '/music/search?q=$encodedQuery&filter=${request.filter}&include_stream_urls=true';
+      
+      // Construir endpoint con paginación
+      final endpoint = '/music/search?q=$encodedQuery&filter=${request.filter}'
+          '&start_index=${request.startIndex}&include_stream_urls=false';
 
       final response = await _apiServices.get(endpoint);
 
@@ -86,7 +96,7 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
   }) async {
     try {
       final endpoint =
-          '/music/recent-searches?limit=$limit&include_stream_urls=true';
+          '/music/recent-searches?limit=$limit&include_stream_urls=false';
       final response = await _apiServices.get(endpoint);
 
       // Dio devuelve Response, necesitamos acceder a response.data
@@ -157,17 +167,10 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
               if (item is Map<String, dynamic>) {
                 recentSearches.add(RecentSearchModel.fromJson(item));
               } else if (item is String) {
-                if (kDebugMode)
-                  debugPrint(
-                    'getRecentSearches: Item $i en data es String, saltando: $item',
-                  );
-                continue;
+             
               }
             } catch (e) {
-              if (kDebugMode)
-                debugPrint(
-                  'getRecentSearches: Error parseando item $i en data: $e',
-                );
+             
               continue;
             }
           }
@@ -196,7 +199,7 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
   @override
   Future<Either<AppException, List<MoodGenreModel>>> getCategories() async {
     try {
-      const endpoint = '/music/explore';
+      const endpoint = '/music/explore?include_stream_urls=false';
       final response = await _apiServices.get(endpoint);
 
       final responseData = response is Response ? response.data : response;
@@ -217,6 +220,39 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
     } catch (e) {
       final appException = ExceptionHandler.handleException(e);
       ExceptionHandler.logException(appException, context: 'getCategories');
+      return Left(appException);
+    }
+  }
+
+  @override
+  Future<Either<AppException, void>> updateSelectedSong({
+    required String query,
+    required String videoId,
+    required Song song,
+  }) async {
+    try {
+      const endpoint = '/music/recent-searches/select';
+      
+      final body = {
+        'query': query,
+        'videoId': videoId,
+        'songData': {
+          'videoId': song.videoId,
+          'title': song.title,
+          'artists': song.artists.map((a) => {'id': a.id, 'name': a.name}).toList(),
+          'album': {'id': song.album.id, 'name': song.album.name},
+          'thumbnails': song.thumbnails.map((t) => {'url': t.url, 'width': t.width, 'height': t.height}).toList(),
+          'duration': song.duration,
+          'durationSeconds': song.durationSeconds,
+          'views': song.views,
+        },
+      };
+
+      await _apiServices.put(endpoint, data: body);
+      return const Right(null);
+    } catch (e) {
+      final appException = ExceptionHandler.handleException(e);
+      ExceptionHandler.logException(appException, context: 'updateSelectedSong');
       return Left(appException);
     }
   }

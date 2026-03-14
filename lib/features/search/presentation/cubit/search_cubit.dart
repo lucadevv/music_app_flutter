@@ -16,8 +16,8 @@ class SearchCubit extends Cubit<SearchState> with BaseBlocMixin {
   Timer? _debounceTimer;
 
   SearchCubit({required SearchUseCase searchUseCase})
-    : _searchUseCase = searchUseCase,
-      super(const SearchState());
+      : _searchUseCase = searchUseCase,
+        super(const SearchState());
 
   /// Realiza una búsqueda con debounce automático (800ms)
   /// Este método debe llamarse desde la UI cada vez que cambia el texto
@@ -49,12 +49,7 @@ class SearchCubit extends Cubit<SearchState> with BaseBlocMixin {
   Future<void> search(String query) async {
     if (query.trim().isEmpty) {
       emit(
-        state.copyWith(
-          status: SearchStatus.initial,
-          query: '',
-          responseEntity: null,
-          errorMessage: null,
-        ),
+        SearchState.initial().copyWith(query: ''),
       );
       return;
     }
@@ -68,6 +63,8 @@ class SearchCubit extends Cubit<SearchState> with BaseBlocMixin {
         status: SearchStatus.loading,
         query: query,
         errorMessage: null,
+        currentPage: 0,
+        hasMore: true,
       ),
     );
 
@@ -104,6 +101,65 @@ class SearchCubit extends Cubit<SearchState> with BaseBlocMixin {
             status: SearchStatus.success,
             responseEntity: responseEntity,
             errorMessage: null,
+            hasMore: responseEntity.results.length >= 20, // Si devuelve 20, hay más
+            currentPage: 1,
+          ),
+        );
+      },
+    );
+  }
+
+  /// Cargar más resultados (paginación)
+  Future<void> loadMore() async {
+    if (state.status == SearchStatus.loadingMore || 
+        !state.hasMore ||
+        state.query.isEmpty) {
+      return;
+    }
+
+    emit(state.copyWith(status: SearchStatus.loadingMore));
+
+    final request = SearchRequest(
+      query: state.query.trim(),
+      filter: 'songs',
+      startIndex: state.currentPage * 20,
+    );
+    
+    final response = await _searchUseCase(request);
+
+    if (isClosed) return;
+
+    response.fold(
+      (failure) {
+        if (isClosed) return;
+        
+        final String errorMessage = getErrorMessage(failure);
+        emit(
+          state.copyWith(
+            status: SearchStatus.failure,
+            errorMessage: errorMessage,
+          ),
+        );
+      },
+      (responseEntity) {
+        if (isClosed) return;
+
+        // Combinar resultados anteriores con nuevos
+        final currentResults = state.responseEntity?.results ?? [];
+        final newResults = responseEntity.results;
+        final allResults = [...currentResults, ...newResults];
+
+        emit(
+          state.copyWith(
+            status: SearchStatus.success,
+            responseEntity: SearchResponse(
+              results: allResults,
+              query: state.query,
+              albums: [...state.responseEntity?.albums ?? [], ...responseEntity.albums],
+              artists: [...state.responseEntity?.artists ?? [], ...responseEntity.artists],
+            ),
+            hasMore: newResults.length >= 20,
+            currentPage: state.currentPage + 1,
           ),
         );
       },
@@ -112,7 +168,7 @@ class SearchCubit extends Cubit<SearchState> with BaseBlocMixin {
 
   void reset() {
     _debounceTimer?.cancel();
-    emit(const SearchState());
+    emit(SearchState.initial());
   }
 
   @override

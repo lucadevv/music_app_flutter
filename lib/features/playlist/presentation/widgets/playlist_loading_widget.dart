@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:shimmer/shimmer.dart';
 
 /// Widget de carga con shimmer para la playlist
@@ -11,18 +12,18 @@ class PlaylistLoadingWidget extends StatelessWidget {
       slivers: [
         // App Bar con shimmer
         SliverAppBar(
-          expandedHeight: 300,
+          expandedHeight: 400,
           pinned: true,
           backgroundColor: Colors.transparent,
           flexibleSpace: Shimmer.fromColors(
-            baseColor: Colors.grey[800]!,
-            highlightColor: Colors.grey[700]!,
+            baseColor: AppColorsDark.surfaceContainerHigh,
+            highlightColor: AppColorsDark.surfaceContainerHighest,
             child: Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [Colors.grey[800]!, const Color(0xFF0D0D0D)],
+                  colors: [AppColorsDark.surfaceContainerHigh, AppColorsDark.surface],
                 ),
               ),
               child: Padding(
@@ -52,14 +53,14 @@ class PlaylistLoadingWidget extends StatelessWidget {
         // Action buttons shimmer
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.all(24.0),
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
             child: Row(
               children: [
                 Container(
-                  width: 56,
-                  height: 56,
-                  decoration: const BoxDecoration(
-                    color: Colors.grey,
+                  width: 64,
+                  height: 64,
+                  decoration: BoxDecoration(
+                    color: AppColorsDark.surfaceContainerHigh,
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -69,10 +70,10 @@ class PlaylistLoadingWidget extends StatelessWidget {
                   (index) => Padding(
                     padding: const EdgeInsets.only(right: 8.0),
                     child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: const BoxDecoration(
-                        color: Colors.grey,
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: AppColorsDark.surfaceContainerHigh,
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -86,8 +87,8 @@ class PlaylistLoadingWidget extends StatelessWidget {
         SliverList(
           delegate: SliverChildBuilderDelegate((context, index) {
             return Shimmer.fromColors(
-              baseColor: Colors.grey[800]!,
-              highlightColor: Colors.grey[700]!,
+              baseColor: AppColorsDark.surfaceContainerHigh,
+              highlightColor: AppColorsDark.surfaceContainerHighest,
               child: ListTile(
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 24,

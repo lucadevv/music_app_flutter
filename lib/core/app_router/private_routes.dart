@@ -56,6 +56,7 @@ class PrivateRoutes {
             AutoRoute(path: 'playlist/:id', page: PlaylistRoute.page),
             AutoRoute(path: 'player', page: PlayerRoute.page),
             AutoRoute(path: 'downloads', page: DownloadsRoute.page),
+            AutoRoute(path: 'queue', page: QueueRoute.page),
           ],
         ),
         AutoRoute(
@@ -85,6 +86,7 @@ class PrivateRoutes {
             ),
             AutoRoute(path: 'equalizer', page: EqualizerRoute.page),
             AutoRoute(path: 'logout', page: LogoutRoute.page),
+            AutoRoute(path: 'queue', page: QueueRoute.page),
           ],
         ),
       ],

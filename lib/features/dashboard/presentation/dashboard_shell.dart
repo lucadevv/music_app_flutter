@@ -2,11 +2,14 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
+import 'package:music_app/core/managers/auth/auth_manager.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/core/utils/bottom_sheet_visibility.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/player/presentation/widgets/mini_player.dart';
 import 'package:music_app/l10n/app_localizations.dart';
+import 'package:music_app/core/widgets/glass_bottom_nav.dart';
+import 'package:music_app/main.dart';
 
 @RoutePage()
 class DashboardShell extends StatefulWidget implements AutoRouteWrapper {
@@ -14,8 +17,9 @@ class DashboardShell extends StatefulWidget implements AutoRouteWrapper {
 
   @override
   Widget wrappedRoute(BuildContext context) {
-    // Aquí se pueden agregar BlocProviders si es necesario
-    return this;
+    return MultiBlocProvider(providers: [
+      BlocProvider(create:(context) => PlayerBlocBloc(),)
+    ], child: this);
   }
 
   @override
@@ -26,9 +30,19 @@ class _DashboardShellState extends State<DashboardShell> {
   @override
   void initState() {
     super.initState();
-    // Listen to bottom sheet visibility changes
+    
     BottomSheetVisibility().addListener(_onBottomSheetChanged);
+    WidgetsBinding.instance.addPostFrameCallback((_) async{
+      await _currentAccessToken();
+    });
   }
+
+
+  Future<void> _currentAccessToken() async {
+      final authManager = getIt<AuthManager>();
+    final accessToken =await authManager.getCurrentAccessToken();
+    print('Current token: $accessToken');
+    }
 
   @override
   void dispose() {
@@ -38,29 +52,24 @@ class _DashboardShellState extends State<DashboardShell> {
 
   void _onBottomSheetChanged() {
     if (mounted) {
-      setState(() {}); // Rebuild to update miniplayer position
+      setState(() {}); 
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final navItems = [
-      {'icon': Icons.home, 'label': l10n.home},
-      {'icon': Icons.search, 'label': l10n.search},
-      {'icon': Icons.library_music, 'label': l10n.library},
-    ];
+
     final visibleRoutes = [
       '/dashboard/home',
       '/dashboard/search',
       '/dashboard/library',
     ];
 
-    // Obtener la ruta actual
+    
     final currentPath = context.router.currentPath;
     final isEmailVerificationRoute = currentPath.contains('email-verification');
 
-    // Si estamos en la ruta de verificación de email, mostrar solo el AutoRouter sin tabs
+    
     if (isEmailVerificationRoute) {
       return const Scaffold(
         backgroundColor: AppColorsDark.surface,
@@ -76,40 +85,30 @@ class _DashboardShellState extends State<DashboardShell> {
         final isVisible = visibleRoutes.contains(tabsPath);
 
         return BlocBuilder<PlayerBlocBloc, PlayerBlocState>(
-          // NO especificar bloc - usar el heredado del provider
+         
           buildWhen: (previous, current) {
-            // Rebuild cuando cambia la canción actual O la presencia de canción
-            // IMPORTANTE: Necesitamos rebuild en cada cambio para que el MiniPlayer se actualice
-            if (previous is PlayerBlocLoaded && current is PlayerBlocLoaded) {
-              return previous.currentTrack?.videoId !=
-                      current.currentTrack?.videoId ||
-                  previous.playbackState != current.playbackState ||
-                  previous.position != current.position ||
-                  previous.duration != current.duration;
-            }
-            // También rebuild cuando cambia el estado (ej: de Initial a Loaded)
-            return true;
+        
+            return previous.currentTrack?.videoId !=
+                    current.currentTrack?.videoId ||
+                previous.playbackState != current.playbackState ||
+                previous.position != current.position ||
+                previous.duration != current.duration;
+      
           },
           builder: (context, playerState) {
             final hasTrack =
-                playerState is PlayerBlocLoaded &&
                 playerState.currentTrack != null;
             final isBottomSheetOpen = BottomSheetVisibility().isBottomSheetOpen;
 
-            // Posición del miniplayer:
-            // - Normal: 119
-            // - Con bottom sheet abierto: 512 (para que no tape el bottom sheet)
-            final miniPlayerBottom = isBottomSheetOpen ? 512 : 119;
-
-            // Obtener el bloc para pasar al MiniPlayer
-            final playerBloc = context.read<PlayerBlocBloc>();
+       
+            final miniPlayerBottom = isBottomSheetOpen ? 512 :0;
 
             return Scaffold(
               backgroundColor: AppColorsDark.surface,
               body: Stack(
                 children: [
                   child,
-                  // Mini Player con animación suave
+                  
                   if (isVisible && hasTrack)
                     AnimatedPositioned(
                       duration: const Duration(milliseconds: 300),
@@ -117,51 +116,17 @@ class _DashboardShellState extends State<DashboardShell> {
                       left: 0,
                       right: 0,
                       bottom: miniPlayerBottom.toDouble(),
-                      child: BlocProvider.value(
-                        value: playerBloc,
-                        child: const MiniPlayer(),
-                      ),
+                      child: const MiniPlayer(),
                     ),
-                  // Navbar
+                  
                   if (isVisible) ...[
                     Align(
                       alignment: Alignment.bottomCenter,
-                      child: Container(
-                        height: 79,
-                        width: double.infinity,
-                        margin: const EdgeInsets.symmetric(
-                          horizontal: 30,
-                        ).copyWith(bottom: 32),
-                        decoration: BoxDecoration(
-                          color: AppColorsDark.surfaceContainerHigh,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 26),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              _ItemNavbar(
-                                icon: navItems[0]['icon'] as IconData,
-                                label: navItems[0]['label'] as String,
-                                isActive: tabsRouter.activeIndex == 0,
-                                onTap: () => tabsRouter.setActiveIndex(0),
-                              ),
-                              _ItemNavbar(
-                                icon: navItems[1]['icon'] as IconData,
-                                label: navItems[1]['label'] as String,
-                                isActive: tabsRouter.activeIndex == 1,
-                                onTap: () => tabsRouter.setActiveIndex(1),
-                              ),
-                              _ItemNavbar(
-                                icon: navItems[2]['icon'] as IconData,
-                                label: navItems[2]['label'] as String,
-                                isActive: tabsRouter.activeIndex == 2,
-                                onTap: () => tabsRouter.setActiveIndex(2),
-                              ),
-                            ],
-                          ),
-                        ),
+                      child: GlassBottomNav(
+                        currentIndex: tabsRouter.activeIndex,
+                        onTap: tabsRouter.setActiveIndex,
+                        outlinedIcons: const [Icons.home_outlined, Icons.search_outlined, Icons.library_music_outlined],
+                        filledIcons: const [Icons.home, Icons.search, Icons.library_music],
                       ),
                     ),
                   ],
@@ -175,46 +140,4 @@ class _DashboardShellState extends State<DashboardShell> {
   }
 }
 
-class _ItemNavbar extends StatelessWidget {
-  const _ItemNavbar({
-    required this.icon,
-    required this.label,
-    required this.isActive,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final bool isActive;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            size: 26,
-            color: isActive
-                ? AppColorsDark.primary
-                : AppColorsDark.onSurfaceVariant,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: isActive
-                  ? AppColorsDark.primary
-                  : AppColorsDark.onSurfaceVariant,
-              fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+// Removed _ItemNavbar class as it's replaced by GlassBottomNav

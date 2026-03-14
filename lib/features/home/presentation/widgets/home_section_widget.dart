@@ -1,22 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/widgets/song_card.dart';
 import 'package:music_app/features/home/domain/entities/home_content_item.dart';
 import 'package:music_app/features/home/domain/entities/home_section.dart';
 import 'home_content_widgets.dart';
 
-/// Widget para mostrar una sección del home
-///
-/// SOLID: Single Responsibility Principle (SRP)
-/// Responsable única: Mostrar una sección con su título y contenido
 class HomeSectionWidget extends StatelessWidget {
   final HomeSection section;
   final Function(HomeContentItem) onSongTap;
   final Function(HomeContentItem)? onPlaylistTap;
+  final Function(HomeContentItem)? onAlbumTap;
 
   const HomeSectionWidget({
     super.key,
     required this.section,
     required this.onSongTap,
     this.onPlaylistTap,
+    this.onAlbumTap,
   });
 
   @override
@@ -28,78 +27,136 @@ class HomeSectionWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Título de la sección
+        // Section Title
         Padding(
-          padding: const EdgeInsets.fromLTRB(24, 32, 24, 16),
-          child: Text(
-            section.title,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+          padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                section.title,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Poppins',
+                ),
+              ),
+              Icon(
+                Icons.chevron_right,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ],
           ),
         ),
 
-        // Contenido de la sección
+        // Section Content
         _buildContent(),
       ],
     );
   }
 
   Widget _buildContent() {
-    // Si todos los items son canciones, mostrar lista horizontal
-    if (section.contents.every((item) => item.isSong)) {
-      return SizedBox(
-        height: 140,
-        child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          itemCount: section.contents.length,
-          itemBuilder: (context, index) {
-            final item = section.contents[index];
-            return SongCardWidget(item: item, onTap: () => onSongTap(item));
-          },
-        ),
-      );
-    }
+    final songs = section.contents.where((item) => item.contentType == HomeContentType.song).toList();
+    final albums = section.contents.where((item) => item.contentType == HomeContentType.album).toList();
+    final playlists = section.contents.where((item) => item.contentType == HomeContentType.playlist).toList();
 
-    // Si todos los items son playlists, mostrar lista horizontal
-    if (section.contents.every((item) => item.isPlaylist)) {
+    // Use our beautiful new SongCard for songs
+    if (songs.length == section.contents.length) {
       return SizedBox(
-        height: 140,
+        height: 220,
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
           itemCount: section.contents.length,
           itemBuilder: (context, index) {
             final item = section.contents[index];
-            return PlaylistCardWidget(
-              item: item,
-              onTap: () => onPlaylistTap?.call(item),
+            return Padding(
+              padding: const EdgeInsets.only(right: 12),
+              child: SongCard(
+                title: item.title,
+                artist: item.album?.name ?? 'Unknown Artist',
+                imageUrl: item.thumbnail!.url,
+                onTap: () => onSongTap(item),
+              ),
             );
           },
         ),
       );
     }
 
-    // Lista vertical mixta
+    // For albums (use AlbumCardWidget legacy or replace entirely, using original for now but stylized spacing)
+    if (albums.length == section.contents.length) {
+      return SizedBox(
+        height: 180,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          itemCount: section.contents.length,
+          itemBuilder: (context, index) {
+            final item = section.contents[index];
+            return Padding(
+              padding: const EdgeInsets.only(right: 12),
+              child: AlbumCardWidget(
+                item: item,
+                onTap: () => onAlbumTap?.call(item),
+              ),
+            );
+          },
+        ),
+      );
+    }
+
+    // For playlists
+    if (playlists.length == section.contents.length) {
+      return SizedBox(
+        height: 180,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          itemCount: section.contents.length,
+          itemBuilder: (context, index) {
+            final item = section.contents[index];
+            return Padding(
+              padding: const EdgeInsets.only(right: 12),
+              child: PlaylistCardWidget(
+                item: item,
+                onTap: () => onPlaylistTap?.call(item),
+              ),
+            );
+          },
+        ),
+      );
+    }
+
+    // Mixed list (Fallback)
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       itemCount: section.contents.length,
       itemBuilder: (context, index) {
         final item = section.contents[index];
-        if (item.isSong) {
-          return SongListItemWidget(item: item, onTap: () => onSongTap(item));
-        } else if (item.isPlaylist) {
-          return PlaylistListItemWidget(
-            item: item,
-            onTap: () => onPlaylistTap?.call(item),
-          );
+        
+        switch (item.contentType) {
+          case HomeContentType.song:
+            return SongListItemWidget(
+              item: item,
+              onTap: () => onSongTap(item),
+            );
+          case HomeContentType.album:
+            return AlbumListItemWidget(
+              item: item,
+              onTap: () => onAlbumTap?.call(item),
+            );
+          case HomeContentType.playlist:
+            return PlaylistListItemWidget(
+              item: item,
+              onTap: () => onPlaylistTap?.call(item),
+            );
+          case HomeContentType.unknown:
+            return const SizedBox.shrink();
         }
-        return const SizedBox.shrink();
       },
     );
   }

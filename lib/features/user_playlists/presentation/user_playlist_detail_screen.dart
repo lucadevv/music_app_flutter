@@ -2,9 +2,11 @@ import 'package:auto_route/auto_route.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
+import 'package:music_app/core/presentation/widgets/song_list_item.dart';
 // Removed hard dependency on routes in this detail screen for now; navigation uses context.router.
 import 'package:music_app/core/theme/app_colors_dark.dart';
-import 'package:music_app/core/presentation/widgets/song_list_item.dart';
+
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/user_playlists/presentation/cubit/user_playlist_detail_cubit.dart';
@@ -24,7 +26,7 @@ class UserPlaylistDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => UserPlaylistDetailCubit(
-        libraryService: context.read<LibraryService>(),
+        libraryService: GetIt.I<LibraryService>(),
         playerBloc: context.read<PlayerBlocBloc>(),
       )..loadPlaylist(playlistId),
       child: _UserPlaylistDetailView(playlistId: playlistId),
@@ -176,44 +178,72 @@ class _UserPlaylistDetailView extends StatelessWidget {
 
         // Botones de acción
         SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                // Botón play
-                ElevatedButton.icon(
-                  onPressed: () => cubit.playAll(),
-                  icon: const Icon(Icons.play_arrow),
-                  label: Text(l10n.play),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColorsDark.primary,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 32,
-                      vertical: 12,
-                    ),
-                  ),
-                ),
-              ],
+          child: BlocSelector<PlayerBlocBloc, PlayerBlocState, ({String? sourceId, bool isPlaying, bool hasCurrentTrack})>(
+            selector: (state) => (
+              sourceId: state.sourceId,
+              isPlaying: state.isPlaying,
+              hasCurrentTrack: state.hasCurrentTrack,
             ),
+            builder: (context, playerData) {
+              final isCurrentPlaylist = playerData.sourceId == playlist.id;
+              final isPlaying = playerData.isPlaying;
+              final hasCurrentTrack = playerData.hasCurrentTrack;
+              
+              // DEBUG: Verificar valores
+              print('DEBUG BlocSelector: sourceId=${playerData.sourceId}, playlist.id=${playlist.id}, isCurrentPlaylist=$isCurrentPlaylist, isPlaying=$isPlaying');
+
+              return Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        if (isCurrentPlaylist && hasCurrentTrack) {
+                          // Si es la misma playlist, toggle play/pause
+                          context.read<PlayerBlocBloc>().add(const PlayPauseToggleEvent());
+                        } else {
+                          // Si es otra playlist, cargar y reproducir
+                          cubit.playAll();
+                        }
+                      },
+                      icon: Icon(isCurrentPlaylist && isPlaying ? Icons.pause : Icons.play_arrow),
+                      label: Text(isCurrentPlaylist && isPlaying ? l10n.pause : l10n.play),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColorsDark.primary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 32,
+                          vertical: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
         ),
 
         // Lista de canciones
         SliverList(
-          delegate: SliverChildBuilderDelegate((context, index) {
-            final song = playlist.songs[index];
-            return _PlaylistSongItem(
-              title: song.title,
-              artist: song.artist,
-              duration: song.duration,
-              thumbnail: song.thumbnail,
-              onTap: () => cubit.playSong(index),
-              onOptionsTap: () {
-                // TODO: Show song options
-              },
-            );
-          }, childCount: playlist.songs.length),
+          delegate: SliverChildBuilderDelegate(
+            (context, index) {
+              final song = playlist.songs[index];
+              return _PlaylistSongItem(
+                title: song.title,
+                artist: song.artist,
+                duration: song.duration,
+                thumbnail: song.thumbnail,
+                onTap: () {
+                  cubit.playSong(index);
+                },
+                onOptionsTap: () {
+                  // TODO: Show options menu
+                },
+              );
+            },
+            childCount: playlist.songs.length,
+          ),
         ),
       ],
     );
@@ -268,10 +298,10 @@ class _UserPlaylistDetailView extends StatelessWidget {
       builder: (dialogContext) => AlertDialog(
         backgroundColor: AppColorsDark.surfaceContainerHigh,
         title: Text(l10n.delete, style: const TextStyle(color: Colors.white)),
-        content: Text(
+        content: const Text(
           // Fallback si la key localization no está disponible
           'Are you sure you want to delete this playlist?',
-          style: const TextStyle(color: Colors.white70),
+          style: TextStyle(color: Colors.white70),
         ),
         actions: [
           TextButton(
@@ -286,7 +316,7 @@ class _UserPlaylistDetailView extends StatelessWidget {
                 context.router.pop();
               }
             },
-            child: Text('Delete', style: const TextStyle(color: Colors.red)),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),

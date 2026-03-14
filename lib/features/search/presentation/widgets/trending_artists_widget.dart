@@ -100,6 +100,7 @@ class _RecentSearchItem extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
+        // Navegar al player y reproducir la canción
         context.router.push(
           PlayerRoute(nowPlayingData: NowPlayingData.fromSong(song)),
         );

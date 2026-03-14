@@ -111,7 +111,13 @@ class ExceptionHandler {
 
   static String _getErrorMessage(dynamic data, String defaultMessage) {
     if (data is Map<String, dynamic>) {
-      return data['message'] ?? data['error'] ?? defaultMessage;
+      final message = data['message'] ?? data['error'];
+      if (message is String) {
+        return message;
+      } else if (message is List) {
+        return message.join(', ');
+      }
+      return defaultMessage;
     }
     return defaultMessage;
   }

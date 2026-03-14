@@ -5,4 +5,5 @@ import 'package:music_app/features/recently_played/domain/entities/recently_play
 /// Repository contract for recently played
 abstract class RecentlyPlayedRepository {
   Future<Either<AppException, List<RecentlyPlayedSong>>> getRecentlyPlayed();
+  Future<Either<AppException, void>> recordListen(String videoId);
 }

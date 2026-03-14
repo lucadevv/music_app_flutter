@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:music_app/features/auth/register/presentation/notifiers/register_form_notifier.dart';
+import 'package:music_app/l10n/app_localizations.dart';
 import 'register_text_field.dart';
 
 class RegisterFormFields extends StatelessWidget {
@@ -26,6 +27,8 @@ class RegisterFormFields extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Column(
       children: [
         // Email field - según RegisterRequest: email, password, firstName, lastName
@@ -34,8 +37,8 @@ class RegisterFormFields extends StatelessWidget {
           builder: (context, _) {
             return RegisterTextField(
               controller: emailController,
-              labelText: 'Email',
-              hintText: 'tu@email.com',
+              labelText: l10n.emailLabel,
+              hintText: l10n.emailPlaceholder,
               prefixIcon: Icons.email,
               keyboardType: TextInputType.emailAddress,
               errorText: formNotifier.emailError,
@@ -51,7 +54,7 @@ class RegisterFormFields extends StatelessWidget {
           builder: (context, _) {
             return RegisterTextField(
               controller: firstNameController,
-              labelText: 'Nombre',
+              labelText: l10n.firstName,
               hintText: 'Juan',
               prefixIcon: Icons.person,
               errorText: formNotifier.firstNameError,
@@ -67,7 +70,7 @@ class RegisterFormFields extends StatelessWidget {
           builder: (context, _) {
             return RegisterTextField(
               controller: lastNameController,
-              labelText: 'Apellido',
+              labelText: l10n.lastName,
               hintText: 'Pérez',
               prefixIcon: Icons.person_outline,
               errorText: formNotifier.lastNameError,
@@ -85,8 +88,8 @@ class RegisterFormFields extends StatelessWidget {
               builder: (context, isObscure, _) {
                 return RegisterTextField(
                   controller: passwordController,
-                  labelText: 'Contraseña',
-                  hintText: 'Mínimo 8 caracteres',
+                  labelText: l10n.passwordLabel,
+                  hintText: l10n.minimum8Characters,
                   prefixIcon: Icons.lock,
                   obscureText: isObscure,
                   suffixIcon: isObscure
@@ -112,8 +115,8 @@ class RegisterFormFields extends StatelessWidget {
               builder: (context, isObscure, _) {
                 return RegisterTextField(
                   controller: confirmPasswordController,
-                  labelText: 'Confirmar contraseña',
-                  hintText: 'Repite tu contraseña',
+                  labelText: l10n.confirmPassword,
+                  hintText: l10n.repeatYourPassword,
                   prefixIcon: Icons.lock_outline,
                   obscureText: isObscure,
                   suffixIcon: isObscure

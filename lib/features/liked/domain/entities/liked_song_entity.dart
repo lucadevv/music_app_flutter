@@ -7,6 +7,7 @@ class LikedSongEntity extends Equatable {
   final String artist;
   final String? thumbnail;
   final int? duration;
+  final String? streamUrl;
   final DateTime? addedAt;
 
   const LikedSongEntity({
@@ -15,9 +16,10 @@ class LikedSongEntity extends Equatable {
     required this.artist,
     this.thumbnail,
     this.duration,
+    this.streamUrl,
     this.addedAt,
   });
 
   @override
-  List<Object?> get props => [videoId, title, artist, thumbnail, duration, addedAt];
+  List<Object?> get props => [videoId, title, artist, thumbnail, duration, streamUrl, addedAt];
 }

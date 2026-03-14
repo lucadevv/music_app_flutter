@@ -1,9 +1,13 @@
+import 'package:dio/dio.dart';
 import 'package:music_app/core/services/network/api_services.dart';
-import 'package:music_app/features/recently_played/domain/entities/recently_played_song.dart';
+import 'package:music_app/features/recently_played/data/models/recently_played_song_model.dart';
 
-/// Remote data source for recently played songs
+/// Remote data source for recently played songs.
+/// Sigue el patrón de Clean Architecture: retorna Map<String, dynamic> 
+/// que se convierte a modelo en el repository.
 abstract class RecentlyPlayedRemoteDataSource {
-  Future<List<RecentlyPlayedSong>> getRecentlyPlayed();
+  Future<Map<String, dynamic>> getRecentlyPlayed();
+  Future<void> recordListen(String videoId);
 }
 
 class RecentlyPlayedRemoteDataSourceImpl implements RecentlyPlayedRemoteDataSource {
@@ -12,16 +16,21 @@ class RecentlyPlayedRemoteDataSourceImpl implements RecentlyPlayedRemoteDataSour
   RecentlyPlayedRemoteDataSourceImpl(this._apiServices);
 
   @override
-  Future<List<RecentlyPlayedSong>> getRecentlyPlayed() async {
-    final response = await _apiServices.get('/music/recently-listened');
-    
-    final List<dynamic> songsData =
-        (response is Map<String, dynamic> && response['songs'] is List)
-            ? (response['songs'] as List<dynamic>)
-            : [];
+  Future<Map<String, dynamic>> getRecentlyPlayed() async {
+    try {
+      final response = await _apiServices.get('/music/recently-listened?include_stream_urls=false');
+      // Handle Dio Response wrapper - return data or the response itself
+      return response is Response ? response.data : response;
+    } catch (e) {
+      rethrow;
+    }
+  }
 
-    return songsData
-        .map((json) => RecentlyPlayedSong.fromJson(json as Map<String, dynamic>))
-        .toList();
+  @override
+  Future<void> recordListen(String videoId) async {
+    await _apiServices.post(
+      '/music/record-listen',
+      data: {'videoId': videoId},
+    );
   }
 }

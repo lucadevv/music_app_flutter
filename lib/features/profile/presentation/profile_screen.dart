@@ -6,7 +6,6 @@ import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:music_app/l10n/app_localizations.dart';
-import 'package:music_app/main.dart';
 
 @RoutePage()
 class ProfileScreen extends StatelessWidget {
@@ -14,10 +13,15 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => getIt<ProfileCubit>()..loadProfile(),
-      child: const _ProfileView(),
-    );
+    // ProfileCubit es singleton, ya está proporcionado en app.dart
+    // Cargar perfil al entrar si no está cargado
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final profileCubit = context.read<ProfileCubit>();
+      if (!profileCubit.state.isLoading && profileCubit.state.profile == null) {
+        profileCubit.loadProfile();
+      }
+    });
+    return const _ProfileView();
   }
 }
 

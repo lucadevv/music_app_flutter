@@ -135,12 +135,12 @@ class AlbumRouteArgs {
 /// [_i2.ArtistScreen]
 class ArtistRoute extends _i35.PageRouteInfo<ArtistRouteArgs> {
   ArtistRoute({
-    _i36.Key? key,
     required String artistId,
+    _i36.Key? key,
     List<_i35.PageRouteInfo>? children,
   }) : super(
          ArtistRoute.name,
-         args: ArtistRouteArgs(key: key, artistId: artistId),
+         args: ArtistRouteArgs(artistId: artistId, key: key),
          rawPathParams: {'id': artistId},
          initialChildren: children,
        );
@@ -154,32 +154,32 @@ class ArtistRoute extends _i35.PageRouteInfo<ArtistRouteArgs> {
       final args = data.argsAs<ArtistRouteArgs>(
         orElse: () => ArtistRouteArgs(artistId: pathParams.getString('id')),
       );
-      return _i2.ArtistScreen(key: args.key, artistId: args.artistId);
+      return _i2.ArtistScreen(artistId: args.artistId, key: args.key);
     },
   );
 }
 
 class ArtistRouteArgs {
-  const ArtistRouteArgs({this.key, required this.artistId});
-
-  final _i36.Key? key;
+  const ArtistRouteArgs({required this.artistId, this.key});
 
   final String artistId;
 
+  final _i36.Key? key;
+
   @override
   String toString() {
-    return 'ArtistRouteArgs{key: $key, artistId: $artistId}';
+    return 'ArtistRouteArgs{artistId: $artistId, key: $key}';
   }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other is! ArtistRouteArgs) return false;
-    return key == other.key && artistId == other.artistId;
+    return artistId == other.artistId && key == other.key;
   }
 
   @override
-  int get hashCode => key.hashCode ^ artistId.hashCode;
+  int get hashCode => artistId.hashCode ^ key.hashCode;
 }
 
 /// generated route for
@@ -491,12 +491,17 @@ class OnboardingRoute extends _i35.PageRouteInfo<void> {
 /// [_i20.PlayerScreen]
 class PlayerRoute extends _i35.PageRouteInfo<PlayerRouteArgs> {
   PlayerRoute({
-    _i36.Key? key,
     required _i37.NowPlayingData nowPlayingData,
+    bool playAsSingle = false,
+    _i36.Key? key,
     List<_i35.PageRouteInfo>? children,
   }) : super(
          PlayerRoute.name,
-         args: PlayerRouteArgs(key: key, nowPlayingData: nowPlayingData),
+         args: PlayerRouteArgs(
+           nowPlayingData: nowPlayingData,
+           playAsSingle: playAsSingle,
+           key: key,
+         ),
          initialChildren: children,
        );
 
@@ -507,46 +512,56 @@ class PlayerRoute extends _i35.PageRouteInfo<PlayerRouteArgs> {
     builder: (data) {
       final args = data.argsAs<PlayerRouteArgs>();
       return _i20.PlayerScreen(
-        key: args.key,
         nowPlayingData: args.nowPlayingData,
+        playAsSingle: args.playAsSingle,
+        key: args.key,
       );
     },
   );
 }
 
 class PlayerRouteArgs {
-  const PlayerRouteArgs({this.key, required this.nowPlayingData});
-
-  final _i36.Key? key;
+  const PlayerRouteArgs({
+    required this.nowPlayingData,
+    this.playAsSingle = false,
+    this.key,
+  });
 
   final _i37.NowPlayingData nowPlayingData;
 
+  final bool playAsSingle;
+
+  final _i36.Key? key;
+
   @override
   String toString() {
-    return 'PlayerRouteArgs{key: $key, nowPlayingData: $nowPlayingData}';
+    return 'PlayerRouteArgs{nowPlayingData: $nowPlayingData, playAsSingle: $playAsSingle, key: $key}';
   }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other is! PlayerRouteArgs) return false;
-    return key == other.key && nowPlayingData == other.nowPlayingData;
+    return nowPlayingData == other.nowPlayingData &&
+        playAsSingle == other.playAsSingle &&
+        key == other.key;
   }
 
   @override
-  int get hashCode => key.hashCode ^ nowPlayingData.hashCode;
+  int get hashCode =>
+      nowPlayingData.hashCode ^ playAsSingle.hashCode ^ key.hashCode;
 }
 
 /// generated route for
 /// [_i21.PlaylistScreen]
 class PlaylistRoute extends _i35.PageRouteInfo<PlaylistRouteArgs> {
   PlaylistRoute({
-    _i36.Key? key,
     required String id,
+    _i36.Key? key,
     List<_i35.PageRouteInfo>? children,
   }) : super(
          PlaylistRoute.name,
-         args: PlaylistRouteArgs(key: key, id: id),
+         args: PlaylistRouteArgs(id: id, key: key),
          initialChildren: children,
        );
 
@@ -557,33 +572,33 @@ class PlaylistRoute extends _i35.PageRouteInfo<PlaylistRouteArgs> {
     builder: (data) {
       final args = data.argsAs<PlaylistRouteArgs>();
       return _i35.WrappedRoute(
-        child: _i21.PlaylistScreen(key: args.key, id: args.id),
+        child: _i21.PlaylistScreen(id: args.id, key: args.key),
       );
     },
   );
 }
 
 class PlaylistRouteArgs {
-  const PlaylistRouteArgs({this.key, required this.id});
-
-  final _i36.Key? key;
+  const PlaylistRouteArgs({required this.id, this.key});
 
   final String id;
 
+  final _i36.Key? key;
+
   @override
   String toString() {
-    return 'PlaylistRouteArgs{key: $key, id: $id}';
+    return 'PlaylistRouteArgs{id: $id, key: $key}';
   }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other is! PlaylistRouteArgs) return false;
-    return key == other.key && id == other.id;
+    return id == other.id && key == other.key;
   }
 
   @override
-  int get hashCode => key.hashCode ^ id.hashCode;
+  int get hashCode => id.hashCode ^ key.hashCode;
 }
 
 /// generated route for
@@ -725,7 +740,7 @@ class SocialLoginRoute extends _i35.PageRouteInfo<void> {
   static _i35.PageInfo page = _i35.PageInfo(
     name,
     builder: (data) {
-      return const _i30.SocialLoginScreen();
+      return _i35.WrappedRoute(child: const _i30.SocialLoginScreen());
     },
   );
 }
@@ -767,12 +782,12 @@ class StreamingQualityRoute extends _i35.PageRouteInfo<void> {
 class UserPlaylistDetailRoute
     extends _i35.PageRouteInfo<UserPlaylistDetailRouteArgs> {
   UserPlaylistDetailRoute({
-    _i36.Key? key,
     required String playlistId,
+    _i36.Key? key,
     List<_i35.PageRouteInfo>? children,
   }) : super(
          UserPlaylistDetailRoute.name,
-         args: UserPlaylistDetailRouteArgs(key: key, playlistId: playlistId),
+         args: UserPlaylistDetailRouteArgs(playlistId: playlistId, key: key),
          rawPathParams: {'id': playlistId},
          initialChildren: children,
        );
@@ -788,34 +803,34 @@ class UserPlaylistDetailRoute
             UserPlaylistDetailRouteArgs(playlistId: pathParams.getString('id')),
       );
       return _i33.UserPlaylistDetailScreen(
-        key: args.key,
         playlistId: args.playlistId,
+        key: args.key,
       );
     },
   );
 }
 
 class UserPlaylistDetailRouteArgs {
-  const UserPlaylistDetailRouteArgs({this.key, required this.playlistId});
-
-  final _i36.Key? key;
+  const UserPlaylistDetailRouteArgs({required this.playlistId, this.key});
 
   final String playlistId;
 
+  final _i36.Key? key;
+
   @override
   String toString() {
-    return 'UserPlaylistDetailRouteArgs{key: $key, playlistId: $playlistId}';
+    return 'UserPlaylistDetailRouteArgs{playlistId: $playlistId, key: $key}';
   }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other is! UserPlaylistDetailRouteArgs) return false;
-    return key == other.key && playlistId == other.playlistId;
+    return playlistId == other.playlistId && key == other.key;
   }
 
   @override
-  int get hashCode => key.hashCode ^ playlistId.hashCode;
+  int get hashCode => playlistId.hashCode ^ key.hashCode;
 }
 
 /// generated route for
