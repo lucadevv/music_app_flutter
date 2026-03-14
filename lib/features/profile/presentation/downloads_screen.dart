@@ -28,7 +28,7 @@ class OldDownloadsScreen extends StatelessWidget {
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
           onPressed: () => context.router.pop(),
         ),
         actions: [
@@ -99,7 +99,7 @@ class _DownloadItem extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (isDownloaded)
-            Icon(Icons.check_circle, color: AppColorsDark.primary, size: 20),
+            const Icon(Icons.check_circle, color: AppColorsDark.primary, size: 20),
           const SizedBox(width: 8),
           IconButton(
             icon: Icon(

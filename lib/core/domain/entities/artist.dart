@@ -137,8 +137,7 @@ class ArtistSong extends Equatable {
   const ArtistSong({
     required this.videoId,
     required this.title,
-    this.thumbnail,
-    required this.durationSeconds,
+    required this.durationSeconds, this.thumbnail,
     this.views = 0,
   });
 
@@ -181,9 +180,7 @@ class ArtistAlbum extends Equatable {
   const ArtistAlbum({
     required this.id,
     required this.title,
-    this.thumbnail,
-    required this.year,
-    required this.songCount,
+    required this.year, required this.songCount, this.thumbnail,
     this.type,
   });
 

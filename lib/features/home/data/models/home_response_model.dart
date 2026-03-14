@@ -22,88 +22,69 @@ class HomeResponseModel extends HomeResponse {
 
   factory HomeResponseModel.fromJson(Map<String, dynamic> json) {
     // La API retorna 'moods_genres' como array combinado
-    // Los primeros 12 items son moods, el resto son genres
-    final moodsGenresList = (json['moods_genres'] as List<dynamic>?) ?? [];
-    final moods = <MoodGenreModel>[];
-    final genres = <MoodGenreModel>[];
-
-    // Separar moods y genres (primeros 12 son moods según el ejemplo del API)
-    // Solo incluir items con params válido (no vacío)
-    // Nota: Esto es una aproximación. Si la API cambia, necesitaremos otro criterio
-    for (var i = 0; i < moodsGenresList.length; i++) {
-      try {
-        final item = moodsGenresList[i];
-        if (item is Map<String, dynamic>) {
-          final moodGenre = MoodGenreModel.fromJson(item);
-          // Solo agregar si tiene params válido
-          if (moodGenre.params.isEmpty) continue;
-
-          // Los primeros 12 son moods, el resto son genres
-          if (i < 12) {
-            moods.add(moodGenre);
-          } else {
-            genres.add(moodGenre);
+    final dynamic moodsGenresListRaw = json['moods_genres'] ?? [];
+    final moodsGenresList = moodsGenresListRaw is List ? moodsGenresListRaw : [];
+    
+    // Parse models cleanly without traditional loops, dropping invalid items
+    final parsedMoodsGenres = moodsGenresList
+        .whereType<Map<String, dynamic>>()
+        .map((item) {
+          try {
+            return MoodGenreModel.fromJson(item);
+          } catch (_) {
+            return null; // Ignore errors, resilience
           }
-        }
-      } catch (e, stackTrace) {
-        if (kDebugMode) {
-          debugPrint('HomeResponseModel: Error parseando mood/genre $i: $e');
-          debugPrint('HomeResponseModel: Stack trace: $stackTrace');
-        }
-      }
-    }
+        })
+        .where((model) => model != null && model.params.isNotEmpty) // Drop empty params
+        .cast<MoodGenreModel>()
+        .toList();
+
+    // Separar moods (primeros 12 aproximado) y genres
+    final extractMoods = parsedMoodsGenres.take(12).toList();
+    final extractGenres = parsedMoodsGenres.skip(12).toList();
 
     // Parsear charts
     final chartsData = json['charts'] as Map<String, dynamic>? ?? {};
-    final topSongs =
-        (chartsData['top_songs'] as List<dynamic>?)
-            ?.map(
-              (item) => ChartSongModel.fromJson(item as Map<String, dynamic>),
-            )
-            .toList() ??
-        [];
-    final trending =
-        (chartsData['trending'] as List<dynamic>?)
-            ?.map(
-              (item) => ChartSongModel.fromJson(item as Map<String, dynamic>),
-            )
-            .toList() ??
-        [];
+    final topSongsData = chartsData['top_songs'] as List<dynamic>? ?? [];
+    final trendingData = chartsData['trending'] as List<dynamic>? ?? [];
+    
+    final topSongs = topSongsData
+        .whereType<Map<String, dynamic>>()
+        .map((item) {
+          try { return ChartSongModel.fromJson(item); } catch (_) { return null; }
+        })
+        .whereType<ChartSongModel>()
+        .toList();
 
-    // La API retorna 'home' como array de secciones, no 'sections'
-    final sectionsList = json['home'] as List<dynamic>?;
-    final sections = <HomeSectionModel>[];
+    final trending = trendingData
+        .whereType<Map<String, dynamic>>()
+        .map((item) {
+          try { return ChartSongModel.fromJson(item); } catch (_) { return null; }
+        })
+        .whereType<ChartSongModel>()
+        .toList();
 
-    if (sectionsList != null) {
-      for (var i = 0; i < sectionsList.length; i++) {
-        try {
-          final sectionItem = sectionsList[i];
-          if (sectionItem is Map<String, dynamic>) {
-            sections.add(HomeSectionModel.fromJson(sectionItem));
-          } else {
-            if (kDebugMode)
-              debugPrint(
-                'HomeResponseModel: Section $i no es Map, tipo: ${sectionItem.runtimeType}',
-              );
-          }
-        } catch (e, stackTrace) {
-          if (kDebugMode) {
-            debugPrint('HomeResponseModel: Error parseando section $i: $e');
-            debugPrint('HomeResponseModel: Stack trace: $stackTrace');
-          }
-        }
-      }
-    }
+    // Sections
+    final dynamic sectionsListRaw = json['home'] ?? [];
+    final sectionsList = sectionsListRaw is List ? sectionsListRaw : [];
+    
+    final sections = sectionsList
+        .whereType<Map<String, dynamic>>()
+        .map((item) {
+          try { return HomeSectionModel.fromJson(item); } catch (_) { return null; }
+        })
+        .whereType<HomeSectionModel>()
+        .toList();
 
     if (kDebugMode) {
       debugPrint(
-        'HomeResponseModel: Parseado - moods: ${moods.length}, genres: ${genres.length}, sections: ${sections.length}',
+        'HomeResponseModel: Parseado - moods: ${extractMoods.length}, genres: ${extractGenres.length}, sections: ${sections.length}',
       );
     }
 
     return HomeResponseModel(
-      moods: moods,
-      genres: genres,
+      moods: extractMoods,
+      genres: extractGenres,
       charts: Charts(topSongs: topSongs, trending: trending),
       sections: sections,
     );

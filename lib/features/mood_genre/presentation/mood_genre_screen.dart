@@ -17,7 +17,7 @@ import 'widgets/mood_playlist_card_widget.dart';
 class MoodGenreScreen extends StatefulWidget implements AutoRouteWrapper {
   final String params;
 
-  const MoodGenreScreen({super.key, required this.params});
+  const MoodGenreScreen({required this.params, super.key});
 
   @override
   Widget wrappedRoute(BuildContext context) {
@@ -122,7 +122,7 @@ class _MoodGenreScreenState extends State<MoodGenreScreen> {
           backgroundColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
             onPressed: () => context.router.pop(),
           ),
           flexibleSpace: FlexibleSpaceBar(

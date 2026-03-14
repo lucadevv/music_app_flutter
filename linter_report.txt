@@ -1,0 +1,121 @@
+Analyzing music_app_flutter...                                  
+
+   info • The variable 'line' should be final • count_rules.dart:9:12 • prefer_final_in_for_each
+   info • Local variables should be final • count_rules.dart:19:3 • prefer_final_locals
+   info • The variable 'e' should be final • count_rules.dart:20:12 • prefer_final_in_for_each
+   info • Don't invoke 'print' in production code • count_rules.dart:21:5 • avoid_print
+   info • Use interpolation to compose strings and values • fix_compile.dart:20:24 • prefer_interpolation_to_compose_strings
+   info • Use interpolation to compose strings and values • fix_compile.dart:23:30 • prefer_interpolation_to_compose_strings
+   info • Use interpolation to compose strings and values • fix_dead.dart:25:24 • prefer_interpolation_to_compose_strings
+   info • Use interpolation to compose strings and values • fix_dead.dart:28:30 • prefer_interpolation_to_compose_strings
+warning • The value of the local variable 'fixMap' isn't used • fix_legacy.dart:8:32 • unused_local_variable
+warning • The value of the local variable 'targetRules' isn't used • fix_legacy.dart:10:21 • unused_local_variable
+   info • Local variables should be final • fix_legacy.dart:24:3 • prefer_final_locals
+warning • The value of the local variable 'autoFixed' isn't used • fix_legacy.dart:24:7 • unused_local_variable
+   info • The variable 'line' should be final • fix_legacy.dart:26:12 • prefer_final_in_for_each
+   info • Unnecessary use of double quotes • fix_legacy.dart:31:19 • prefer_single_quotes
+   info • Unnecessary use of double quotes • fix_legacy.dart:31:72 • prefer_single_quotes
+   info • Unnecessary use of double quotes • fix_legacy.dart:31:107 • prefer_single_quotes
+   info • Use interpolation to compose strings and values • fix_legacy2.dart:55:18 • prefer_interpolation_to_compose_strings
+   info • Use interpolation to compose strings and values • fix_legacy2.dart:57:18 • prefer_interpolation_to_compose_strings
+   info • Don't invoke 'print' in production code • fix_legacy2.dart:60:5 • avoid_print
+   info • Don't invoke 'print' in production code • fix_prints.dart:60:7 • avoid_print
+warning • Unused import: 'package:music_app/l10n/app_localizations.dart' • lib/features/auth/register/presentation/register_screen.dart:20:8 • unused_import
+   info • Place 'dart:' imports before other imports • lib/features/dashboard/presentation/bloc/player_bloc_bloc.dart:3:1 • directives_ordering
+   info • Sort directive sections alphabetically • lib/features/dashboard/presentation/bloc/player_bloc_bloc.dart:4:1 • directives_ordering
+warning • Unused import: 'package:connectivity_plus/connectivity_plus.dart' • lib/features/offline/data/datasources/offline_data_source.dart:1:8 • unused_import
+warning • The declaration '<unnamed>' isn't referenced • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:14:7 • unused_element
+warning • The value of the field '<unnamed>' isn't used • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:14:7 • unused_field
+warning • This class (or a class that this class inherits from) is marked as '@immutable', but one or more of its instance fields aren't final: PlaylistTrackItemWidget.playerState, PlaylistTrackItemWidget.List, PlaylistTrackItemWidget.PlaylistTrack, PlaylistTrackItemWidget.allTracks, PlaylistTrackItemWidget.null • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:14:7 • must_be_immutable
+  error • PlaylistTrack isn't a type • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:15:9 • not_a_type
+  error • List isn't a type • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:16:9 • not_a_type
+  error • The name 'PlaylistTrack' isn't a type, so it can't be used as a type argument • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:16:14 • non_type_as_type_argument
+  error • Can't define a const constructor for a class with non-final fields • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:18:9 • const_constructor_with_non_final_field
+  error • Non-nullable instance field 'List' must be initialized • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:18:9 • not_initialized_non_nullable_instance_field
+  error • Non-nullable instance field 'playerState' must be initialized • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:18:9 • not_initialized_non_nullable_instance_field
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:25:9 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:25:9 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:26:12 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:26:12 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:26:12 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:26:42 • avoid_dynamic_calls
+   info • The variable name 'List' isn't a lowerCamelCase identifier • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:35:5 • non_constant_identifier_names
+  error • Expected to find ';' • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:35:5 • expected_token
+  error • Expected a class member • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:35:9 • expected_class_member
+   info • An uninitialized field should have an explicit type annotation • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:35:10 • prefer_typing_uninitialized_variables
+   info • Missing type annotation • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:35:10 • strict_top_level_inference
+   info • The variable name 'PlaylistTrack' isn't a lowerCamelCase identifier • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:35:10 • non_constant_identifier_names
+  error • Expected to find ';' • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:35:10 • expected_token
+  error • Variables must be declared using the keywords 'const', 'final', 'var' or a type name • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:35:10 • missing_const_final_var_or_type
+   info • Missing type annotation • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:35:23 • strict_top_level_inference
+   info • The method '>' should have a return type but doesn't • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:35:23 • always_declare_return_types
+  error • Methods must have an explicit list of parameters • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:35:23 • missing_method_parameters
+  error • Operator '>' should declare exactly 1 parameters, but 0 found • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:35:23 • wrong_number_of_parameters_for_operator
+  error • Operator declarations must be preceded by the keyword 'operator' • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:35:23 • missing_keyword_operator
+   info • An uninitialized field should have an explicit type annotation • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:35:25 • prefer_typing_uninitialized_variables
+   info • Missing type annotation • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:35:25 • strict_top_level_inference
+  error • A function body must be provided • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:35:25 • missing_function_body
+  error • The name 'allTracks' is already defined • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:35:25 • duplicate_definition
+  error • Variables must be declared using the keywords 'const', 'final', 'var' or a type name • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:35:25 • missing_const_final_var_or_type
+  error • Expected an identifier • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:36:3 • missing_identifier
+  error • Expected to find ';' • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:36:3 • expected_token
+   info • An uninitialized field should have an explicit type annotation • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:36:5 • prefer_typing_uninitialized_variables
+  error • Expected an identifier • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:36:5 • missing_identifier
+  error • Methods must have an explicit list of parameters • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:36:5 • missing_method_parameters
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:39:37 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:39:37 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:39:37 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:42:15 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:43:15 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:43:15 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:44:15 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:46:25 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:54:9 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:58:25 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:59:11 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:70:9 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:71:10 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:71:10 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:71:40 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:71:40 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:74:10 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:74:10 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:74:31 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:74:56 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:74:56 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:84:50 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:93:20 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:95:24 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:125:28 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:128:28 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:130:32 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:131:31 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:153:41 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:153:41 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:155:29 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:156:29 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:157:29 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:157:29 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:158:29 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:159:29 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:159:29 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:162:25 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:165:46 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:165:46 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:170:35 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:170:65 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:170:78 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:175:35 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:196:18 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:197:16 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:200:13 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:200:13 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:201:14 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:201:14 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:201:44 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:201:44 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:201:44 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:202:20 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:203:26 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart:204:21 • avoid_dynamic_calls
+

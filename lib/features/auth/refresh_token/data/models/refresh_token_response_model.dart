@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_dynamic_calls
 import '../../domain/entities/refresh_token_response.dart';
 
 /// Modelo de datos para la respuesta de refresh token

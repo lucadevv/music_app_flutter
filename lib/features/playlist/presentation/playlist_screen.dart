@@ -1,20 +1,22 @@
+// ignore_for_file: avoid_dynamic_calls
+import 'dart:ui';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/playlist/domain/use_cases/get_playlist_use_case.dart';
 import 'package:music_app/features/playlist/presentation/cubit/playlist_cubit.dart';
 import 'package:music_app/features/playlist/presentation/cubit/playlist_state.dart';
-import 'package:music_app/features/playlist/presentation/widgets/playlist_actions_widget.dart';
-import 'package:music_app/features/playlist/presentation/widgets/playlist_error_widget.dart';
-import 'package:music_app/features/playlist/presentation/widgets/playlist_header_widget.dart';
-import 'package:music_app/features/playlist/presentation/widgets/playlist_listeners.dart';
-import 'package:music_app/features/playlist/presentation/widgets/playlist_loading_widget.dart';
-import 'package:music_app/features/playlist/presentation/widgets/playlist_track_item_widget.dart';
-import 'dart:ui';
+import 'package:music_app/features/playlist/presentation/widgets/atoms/playlist_error_widget.dart';
+import 'package:music_app/features/playlist/presentation/widgets/molecules/playlist_loading_widget.dart';
+import 'package:music_app/features/playlist/presentation/widgets/organisms/playlist_actions_widget.dart';
+import 'package:music_app/features/playlist/presentation/widgets/organisms/playlist_header_widget.dart';
+import 'package:music_app/features/playlist/presentation/widgets/organisms/playlist_listeners.dart';
+import 'package:music_app/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart';
 import 'package:music_app/main.dart';
-import 'package:music_app/core/theme/app_colors_dark.dart';
 
 @RoutePage()
 class PlaylistScreen extends StatefulWidget implements AutoRouteWrapper {
@@ -42,7 +44,6 @@ class PlaylistScreen extends StatefulWidget implements AutoRouteWrapper {
 class _PlaylistScreenState extends State<PlaylistScreen> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
-  String _searchQuery = '';
   bool _showSearch = false;
 
   @override
@@ -72,9 +73,7 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
   }
 
   void _onSearchChanged(String value) {
-    setState(() {
-      _searchQuery = value.toLowerCase();
-    });
+    context.read<PlaylistCubit>().filterPlaylist(value);
   }
 
   void _toggleSearch() {
@@ -82,7 +81,7 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
       _showSearch = !_showSearch;
       if (!_showSearch) {
         _searchController.clear();
-        _searchQuery = '';
+        context.read<PlaylistCubit>().filterPlaylist('');
       }
     });
   }
@@ -140,7 +139,7 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                             ),
                             child: IconButton(
                               icon: const Icon(
-                                Icons.arrow_back,
+                                Icons.arrow_back_ios_new,
                                 color: Colors.white,
                                 size: 20,
                               ),
@@ -276,20 +275,11 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
   }
 
   Widget _buildTrackList(PlaylistState playlistState) {
-    final playlist = playlistState.response!;
-    var tracks = playlist.tracks;
-
-    // Filtrar por búsqueda
-    if (_searchQuery.isNotEmpty) {
-      tracks = tracks.where((track) {
-        final title = track.title.toLowerCase();
-        final artistNames = track.artists.map((a) => a.name.toLowerCase()).join(' ');
-        return title.contains(_searchQuery) || artistNames.contains(_searchQuery);
-      }).toList();
-    }
+    final tracks = playlistState.filteredResponseTracks;
+    final filterQueryTextEmpty = _searchController.text.isEmpty;
 
     // Mostrar mensaje si no hay resultados
-    if (_searchQuery.isNotEmpty && tracks.isEmpty) {
+    if (!filterQueryTextEmpty && tracks.isEmpty) {
       return SliverFillRemaining(
         child: Center(
           child: Column(
@@ -302,7 +292,7 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
               ),
               const SizedBox(height: 16),
               Text(
-                'No results for "$_searchQuery"',
+                'No results for "${_searchController.text}"',
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.7),
                   fontSize: 16,

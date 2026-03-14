@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/bloc/base_bloc_mixin.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
@@ -51,9 +52,9 @@ class UserPlaylistDetailCubit extends Cubit<UserPlaylistDetailState>
   /// Si already have a song playing from this playlist, toggle play/pause
   /// Otherwise, load entire playlist with sourceId
   void playAll() {
-    print('DEBUG ========== playAll() LLAMADO ==========');
+    debugPrint('DEBUG ========== playAll() LLAMADO ==========');
     if (state.playlist == null || state.playlist!.songs.isEmpty) {
-      print('DEBUG playAll: playlist es null o vacía, retornando');
+      debugPrint('DEBUG playAll: playlist es null o vacía, retornando');
       return;
     }
 
@@ -74,8 +75,8 @@ class UserPlaylistDetailCubit extends Cubit<UserPlaylistDetailState>
         )
         .toList();
 
-    print('DEBUG playAll: Cargando playlist con ${playlist.length} canciones');
-    print('DEBUG playAll: sourceId = ${state.playlist!.id}');
+    debugPrint('DEBUG playAll: Cargando playlist con ${playlist.length} canciones');
+    debugPrint('DEBUG playAll: sourceId = ${state.playlist!.id}');
 
     // SIMPLIFICADO: Always use LoadPlaylistEvent to load entire playlist
     _playerBloc.add(LoadPlaylistEvent(
@@ -83,19 +84,19 @@ class UserPlaylistDetailCubit extends Cubit<UserPlaylistDetailState>
       startIndex: 0,
       sourceId: state.playlist!.id,
     ));
-    print('DEBUG playAll: LoadPlaylistEvent enviado');
+    debugPrint('DEBUG playAll: LoadPlaylistEvent enviado');
   }
 
   /// Reproduce una canción específica de la playlist
   void playSong(int index) {
-    print('DEBUG ========== playSong($index) LLAMADO ==========');
+    debugPrint('DEBUG ========== playSong($index) LLAMADO ==========');
     if (state.playlist == null || state.playlist!.songs.isEmpty) {
-      print('DEBUG playSong: playlist es null o vacía, retornando');
+      debugPrint('DEBUG playSong: playlist es null o vacía, retornando');
       return;
     }
 
     if (index < 0 || index >= state.playlist!.songs.length) {
-      print('DEBUG playSong: índice fuera de rango');
+      debugPrint('DEBUG playSong: índice fuera de rango');
       return;
     }
 
@@ -116,8 +117,8 @@ class UserPlaylistDetailCubit extends Cubit<UserPlaylistDetailState>
         )
         .toList();
 
-    print('DEBUG playSong: Cargando playlist desde índice $index');
-    print('DEBUG playSong: sourceId = ${state.playlist!.id}');
+    debugPrint('DEBUG playSong: Cargando playlist desde índice $index');
+    debugPrint('DEBUG playSong: sourceId = ${state.playlist!.id}');
 
     _playerBloc.add(LoadPlaylistEvent(
       playlist: playlist,

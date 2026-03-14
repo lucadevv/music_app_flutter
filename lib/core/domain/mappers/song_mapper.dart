@@ -1,8 +1,8 @@
+// ignore_for_file: deprecated_member_use_from_same_package
+import 'package:music_app/core/domain/entities/song.dart' as core;
 import 'package:music_app/features/downloads/domain/entities/downloaded_song.dart';
 import 'package:music_app/features/home/domain/entities/chart_song.dart';
 import 'package:music_app/features/library/library_service.dart';
-
-import 'package:music_app/core/domain/entities/song.dart' as core;
 import 'package:music_app/features/search/domain/entities/song.dart' as search;
 
 /// Entidad para canciones reproducidas recientemente (usada en recently_played)
@@ -19,8 +19,7 @@ class RecentSong {
     required this.videoId,
     required this.title,
     required this.artist,
-    this.thumbnail,
-    required this.duration,
+    required this.duration, this.thumbnail,
     this.durationSeconds = 0,
     this.playedAt,
   });

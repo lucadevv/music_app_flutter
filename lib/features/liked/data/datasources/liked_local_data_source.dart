@@ -10,7 +10,7 @@ class LikedLocalDataSource {
 
   /// Get cached liked songs
   Future<List<LikedSongEntity>> getCachedLikedSongs() async {
-    final prefs = await _prefs;
+//     final prefs = await _prefs;
     // This is a simplified version - in production you'd want JSON serialization
     return [];
   }

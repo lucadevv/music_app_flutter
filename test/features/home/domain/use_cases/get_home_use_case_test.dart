@@ -14,9 +14,7 @@ void main() {
   late GetHomeUseCase useCase;
   late MockHomeRepositoryForUseCase mockRepository;
 
-  setUpAll(() {
-    registerFallbackValues();
-  });
+  setUpAll(registerFallbackValues);
 
   setUp(() {
     mockRepository = MockHomeRepositoryForUseCase();

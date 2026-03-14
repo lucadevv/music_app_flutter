@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/features/search/domain/use_cases/get_recent_searches_use_case.dart';
 import 'package:music_app/features/search/domain/use_cases/search_use_case.dart';
+import 'package:music_app/features/search/domain/use_cases/update_selected_song_use_case.dart';
 import 'package:music_app/features/search/presentation/cubit/orquestador_search_cubit.dart';
 import 'package:music_app/features/search/presentation/cubit/recent_searches_cubit.dart';
 import 'package:music_app/features/search/presentation/cubit/search_cubit.dart';
@@ -32,6 +33,7 @@ class SearchShell extends StatelessWidget implements AutoRouteWrapper {
             return OrquestadorSearchCubit(
               searchCubit: searchCubit,
               recentSearchesCubit: recentSearchesCubit,
+              updateSelectedSongUseCase: getIt<UpdateSelectedSongUseCase>(),
             );
           },
         ),

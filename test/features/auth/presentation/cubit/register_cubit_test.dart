@@ -1,3 +1,4 @@
+// ignore_for_file: unawaited_futures
 import 'package:bloc_test/bloc_test.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -20,9 +21,7 @@ void main() {
   late MockAuthManager mockAuthManager;
   late RegisterUseCase registerUseCase;
 
-  setUpAll(() {
-    registerFallbackValues();
-  });
+  setUpAll(registerFallbackValues);
 
   setUp(() {
     mockRepository = MockAuthRepository();

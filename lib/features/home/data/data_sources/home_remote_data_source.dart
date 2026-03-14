@@ -4,8 +4,9 @@ import 'package:flutter/foundation.dart';
 import 'package:music_app/core/services/network/api_services.dart';
 import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
 import 'package:music_app/core/utils/exeptions/exception_handler.dart';
+import 'package:music_app/features/home/data/isolates/home_response_parsing_isolate.dart';
+
 import '../../domain/entities/home_response.dart';
-import '../models/home_response_model.dart';
 
 /// Data source remoto para operaciones del home
 ///
@@ -30,7 +31,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
         debugPrint('HomeRemoteDataSource: Calling /music/explore');
       }
       
-      final endpoint = '/music/explore?include_stream_urls=false';
+      const endpoint = '/music/explore?include_stream_urls=false';
       final response = await _apiServices.get(endpoint);
 
       if (kDebugMode) {
@@ -45,21 +46,9 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       }
 
       if (responseData is Map<String, dynamic>) {
-        // Debug: Ver qué está llegando de la API
-        if (kDebugMode) {
-          debugPrint('getHome: Respuesta recibida');
-          debugPrint(
-            'getHome: moods_genres: ${(responseData['moods_genres'] as List?)?.length ?? 0}',
-          );
-          debugPrint(
-            'getHome: home: ${(responseData['home'] as List?)?.length ?? 0}',
-          );
-          debugPrint(
-            'getHome: charts: ${responseData['charts'] != null ? 'presente' : 'ausente'}',
-          );
-        }
-
-        final homeResponse = HomeResponseModel.fromJson(responseData);
+        // Off-loading JSON parsing a un Isolate Secundario (Performance)
+        final homeResponse = await HomeResponseParsingIsolate.parseResponse(responseData);
+        
         if (kDebugMode) {
           debugPrint(
             'getHome: HomeResponse parseado - moods: ${homeResponse.moods.length}, genres: ${homeResponse.genres.length}, sections: ${homeResponse.sections.length}',
@@ -68,11 +57,11 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
 
         return Right(homeResponse);
       } else {
-        final exception = const ServerException(
+        const exception = ServerException(
           'Respuesta del servidor en formato incorrecto',
         );
         ExceptionHandler.logException(exception, context: 'getHome');
-        return Left(exception);
+        return const Left(exception);
       }
     } catch (e) {
       if (kDebugMode) {

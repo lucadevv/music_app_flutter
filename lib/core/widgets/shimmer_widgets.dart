@@ -16,7 +16,7 @@ class ShimmerColors {
 class BaseShimmer extends StatelessWidget {
   final Widget child;
 
-  const BaseShimmer({super.key, required this.child});
+  const BaseShimmer({required this.child, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -87,9 +87,7 @@ class ThumbnailShimmer extends StatelessWidget {
   final double borderRadius;
 
   const ThumbnailShimmer({
-    super.key,
-    required this.width,
-    required this.height,
+    required this.width, required this.height, super.key,
     this.borderRadius = 12,
   });
 
@@ -144,28 +142,29 @@ class ButtonShimmer extends StatelessWidget {
   }
 }
 
-/// Shimmer para lista de canciones
+/// Shimmer para lista de canciones (Equals to SongListItem geometry)
 class SongListItemShimmer extends StatelessWidget {
   const SongListItemShimmer({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 4),
       child: Row(
         children: [
-          const ThumbnailShimmer(width: 56, height: 56),
-          const SizedBox(width: 16),
+          ThumbnailShimmer(width: 48, height: 48, borderRadius: 4),
+          SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TextShimmer(height: 14),
-                const SizedBox(height: 8),
-                TextShimmer(width: 100, height: 12),
+                TextShimmer(height: 15),
+                SizedBox(height: 6),
+                TextShimmer(width: 100, height: 13),
               ],
             ),
           ),
+          SizedBox(width: 24), // trailing placeholder
         ],
       ),
     );
@@ -212,18 +211,19 @@ class ArtistListItemShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       child: Row(
         children: [
-          const AvatarShimmer(size: 64),
-          const SizedBox(width: 16),
+          AvatarShimmer(size: 64),
+          SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const TextShimmer(height: 16),
-                const SizedBox(height: 8),
+                TextShimmer(height: 16),
+                SizedBox(height: 8),
                 TextShimmer(width: 80, height: 14),
               ],
             ),
@@ -297,18 +297,18 @@ class ProfileHeaderShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(24),
+    return const Padding(
+      padding: EdgeInsets.all(24),
       child: Row(
         children: [
-          const AvatarShimmer(size: 80),
-          const SizedBox(width: 16),
+          AvatarShimmer(size: 80),
+          SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const TextShimmer(width: 150, height: 20),
-                const SizedBox(height: 8),
+                TextShimmer(width: 150, height: 20),
+                SizedBox(height: 8),
                 TextShimmer(width: 120, height: 14),
               ],
             ),
@@ -325,23 +325,23 @@ class DownloadItemShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 4),
       child: Row(
         children: [
-          const ThumbnailShimmer(width: 56, height: 56, borderRadius: 8),
-          const SizedBox(width: 16),
+          ThumbnailShimmer(width: 48, height: 48, borderRadius: 4),
+          SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const TextShimmer(height: 14),
-                const SizedBox(height: 8),
-                TextShimmer(width: 80, height: 12),
+                TextShimmer(height: 15),
+                SizedBox(height: 6),
+                TextShimmer(width: 80, height: 13),
               ],
             ),
           ),
-          const ShimmerContainer(width: 24, height: 24, borderRadius: 4),
+          ShimmerContainer(width: 24, height: 24, borderRadius: 4),
         ],
       ),
     );

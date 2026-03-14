@@ -1,10 +1,9 @@
 import 'package:dartz/dartz.dart';
+import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
 import 'package:music_app/features/profile/data/datasources/profile_remote_data_source.dart';
 import 'package:music_app/features/profile/data/models/user_settings_model.dart';
 import 'package:music_app/features/profile/domain/entities/entities.dart';
-import 'package:music_app/features/profile/domain/entities/library_stats_entity.dart';
 import 'package:music_app/features/profile/domain/repositories/profile_repository.dart';
-import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
 
 /// Implementation of ProfileRepository.
 /// Handles data operations and maps between data and domain layers.

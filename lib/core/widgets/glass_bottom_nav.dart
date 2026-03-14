@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
 import 'dart:ui';
+
+import 'package:flutter/material.dart';
 
 class GlassBottomNav extends StatelessWidget {
   final int currentIndex;
@@ -8,11 +9,7 @@ class GlassBottomNav extends StatelessWidget {
   final List<IconData> filledIcons;
 
   const GlassBottomNav({
-    super.key,
-    required this.currentIndex,
-    required this.onTap,
-    required this.outlinedIcons,
-    required this.filledIcons,
+    required this.currentIndex, required this.onTap, required this.outlinedIcons, required this.filledIcons, super.key,
   });
 
   @override

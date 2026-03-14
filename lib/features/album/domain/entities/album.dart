@@ -46,9 +46,7 @@ class AlbumSong {
   const AlbumSong({
     required this.videoId,
     required this.title,
-    this.thumbnail,
-    required this.durationSeconds,
-    required this.trackNumber,
+    required this.durationSeconds, required this.trackNumber, this.thumbnail,
   });
 
   String get formattedDuration {

@@ -18,8 +18,7 @@ class FavoriteButton extends StatefulWidget {
   final PlaylistMetadata? playlistMetadata;
 
   const FavoriteButton({
-    super.key,
-    required this.videoId,
+    required this.videoId, super.key,
     this.songId,
     this.type = FavoriteType.song,
     this.size = 24,

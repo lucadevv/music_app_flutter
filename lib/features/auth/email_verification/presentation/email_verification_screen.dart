@@ -1,15 +1,14 @@
+// ignore_for_file: unawaited_futures
 import 'dart:ui';
-import 'package:flutter/foundation.dart';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/services/auth/auth_service.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/core/widgets/language_selector.dart';
 import 'package:music_app/l10n/app_localizations.dart';
 import 'package:music_app/main.dart';
-
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 
@@ -27,8 +26,8 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
   String? _userEmail;
   bool _isLoadingEmail = true;
   VideoPlayerController? _videoController;
-  bool _videoInitialized = false;
-  bool _enableVideo = true;
+//   bool _videoInitialized = false;
+  final bool _enableVideo = true;
 
   @override
   void initState() {
@@ -49,7 +48,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
       _videoController!.setLooping(true);
       _videoController!.setVolume(0);
       await _videoController!.play();
-      _videoInitialized = true;
+//       _videoInitialized = true;
       if (mounted) setState(() {});
     } catch (e) {
       // Video failed to load

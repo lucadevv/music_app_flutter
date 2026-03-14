@@ -56,16 +56,13 @@ class PlaylistActionsWidget extends StatelessWidget {
           child: BlocBuilder<PlayerBlocBloc, PlayerBlocState>(
             builder: (context, playerState) {
               // Estado de carga del cubit
-            final isLoadingForPlay = playlistState.isLoadingForPlay;
             final loadingPlaylistId = playlistState.loadingPlaylistId;
             final isThisPlaylistLoading = loadingPlaylistId == playlist.id;
 
             // Verificar si la playlist actual está reproduciéndose
             final isCurrentPlaylist = _isCurrentPlaylistPlaying(playerState);
             final isPlaying = playerState.isPlaying;
-            
-            // DEBUG: Verificar valores
-            print('DEBUG playlist_actions: sourceId=${playerState.sourceId}, playlist.id=${playlist.id}, isCurrentPlaylist=$isCurrentPlaylist, isPlaying=$isPlaying');
+          
 
             // El botón muestra:
             // - Loading solo la primera vez que se inicia playAll de ESTA playlist
@@ -186,8 +183,8 @@ class PlaylistActionsWidget extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   // Botón de descarga (solo visual por ahora)
-                  IconButton(
-                    icon: const Icon(
+                  const IconButton(
+                    icon:  Icon(
                       Icons.download_outlined,
                       color: Colors.white,
                       size: 28,

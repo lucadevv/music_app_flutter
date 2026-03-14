@@ -2,7 +2,6 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
-
 import 'package:music_app/core/app_router/app_routes.dart';
 import 'package:music_app/core/bloc/locale_cubit.dart';
 import 'package:music_app/core/managers/auth/auth_manager.dart';
@@ -15,9 +14,7 @@ import 'package:music_app/core/services/local/shared_preferences_service_impl.da
 import 'package:music_app/core/services/network/api_services.dart';
 import 'package:music_app/core/services/network/dio_services_impl.dart';
 import 'package:music_app/core/theme/theme_cubit.dart';
-
 import 'package:music_app/data/offline/services/offline_service.dart';
-
 import 'package:music_app/features/album/data/repositories/album_repository_impl.dart';
 import 'package:music_app/features/album/domain/repositories/album_repository.dart';
 import 'package:music_app/features/album/presentation/cubit/album_cubit.dart';
@@ -25,16 +22,16 @@ import 'package:music_app/features/artist/data/repositories/artist_repository_im
 import 'package:music_app/features/artist/domain/repositories/artist_repository.dart';
 import 'package:music_app/features/artist/presentation/cubit/artist_cubit.dart';
 import 'package:music_app/features/auth/data/services/oauth_service.dart';
-import 'package:music_app/features/auth/register/data/data_sources/auth_remote_data_source.dart';
-import 'package:music_app/features/auth/register/data/repositories/auth_repository_impl.dart';
-import 'package:music_app/features/auth/register/domain/repositories/auth_repository.dart';
-import 'package:music_app/features/auth/register/domain/use_cases/register_use_case.dart';
-import 'package:music_app/features/auth/register/presentation/cubit/register_cubit.dart';
 import 'package:music_app/features/auth/login/domain/use_cases/login_use_case.dart';
 import 'package:music_app/features/auth/login/domain/use_cases/oauth_sign_in_use_case.dart';
 import 'package:music_app/features/auth/login/presentation/cubit/login_cubit.dart';
 import 'package:music_app/features/auth/presentation/cubit/orquestador_auth_cubit.dart';
 import 'package:music_app/features/auth/refresh_token/domain/use_cases/refresh_token_use_case.dart';
+import 'package:music_app/features/auth/register/data/data_sources/auth_remote_data_source.dart';
+import 'package:music_app/features/auth/register/data/repositories/auth_repository_impl.dart';
+import 'package:music_app/features/auth/register/domain/repositories/auth_repository.dart';
+import 'package:music_app/features/auth/register/domain/use_cases/register_use_case.dart';
+import 'package:music_app/features/auth/register/presentation/cubit/register_cubit.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/downloads/data/data_sources/downloads_local_data_source.dart';
 import 'package:music_app/features/downloads/data/repositories/downloads_repository_impl.dart';
@@ -59,11 +56,14 @@ import 'package:music_app/features/mood_genre/domain/use_cases/get_mood_playlist
 import 'package:music_app/features/mood_genre/presentation/cubit/mood_genre_cubit.dart';
 import 'package:music_app/features/offline/presentation/cubit/history_cubit.dart';
 import 'package:music_app/features/offline/presentation/cubit/playlist_offline_cubit.dart';
+import 'package:music_app/features/player/data/datasources/radio_remote_data_source.dart';
+import 'package:music_app/features/player/data/repositories/radio_repository_impl.dart';
+import 'package:music_app/features/player/domain/repositories/radio_repository.dart';
+import 'package:music_app/features/player/domain/usecases/get_radio_playlist_usecase.dart';
 import 'package:music_app/features/playlist/data/data_sources/playlist_remote_data_source.dart';
 import 'package:music_app/features/playlist/data/repositories/playlist_repository_impl.dart';
 import 'package:music_app/features/playlist/domain/repositories/playlist_repository.dart';
 import 'package:music_app/features/playlist/domain/use_cases/get_playlist_use_case.dart';
-
 import 'package:music_app/features/profile/data/datasources/profile_remote_data_source.dart';
 import 'package:music_app/features/profile/data/repositories/profile_repository_impl.dart';
 import 'package:music_app/features/profile/domain/repositories/profile_repository.dart';
@@ -73,26 +73,22 @@ import 'package:music_app/features/profile/domain/use_cases/logout_use_case.dart
 import 'package:music_app/features/profile/domain/use_cases/update_profile_use_case.dart';
 import 'package:music_app/features/profile/domain/use_cases/update_settings_use_case.dart';
 import 'package:music_app/features/profile/presentation/cubit/profile_cubit.dart';
-import 'package:music_app/features/search/data/data_sources/search_remote_data_source.dart';
-import 'package:music_app/features/search/data/repositories/search_repository_impl.dart';
-import 'package:music_app/features/search/domain/repositories/search_repository.dart';
-import 'package:music_app/features/search/domain/usecases/get_categories_usecase.dart';
-import 'package:music_app/features/search/domain/use_cases/get_recent_searches_use_case.dart';
-import 'package:music_app/features/recently_played/domain/usecases/record_listen_usecase.dart';
-import 'package:music_app/features/search/domain/use_cases/search_use_case.dart';
-import 'package:music_app/features/search/domain/use_cases/update_selected_song_use_case.dart';
-import 'package:music_app/features/search/presentation/cubit/categories_cubit.dart';
-import 'package:music_app/features/search/presentation/cubit/recent_searches_cubit.dart';
-import 'package:music_app/features/search/presentation/cubit/search_cubit.dart';
 import 'package:music_app/features/recently_played/data/datasources/recently_played_remote_data_source.dart';
 import 'package:music_app/features/recently_played/data/repositories/recently_played_repository_impl.dart';
 import 'package:music_app/features/recently_played/domain/repositories/recently_played_repository.dart';
 import 'package:music_app/features/recently_played/domain/usecases/get_recently_played_usecase.dart';
-import 'package:music_app/features/player/domain/repositories/radio_repository.dart';
-import 'package:music_app/features/player/domain/usecases/get_radio_playlist_usecase.dart';
-import 'package:music_app/features/player/data/datasources/radio_remote_data_source.dart';
-import 'package:music_app/features/player/data/repositories/radio_repository_impl.dart';
-
+import 'package:music_app/features/recently_played/domain/usecases/record_listen_usecase.dart';
+import 'package:music_app/features/search/data/data_sources/search_remote_data_source.dart';
+import 'package:music_app/features/search/data/repositories/search_repository_impl.dart';
+import 'package:music_app/features/search/domain/repositories/search_repository.dart';
+import 'package:music_app/features/search/domain/use_cases/get_categories_usecase.dart';
+import 'package:music_app/features/search/domain/use_cases/get_recent_searches_use_case.dart';
+import 'package:music_app/features/search/domain/use_cases/search_use_case.dart';
+import 'package:music_app/features/search/domain/use_cases/update_selected_song_use_case.dart';
+import 'package:music_app/features/search/presentation/cubit/categories_cubit.dart';
+import 'package:music_app/features/search/presentation/cubit/orquestador_search_cubit.dart';
+import 'package:music_app/features/search/presentation/cubit/recent_searches_cubit.dart';
+import 'package:music_app/features/search/presentation/cubit/search_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppInjection {
@@ -135,7 +131,7 @@ class AppInjection {
 
     if (!_getIt.isRegistered<LocalStorageService>()) {
       _getIt.registerLazySingleton<LocalStorageService>(
-        () =>  SharedPreferencesServiceImpl(),
+        SharedPreferencesServiceImpl.new,
       );
     } else {}
 
@@ -149,13 +145,13 @@ class AppInjection {
     // SharedPreferences - async
     if (!_getIt.isRegistered<Future<SharedPreferences>>()) {
       _getIt.registerSingletonAsync<SharedPreferences>(
-        () => SharedPreferences.getInstance(),
+        SharedPreferences.getInstance,
       );
     } else {}
 
     // Dio for downloads
     if (!_getIt.isRegistered<Dio>()) {
-      _getIt.registerLazySingleton<Dio>(() => Dio());
+      _getIt.registerLazySingleton<Dio>(Dio.new);
     }
 
     // TokenManager - lazy pero espera SharedPreferences cuando se use
@@ -247,7 +243,7 @@ class AppInjection {
 
     // OAuth Service
     if (!_getIt.isRegistered<OAuthService>()) {
-      _getIt.registerLazySingleton<OAuthService>(() => OAuthServiceImpl());
+      _getIt.registerLazySingleton<OAuthService>(OAuthServiceImpl.new);
     }
 
     // Repositories
@@ -314,7 +310,7 @@ class AppInjection {
 
     if (!_getIt.isRegistered<OrquestadorAuthCubit>()) {
       _getIt.registerFactory<OrquestadorAuthCubit>(
-        () => OrquestadorAuthCubit(),
+        OrquestadorAuthCubit.new,
       );
     }
   }
@@ -380,6 +376,16 @@ class AppInjection {
         () => CategoriesCubit(_getIt<GetCategoriesUseCase>()),
       );
     }
+
+    if (!_getIt.isRegistered<OrquestadorSearchCubit>()) {
+      _getIt.registerFactory<OrquestadorSearchCubit>(
+        () => OrquestadorSearchCubit(
+          searchCubit: _getIt<SearchCubit>(),
+          recentSearchesCubit: _getIt<RecentSearchesCubit>(),
+          updateSelectedSongUseCase: _getIt<UpdateSelectedSongUseCase>(),
+        ),
+      );
+    }
   }
 
   void _registerPlayerFeature() {
@@ -411,7 +417,7 @@ class AppInjection {
     // Nota: OfflineService se obtiene de forma lazy dentro del BLoC
     if (!_getIt.isRegistered<PlayerBlocBloc>()) {
       _getIt.registerLazySingleton<PlayerBlocBloc>(
-        () => PlayerBlocBloc(),
+        PlayerBlocBloc.new,
       );
     }
   }
@@ -732,7 +738,7 @@ class AppInjection {
   void _registerOfflineFeature() {
     // Connectivity - singleton para verificar estado de conexión
     if (!_getIt.isRegistered<Connectivity>()) {
-      _getIt.registerLazySingleton<Connectivity>(() => Connectivity());
+      _getIt.registerLazySingleton<Connectivity>(Connectivity.new);
     }
 
     // OfflineService - singleton async porque necesita inicialización con init()

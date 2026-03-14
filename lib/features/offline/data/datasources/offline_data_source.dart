@@ -1,4 +1,3 @@
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:music_app/data/offline/services/offline_service.dart';
 import 'package:music_app/features/offline/domain/entities/offline_song_entity.dart';
 
@@ -6,9 +5,9 @@ import 'package:music_app/features/offline/domain/entities/offline_song_entity.d
 /// Wraps the existing OfflineService.
 class OfflineDataSource {
   final OfflineService _offlineService;
-  final Connectivity _connectivity;
+//   final Connectivity _connectivity;
 
-  OfflineDataSource(this._offlineService, this._connectivity);
+  OfflineDataSource(this._offlineService,  );
 
   /// Check if device is online
   Future<bool> isOnline() async {

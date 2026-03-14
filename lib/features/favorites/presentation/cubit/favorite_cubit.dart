@@ -1,3 +1,4 @@
+// ignore_for_file: unawaited_futures
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -39,9 +40,7 @@ class FavoriteCubit extends Cubit<FavoriteState> with BaseBlocMixin {
   /// Toggle favorito con actualización optimista
   Future<void> toggleFavorite({
     required String videoId,
-    String? songId,
-    required FavoriteType type,
-    required bool isCurrentlyFavorite,
+    required FavoriteType type, required bool isCurrentlyFavorite, String? songId,
     SongMetadata? metadata,
     PlaylistMetadata? playlistMetadata,
   }) async {

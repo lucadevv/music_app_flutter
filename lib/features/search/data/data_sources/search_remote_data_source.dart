@@ -1,3 +1,4 @@
+// ignore_for_file: deprecated_member_use_from_same_package
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -5,8 +6,10 @@ import 'package:music_app/core/services/network/api_services.dart';
 import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
 import 'package:music_app/core/utils/exeptions/exception_handler.dart';
 import 'package:music_app/features/home/data/models/mood_genre_model.dart';
+import 'package:music_app/features/search/data/isolates/search_response_parsing_isolate.dart';
 import 'package:music_app/features/search/data/models/recent_search_model.dart';
 import 'package:music_app/features/search/domain/entities/recent_search.dart';
+
 import '../../domain/entities/search_request.dart';
 import '../../domain/entities/song.dart';
 import '../models/search_response_model.dart';
@@ -82,7 +85,9 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
         return Left(exception);
       }
 
-      return Right(SearchResponseModel.fromJson(jsonData));
+      // Off-loading JSON parsing a un Isolate Secundario (Performance)
+      final searchResponse = await SearchResponseParsingIsolate.parseResponse(jsonData);
+      return Right(searchResponse);
     } catch (e) {
       final appException = ExceptionHandler.handleException(e);
       ExceptionHandler.logException(appException, context: 'search');
@@ -112,10 +117,11 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
             // La API puede retornar solo strings o objetos completos
             if (item is String) {
               // Saltar items que son solo strings - la API debería retornar objetos completos
-              if (kDebugMode)
+              if (kDebugMode) {
                 debugPrint(
                   'getRecentSearches: Item $i es String (solo query), saltando: $item',
                 );
+              }
               continue;
             }
             // Si el item es un Map, parsearlo normalmente
@@ -124,19 +130,21 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
             }
             // Si el item es otro tipo, intentar convertirlo
             else {
-              if (kDebugMode)
+              if (kDebugMode) {
                 debugPrint(
                   'getRecentSearches: Item $i tiene tipo inesperado: ${item.runtimeType}, valor: $item',
                 );
+              }
               // Intentar convertir a Map si es posible
               try {
                 final itemMap = Map<String, dynamic>.from(item as Map);
                 recentSearches.add(RecentSearchModel.fromJson(itemMap));
               } catch (castError) {
-                if (kDebugMode)
+                if (kDebugMode) {
                   debugPrint(
                     'getRecentSearches: Error convirtiendo item $i a Map: $castError',
                   );
+                }
                 continue;
               }
             }
@@ -215,7 +223,7 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
 
         return Right(categories);
       } else {
-        return Left(ServerException('Respuesta del servidor en formato incorrecto'));
+        return const Left(ServerException('Respuesta del servidor en formato incorrecto'));
       }
     } catch (e) {
       final appException = ExceptionHandler.handleException(e);

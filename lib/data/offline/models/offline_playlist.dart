@@ -106,11 +106,8 @@ class OfflinePlaylist extends HiveObject {
     required String playlistId,
     required String externalPlaylistId,
     required String name,
-    String? description,
+    required List<String> videoIds, required int trackCount, required DateTime createdAt, String? description,
     String? thumbnail,
-    required List<String> videoIds,
-    required int trackCount,
-    required DateTime createdAt,
   }) {
     return OfflinePlaylist()
       ..playlistId = playlistId

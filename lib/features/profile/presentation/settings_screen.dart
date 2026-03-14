@@ -1,3 +1,4 @@
+// ignore_for_file: deprecated_member_use, unnecessary_underscores
 import 'package:auto_route/auto_route.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -91,7 +92,7 @@ class _SettingsView extends StatelessWidget {
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
           onPressed: () => context.router.pop(),
         ),
       ),

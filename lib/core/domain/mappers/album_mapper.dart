@@ -1,3 +1,4 @@
+// ignore_for_file: deprecated_member_use_from_same_package
 import 'package:music_app/core/domain/entities/album.dart' as core;
 import 'package:music_app/features/album/domain/entities/album.dart'
     as album_feature;

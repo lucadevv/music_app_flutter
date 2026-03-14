@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
+import 'package:music_app/core/widgets/shimmer_widgets.dart';
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/user_playlists/presentation/cubit/user_playlists_cubit.dart';
 import 'package:music_app/features/user_playlists/presentation/cubit/user_playlists_state.dart';
@@ -46,7 +47,7 @@ class _UserPlaylistsView extends StatelessWidget {
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
           onPressed: () => context.router.pop(),
         ),
         actions: [
@@ -72,9 +73,7 @@ class _UserPlaylistsView extends StatelessWidget {
     switch (state.status) {
       case UserPlaylistsStatus.initial:
       case UserPlaylistsStatus.loading:
-        return const Center(
-          child: CircularProgressIndicator(color: AppColorsDark.primary),
-        );
+        return const _UserPlaylistsLoadingView();
       case UserPlaylistsStatus.failure:
         return Center(
           child: Column(
@@ -261,6 +260,42 @@ class _PlaylistCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _UserPlaylistsLoadingView extends StatelessWidget {
+  const _UserPlaylistsLoadingView();
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      padding: const EdgeInsets.all(16),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 16,
+        childAspectRatio: 1,
+      ),
+      itemCount: 6,
+      itemBuilder: (context, index) {
+        return const Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: ShimmerContainer(
+                width: double.infinity,
+                height: double.infinity,
+                borderRadius: 8,
+              ),
+            ),
+            SizedBox(height: 8),
+            TextShimmer(width: 120, height: 14),
+            SizedBox(height: 4),
+            TextShimmer(width: 80, height: 12),
+          ],
+        );
+      },
     );
   }
 }

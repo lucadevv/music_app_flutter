@@ -8,8 +8,7 @@ class AnimatedFadeIn extends StatefulWidget {
   final Curve curve;
 
   const AnimatedFadeIn({
-    super.key,
-    required this.child,
+    required this.child, super.key,
     this.duration = const Duration(milliseconds: 400),
     this.delay = Duration.zero,
     this.curve = Curves.easeOut,
@@ -61,8 +60,7 @@ class AnimatedSlideUp extends StatefulWidget {
   final double slideFrom;
 
   const AnimatedSlideUp({
-    super.key,
-    required this.child,
+    required this.child, super.key,
     this.duration = const Duration(milliseconds: 400),
     this.delay = Duration.zero,
     this.curve = Curves.easeOutCubic,
@@ -123,8 +121,7 @@ class AnimatedScaleIn extends StatefulWidget {
   final double scaleFrom;
 
   const AnimatedScaleIn({
-    super.key,
-    required this.child,
+    required this.child, super.key,
     this.duration = const Duration(milliseconds: 400),
     this.delay = Duration.zero,
     this.curve = Curves.easeOutBack,
@@ -185,9 +182,7 @@ class AnimatedListItem extends StatefulWidget {
   final Curve curve;
 
   const AnimatedListItem({
-    super.key,
-    required this.child,
-    required this.index,
+    required this.child, required this.index, super.key,
     this.duration = const Duration(milliseconds: 350),
     this.baseDelay = const Duration(milliseconds: 50),
     this.curve = Curves.easeOutCubic,
@@ -250,8 +245,7 @@ class AnimatedPress extends StatefulWidget {
   final double scaleDown;
 
   const AnimatedPress({
-    super.key,
-    required this.child,
+    required this.child, super.key,
     this.onTap,
     this.scaleDown = 0.95,
   });
@@ -304,8 +298,7 @@ class AnimatedShimmer extends StatefulWidget {
   final bool isLoading;
 
   const AnimatedShimmer({
-    super.key,
-    required this.child,
+    required this.child, super.key,
     this.isLoading = true,
   });
 
@@ -374,8 +367,7 @@ class AnimatedPage extends StatefulWidget {
   final Curve curve;
 
   const AnimatedPage({
-    super.key,
-    required this.child,
+    required this.child, super.key,
     this.duration = const Duration(milliseconds: 400),
     this.curve = Curves.easeOutCubic,
   });

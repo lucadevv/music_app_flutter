@@ -1,3 +1,4 @@
+// ignore_for_file: deprecated_member_use_from_same_package
 import 'package:auto_route/auto_route.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +18,7 @@ import 'package:music_app/l10n/app_localizations.dart';
 class AlbumScreen extends StatelessWidget {
   final String albumId;
 
-  const AlbumScreen({super.key, @PathParam('id') required this.albumId});
+  const AlbumScreen({@PathParam('id') required this.albumId, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +70,12 @@ class _AlbumView extends StatelessWidget {
 
           final album = state.album;
           if (album == null) {
-            return const Center(child: CircularProgressIndicator());
+            return Center(
+              child: Text(
+                'Álbum no encontrado',
+                style: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
+              ),
+            );
           }
 
           return RefreshIndicator(
@@ -113,7 +119,7 @@ class _AlbumView extends StatelessWidget {
       pinned: true,
       backgroundColor: Colors.transparent,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.white),
+        icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
         onPressed: () => context.router.pop(),
       ),
       actions: [
@@ -271,7 +277,7 @@ class _AlbumView extends StatelessWidget {
           (song) => NowPlayingData.fromBasic(
             videoId: song.videoId,
             title: song.title,
-            artistNames: [],
+            artistNames: const [],
             albumName: '',
             duration: song.formattedDuration,
             durationSeconds: song.durationSeconds,
@@ -340,7 +346,7 @@ class _AlbumLoadingView extends StatelessWidget {
           pinned: true,
           backgroundColor: Colors.transparent,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
             onPressed: () => context.router.pop(),
           ),
           flexibleSpace: FlexibleSpaceBar(
@@ -352,12 +358,12 @@ class _AlbumLoadingView extends StatelessWidget {
                   colors: [AppColorsDark.primaryContainer, Color(0xFF0D0D0D)],
                 ),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
+              child: const Padding(
+                padding: EdgeInsets.all(24.0),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
+                  children: [
                     // Album artwork shimmer
                     ThumbnailShimmer(width: 180, height: 180),
                     SizedBox(height: 16),
@@ -374,12 +380,12 @@ class _AlbumLoadingView extends StatelessWidget {
         ),
         
         // Action buttons shimmer
-        SliverToBoxAdapter(
+        const SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(24),
             child: Row(
-              children: const [
-                ButtonShimmer(width: 100, height: 48),
+              children: [
+                Expanded(child: ButtonShimmer(height: 48)),
                 SizedBox(width: 16),
                 ShimmerContainer(width: 48, height: 48, borderRadius: 24),
                 SizedBox(width: 8),

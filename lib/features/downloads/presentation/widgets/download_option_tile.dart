@@ -237,9 +237,7 @@ class _DownloadOptionTileState extends State<DownloadOptionTile> {
           'Disponible offline',
           style: TextStyle(color: Colors.white54, fontSize: 12),
         ),
-        onTap: () {
-          _showDownloadedOptions();
-        },
+        onTap: _showDownloadedOptions,
       );
     }
 

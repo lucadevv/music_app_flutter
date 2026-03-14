@@ -8,7 +8,7 @@ import 'package:music_app/main.dart';
 /// Si no está verificado, redirige a la pantalla de verificación de email
 class EmailVerificationGuard extends AutoRouteGuard {
   @override
-  void onNavigation(NavigationResolver resolver, StackRouter router) async {
+  Future<void> onNavigation(NavigationResolver resolver, StackRouter router) async {
     if (kDebugMode) {
       debugPrint(
         'EmailVerificationGuard: Iniciando verificación para ruta: ${resolver.route.name}',

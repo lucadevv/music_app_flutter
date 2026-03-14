@@ -14,7 +14,7 @@ class RegisterHeader extends StatelessWidget {
       children: [
         Text(
           l10n.createAccount,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 32,
             fontWeight: FontWeight.bold,
             color: AppColorsDark.onSurface,
@@ -23,7 +23,7 @@ class RegisterHeader extends StatelessWidget {
         const SizedBox(height: 8),
         Text(
           l10n.signUpToStart,
-          style: TextStyle(fontSize: 16, color: AppColorsDark.onSurfaceVariant),
+          style: const TextStyle(fontSize: 16, color: AppColorsDark.onSurfaceVariant),
         ),
         const SizedBox(height: 32),
       ],

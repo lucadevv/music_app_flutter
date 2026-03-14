@@ -4,8 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/presentation/widgets/song_list_item.dart';
-
 import 'package:music_app/core/theme/app_colors_dark.dart';
+import 'package:music_app/core/widgets/shimmer_widgets.dart';
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/library/presentation/cubit/library_cubit.dart';
 import 'package:music_app/l10n/app_localizations.dart';
@@ -38,14 +38,26 @@ class _LikedSongsScreenView extends StatelessWidget {
         return CustomScrollView(
           slivers: [
             _buildHeader(context, state, l10n),
-            if (state.status == LibraryStatus.loading)
-              const SliverFillRemaining(
-                child: Center(
-                  child: CircularProgressIndicator(
-                    color: AppColorsDark.primary,
+            if (state.status == LibraryStatus.loading) ...[
+              const SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.all(24.0),
+                  child: Row(
+                    children: [
+                      ShimmerContainer(width: 56, height: 56, borderRadius: 28),
+                      SizedBox(width: 16),
+                      ShimmerContainer(width: 48, height: 48, borderRadius: 24),
+                    ],
                   ),
                 ),
-              )
+              ),
+              SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) => const SongListItemShimmer(),
+                  childCount: 10,
+                ),
+              ),
+            ]
             else if (state.status == LibraryStatus.failure)
               SliverFillRemaining(
                 child: _buildError(state.errorMessage, context, l10n),
@@ -74,7 +86,7 @@ class _LikedSongsScreenView extends StatelessWidget {
       pinned: true,
       backgroundColor: Colors.transparent,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.white),
+        icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
         onPressed: () => context.router.maybePop(),
       ),
       actions: [
@@ -143,8 +155,9 @@ class _LikedSongsScreenView extends StatelessWidget {
   }
 
   Widget _buildPlayButton(BuildContext context, LibraryState state) {
-    if (state.favoriteSongs.isEmpty)
+    if (state.favoriteSongs.isEmpty) {
       return const SliverToBoxAdapter(child: SizedBox.shrink());
+    }
 
     return SliverToBoxAdapter(
       child: Padding(

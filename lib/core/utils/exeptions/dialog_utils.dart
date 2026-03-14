@@ -33,9 +33,9 @@ class DialogUtils {
   static Future<bool?> showConfirmDialog({
     required BuildContext context,
     required Widget content,
-    String title = "Confirmar",
-    String acceptText = "Aceptar",
-    String cancelText = "Cancelar",
+    String title = 'Confirmar',
+    String acceptText = 'Aceptar',
+    String cancelText = 'Cancelar',
     Color? acceptColor,
     Color? cancelColor,
     bool barrierDismissible = true,
@@ -82,8 +82,8 @@ class DialogUtils {
   static Future<void> showInfoDialog({
     required BuildContext context,
     required Widget content,
-    String title = "Información",
-    String buttonText = "Aceptar",
+    String title = 'Información',
+    String buttonText = 'Aceptar',
     Color? buttonColor,
     bool barrierDismissible = true,
     bool useRootNavigator = true,

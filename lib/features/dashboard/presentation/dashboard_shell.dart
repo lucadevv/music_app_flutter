@@ -1,3 +1,4 @@
+// import 'package:flutter/foundation.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -5,10 +6,9 @@ import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/managers/auth/auth_manager.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/core/utils/bottom_sheet_visibility.dart';
-import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
-import 'package:music_app/features/player/presentation/widgets/mini_player.dart';
-import 'package:music_app/l10n/app_localizations.dart';
 import 'package:music_app/core/widgets/glass_bottom_nav.dart';
+import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
+import 'package:music_app/features/player/presentation/widgets/organisms/mini_player.dart';
 import 'package:music_app/main.dart';
 
 @RoutePage()
@@ -41,7 +41,7 @@ class _DashboardShellState extends State<DashboardShell> {
   Future<void> _currentAccessToken() async {
       final authManager = getIt<AuthManager>();
     final accessToken =await authManager.getCurrentAccessToken();
-    print('Current token: $accessToken');
+    debugPrint('Current token: $accessToken');
     }
 
   @override

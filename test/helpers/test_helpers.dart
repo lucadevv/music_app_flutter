@@ -18,10 +18,10 @@ import 'package:music_app/features/player/domain/entities/now_playing_data.dart'
 import 'package:music_app/features/search/domain/entities/album.dart' as album;
 import 'package:music_app/features/search/domain/entities/artist.dart'
     as artist;
-import 'package:music_app/features/search/domain/entities/thumbnail.dart'
-    as thumb;
 import 'package:music_app/features/search/domain/entities/search_request.dart';
 import 'package:music_app/features/search/domain/entities/search_response.dart';
+import 'package:music_app/features/search/domain/entities/thumbnail.dart'
+    as thumb;
 
 // ============ OAuth Mock Classes ============
 

@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
+import 'package:music_app/core/widgets/shimmer_widgets.dart';
 import 'package:music_app/features/downloads/presentation/cubit/downloads_cubit.dart';
 import 'package:music_app/features/downloads/presentation/widgets/download_progress_widget.dart';
 import 'package:music_app/features/downloads/presentation/widgets/downloaded_song_item_widget.dart';
@@ -41,7 +42,7 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
             state.status == DownloadsStatus.loading) {
           return Scaffold(
             appBar: AppBar(title: Text(l10n.downloads)),
-            body: const Center(child: CircularProgressIndicator()),
+            body: const _DownloadsLoadingView(),
           );
         }
 
@@ -91,7 +92,7 @@ class _DownloadsBody extends StatelessWidget {
     return BlocBuilder<DownloadsCubit, DownloadsState>(
       builder: (context, state) {
         if (state.isLoading && !state.hasActiveDownloads) {
-          return const Center(child: CircularProgressIndicator());
+          return const _DownloadsLoadingView();
         }
 
         if (state.isFailure && !state.hasDownloads) {
@@ -257,6 +258,43 @@ class _DownloadsBody extends StatelessWidget {
               child: Text(l10n.deleteDownload),
             ),
           ],
+        );
+      },
+    );
+  }
+}
+
+class _DownloadsLoadingView extends StatelessWidget {
+  const _DownloadsLoadingView();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: 10,
+      itemBuilder: (context, index) {
+        return const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+          child: Row(
+            children: [
+              // Avatar
+              ShimmerContainer(width: 48, height: 48, borderRadius: 8),
+              SizedBox(width: 16),
+              // Titles
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextShimmer(width: double.infinity, height: 14),
+                    SizedBox(height: 4),
+                    TextShimmer(width: 100, height: 12),
+                  ],
+                ),
+              ),
+              SizedBox(width: 16),
+              // Options / Remove button
+              ShimmerContainer(width: 24, height: 24, borderRadius: 12),
+            ],
+          ),
         );
       },
     );

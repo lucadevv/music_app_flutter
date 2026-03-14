@@ -47,7 +47,7 @@ class AppTheme {
 
       // COMPONENT THEMES
       actionIconTheme: ActionIconThemeData(
-        backButtonIconBuilder: (context) => const Icon(Icons.arrow_back),
+        backButtonIconBuilder: (context) => const Icon(Icons.arrow_back_ios_new),
         closeButtonIconBuilder: (context) => const Icon(Icons.close),
       ),
 
@@ -159,7 +159,7 @@ class AppTheme {
             colorScheme.surfaceContainerHigh,
           ),
           elevation: const WidgetStatePropertyAll(8),
-          surfaceTintColor: WidgetStatePropertyAll(Colors.transparent),
+          surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
         ),
       ),
 
@@ -487,7 +487,7 @@ class AppTheme {
 
       // COMPONENT THEMES
       actionIconTheme: ActionIconThemeData(
-        backButtonIconBuilder: (context) => const Icon(Icons.arrow_back),
+        backButtonIconBuilder: (context) => const Icon(Icons.arrow_back_ios_new),
         closeButtonIconBuilder: (context) => const Icon(Icons.close),
       ),
 
@@ -598,7 +598,7 @@ class AppTheme {
             colorScheme.surfaceContainerHigh,
           ),
           elevation: const WidgetStatePropertyAll(8),
-          surfaceTintColor: WidgetStatePropertyAll(Colors.transparent),
+          surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
         ),
       ),
 

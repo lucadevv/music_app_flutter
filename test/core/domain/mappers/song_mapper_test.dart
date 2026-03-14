@@ -1,8 +1,9 @@
+// ignore_for_file: deprecated_member_use_from_same_package
 import 'package:flutter_test/flutter_test.dart';
 import 'package:music_app/core/domain/mappers/song_mapper.dart';
-import 'package:music_app/features/search/domain/entities/song.dart' as search;
 import 'package:music_app/features/downloads/domain/entities/downloaded_song.dart';
 import 'package:music_app/features/home/domain/entities/chart_song.dart';
+import 'package:music_app/features/search/domain/entities/song.dart' as search;
 
 void main() {
   group('SongMapper', () {

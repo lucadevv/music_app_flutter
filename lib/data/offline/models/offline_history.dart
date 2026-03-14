@@ -108,9 +108,8 @@ class OfflineHistory extends HiveObject {
     required String videoId,
     required String title,
     required String artist,
-    String? thumbnail,
+    required DateTime playedAt, String? thumbnail,
     int? duration,
-    required DateTime playedAt,
     int playedDuration = 0,
   }) {
     return OfflineHistory()
