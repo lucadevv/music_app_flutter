@@ -13,6 +13,7 @@ import 'package:music_app/features/search/data/models/thumbnail_model.dart';
 class HomeContentItemModel extends HomeContentItem {
   const HomeContentItemModel({
     required super.title,
+    
     required super.thumbnails, required super.artists, super.videoId,
     super.playlistId,
     super.browseId,
@@ -20,7 +21,6 @@ class HomeContentItemModel extends HomeContentItem {
     super.type,
     super.videoType,
     super.isExplicit,
-    required super.artists,
     super.views,
     super.album,
     super.description,

@@ -20,7 +20,6 @@ import 'package:music_app/features/auth/presentation/widgets/auth_video_backgrou
 import 'package:music_app/features/auth/presentation/widgets/social_auth_buttons.dart';
 import 'package:music_app/l10n/app_localizations.dart';
 import 'package:music_app/main.dart';
-import 'package:video_player/video_player.dart';
 
 @RoutePage()
 class LoginScreen extends StatefulWidget implements AutoRouteWrapper {
@@ -76,26 +75,11 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
     context.read<OrquestadorAuthCubit>().resetLoginState();
   }
 
-  Future<void> _initializeVideo() async {
-    try {
-      _videoController = VideoPlayerController.asset('assets/video/video_login.mp4');
-      await _videoController!.initialize();
-      _videoController!.setLooping(true);
-      _videoController!.setVolume(0);
-      await _videoController!.play();
-      _videoInitialized = true;
-      if (mounted) setState(() {});
-    } catch (e) {
-      // Video failed to load, continue without it
-    }
-  }
-
   @override
   void dispose() {
     _fadeController.dispose();
     _slideController.dispose();
     _formNotifier.dispose();
-    _videoController?.dispose();
     super.dispose();
   }
 
@@ -204,33 +188,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                         ),
                       ],
                     ),
-                    const SizedBox(height: 32),
-
-                    // Register link
-                    TextButton(
-                      onPressed: () {
-                        context.router.push(const RegisterRoute());
-                      },
-                      child: RichText(
-                        text: TextSpan(
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.7),
-                            fontSize: 14,
-                          ),
-                          children: [
-                            TextSpan(text: '${l10n.noAccount} '),
-                            TextSpan(
-                              text: l10n.register,
-                              style: const TextStyle(
-                                color: AppColorsDark.primary,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -259,31 +217,6 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
             ),
           ],
         ),
-         // AppBar transparente
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back, color: AppColorsDark.onSurface),
-                        onPressed: () => context.router.pop(),
-                      ),
-                      LanguageSelector(
-                        backgroundColor: Colors.white.withValues(alpha: 0.1),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
       ),
     );
   }

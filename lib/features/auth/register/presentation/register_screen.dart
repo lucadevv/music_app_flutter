@@ -17,7 +17,6 @@ import 'package:music_app/features/auth/register/presentation/widgets/register_f
 import 'package:music_app/features/auth/register/presentation/widgets/register_header.dart';
 import 'package:music_app/features/auth/register/presentation/widgets/register_listeners.dart';
 import 'package:music_app/features/auth/register/presentation/widgets/social_buttons.dart';
-import 'package:music_app/l10n/app_localizations.dart';
 import 'package:music_app/main.dart';
 import 'package:video_player/video_player.dart';
 

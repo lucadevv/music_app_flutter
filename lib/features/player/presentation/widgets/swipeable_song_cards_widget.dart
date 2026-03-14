@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
-import 'package:music_app/features/player/presentation/widgets/player_artwork_widget.dart';
+import 'package:music_app/features/player/presentation/widgets/molecules/player_artwork_widget.dart';
 
 /// Widget de carrusel estilo Tinder con cartas deslizables
 class SwipeableSongCardsWidget extends StatefulWidget {

@@ -17,7 +17,6 @@ import 'package:music_app/features/playlist/presentation/widgets/organisms/playl
 import 'package:music_app/features/playlist/presentation/widgets/organisms/playlist_listeners.dart';
 import 'package:music_app/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart';
 import 'package:music_app/main.dart';
-import 'package:music_app/core/theme/app_colors_dark.dart';
 
 @RoutePage()
 class PlaylistScreen extends StatefulWidget implements AutoRouteWrapper {
