@@ -1,6 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/bloc/base_bloc_mixin.dart';
 import 'package:music_app/core/managers/auth/auth_manager.dart';
+import 'package:music_app/data/offline/services/offline_service.dart';
+import 'package:music_app/features/favorites/presentation/cubit/favorite_cubit.dart';
 import 'package:music_app/features/profile/domain/entities/entities.dart';
 import 'package:music_app/features/profile/domain/use_cases/use_cases.dart';
 
@@ -11,25 +13,28 @@ class ProfileCubit extends Cubit<ProfileState> with BaseBlocMixin {
   final UpdateProfileUseCase _updateProfileUseCase;
   final GetSettingsUseCase _getSettingsUseCase;
   final UpdateSettingsUseCase _updateSettingsUseCase;
-  final GetLibraryStatsUseCase _getLibraryStatsUseCase;
   final LogoutUseCase _logoutUseCase;
   final AuthManager _authManager;
+  final OfflineService _offlineService;
+  final FavoriteCubit _favoriteCubit;
 
   ProfileCubit({
     required GetProfileUseCase getProfileUseCase,
     required UpdateProfileUseCase updateProfileUseCase,
     required GetSettingsUseCase getSettingsUseCase,
     required UpdateSettingsUseCase updateSettingsUseCase,
-    required GetLibraryStatsUseCase getLibraryStatsUseCase,
     required LogoutUseCase logoutUseCase,
     required AuthManager authManager,
+    required OfflineService offlineService,
+    required FavoriteCubit favoriteCubit,
   })  : _getProfileUseCase = getProfileUseCase,
         _updateProfileUseCase = updateProfileUseCase,
         _getSettingsUseCase = getSettingsUseCase,
         _updateSettingsUseCase = updateSettingsUseCase,
-        _getLibraryStatsUseCase = getLibraryStatsUseCase,
         _logoutUseCase = logoutUseCase,
         _authManager = authManager,
+        _offlineService = offlineService,
+        _favoriteCubit = favoriteCubit,
         super(const ProfileState());
 
   Future<void> loadProfile() async {
@@ -144,25 +149,28 @@ class ProfileCubit extends Cubit<ProfileState> with BaseBlocMixin {
 
     emit(state.copyWith(isLoadingStats: true));
 
-    final result = await _getLibraryStatsUseCase();
+    try {
+      // Obtener canciones descargadas de OfflineService
+      final downloadedCount = await _offlineService.getDownloadedSongsCount();
+      
+      // Obtener favoritos de FavoriteCubit
+      final favoriteState = _favoriteCubit.state;
+      final songsCount = favoriteState.favoriteSongs.length;
+      final playlistsCount = favoriteState.favoritePlaylists.length;
 
-    result.fold(
-      (error) {
-        if (isClosed) return;
-        emit(state.copyWith(isLoadingStats: false));
-      },
-      (stats) {
-        if (isClosed) return;
-        emit(
-          state.copyWith(
-            isLoadingStats: false,
-            favoriteSongsCount: stats.favoriteSongsCount,
-            favoritePlaylistsCount: stats.favoritePlaylistsCount,
-            favoriteGenresCount: stats.favoriteGenresCount,
-          ),
-        );
-      },
-    );
+      if (isClosed) return;
+      emit(
+        state.copyWith(
+          isLoadingStats: false,
+          favoriteSongsCount: songsCount,
+          favoritePlaylistsCount: playlistsCount,
+          downloadedSongsCount: downloadedCount,
+        ),
+      );
+    } catch (e) {
+      if (isClosed) return;
+      emit(state.copyWith(isLoadingStats: false));
+    }
   }
 
   Future<void> updateProfile({

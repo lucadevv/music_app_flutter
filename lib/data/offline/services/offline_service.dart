@@ -133,6 +133,16 @@ class OfflineService {
     return _songsBox.length;
   }
 
+  /// Obtiene el número de playlists guardadas offline
+  Future<int> getOfflinePlaylistsCount() async {
+    return _playlistsBox.length;
+  }
+
+  /// Obtiene el número de canciones descargadas (archivos .mp3)
+  Future<int> getDownloadedSongsCount() async {
+    return _downloadService.getDownloadedCount();
+  }
+
   // ==================== Downloads ====================
 
   /// Descarga el audio de una canción para uso offline

@@ -1,15 +1,26 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/widgets/custom_search_bar.dart';
 import 'package:music_app/features/profile/presentation/cubit/profile_cubit.dart';
+import 'package:music_app/l10n/app_localizations.dart';
 
 class HomeHeaderWidget extends StatelessWidget {
-  const HomeHeaderWidget({super.key});
+  final TextEditingController? searchController;
+  final ValueChanged<String>? onSearchChanged;
+
+  const HomeHeaderWidget({
+    super.key,
+    this.searchController,
+    this.onSearchChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
       child: Column(
@@ -19,14 +30,21 @@ class HomeHeaderWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Text(
-                'Hello, Molly Hunter!',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  fontFamily: 'Poppins',
-                ),
+              BlocBuilder<ProfileCubit, ProfileState>(
+                builder: (context, state) {
+                  final userName = state.firstName?.isNotEmpty == true 
+                      ? state.firstName! 
+                      : 'User';
+                  return Text(
+                    l10n.hello(userName),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: 'Poppins',
+                    ),
+                  );
+                },
               ),
               BlocBuilder<ProfileCubit, ProfileState>(
                 builder: (context, state) {
@@ -54,16 +72,7 @@ class HomeHeaderWidget extends StatelessWidget {
                                 ),
                               ),
                             )
-                          : Center(
-                              child: Text(
-                                state.initials.isNotEmpty ? state.initials : 'MH',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
+                          : _buildAvatar(state),
                     ),
                   );
                 },
@@ -71,8 +80,42 @@ class HomeHeaderWidget extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 24),
-          const CustomSearchBar(),
+          CustomSearchBar(
+            hintText: l10n.searchFor,
+            controller: searchController,
+            onChanged: onSearchChanged,
+          ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildAvatar(ProfileState state) {
+    // Si tiene avatar, mostrar la imagen
+    if (state.avatarUrl != null && state.avatarUrl!.isNotEmpty) {
+      return ClipOval(
+        child: CachedNetworkImage(
+          imageUrl: state.avatarUrl!,
+          fit: BoxFit.cover,
+          placeholder: (context, url) => _buildInitials(state),
+          errorWidget: (context, url, error) => _buildInitials(state),
+        ),
+      );
+    }
+    // Si no tiene avatar, mostrar iniciales
+    return _buildInitials(state);
+  }
+
+  Widget _buildInitials(ProfileState state) {
+    final initials = state.initials.isNotEmpty ? state.initials : 'U';
+    return Center(
+      child: Text(
+        initials,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }

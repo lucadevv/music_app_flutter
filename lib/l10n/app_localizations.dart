@@ -200,6 +200,12 @@ abstract class AppLocalizations {
   /// **'Offline Mode'**
   String get offlineMode;
 
+  /// No description provided for @offline.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline'**
+  String get offline;
+
   /// No description provided for @noInternetConnection.
   ///
   /// In en, this message translates to:
@@ -785,7 +791,7 @@ abstract class AppLocalizations {
   /// No description provided for @welcome.
   ///
   /// In en, this message translates to:
-  /// **'Welcome'**
+  /// **'Welcome Vibeat'**
   String get welcome;
 
   /// No description provided for @signInToContinue.
@@ -1123,6 +1129,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Radio'**
   String get radio;
+
+  /// No description provided for @hello.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello, {name}!'**
+  String hello(String name);
+
+  /// No description provided for @selectCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Categories'**
+  String get selectCategories;
+
+  /// No description provided for @searchFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for a song, artist or album...'**
+  String get searchFor;
+
+  /// No description provided for @all.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get all;
+
+  /// No description provided for @diveIntoYour.
+  ///
+  /// In en, this message translates to:
+  /// **'Dive Into Your'**
+  String get diveIntoYour;
+
+  /// No description provided for @vibeat.
+  ///
+  /// In en, this message translates to:
+  /// **'Vibeat.'**
+  String get vibeat;
+
+  /// No description provided for @onboardingSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Experience seamless music enjoyment,\ncrafted for every moment.'**
+  String get onboardingSubtitle;
+
+  /// No description provided for @startExplore.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Explore'**
+  String get startExplore;
+
+  /// No description provided for @recoverPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Recover password'**
+  String get recoverPassword;
+
+  /// No description provided for @emailSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Email sent'**
+  String get emailSent;
+
+  /// No description provided for @checkInbox.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your inbox for instructions to reset your password'**
+  String get checkInbox;
+
+  /// No description provided for @enterEmailInstructions.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email and we will send you instructions to reset your password'**
+  String get enterEmailInstructions;
+
+  /// No description provided for @createAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Create account'**
+  String get createAccount;
+
+  /// No description provided for @signUpToStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign up to get started'**
+  String get signUpToStart;
+
+  /// No description provided for @firstName.
+  ///
+  /// In en, this message translates to:
+  /// **'First name'**
+  String get firstName;
+
+  /// No description provided for @lastName.
+  ///
+  /// In en, this message translates to:
+  /// **'Last name'**
+  String get lastName;
+
+  /// No description provided for @confirmPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm password'**
+  String get confirmPassword;
+
+  /// No description provided for @minimum8Characters.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum 8 characters'**
+  String get minimum8Characters;
+
+  /// No description provided for @repeatYourPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat your password'**
+  String get repeatYourPassword;
+
+  /// No description provided for @alreadyHaveAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account?'**
+  String get alreadyHaveAccount;
+
+  /// No description provided for @signIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get signIn;
+
+  /// No description provided for @emailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get emailLabel;
+
+  /// No description provided for @emailPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'your@email.com'**
+  String get emailPlaceholder;
+
+  /// No description provided for @pleaseEnterEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your email'**
+  String get pleaseEnterEmail;
+
+  /// No description provided for @enterValidEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email'**
+  String get enterValidEmail;
+
+  /// No description provided for @sendInstructions.
+  ///
+  /// In en, this message translates to:
+  /// **'Send instructions'**
+  String get sendInstructions;
+
+  /// No description provided for @backToLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to login'**
+  String get backToLogin;
+
+  /// No description provided for @successfullyLoggedIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Successfully logged in'**
+  String get successfullyLoggedIn;
 }
 
 class _AppLocalizationsDelegate

@@ -58,6 +58,7 @@ Future<void> _initAudioService() async {
         androidNotificationOngoing: true,
         androidShowNotificationBadge: true,
         androidStopForegroundOnPause: true,
+        androidNotificationIcon: 'drawable/ic_notification',
       ),
     );
 
@@ -83,6 +84,9 @@ Future<void> _loadUserSettings() async {
 
     if (isLoggedIn) {
       final profileCubit = getIt<ProfileCubit>();
+      // Cargar profile para obtener nombre, avatar, etc.
+      await profileCubit.loadProfile();
+      // Cargar settings para idioma, calidad, etc.
       await profileCubit.loadSettings();
     }
   } catch (e) {

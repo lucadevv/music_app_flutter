@@ -23,7 +23,7 @@ class ProfileState {
   final bool isLoadingStats;
   final int favoriteSongsCount;
   final int favoritePlaylistsCount;
-  final int favoriteGenresCount;
+  final int downloadedSongsCount;
 
   const ProfileState({
     this.isLoading = false,
@@ -42,10 +42,10 @@ class ProfileState {
     this.isSettingsLoading = false,
     this.settingsError,
     // Library Stats
-    this.isLoadingStats = true,
+    this.isLoadingStats = false,
     this.favoriteSongsCount = 0,
     this.favoritePlaylistsCount = 0,
-    this.favoriteGenresCount = 0,
+    this.downloadedSongsCount = 0,
   });
 
   // For backward compatibility - error getter that returns errorMessage
@@ -111,7 +111,7 @@ class ProfileState {
     bool? isLoadingStats,
     int? favoriteSongsCount,
     int? favoritePlaylistsCount,
-    int? favoriteGenresCount,
+    int? downloadedSongsCount,
     bool clearError = false,
     bool clearSettingsError = false,
   }) {
@@ -138,7 +138,7 @@ class ProfileState {
       favoriteSongsCount: favoriteSongsCount ?? this.favoriteSongsCount,
       favoritePlaylistsCount:
           favoritePlaylistsCount ?? this.favoritePlaylistsCount,
-      favoriteGenresCount: favoriteGenresCount ?? this.favoriteGenresCount,
+      downloadedSongsCount: downloadedSongsCount ?? this.downloadedSongsCount,
     );
   }
 }

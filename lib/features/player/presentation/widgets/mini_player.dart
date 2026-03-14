@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -14,8 +16,6 @@ class MiniPlayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // QUITAR buildWhen temporalmente para debug - reconstruir en cada cambio de estado
-    // Obtener el bloc del provider
     final playerBloc = context.read<PlayerBlocBloc>();
 
     return BlocBuilder<PlayerBlocBloc, PlayerBlocState>(
@@ -34,62 +34,74 @@ class MiniPlayer extends StatelessWidget {
 
         return GestureDetector(
           onTap: () => _openPlayer(context, track),
-          child: Container(
-            height: 64,
-            margin: const EdgeInsets.symmetric(horizontal: 8),
-            decoration: BoxDecoration(
-              color: AppColorsDark.surfaceContainerHigh,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.3),
-                  blurRadius: 8,
-                  offset: const Offset(0, -2),
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _ProgressBar(position: position, duration: duration),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Row(
-                      children: [
-                        _TrackThumbnail(thumbnail: track.highResThumbnail.url),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _TrackInfo(
-                            title: track.title,
-                            artist: track.artistsNames,
-                          ),
-                        ),
-                        FavoriteButton(
-                          videoId: track.videoId,
-                          size: 22,
-                          metadata: SongMetadata(
-                            title: track.title,
-                            artist: track.artistsNames,
-                            thumbnail: track.highResThumbnail.url,
-                            duration: track.durationSeconds,
-                            streamUrl: track.streamUrl,
-                          ),
-                        ),
-                        _PlayerControls(
-                          isPlaying: isPlaying,
-                          canPlayNext: state.canPlayNext,
-                          onPlayPause: () =>
-                              playerBloc.add(const PlayPauseToggleEvent()),
-                          onNext: state.canPlayNext
-                              ? () => playerBloc.add(const NextTrackEvent())
-                              : null,
-                        ),
-                      ],
+          child: Padding(
+            padding: const EdgeInsets.only(left: 20, right: 20, bottom: 100),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(24),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                child: Container(
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: AppColorsDark.surface.withValues(alpha: 0.6),
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.15),
+                      width: 1,
                     ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.2),
+                        blurRadius: 20,
+                        offset: const Offset(0, 10),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _ProgressBar(position: position, duration: duration),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Row(
+                            children: [
+                              _TrackThumbnail(thumbnail: track.highResThumbnail.url),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: _TrackInfo(
+                                  title: track.title,
+                                  artist: track.artistsNames,
+                                ),
+                              ),
+                              FavoriteButton(
+                                videoId: track.videoId,
+                                size: 22,
+                                metadata: SongMetadata(
+                                  title: track.title,
+                                  artist: track.artistsNames,
+                                  thumbnail: track.highResThumbnail.url,
+                                  duration: track.durationSeconds,
+                                  streamUrl: track.streamUrl,
+                                ),
+                              ),
+                              _PlayerControls(
+                                isPlaying: isPlaying,
+                                canPlayNext: state.canPlayNext,
+                                onPlayPause: () =>
+                                    playerBloc.add(const PlayPauseToggleEvent()),
+                                onNext: state.canPlayNext
+                                    ? () => playerBloc.add(const NextTrackEvent())
+                                    : null,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
+              ),
             ),
           ),
         );

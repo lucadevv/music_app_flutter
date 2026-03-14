@@ -35,12 +35,20 @@ abstract class OAuthService {
 class OAuthServiceImpl implements OAuthService {
   final GoogleSignIn _googleSignIn;
 
-  OAuthServiceImpl({List<String> googleScopes = const ['email', 'profile']})
-    : _googleSignIn = GoogleSignIn(scopes: googleScopes);
+  OAuthServiceImpl({
+    List<String> googleScopes = const ['email', 'profile'],
+    String? serverClientId,
+  }) : _googleSignIn = GoogleSignIn(
+      scopes: googleScopes,
+      serverClientId: serverClientId,
+    );
 
   @override
   Future<OAuthResult?> signInWithGoogle() async {
     try {
+      // Cerrar sesión primero para forzar el selector de cuenta
+      await _googleSignIn.signOut();
+      
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
       if (googleUser == null) {
@@ -52,16 +60,22 @@ class OAuthServiceImpl implements OAuthService {
           await googleUser.authentication;
 
       final accessToken = googleAuth.accessToken;
+      final idToken = googleAuth.idToken;
+      
       if (accessToken == null) {
         AppLogger.error('Google Sign In: access token is null');
+        // Cerrar sesión para permitir seleccionar otra cuenta
+        await signOut();
         return null;
       }
 
       AppLogger.info('Google Sign In successful for ${googleUser.email}');
+      
+ 
 
       return OAuthResult(
         accessToken: accessToken,
-        idToken: googleAuth.idToken,
+        idToken: idToken,
         email: googleUser.email,
         name: googleUser.displayName,
         photoUrl: googleUser.photoUrl,
@@ -69,6 +83,8 @@ class OAuthServiceImpl implements OAuthService {
       );
     } catch (e) {
       AppLogger.error('Google Sign In failed', e);
+      // Cerrar sesión en caso de error para permitir seleccionar otra cuenta
+      await signOut();
       rethrow;
     }
   }

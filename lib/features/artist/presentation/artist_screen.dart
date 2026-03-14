@@ -6,6 +6,7 @@ import 'package:get_it/get_it.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/presentation/widgets/song_list_item.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
+import 'package:music_app/core/widgets/shimmer_widgets.dart';
 import 'package:music_app/features/artist/domain/entities/artist.dart';
 import 'package:music_app/features/artist/presentation/cubit/artist_cubit.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
@@ -41,9 +42,7 @@ class _ArtistView extends StatelessWidget {
       body: BlocBuilder<ArtistCubit, ArtistState>(
         builder: (context, state) {
           if (state.status == ArtistStatus.loading) {
-            return const Center(
-              child: CircularProgressIndicator(color: AppColorsDark.primary),
-            );
+            return const _ArtistLoadingView();
           }
 
           if (state.status == ArtistStatus.failure) {
@@ -405,6 +404,99 @@ class _ArtistAlbumCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Widget de loading con shimmer para ArtistScreen
+class _ArtistLoadingView extends StatelessWidget {
+  const _ArtistLoadingView();
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomScrollView(
+      slivers: [
+        SliverAppBar(
+          expandedHeight: 300,
+          pinned: true,
+          backgroundColor: Colors.transparent,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () => context.router.pop(),
+          ),
+          flexibleSpace: FlexibleSpaceBar(
+            background: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [AppColorsDark.primaryContainer, Color(0xFF0D0D0D)],
+                ),
+              ),
+              child: const Center(child: AvatarShimmer(size: 150)),
+            ),
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Row(
+              children: const [
+                ButtonShimmer(width: 100, height: 48),
+                SizedBox(width: 16),
+                ShimmerContainer(width: 48, height: 48, borderRadius: 24),
+                SizedBox(width: 8),
+                ShimmerContainer(width: 48, height: 48, borderRadius: 24),
+              ],
+            ),
+          ),
+        ),
+        const SliverToBoxAdapter(
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(24, 0, 24, 16),
+            child: TextShimmer(width: 100, height: 20),
+          ),
+        ),
+        SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, index) => const SongListItemShimmer(),
+            childCount: 5,
+          ),
+        ),
+        const SliverToBoxAdapter(
+          child: Padding(
+            padding: EdgeInsets.all(24),
+            child: TextShimmer(width: 80, height: 20),
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: SizedBox(
+            height: 180,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: 4,
+              itemBuilder: (context, index) {
+                return Container(
+                  width: 140,
+                  margin: const EdgeInsets.only(right: 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      ThumbnailShimmer(width: 140, height: 130),
+                      SizedBox(height: 8),
+                      TextShimmer(height: 14),
+                      SizedBox(height: 4),
+                      TextShimmer(width: 80, height: 12),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+        const SliverToBoxAdapter(child: SizedBox(height: 100)),
+      ],
     );
   }
 }

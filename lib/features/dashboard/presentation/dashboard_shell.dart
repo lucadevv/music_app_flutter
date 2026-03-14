@@ -2,12 +2,14 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
+import 'package:music_app/core/managers/auth/auth_manager.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/core/utils/bottom_sheet_visibility.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/player/presentation/widgets/mini_player.dart';
 import 'package:music_app/l10n/app_localizations.dart';
 import 'package:music_app/core/widgets/glass_bottom_nav.dart';
+import 'package:music_app/main.dart';
 
 @RoutePage()
 class DashboardShell extends StatefulWidget implements AutoRouteWrapper {
@@ -30,7 +32,17 @@ class _DashboardShellState extends State<DashboardShell> {
     super.initState();
     
     BottomSheetVisibility().addListener(_onBottomSheetChanged);
+    WidgetsBinding.instance.addPostFrameCallback((_) async{
+      await _currentAccessToken();
+    });
   }
+
+
+  Future<void> _currentAccessToken() async {
+      final authManager = getIt<AuthManager>();
+    final accessToken =await authManager.getCurrentAccessToken();
+    print('Current token: $accessToken');
+    }
 
   @override
   void dispose() {
@@ -46,12 +58,7 @@ class _DashboardShellState extends State<DashboardShell> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final navItems = [
-      {'icon': Icons.home, 'label': l10n.home},
-      {'icon': Icons.search, 'label': l10n.search},
-      {'icon': Icons.library_music, 'label': l10n.library},
-    ];
+
     final visibleRoutes = [
       '/dashboard/home',
       '/dashboard/search',
@@ -94,7 +101,7 @@ class _DashboardShellState extends State<DashboardShell> {
             final isBottomSheetOpen = BottomSheetVisibility().isBottomSheetOpen;
 
        
-            final miniPlayerBottom = isBottomSheetOpen ? 512 : 119;
+            final miniPlayerBottom = isBottomSheetOpen ? 512 :0;
 
             return Scaffold(
               backgroundColor: AppColorsDark.surface,
@@ -117,7 +124,7 @@ class _DashboardShellState extends State<DashboardShell> {
                       alignment: Alignment.bottomCenter,
                       child: GlassBottomNav(
                         currentIndex: tabsRouter.activeIndex,
-                        onTap: (index) => tabsRouter.setActiveIndex(index),
+                        onTap: tabsRouter.setActiveIndex,
                         outlinedIcons: const [Icons.home_outlined, Icons.search_outlined, Icons.library_music_outlined],
                         filledIcons: const [Icons.home, Icons.search, Icons.library_music],
                       ),

@@ -9,6 +9,7 @@ import 'package:music_app/data/offline/models/offline_history.dart';
 import 'package:music_app/data/offline/services/offline_service.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 import 'package:music_app/features/profile/presentation/cubit/profile_cubit.dart';
+import 'package:music_app/features/recently_played/domain/usecases/record_listen_usecase.dart';
 
 part 'player_bloc_event.dart';
 part 'player_bloc_state.dart';
@@ -204,6 +205,24 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
       // Limpiar estado
       _currentHistoryId = null;
       _lastSavedPositionSeconds = 0;
+    }
+  }
+
+  /// Registra la reproducción en el servidor (historial online)
+  Future<void> _recordListenToServer(String videoId) async {
+    print('DEBUG _recordListenToServer: Iniciando para videoId=$videoId');
+    try {
+      if (GetIt.I.isRegistered<RecordListenUseCase>()) {
+        print('DEBUG _recordListenToServer: RecordListenUseCase registrado, llamando...');
+        final recordListenUseCase = GetIt.I<RecordListenUseCase>();
+        final result = await recordListenUseCase(videoId);
+        print('DEBUG _recordListenToServer: Resultado=$result');
+      } else {
+        print('DEBUG _recordListenToServer: RecordListenUseCase NO REGISTRADO');
+      }
+    } catch (e) {
+      print('DEBUG _recordListenToServer: ERROR=$e');
+      // Silently fail - el historial online no debe afectar la reproducción
     }
   }
 
@@ -526,6 +545,9 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
       print('DEBUG _loadTrackWithUrl: Estado emitido, ahora play()');
       await _audioPlayer.play();
       print('DEBUG _loadTrackWithUrl: play() completado');
+
+      // Registrar la reproducción en el historial del servidor
+      _recordListenToServer(track.videoId);
     } catch (e) {
       print('DEBUG _loadTrackWithUrl ERROR: $e');
       print('DEBUG _loadTrackWithUrl StackTrace: ${StackTrace.current}');
@@ -636,9 +658,12 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
       final firstTrack = event.playlist[safeStartIndex];
       final actualDuration = Duration(seconds: firstTrack.durationSeconds);
       
+      // ACTUALIZAR NOTIFICACIONES: Actualizar el mediaItem del handler para la primera canción
+      _updateHandlerMediaItem(firstTrack);
+      
       // DEBUG: Verificar sourceId
       print('DEBUG _onLoadPlaylist: event.sourceId=${event.sourceId}');
-       
+        
       // Emitir estado
       emit(
        state.copyWith(
@@ -657,10 +682,13 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
        )
       );
       
-      print('DEBUG _onLoadPlaylist: Estado emitido con sourceId=${state.sourceId}');
-       
+print('DEBUG _onLoadPlaylist: Estado emitido con sourceId=${state.sourceId}');
+        
       // Play directamente
       await _audioPlayer.play();
+
+      // Registrar la primera canción reproducida
+      _recordListenToServer(firstTrack.videoId);
     } catch (e) {
       emit(
        state.copyWith(
@@ -696,6 +724,9 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
 
         await _audioPlayer.seek(Duration.zero, index: event.index);
         await _audioPlayer.play();
+
+        // ACTUALIZAR NOTIFICACIONES: Actualizar el mediaItem del handler
+        _updateHandlerMediaItem(track);
 
         emit(
           currentState.copyWith(
@@ -962,9 +993,14 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
         ? currentState.playlist[event.index!]
         : null;
 
-    // Si cambió el track, crear nueva entrada de historial (fire and forget)
+    // Si cambió el track, actualizar notificación y crear nueva entrada de historial
     if (currentTrack != null && event.index != currentState.currentIndex) {
+      // Actualizar notificación con la nueva canción
+      _updateHandlerMediaItem(currentTrack);
+      // Crear nueva entrada de historial (fire and forget)
       unawaited(_startNewHistoryEntry(currentTrack));
+      // Registrar en el servidor (historial online)
+      _recordListenToServer(currentTrack.videoId);
     }
 
     emit(

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/widgets/category_chip.dart';
 import 'package:music_app/features/home/domain/entities/mood_genre.dart';
+import 'package:music_app/l10n/app_localizations.dart';
 
 class CategoriesRowWidget extends StatefulWidget {
   final List<MoodGenre> moods;
@@ -23,11 +24,13 @@ class _CategoriesRowWidgetState extends State<CategoriesRowWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     // Combine moods and genres into a single list
     final allMoodGenres = [...widget.moods, ...widget.genres];
     
-    // Create display categories with "All" as first item
-    final displayCategories = <String>['All', ...allMoodGenres.map((e) => e.title)];
+    // Create display categories with translated "All" as first item
+    final displayCategories = <String>[l10n.all, ...allMoodGenres.map((e) => e.title)];
     
     // Fallback if no data
     final hasData = allMoodGenres.isNotEmpty;
@@ -40,9 +43,9 @@ class _CategoriesRowWidgetState extends State<CategoriesRowWidget> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Select Categories',
-                style: TextStyle(
+              Text(
+                l10n.selectCategories,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,

@@ -7,6 +7,7 @@ import 'package:music_app/features/favorites/presentation/widgets/favorite_butto
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 import 'package:music_app/features/song_options/presentation/widgets/song_options_bottom_sheet.dart';
+import 'package:music_app/features/search/domain/use_cases/update_selected_song_use_case.dart';
 
 import '../../domain/entities/song.dart';
 
@@ -15,9 +16,13 @@ class SearchResultsWidget extends StatefulWidget {
   final bool hasMore;
   final VoidCallback? onLoadMore;
   final bool isLoadingMore;
+  final String query;
+  final UpdateSelectedSongUseCase updateSelectedSongUseCase;
 
   const SearchResultsWidget({
     required this.results,
+    required this.query,
+    required this.updateSelectedSongUseCase,
     this.hasMore = false,
     this.onLoadMore,
     this.isLoadingMore = false,
@@ -87,7 +92,11 @@ class _SearchResultsWidgetState extends State<SearchResultsWidget> {
         }
 
         final song = widget.results[index];
-        return _SongItem(song: song);
+        return _SongItem(
+          song: song,
+          query: widget.query,
+          updateSelectedSongUseCase: widget.updateSelectedSongUseCase,
+        );
       },
     );
   }
@@ -95,8 +104,29 @@ class _SearchResultsWidgetState extends State<SearchResultsWidget> {
 
 class _SongItem extends StatelessWidget {
   final Song song;
+  final String query;
+  final UpdateSelectedSongUseCase updateSelectedSongUseCase;
 
-  const _SongItem({required this.song});
+  const _SongItem({
+    required this.song,
+    required this.query,
+    required this.updateSelectedSongUseCase,
+  });
+
+  void _onSongSelected(BuildContext context) async {
+    // Actualizar la búsqueda reciente con la canción seleccionada
+    // Fire and forget - no bloqueamos la navegación
+    updateSelectedSongUseCase(
+      query: query,
+      videoId: song.videoId,
+      song: song,
+    );
+
+    // Navegar al player
+    context.router.push(
+      PlayerRoute(nowPlayingData: NowPlayingData.fromSong(song)),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -104,11 +134,7 @@ class _SongItem extends StatelessWidget {
     final artistsNames = song.artists.map((a) => a.name).join(', ');
 
     return GestureDetector(
-      onTap: () {
-        context.router.push(
-          PlayerRoute(nowPlayingData: NowPlayingData.fromSong(song)),
-        );
-      },
+      onTap: () => _onSongSelected(context),
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         child: Row(

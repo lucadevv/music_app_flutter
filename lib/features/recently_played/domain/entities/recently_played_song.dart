@@ -1,6 +1,8 @@
 import 'package:equatable/equatable.dart';
 
-/// Entity for recently played song
+/// Entity for recently played song (dominio).
+/// Representa la canción en la capa de presentación.
+/// El parsing de JSON se hace en el Model (RecentlyPlayedSongModel).
 class RecentlyPlayedSong extends Equatable {
   final String videoId;
   final String title;
@@ -22,45 +24,14 @@ class RecentlyPlayedSong extends Equatable {
     this.streamUrl,
   });
 
-  /// Create from API response
-  factory RecentlyPlayedSong.fromJson(Map<String, dynamic> json) {
-    final durationStr = json['duration'] ?? '0:00';
-    int durationSeconds = 0;
-
-    try {
-      final parts = durationStr.toString().split(':');
-      if (parts.length == 2) {
-        durationSeconds = int.parse(parts[0]) * 60 + int.parse(parts[1]);
-      }
-    } catch (_) {}
-
-    // Extraer stream_url de donde venga (directo o anidado en songData)
-    String? streamUrl;
-    if (json['stream_url'] != null) {
-      streamUrl = json['stream_url'] as String?;
-    } else if (json['songData'] != null && json['songData'] is Map<String, dynamic>) {
-      streamUrl = json['songData']['stream_url'] as String?;
-    }
-
-    return RecentlyPlayedSong(
-      videoId: json['videoId'] ?? '',
-      title: json['title'] ?? 'Unknown',
-      artist: json['artist'] ?? 'Unknown Artist',
-      thumbnail: json['thumbnail'],
-      duration: durationStr.toString(),
-      durationSeconds: durationSeconds,
-      streamUrl: streamUrl,
-    );
-  }
-
   @override
   List<Object?> get props => [
-    videoId,
-    title,
-    artist,
-    thumbnail,
-    duration,
-    durationSeconds,
-    streamUrl,
-  ];
+        videoId,
+        title,
+        artist,
+        thumbnail,
+        duration,
+        durationSeconds,
+        streamUrl,
+      ];
 }

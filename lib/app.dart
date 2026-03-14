@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -78,7 +79,7 @@ class _AppState extends State<App> {
         _downloadsCubit == null ||
         _profileCubit == null) {
       return MaterialApp(
-        title: 'Music App',
+        title: 'Vibeat',
         theme: AppTheme.dark(),
         home: const Scaffold(body: Center(child: CircularProgressIndicator())),
         debugShowCheckedModeBanner: false,
@@ -91,7 +92,6 @@ class _AppState extends State<App> {
       providers: [
         BlocProvider.value(value: _themeCubit!),
         BlocProvider.value(value: _localeCubit!),
- 
         BlocProvider.value(value: _downloadsCubit!),
         BlocProvider.value(value: _profileCubit!),
       ],
@@ -100,12 +100,15 @@ class _AppState extends State<App> {
           return BlocBuilder<LocaleCubit, LocaleState>(
             builder: (context, localeState) {
               return MaterialApp.router(
-                title: 'Music App',
+                title: 'Vibeat',
                 theme: AppTheme.light(),
                 darkTheme: AppTheme.dark(),
                 themeMode: themeState.themeMode,
-                routerConfig: _router.config(),
-
+                routerConfig: _router.config(
+                  navigatorObservers:() => [
+                    AutoRouteObserver(),
+                  ],
+                ),
                 debugShowCheckedModeBanner: false,
                 localizationsDelegates: AppLocalizations.localizationsDelegates,
                 supportedLocales: AppLocalizations.supportedLocales,

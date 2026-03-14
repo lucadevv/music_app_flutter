@@ -28,91 +28,107 @@ class PlaylistHeaderWidget extends StatelessWidget {
     }
 
     return Stack(
+      fit: StackFit.expand,
       children: [
         PlaylistBackdropWidget(thumbnail: bestThumbnail),
+        // Gradient overlay para mejor legibilidad
+        Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Colors.transparent,
+                Colors.black.withValues(alpha: 0.3),
+                Colors.black.withValues(alpha: 0.7),
+              ],
+              stops: const [0.0, 0.5, 1.0],
+            ),
+          ),
+        ),
         SafeArea(
           bottom: false,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(24.0, 16.0, 24.0, 24.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.end,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // Imagen de la playlist centrada
-                if (bestThumbnail != null)
-                  Hero(
-                    tag: 'playlist_${playlist.id}',
-                    child: Container(
-                      width: 220,
-                      height: 220,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.3),
-                            blurRadius: 20,
-                            offset: const Offset(0, 10),
-                            spreadRadius: 2,
-                          ),
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(20),
-                        child: CachedNetworkImage(
-                          imageUrl: bestThumbnail.url,
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) => Container(
-                            color: AppColorsDark.primaryContainer,
-                            child: const Center(
-                              child: CircularProgressIndicator(
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                          errorWidget: (context, url, error) => Container(
-                            color: AppColorsDark.primaryContainer,
-                            child: const Icon(
-                              Icons.playlist_play,
-                              size: 80,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  )
-                else
-                  Container(
-                    width: 220,
-                    height: 220,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const Spacer(flex: 1),
+              // Imagen de la playlist centrada
+              if (bestThumbnail != null)
+                Hero(
+                  tag: 'playlist_${playlist.id}',
+                  child: Container(
+                    width: 200,
+                    height: 200,
                     decoration: BoxDecoration(
-                      color: AppColorsDark.primaryContainer,
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.3),
-                          blurRadius: 20,
-                          offset: const Offset(0, 10),
-                          spreadRadius: 2,
+                          color: Colors.black.withValues(alpha: 0.4),
+                          blurRadius: 30,
+                          offset: const Offset(0, 15),
+                          spreadRadius: 5,
                         ),
                       ],
                     ),
-                    child: const Icon(
-                      Icons.playlist_play,
-                      size: 80,
-                      color: Colors.white,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: CachedNetworkImage(
+                        imageUrl: bestThumbnail.url,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => Container(
+                          color: AppColorsDark.primaryContainer,
+                          child: const Center(
+                            child: CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                        errorWidget: (context, url, error) => Container(
+                          color: AppColorsDark.primaryContainer,
+                          child: const Icon(
+                            Icons.playlist_play,
+                            size: 80,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
-                const SizedBox(height: 20),
-                // Título centrado
-                Text(
+                )
+              else
+                Container(
+                  width: 200,
+                  height: 200,
+                  decoration: BoxDecoration(
+                    color: AppColorsDark.primaryContainer,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.4),
+                        blurRadius: 30,
+                        offset: const Offset(0, 15),
+                        spreadRadius: 5,
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.playlist_play,
+                    size: 80,
+                    color: Colors.white,
+                  ),
+                ),
+              const SizedBox(height: 24),
+              // Título centrado
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Text(
                   playlist.title,
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 28,
+                    fontSize: 24,
                     fontWeight: FontWeight.bold,
                     letterSpacing: -0.5,
                   ),
@@ -120,21 +136,22 @@ class PlaylistHeaderWidget extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 8),
-                // Metadata centrada
-                Text(
-                  '${playlist.author.name} • ${playlist.trackCount} songs • ${playlist.duration}',
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.8),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  textAlign: TextAlign.center,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 8),
+              // Metadata centrada
+              Text(
+                '${playlist.author.name} • ${playlist.trackCount} songs',
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.8),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
                 ),
-              ],
-            ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 16),
+            ],
           ),
         ),
       ],

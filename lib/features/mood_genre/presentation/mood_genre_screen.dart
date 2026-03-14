@@ -1,4 +1,7 @@
+import 'dart:ui';
+
 import 'package:auto_route/auto_route.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
@@ -44,112 +47,156 @@ class _MoodGenreScreenState extends State<MoodGenreScreen> {
       child: Scaffold(
         body: BlocBuilder<MoodGenreCubit, MoodGenreState>(
           builder: (context, state) {
-            // Mostrar loading cuando está cargando o en estado inicial
-            if (state.status == MoodGenreStatus.loading ||
-                state.status == MoodGenreStatus.initial) {
-              return const MoodGenreLoadingWidget();
+            // Obtener thumbnail para el fondo (de la primera playlist)
+            String? backgroundImageUrl;
+            if (state.response != null && state.response!.playlists.isNotEmpty) {
+              final firstPlaylist = state.response!.playlists.first;
+              if (firstPlaylist.thumbnails.isNotEmpty) {
+                backgroundImageUrl = firstPlaylist.thumbnails.first.url;
+              }
             }
 
-            // Mostrar error si falló
-            if (state.status == MoodGenreStatus.failure) {
-              return MoodGenreErrorWidget(
-                errorMessage: state.errorMessage,
-                params: widget.params,
-              );
-            }
-
-            // Mostrar contenido si fue exitoso
-            final response = state.response;
-            if (response == null) {
-              return const SizedBox.shrink();
-            }
-
-            return CustomScrollView(
-              slivers: [
-                // Header con título del género
-                SliverAppBar(
-                  backgroundColor: Colors.transparent,
-                  elevation: 0,
-                  leading: IconButton(
-                    icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    onPressed: () => context.router.pop(),
-                  ),
-                  flexibleSpace: FlexibleSpaceBar(
-                    title: Text(
-                      response.genreName,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    centerTitle: false,
-                  ),
-                ),
-
-                // Lista de playlists
-                if (response.playlists.isEmpty)
-                  const SliverToBoxAdapter(
-                    child: Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(24.0),
-                        child: Text(
-                          'No hay playlists disponibles',
-                          style: TextStyle(color: Colors.white),
+            return Stack(
+              children: [
+                // Fondo difuminado
+                if (backgroundImageUrl != null)
+                  Positioned.fill(
+                    child: ImageFiltered(
+                      imageFilter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: CachedNetworkImageProvider(backgroundImageUrl),
+                            fit: BoxFit.cover,
+                            colorFilter: ColorFilter.mode(
+                              Colors.black.withValues(alpha: 0.7),
+                              BlendMode.darken,
+                            ),
+                          ),
                         ),
                       ),
                     ),
                   )
                 else
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
-                      child: Text(
-                        'Playlists de la comunidad',
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.8),
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
+                  Positioned.fill(
+                    child: Container(color: const Color(0xFF0D0D0D)),
                   ),
 
-                // Grid de playlists
-                if (response.playlists.isNotEmpty)
-                  SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
-                    sliver: SliverGrid(
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            crossAxisSpacing: 16,
-                            mainAxisSpacing: 16,
-                            childAspectRatio: 0.75,
-                          ),
-                      delegate: SliverChildBuilderDelegate((context, index) {
-                        final playlist = response.playlists[index];
-                        return MoodPlaylistCardWidget(
-                          playlist: playlist,
-                          onTap: () {
-                            // Navegar a la playlist usando el browseId
-                            if (playlist.browseId.isNotEmpty) {
-                              context.router.push(
-                                PlaylistRoute(id: playlist.browseId),
-                              );
-                            }
-                          },
-                        );
-                      }, childCount: response.playlists.length),
-                    ),
-                  ),
-
-                const SliverToBoxAdapter(child: SizedBox(height: 100)),
+                // Contenido principal
+                SafeArea(
+                  child: _buildContent(context, state),
+                ),
               ],
             );
           },
         ),
       ),
+    );
+  }
+
+  Widget _buildContent(BuildContext context, MoodGenreState state) {
+    // Mostrar loading cuando está cargando o en estado inicial
+    if (state.status == MoodGenreStatus.loading ||
+        state.status == MoodGenreStatus.initial) {
+      return const MoodGenreLoadingWidget();
+    }
+
+    // Mostrar error si falló
+    if (state.status == MoodGenreStatus.failure) {
+      return MoodGenreErrorWidget(
+        errorMessage: state.errorMessage,
+        params: widget.params,
+      );
+    }
+
+    // Mostrar contenido si fue exitoso
+    final response = state.response;
+    if (response == null) {
+      return const SizedBox.shrink();
+    }
+
+    return CustomScrollView(
+      slivers: [
+        // Header con título del género
+        SliverAppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () => context.router.pop(),
+          ),
+          flexibleSpace: FlexibleSpaceBar(
+            title: Text(
+              response.genreName,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            centerTitle: false,
+          ),
+        ),
+
+        // Lista de playlists
+        if (response.playlists.isEmpty)
+          const SliverToBoxAdapter(
+            child: Center(
+              child: Padding(
+                padding: EdgeInsets.all(24.0),
+                child: Text(
+                  'No hay playlists disponibles',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+          )
+        else
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+              child: Text(
+                'Playlists de la comunidad',
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.8),
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+
+        // Grid de playlists
+        if (response.playlists.isNotEmpty)
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+            sliver: SliverGrid(
+              gridDelegate:
+                  const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                    childAspectRatio: 0.75,
+                  ),
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final playlist = response.playlists[index];
+                return MoodPlaylistCardWidget(
+                  playlist: playlist,
+                  onTap: () {
+                    // Navegar a la playlist usando el browseId
+                    if (playlist.browseId.isNotEmpty) {
+                      context.router.push(
+                        PlaylistRoute(id: playlist.browseId),
+                      );
+                    }
+                  },
+                );
+              }, childCount: response.playlists.length),
+            ),
+          ),
+
+        const SliverToBoxAdapter(child: SizedBox(height: 100)),
+      ],
     );
   }
 }

@@ -74,6 +74,8 @@ class _PlayerScreenState extends State<PlayerScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFF0D0D0D),
       body: SafeArea(
+        right: false,
+        left: false,
         child: BlocBuilder<PlayerBlocBloc, PlayerBlocState>(
           builder: (context, state) {
             // Procesar navegación solo una vez cuando el player está listo
@@ -285,29 +287,29 @@ class _SongCarouselState extends State<_SongCarousel> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: SizedBox(
-        height: 320,
-        child: PageView.builder(
-          controller: _pageController,
-          onPageChanged: (index) {
-            context.read<PlayerBlocBloc>().add(PlayTrackAtIndexEvent(index));
-          },
-          itemCount: widget.playlist.length,
-          // Usar physics para permitir scroll a páginas no construidas
-          physics: const BouncingScrollPhysics(),
-          itemBuilder: (context, index) {
-            final track = widget.playlist[index];
-            return Center(
+    return SizedBox(
+      height: 320,
+      child: PageView.builder(
+        controller: _pageController,
+        onPageChanged: (index) {
+          context.read<PlayerBlocBloc>().add(PlayTrackAtIndexEvent(index));
+        },
+        itemCount: widget.playlist.length,
+        // Usar physics para permitir scroll a páginas no construidas
+        physics: const BouncingScrollPhysics(),
+        itemBuilder: (context, index) {
+          final track = widget.playlist[index];
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.only(right:12),
               child: PlayerArtworkWidget(
                 thumbnail: track.highResThumbnail,
                 videoId: track.videoId,
                 isLoading: false,
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }

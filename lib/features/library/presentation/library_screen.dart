@@ -4,7 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
+import 'package:music_app/core/utils/extension/sizedbox_extension.dart';
 import 'package:music_app/core/widgets/custom_search_bar.dart';
+import 'package:music_app/core/widgets/shimmer_widgets.dart';
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/library/presentation/cubit/library_cubit.dart';
 import 'package:music_app/features/library/presentation/widgets/library_widgets.dart';
@@ -19,18 +21,47 @@ class LibraryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // LibraryCubit es factory, así que puede crear nuevas instancias
+    // ProfileCubit es singleton, así que se usa BlocProvider.value del padre (app.dart)
+    // Cargar perfil al entrar si no está cargado
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final profileCubit = context.read<ProfileCubit>();
+      if (!profileCubit.state.isLoading && profileCubit.state.profile == null) {
+        profileCubit.loadProfile();
+      }
+    });
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => getIt<LibraryCubit>()..loadLibrary()),
-        BlocProvider(create: (_) => getIt<ProfileCubit>()..loadProfile()),
+        // ProfileCubit ya está proporcionado en app.dart como singleton
       ],
       child: const _LibraryView(),
     );
   }
 }
 
-class _LibraryView extends StatelessWidget {
+class _LibraryView extends StatefulWidget {
   const _LibraryView();
+
+  @override
+  State<_LibraryView> createState() => _LibraryViewState();
+}
+
+class _LibraryViewState extends State<_LibraryView> {
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged(String value) {
+    setState(() {
+      _searchQuery = value.toLowerCase();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,50 +69,210 @@ class _LibraryView extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColorsDark.surface,
-      body: BlocBuilder<LibraryCubit, LibraryState>(
-        builder: (context, state) {
-          return RefreshIndicator(
-            color: AppColorsDark.primary,
-            onRefresh: () => context.read<LibraryCubit>().loadLibrary(),
-            child: CustomScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              slivers: <Widget>[
-                _buildHeader(context, l10n),
-                if (state.status == LibraryStatus.loading)
-                  const SliverFillRemaining(
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        color: AppColorsDark.primary,
-                      ),
-                    ),
-                  )
-                else if (state.status == LibraryStatus.failure)
-                  SliverFillRemaining(
-                    child: _buildError(state.errorMessage, context, l10n),
-                  )
-                else ...[
-                  _buildQuickAccess(context, state, l10n),
-                  if (state.favoritePlaylists.isNotEmpty)
-                    _buildPlaylistsSection(context, state, l10n),
-                  if (state.favoriteSongs.isNotEmpty)
-                    _buildSongsSection(context, state, l10n),
-                  if (state.isEmpty && state.status == LibraryStatus.success)
+      body: SafeArea(
+        child: BlocBuilder<LibraryCubit, LibraryState>(
+          builder: (context, state) {
+            return RefreshIndicator(
+              color: AppColorsDark.primary,
+              onRefresh: () => context.read<LibraryCubit>().loadLibrary(),
+              child: CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                slivers: <Widget>[
+                  _buildHeader(context, l10n),
+                  if (state.status == LibraryStatus.loading)
+                    const SliverFillRemaining(
+                      child: _LibraryLoadingView(),
+                    )
+                  else if (state.status == LibraryStatus.failure)
                     SliverFillRemaining(
-                      child: LibraryEmptyState(
-                        l10n: l10n,
-                        onExplore: () {
-                          // Navegar al tab de home (índice 0)
-                          context.tabsRouter.setActiveIndex(0);
-                        },
+                      child: _buildError(state.errorMessage, context, l10n),
+                    )
+                  else ...[
+                    // Filtrar playlists si hay búsqueda
+                    _buildQuickAccess(context, state, l10n),
+                    if (state.favoritePlaylists.isNotEmpty || state.favoriteSongs.isNotEmpty)
+                      _buildFilteredContent(context, state, l10n),
+                    if (state.isEmpty && state.status == LibraryStatus.success)
+                      SliverFillRemaining(
+                        child: LibraryEmptyState(
+                          l10n: l10n,
+                          onExplore: () {
+                            // Navegar al tab de home (índice 0)
+                            context.tabsRouter.setActiveIndex(0);
+                          },
+                        ),
                       ),
-                    ),
-                  const SliverToBoxAdapter(child: SizedBox(height: 120)),
+                    const SliverToBoxAdapter(child: SizedBox(height: 120)),
+                  ],
                 ],
-              ],
-            ),
-          );
-        },
+              ),
+            );
+          },
+        ),
       ),
+    );
+  }
+
+  Widget _buildFilteredContent(BuildContext context, LibraryState state, AppLocalizations l10n) {
+    // Usar allPlaylists que tiene isUserCreated
+    final allPlaylists = state.allPlaylists;
+    
+    // Filtrar playlists
+    final filteredPlaylists = _searchQuery.isEmpty
+        ? allPlaylists
+        : allPlaylists.where((p) {
+            final name = p.name?.toLowerCase() ?? '';
+            return name.contains(_searchQuery);
+          }).toList();
+
+    // Filtrar songs
+    final filteredSongs = _searchQuery.isEmpty
+        ? state.favoriteSongs
+        : state.favoriteSongs.where((s) {
+            final title = s.title?.toLowerCase() ?? '';
+            final artist = s.artist?.toLowerCase() ?? '';
+            return title.contains(_searchQuery) || artist.contains(_searchQuery);
+          }).toList();
+
+    // Mostrar mensaje si no hay resultados
+    if (_searchQuery.isNotEmpty && filteredPlaylists.isEmpty && filteredSongs.isEmpty) {
+      return SliverFillRemaining(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.search_off,
+                size: 64,
+                color: Colors.white.withValues(alpha: 0.5),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'No results for "$_searchQuery"',
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.7),
+                  fontSize: 16,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // Return SliverToBoxAdapter with all content instead of SliverList
+    return SliverToBoxAdapter(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (filteredPlaylists.isNotEmpty)
+            _buildPlaylistsSectionFiltered(context, filteredPlaylists, l10n),
+          if (filteredSongs.isNotEmpty)
+            _buildSongsSectionFiltered(context, filteredSongs, l10n),
+            60.spaceh,
+            
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPlaylistsSectionFiltered(
+    BuildContext context,
+    List<PlaylistItem> playlists,
+    AppLocalizations l10n,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                l10n.playlists,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Poppins',
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(
+          height: 200,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            itemCount: playlists.length > 10 ? 10 : playlists.length,
+            itemBuilder: (context, index) {
+              final playlist = playlists[index];
+              return Padding(
+                padding: const EdgeInsets.only(right: 16),
+                child: PlaylistCard(
+                  playlist: playlist,
+                  onTap: () {
+                    if (playlist.isUserCreated) {
+                      context.router.push(
+                        UserPlaylistDetailRoute(playlistId: playlist.id),
+                      );
+                    } else if (playlist.externalPlaylistId != null) {
+                      context.router.push(
+                        PlaylistRoute(id: playlist.externalPlaylistId!),
+                      );
+                    }
+                  },
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSongsSectionFiltered(
+    BuildContext context,
+    List<FavoriteSong> songs,
+    AppLocalizations l10n,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
+          child: Text(
+            l10n.likedSongs,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Poppins',
+            ),
+          ),
+        ),
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          itemCount: songs.length > 10 ? 10 : songs.length,
+          itemBuilder: (context, index) {
+            final song = songs[index];
+            return SongListItemWidget(
+              song: song,
+              onTap: () {
+                final nowPlayingData = context.read<LibraryCubit>().playSong(song);
+                context.router.push(
+                  PlayerRoute(nowPlayingData: nowPlayingData, playAsSingle: true),
+                );
+              },
+              onOptionsTap: () => _showSongOptions(context, song, l10n),
+            );
+          },
+        ),
+      ],
     );
   }
 
@@ -164,7 +355,11 @@ class _LibraryView extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 24),
-            const CustomSearchBar(),
+            CustomSearchBar(
+              hintText: l10n.searchFor,
+              controller: _searchController,
+              onChanged: _onSearchChanged,
+            ),
           ],
         ),
       ),
@@ -454,7 +649,7 @@ class _LibraryView extends StatelessWidget {
       ),
     );
 
-    if (result != null && result.isNotEmpty && context.mounted) {
+      if (result != null && result.isNotEmpty && context.mounted) {
       await context.read<LibraryCubit>().createPlaylist(result);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -469,5 +664,64 @@ class _LibraryView extends StatelessWidget {
         );
       }
     }
+  }
+}
+
+/// Widget de loading con shimmer para LibraryScreen
+class _LibraryLoadingView extends StatelessWidget {
+  const _LibraryLoadingView();
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: const [
+          // Header shimmer
+          TextShimmer(width: 150, height: 24),
+          SizedBox(height: 24),
+          SearchBarShimmer(),
+          SizedBox(height: 32),
+          
+          // Quick access shimmer
+          TextShimmer(width: 120, height: 20),
+          SizedBox(height: 16),
+          Row(
+            children: [
+              ShimmerContainer(width: 100, height: 80, borderRadius: 12),
+              SizedBox(width: 8),
+              ShimmerContainer(width: 100, height: 80, borderRadius: 12),
+              SizedBox(width: 8),
+              ShimmerContainer(width: 100, height: 80, borderRadius: 12),
+            ],
+          ),
+          SizedBox(height: 32),
+          
+          // Playlists section shimmer
+          TextShimmer(width: 100, height: 20),
+          SizedBox(height: 16),
+          SizedBox(
+            height: 200,
+            child: Row(
+              children: [
+                ThumbnailShimmer(width: 160, height: 160),
+                SizedBox(width: 12),
+                ThumbnailShimmer(width: 160, height: 160),
+              ],
+            ),
+          ),
+          SizedBox(height: 32),
+          
+          // Songs section shimmer
+          TextShimmer(width: 80, height: 20),
+          SizedBox(height: 16),
+          SongListItemShimmer(),
+          SongListItemShimmer(),
+          SongListItemShimmer(),
+        ],
+      ),
+    );
   }
 }

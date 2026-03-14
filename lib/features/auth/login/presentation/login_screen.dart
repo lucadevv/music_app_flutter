@@ -1,8 +1,12 @@
+import 'dart:ui';
+import 'package:flutter/foundation.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
+import 'package:music_app/core/utils/extension/sizedbox_extension.dart';
+import 'package:music_app/core/widgets/language_selector.dart';
 import 'package:music_app/features/auth/login/domain/entities/login_request.dart';
 import 'package:music_app/features/auth/login/presentation/cubit/login_cubit.dart'
     show LoginCubit, LoginStatus, LoginState;
@@ -11,6 +15,7 @@ import 'package:music_app/features/auth/login/presentation/widgets/login_listene
 import 'package:music_app/features/auth/presentation/cubit/orquestador_auth_cubit.dart';
 import 'package:music_app/l10n/app_localizations.dart';
 import 'package:music_app/main.dart';
+import 'package:video_player/video_player.dart';
 
 @RoutePage()
 class LoginScreen extends StatefulWidget implements AutoRouteWrapper {
@@ -33,20 +38,67 @@ class LoginScreen extends StatefulWidget implements AutoRouteWrapper {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin {
   final _formNotifier = LoginFormNotifier();
   bool _obscurePassword = true;
+  VideoPlayerController? _videoController;
+  bool _videoInitialized = false;
+  bool _enableVideo = true; // Enable video
+  
+  late AnimationController _fadeController;
+  late AnimationController _slideController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
 
   @override
   void initState() {
     super.initState();
-    // Reiniciar estado de login al entrar a la pantalla
+    // Delay video init to avoid platform connection issues
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (mounted) _initializeVideo();
+    });
+    _fadeController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    _slideController = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _fadeController, curve: Curves.easeOut),
+    );
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.2),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic));
+    
+    _fadeController.forward();
+    _slideController.forward();
+    
     context.read<OrquestadorAuthCubit>().resetLoginState();
+  }
+
+  Future<void> _initializeVideo() async {
+    try {
+      _videoController = VideoPlayerController.asset('assets/video/video_login.mp4');
+      await _videoController!.initialize();
+      _videoController!.setLooping(true);
+      _videoController!.setVolume(0);
+      await _videoController!.play();
+      _videoInitialized = true;
+      if (mounted) setState(() {});
+    } catch (e) {
+      // Video failed to load, continue without it
+    }
   }
 
   @override
   void dispose() {
+    _fadeController.dispose();
+    _slideController.dispose();
     _formNotifier.dispose();
+    _videoController?.dispose();
     super.dispose();
   }
 
@@ -73,296 +125,392 @@ class _LoginScreenState extends State<LoginScreen> {
     return LoginListeners(
       child: Scaffold(
         backgroundColor: AppColorsDark.surface,
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: AppColorsDark.onSurface),
-            onPressed: () => context.router.pop(),
-          ),
-        ),
-        body: SafeArea(
-          child: SingleChildScrollView(
+        body: Stack(
+          fit: StackFit.expand,
+          children: [
+            // Video Background (disabled to avoid platform issues)
+            if (_enableVideo && _videoInitialized && _videoController != null && _videoController!.value.isInitialized)
+              SizedBox.expand(
+                child: FittedBox(
+                  fit: BoxFit.cover,
+                  child: SizedBox(
+                    width: _videoController!.value.size.width,
+                    height: _videoController!.value.size.height,
+                    child: VideoPlayer(_videoController!),
+                  ),
+                ),
+              ),
+            
+            // Blur overlay
+            BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+              child: Container(
+                color: AppColorsDark.surface.withValues(alpha: 0.7),
+              ),
+            ),
+
+           
+
+            // Body
+            SafeArea(
+            child: SingleChildScrollView(
             padding: const EdgeInsets.all(24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Título
-                Text(
-                  l10n.loginTitle,
-                  style: const TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    color: AppColorsDark.onSurface,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  l10n.enterYourCredentials,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: AppColorsDark.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(height: 32),
-
-                // Email field
-                ListenableBuilder(
-                  listenable: _formNotifier,
-                  builder: (context, _) {
-                    return TextFormField(
-                      controller: _formNotifier.emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: InputDecoration(
-                        labelText: l10n.emailAddress,
-                        hintText: l10n.emailHint,
-                        prefixIcon: const Icon(
-                          Icons.email,
-                          color: AppColorsDark.primary,
-                        ),
-                        filled: true,
-                        fillColor: AppColorsDark.surfaceContainerHigh,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20),
-                          borderSide: BorderSide.none,
-                        ),
-                        labelStyle: const TextStyle(
-                          color: AppColorsDark.onSurfaceVariant,
-                        ),
-                        hintStyle: const TextStyle(
-                          color: AppColorsDark.onSurfaceVariant,
-                        ),
-                        errorText: _formNotifier.emailError,
-                      ),
-                      style: const TextStyle(color: AppColorsDark.onSurface),
-                    );
-                  },
-                ),
-                const SizedBox(height: 16),
-
-                // Password field
-                ListenableBuilder(
-                  listenable: _formNotifier,
-                  builder: (context, _) {
-                    return TextFormField(
-                      controller: _formNotifier.passwordController,
-                      obscureText: _obscurePassword,
-                      decoration: InputDecoration(
-                        labelText: l10n.passwordLabel,
-                        hintText: l10n.passwordHint,
-                        prefixIcon: const Icon(
-                          Icons.lock,
-                          color: AppColorsDark.primary,
-                        ),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword
-                                ? Icons.visibility
-                                : Icons.visibility_off,
-                            color: AppColorsDark.onSurfaceVariant,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _obscurePassword = !_obscurePassword;
-                            });
-                          },
-                        ),
-                        filled: true,
-                        fillColor: AppColorsDark.surfaceContainerHigh,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20),
-                          borderSide: BorderSide.none,
-                        ),
-                        labelStyle: const TextStyle(
-                          color: AppColorsDark.onSurfaceVariant,
-                        ),
-                        hintStyle: const TextStyle(
-                          color: AppColorsDark.onSurfaceVariant,
-                        ),
-                        errorText: _formNotifier.passwordError,
-                      ),
-                      style: const TextStyle(color: AppColorsDark.onSurface),
-                    );
-                  },
-                ),
-                const SizedBox(height: 8),
-
-                // Forgot password link
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {
-                      context.router.push(const ForgotPasswordRoute());
-                    },
-                    child: Text(
-                      l10n.forgotYourPassword,
-                      style: const TextStyle(
-                        color: AppColorsDark.primary,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // Login button
-                BlocBuilder<LoginCubit, LoginState>(
-                  builder: (context, state) {
-                    final isLoading = state.status == LoginStatus.loading;
-                    return FilledButton(
-                      onPressed: isLoading ? null : _handleLogin,
-                      style: FilledButton.styleFrom(
-                        backgroundColor: AppColorsDark.primary,
-                        foregroundColor: AppColorsDark.onPrimary,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        disabledBackgroundColor: AppColorsDark.onSurfaceVariant,
-                      ),
-                      child: isLoading
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  Colors.white,
-                                ),
-                              ),
-                            )
-                          : Text(
-                              l10n.loginButton,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                    );
-                  },
-                ),
-                const SizedBox(height: 24),
-
-                // Divider
-                Row(
+            child: FadeTransition(
+              opacity: _fadeAnimation,
+              child: SlideTransition(
+                position: _slideAnimation,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Expanded(
-                      child: Divider(color: AppColorsDark.outlineVariant),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
+
+                    24.spaceh,
+                    // Animated title with gradient
+                    ShaderMask(
+                      shaderCallback: (bounds) => const LinearGradient(
+                        colors: [AppColorsDark.primary, Colors.white],
+                      ).createShader(bounds),
                       child: Text(
-                        l10n.or,
+                        l10n.loginTitle,
                         style: const TextStyle(
-                          color: AppColorsDark.onSurfaceVariant,
+                          fontSize: 36,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
                       ),
                     ),
-                    const Expanded(
-                      child: Divider(color: AppColorsDark.outlineVariant),
+                    const SizedBox(height: 8),
+                    Text(
+                      l10n.enterYourCredentials,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.white.withValues(alpha: 0.7),
+                      ),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 24),
+                    const SizedBox(height: 32),
 
-                // Social buttons
-                Row(
-                  children: [
-                    Expanded(
-                      child: BlocBuilder<LoginCubit, LoginState>(
-                        builder: (context, state) {
-                          final isLoading = state.status == LoginStatus.loading;
-                          return OutlinedButton.icon(
-                            onPressed: isLoading
-                                ? null
-                                : () {
-                                    context
-                                        .read<LoginCubit>()
-                                        .signInWithGoogle();
-                                  },
-                            icon: const Icon(
-                              Icons.g_mobiledata,
-                              color: AppColorsDark.onSurface,
+                    // Email field
+                    ListenableBuilder(
+                      listenable: _formNotifier,
+                      builder: (context, _) {
+                        return TextFormField(
+                          controller: _formNotifier.emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          decoration: InputDecoration(
+                            labelText: l10n.emailAddress,
+                            hintText: l10n.emailHint,
+                            prefixIcon: const Icon(
+                              Icons.email_rounded,
+                              color: AppColorsDark.primary,
                             ),
-                            label: Text(l10n.google),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: AppColorsDark.onSurface,
-                              side: const BorderSide(
-                                color: AppColorsDark.outline,
-                              ),
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                              ),
+                            filled: true,
+                            fillColor: AppColorsDark.surfaceContainerHigh,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              borderSide: BorderSide.none,
                             ),
-                          );
-                        },
-                      ),
+                            labelStyle: const TextStyle(
+                              color: AppColorsDark.onSurfaceVariant,
+                            ),
+                            hintStyle: const TextStyle(
+                              color: AppColorsDark.onSurfaceVariant,
+                            ),
+                            errorText: _formNotifier.emailError,
+                          ),
+                          style: const TextStyle(color: AppColorsDark.onSurface),
+                        );
+                      },
                     ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: BlocBuilder<LoginCubit, LoginState>(
-                        builder: (context, state) {
-                          final isLoading = state.status == LoginStatus.loading;
-                          return OutlinedButton.icon(
-                            onPressed: isLoading
-                                ? null
-                                : () {
-                                    context
-                                        .read<LoginCubit>()
-                                        .signInWithApple();
-                                  },
-                            icon: const Icon(
-                              Icons.apple,
-                              color: AppColorsDark.onSurface,
-                            ),
-                            label: Text(l10n.apple),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: AppColorsDark.onSurface,
-                              side: const BorderSide(
-                                color: AppColorsDark.outline,
-                              ),
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
+                    const SizedBox(height: 16),
 
-                // Register link
-                TextButton(
-                  onPressed: () {
-                    context.router.push(const RegisterRoute());
-                  },
-                  child: RichText(
-                    text: TextSpan(
-                      style: const TextStyle(
-                        color: AppColorsDark.onSurfaceVariant,
-                        fontSize: 14,
-                      ),
-                      children: [
-                        TextSpan(text: '${l10n.noAccount} '),
-                        TextSpan(
-                          text: l10n.register,
+                    // Password field
+                    ListenableBuilder(
+                      listenable: _formNotifier,
+                      builder: (context, _) {
+                        return TextFormField(
+                          controller: _formNotifier.passwordController,
+                          obscureText: _obscurePassword,
+                          decoration: InputDecoration(
+                            labelText: l10n.passwordLabel,
+                            hintText: l10n.passwordHint,
+                            prefixIcon: const Icon(
+                              Icons.lock_rounded,
+                              color: AppColorsDark.primary,
+                            ),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _obscurePassword
+                                    ? Icons.visibility_rounded
+                                    : Icons.visibility_off_rounded,
+                                color: AppColorsDark.onSurfaceVariant,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _obscurePassword = !_obscurePassword;
+                                });
+                              },
+                            ),
+                            filled: true,
+                            fillColor: AppColorsDark.surfaceContainerHigh,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              borderSide: BorderSide.none,
+                            ),
+                            labelStyle: const TextStyle(
+                              color: AppColorsDark.onSurfaceVariant,
+                            ),
+                            hintStyle: const TextStyle(
+                              color: AppColorsDark.onSurfaceVariant,
+                            ),
+                            errorText: _formNotifier.passwordError,
+                          ),
+                          style: const TextStyle(color: AppColorsDark.onSurface),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 8),
+
+                    // Forgot password link
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: () {
+                          context.router.push(const ForgotPasswordRoute());
+                        },
+                        child: Text(
+                          l10n.forgotYourPassword,
                           style: const TextStyle(
                             color: AppColorsDark.primary,
-                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Login button with gradient
+                    BlocBuilder<LoginCubit, LoginState>(
+                      builder: (context, state) {
+                        final isLoading = state.status == LoginStatus.loading;
+                        return Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            gradient: isLoading ? null : const LinearGradient(
+                              colors: [AppColorsDark.primary, Color(0xFF7C4DFF)],
+                            ),
+                          ),
+                          child: FilledButton(
+                            onPressed: isLoading ? null : _handleLogin,
+                            style: FilledButton.styleFrom(
+                              backgroundColor: Colors.transparent,
+                              shadowColor: Colors.transparent,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              disabledBackgroundColor: AppColorsDark.onSurfaceVariant,
+                            ),
+                            child: isLoading
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.white,
+                                      ),
+                                    ),
+                                  )
+                                : Text(
+                                    l10n.loginButton,
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Divider
+                    Row(
+                      children: [
+                        const Expanded(
+                          child: Divider(color: AppColorsDark.outlineVariant),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Text(
+                            l10n.or,
+                            style: const TextStyle(
+                              color: AppColorsDark.onSurfaceVariant,
+                            ),
+                          ),
+                        ),
+                        const Expanded(
+                          child: Divider(color: AppColorsDark.outlineVariant),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Social buttons with icons
+                    Row(
+                      children: [
+                        Expanded(
+                          child: BlocBuilder<LoginCubit, LoginState>(
+                            builder: (context, state) {
+                              final isLoading = state.status == LoginStatus.loading;
+                              return Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Colors.white.withValues(alpha: 0.1),
+                                      Colors.white.withValues(alpha: 0.05),
+                                    ],
+                                  ),
+                                ),
+                                child: OutlinedButton.icon(
+                                  onPressed: isLoading
+                                      ? null
+                                      : () {
+                                          context
+                                              .read<LoginCubit>()
+                                              .signInWithGoogle();
+                                        },
+                                  icon: const Icon(
+                                    Icons.g_mobiledata,
+                                    color: Colors.white,
+                                    size: 28,
+                                  ),
+                                  label: Text(
+                                    l10n.google,
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                  style: OutlinedButton.styleFrom(
+                                    foregroundColor: Colors.white,
+                                    side: BorderSide(
+                                      color: Colors.white.withValues(alpha: 0.3),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: BlocBuilder<LoginCubit, LoginState>(
+                            builder: (context, state) {
+                              final isLoading = state.status == LoginStatus.loading;
+                              return Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Colors.white.withValues(alpha: 0.1),
+                                      Colors.white.withValues(alpha: 0.05),
+                                    ],
+                                  ),
+                                ),
+                                child: OutlinedButton.icon(
+                                  onPressed: isLoading
+                                      ? null
+                                      : () {
+                                          context
+                                              .read<LoginCubit>()
+                                              .signInWithApple();
+                                        },
+                                  icon: const Icon(
+                                    Icons.apple,
+                                    color: Colors.white,
+                                    size: 24,
+                                  ),
+                                  label: Text(
+                                    l10n.apple,
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                  style: OutlinedButton.styleFrom(
+                                    foregroundColor: Colors.white,
+                                    side: BorderSide(
+                                      color: Colors.white.withValues(alpha: 0.3),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                         ),
                       ],
                     ),
-                  ),
+                    const SizedBox(height: 32),
+
+                    // Register link
+                    TextButton(
+                      onPressed: () {
+                        context.router.push(const RegisterRoute());
+                      },
+                      child: RichText(
+                        text: TextSpan(
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.7),
+                            fontSize: 14,
+                          ),
+                          children: [
+                            TextSpan(text: '${l10n.noAccount} '),
+                            TextSpan(
+                              text: l10n.register,
+                              style: const TextStyle(
+                                color: AppColorsDark.primary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ),
+         // AppBar transparente
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back, color: AppColorsDark.onSurface),
+                        onPressed: () => context.router.pop(),
+                      ),
+                      LanguageSelector(
+                        backgroundColor: Colors.white.withValues(alpha: 0.1),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
       ),
     );
   }

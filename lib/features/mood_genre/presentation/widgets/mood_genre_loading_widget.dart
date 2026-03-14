@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 
 /// Widget para mostrar el estado de carga con shimmer
 ///
@@ -10,79 +11,104 @@ class MoodGenreLoadingWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomScrollView(
-      slivers: [
-        // Header shimmer
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Shimmer.fromColors(
-                  baseColor: Colors.white.withValues(alpha: 0.1),
-                  highlightColor: Colors.white.withValues(alpha: 0.2),
-                  child: Container(
-                    height: 28,
-                    width: 200,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
+    return SafeArea(
+      child: CustomScrollView(
+        slivers: [
+          // AppBar con shimmer (botón volver + título)
+          SliverAppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            leading: Shimmer.fromColors(
+              baseColor: AppColorsDark.surfaceContainerHigh,
+              highlightColor: AppColorsDark.surfaceContainerHighest,
+              child: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                const SizedBox(height: 8),
-                Shimmer.fromColors(
-                  baseColor: Colors.white.withValues(alpha: 0.1),
-                  highlightColor: Colors.white.withValues(alpha: 0.2),
+              ),
+            ),
+            flexibleSpace: Shimmer.fromColors(
+              baseColor: AppColorsDark.surfaceContainerHigh,
+              highlightColor: AppColorsDark.surfaceContainerHighest,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(56, 16, 24, 0),
+                child: Align(
+                  alignment: Alignment.centerLeft,
                   child: Container(
-                    height: 16,
                     width: 150,
+                    height: 24,
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
                 ),
-              ],
+              ),
             ),
           ),
-        ),
 
-        // Cards shimmer
-        SliverToBoxAdapter(
-          child: SizedBox(
-            height: 140,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              itemCount: 5,
-              itemBuilder: (context, index) {
-                return Container(
-                  width: 160,
-                  margin: const EdgeInsets.only(right: 16),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.05),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Shimmer.fromColors(
-                    baseColor: Colors.white.withValues(alpha: 0.1),
-                    highlightColor: Colors.white.withValues(alpha: 0.2),
+          // Grid de playlists shimmer
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+            sliver: SliverGrid(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+                childAspectRatio: 0.75,
+              ),
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  return Shimmer.fromColors(
+                    baseColor: AppColorsDark.surfaceContainerHigh,
+                    highlightColor: AppColorsDark.surfaceContainerHighest,
                     child: Container(
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+                childCount: 6,
+              ),
             ),
           ),
-        ),
 
-        const SliverToBoxAdapter(child: SizedBox(height: 100)),
-      ],
+          // Más items para llenar la pantalla
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            sliver: SliverGrid(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+                childAspectRatio: 0.75,
+              ),
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  return Shimmer.fromColors(
+                    baseColor: AppColorsDark.surfaceContainerHigh,
+                    highlightColor: AppColorsDark.surfaceContainerHighest,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  );
+                },
+                childCount: 6,
+              ),
+            ),
+          ),
+
+          const SliverToBoxAdapter(child: SizedBox(height: 100)),
+        ],
+      ),
     );
   }
 }

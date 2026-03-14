@@ -83,7 +83,9 @@ class FavoriteCubit extends Cubit<FavoriteState> with BaseBlocMixin {
         // Remover de favoritos
         switch (type) {
           case FavoriteType.song:
-            await _libraryService.removeFavoriteSong(songId ?? videoId);
+            // Buscar songId del mapeo si no se proporcionó
+            final effectiveSongId = songId ?? state.getSongIdForVideoId(videoId) ?? videoId;
+            await _libraryService.removeFavoriteSong(effectiveSongId);
             break;
           case FavoriteType.playlist:
             await _libraryService.removeFavoritePlaylist(videoId);
@@ -98,6 +100,7 @@ class FavoriteCubit extends Cubit<FavoriteState> with BaseBlocMixin {
         // Agregar a favoritos
         switch (type) {
           case FavoriteType.song:
+            debugPrint('FavoriteCubit: Adding song to favorites - videoId: $videoId, title: ${metadata?.title}');
             await _libraryService.addFavoriteSong(
               videoId,
               title: metadata?.title,
@@ -108,6 +111,7 @@ class FavoriteCubit extends Cubit<FavoriteState> with BaseBlocMixin {
             );
             break;
           case FavoriteType.playlist:
+            debugPrint('FavoriteCubit: Adding playlist to favorites - videoId: $videoId, name: ${playlistMetadata?.name}');
             await _libraryService.addFavoritePlaylist(
               videoId,
               name: playlistMetadata?.name,
@@ -122,6 +126,7 @@ class FavoriteCubit extends Cubit<FavoriteState> with BaseBlocMixin {
             );
             break;
           case FavoriteType.genre:
+            debugPrint('FavoriteCubit: Adding genre to favorites - externalParams: $videoId');
             await _libraryService.addFavoriteGenre(videoId);
             break;
         }
@@ -170,6 +175,12 @@ class FavoriteCubit extends Cubit<FavoriteState> with BaseBlocMixin {
 
       if (isClosed) return;
 
+      // Crear mapeo videoId -> songId para poder eliminar correctamente
+      final songIdByVideoId = <String, String>{};
+      for (final song in songsResponse.data) {
+        songIdByVideoId[song.videoId] = song.songId;
+      }
+
       emit(
         FavoriteState(
           favoriteSongs: songsResponse.data.map((s) => s.videoId).toSet(),
@@ -179,6 +190,7 @@ class FavoriteCubit extends Cubit<FavoriteState> with BaseBlocMixin {
           favoriteGenres: genresResponse.data
               .map((g) => g.externalParams)
               .toSet(),
+          songIdByVideoId: songIdByVideoId,
           isLoading: false,
         ),
       );

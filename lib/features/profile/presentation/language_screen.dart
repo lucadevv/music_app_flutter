@@ -5,7 +5,6 @@ import 'package:music_app/core/bloc/locale_cubit.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:music_app/l10n/app_localizations.dart';
-import 'package:music_app/main.dart';
 
 @RoutePage()
 class LanguageScreen extends StatelessWidget {
@@ -13,13 +12,11 @@ class LanguageScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(create: (_) => getIt<LocaleCubit>()),
-        BlocProvider(create: (_) => getIt<ProfileCubit>()),
-      ],
-      child: const _LanguageView(),
-    );
+    // Usar BlocProvider.value para reutilizar los Cubits del padre (app.dart)
+    // Los Cubits LocaleCubit y ProfileCubit son singletons y ya están
+    // proporcionados en el nivel superior de la app.
+    // NOTA: Si el contexto no tiene estos Cubits, lanzará un error en debug.
+    return const _LanguageView();
   }
 }
 

@@ -17,6 +17,7 @@
   "downloaded": "Descargado",
   "removeDownload": "Eliminar descarga",
   "offlineMode": "Modo sin conexión",
+  "offline": "Offline",
   "noInternetConnection": "Sin conexión a internet",
   "errorOccurred": "Ocurrió un error",
   "tryAgain": "Intentar de nuevo",
@@ -128,7 +129,7 @@
   "noAccount": "¿No tienes una cuenta?",
   "register": "Registrarse",
 
-  "welcome": "Bienvenido",
+  "welcome": "Bienvenido a Vibeat",
   "signInToContinue": "Inicia sesión para continuar",
   "continueWithGoogle": "Continuar con Google",
   "continueWithApple": "Continuar con Apple",
@@ -192,5 +193,45 @@
   "google": "Google",
   "apple": "Apple",
   "songsSimilarToThis": "Canciones similares a esta",
-  "radio": "Radio"
+  "radio": "Radio",
+  "hello": "¡Hola, {name}!",
+  "@hello": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "selectCategories": "Seleccionar categorías",
+  "searchFor": "Buscar canción, artista o álbum...",
+  "all": "Todo",
+  
+  "diveIntoYour": "Sumérgete en tu",
+  "vibeat": "Vibeat.",
+  "onboardingSubtitle": "Disfruta de una experiencia musical sin interrupciones,\ncreada para cada momento.",
+  "startExplore": "Empezar a Explorar",
+  
+  "recoverPassword": "Recuperar contraseña",
+  "emailSent": "Email enviado",
+  "checkInbox": "Revisa tu bandeja de entrada para restablecer tu contraseña",
+  "enterEmailInstructions": "Ingresa tu email y te enviaremos las instrucciones para restablecer tu contraseña",
+
+  "createAccount": "Crear cuenta",
+  "signUpToStart": "Regístrate para comenzar",
+  "firstName": "Nombre",
+  "lastName": "Apellido",
+  "confirmPassword": "Confirmar contraseña",
+  "minimum8Characters": "Mínimo 8 caracteres",
+  "repeatYourPassword": "Repite tu contraseña",
+  "register": "Registrarse",
+  "alreadyHaveAccount": "¿Ya tienes una cuenta?",
+  "signIn": "Iniciar sesión",
+
+  "emailLabel": "Email",
+  "emailPlaceholder": "tu@email.com",
+  "pleaseEnterEmail": "Por favor ingresa tu email",
+  "enterValidEmail": "Ingresa un email válido",
+  "sendInstructions": "Enviar instrucciones",
+  "backToLogin": "Volver a iniciar sesión",
+  "successfullyLoggedIn": "Sesión iniciada exitosamente"
 }

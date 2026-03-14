@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:music_app/core/services/network/api_services.dart';
 
 class SongMetadata {
@@ -110,18 +111,24 @@ class LibraryService {
     String? streamUrl,
   }) async {
     try {
+      // Nota: No enviamos streamUrl porque:
+      // 1. El backend tiene MaxLength(1000) y los URLs de YouTube son muy largos
+      // 2. Los stream URLs expiran rápidamente
+      // 3. El backend obtiene stream URLs dinámicamente en getFavoriteSongs
+      final data = {
+        'videoId': videoId,
+        if (title != null) 'title': title,
+        if (artist != null) 'artist': artist,
+        if (thumbnail != null) 'thumbnail': thumbnail,
+        if (duration != null) 'duration': duration,
+      };
+      debugPrint('LibraryService.addFavoriteSong: Sending data = $data');
       await _apiServices.post(
         '/library/songs',
-        data: {
-          'videoId': videoId,
-          if (title != null) 'title': title,
-          if (artist != null) 'artist': artist,
-          if (thumbnail != null) 'thumbnail': thumbnail,
-          if (duration != null) 'duration': duration,
-          if (streamUrl != null) 'streamUrl': streamUrl,
-        },
+        data: data,
       );
     } catch (e) {
+      debugPrint('LibraryService.addFavoriteSong ERROR: $e');
       rethrow;
     }
   }
@@ -152,17 +159,20 @@ class LibraryService {
     int? trackCount,
   }) async {
     try {
+      final data = {
+        'externalPlaylistId': externalPlaylistId,
+        if (name != null) 'name': name,
+        if (thumbnail != null) 'thumbnail': thumbnail,
+        if (description != null) 'description': description,
+        if (trackCount != null) 'trackCount': trackCount,
+      };
+      debugPrint('LibraryService.addFavoritePlaylist: Sending data = $data');
       await _apiServices.post(
         '/library/playlists',
-        data: {
-          'externalPlaylistId': externalPlaylistId,
-          'name': ?name,
-          'thumbnail': ?thumbnail,
-          'description': ?description,
-          'trackCount': ?trackCount,
-        },
+        data: data,
       );
     } catch (e) {
+      debugPrint('LibraryService.addFavoritePlaylist ERROR: $e');
       rethrow;
     }
   }
@@ -189,11 +199,17 @@ class LibraryService {
 
   Future<void> addFavoriteGenre(String externalParams, {String? name}) async {
     try {
+      final data = {
+        'externalParams': externalParams,
+        if (name != null) 'name': name,
+      };
+      debugPrint('LibraryService.addFavoriteGenre: Sending data = $data');
       await _apiServices.post(
         '/library/genres',
-        data: {'externalParams': externalParams, 'name': ?name},
+        data: data,
       );
     } catch (e) {
+      debugPrint('LibraryService.addFavoriteGenre ERROR: $e');
       rethrow;
     }
   }

@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/playlist/domain/use_cases/get_playlist_use_case.dart';
@@ -40,18 +41,18 @@ class PlaylistScreen extends StatefulWidget implements AutoRouteWrapper {
 
 class _PlaylistScreenState extends State<PlaylistScreen> {
   final ScrollController _scrollController = ScrollController();
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+  bool _showSearch = false;
 
   @override
   void initState() {
     super.initState();
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.id.isNotEmpty) {
         context.read<PlaylistCubit>().loadPlaylist(widget.id);
       }
     });
-
-    // Listener para infinite scroll
     _scrollController.addListener(_onScroll);
   }
 
@@ -59,15 +60,31 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
   void dispose() {
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
   void _onScroll() {
-    // Carg más cuando llegue al 80% del scroll
     if (_scrollController.position.pixels >= 
         _scrollController.position.maxScrollExtent * 0.8) {
       context.read<PlaylistCubit>().loadMore();
     }
+  }
+
+  void _onSearchChanged(String value) {
+    setState(() {
+      _searchQuery = value.toLowerCase();
+    });
+  }
+
+  void _toggleSearch() {
+    setState(() {
+      _showSearch = !_showSearch;
+      if (!_showSearch) {
+        _searchController.clear();
+        _searchQuery = '';
+      }
+    });
   }
 
   @override
@@ -105,11 +122,9 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
 
                 return Stack(
                   children: [
-                    // Contenido con CustomScrollView
                     CustomScrollView(
                       controller: _scrollController,
                       slivers: [
-                        // App Bar con imagen mejorado
                         SliverAppBar(
                           expandedHeight: 400,
                           pinned: true,
@@ -140,12 +155,12 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                                 shape: BoxShape.circle,
                               ),
                               child: IconButton(
-                                icon: const Icon(
-                                  Icons.search,
+                                icon: Icon(
+                                  _showSearch ? Icons.close : Icons.search,
                                   color: Colors.white,
                                   size: 20,
                                 ),
-                                onPressed: () {},
+                                onPressed: _toggleSearch,
                               ),
                             ),
                             Container(
@@ -160,7 +175,7 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                                   color: Colors.white,
                                   size: 20,
                                 ),
-                                onPressed: () {},
+                                onPressed: () => _showPlaylistMenu(context, playlist),
                               ),
                             ),
                           ],
@@ -181,12 +196,45 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                           ),
                         ),
 
+                        // Barra de búsqueda
+                        if (_showSearch)
+                          SliverToBoxAdapter(
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                              child: TextField(
+                                controller: _searchController,
+                                onChanged: _onSearchChanged,
+                                style: const TextStyle(color: Colors.white),
+                                decoration: InputDecoration(
+                                  hintText: 'Search songs...',
+                                  hintStyle: TextStyle(
+                                    color: Colors.white.withValues(alpha: 0.5),
+                                  ),
+                                  prefixIcon: Icon(
+                                    Icons.search,
+                                    color: Colors.white.withValues(alpha: 0.5),
+                                  ),
+                                  filled: true,
+                                  fillColor: Colors.white.withValues(alpha: 0.1),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(24),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 12,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+
                         // Action buttons
                         SliverToBoxAdapter(
                           child: PlaylistActionsWidget(playlist: playlist),
                         ),
 
-                        // Lista de tracks con infinite scroll
+                        // Lista de tracks
                         _buildTrackList(playlistState),
 
                         // Indicador de carga más
@@ -205,7 +253,7 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                             ),
                           ),
 
-                        // Mensaje de "cargar más" si hay más
+                        // Mensaje de cargar más
                         if (playlistState.hasMore && 
                             playlistState.status != PlaylistStatus.loadingMore)
                           SliverToBoxAdapter(
@@ -227,10 +275,44 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
     );
   }
 
-  /// Construye la lista de tracks
   Widget _buildTrackList(PlaylistState playlistState) {
     final playlist = playlistState.response!;
-    final tracks = playlist.tracks;
+    var tracks = playlist.tracks;
+
+    // Filtrar por búsqueda
+    if (_searchQuery.isNotEmpty) {
+      tracks = tracks.where((track) {
+        final title = track.title.toLowerCase();
+        final artistNames = track.artists.map((a) => a.name.toLowerCase()).join(' ');
+        return title.contains(_searchQuery) || artistNames.contains(_searchQuery);
+      }).toList();
+    }
+
+    // Mostrar mensaje si no hay resultados
+    if (_searchQuery.isNotEmpty && tracks.isEmpty) {
+      return SliverFillRemaining(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.search_off,
+                size: 64,
+                color: Colors.white.withValues(alpha: 0.5),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'No results for "$_searchQuery"',
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.7),
+                  fontSize: 16,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     return SliverList(
       delegate: SliverChildBuilderDelegate(
@@ -246,7 +328,6 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
     );
   }
 
-  /// Botón para cargar más tracks
   Widget _buildLoadMoreButton(PlaylistState playlistState) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -255,7 +336,7 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
           context.read<PlaylistCubit>().loadMore();
         },
         child: Text(
-          'Cargar más canciones (${playlistState.allTracks.length}/${playlistState.response?.trackCount ?? '?'})',
+          'Cargar más canciones (${playlistState.allTracks.length}/${playlistState.response?.trackCount ?? "?"})',
           style: const TextStyle(
             color: Colors.white54,
             fontSize: 14,
@@ -263,5 +344,69 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
         ),
       ),
     );
+  }
+
+  void _showPlaylistMenu(BuildContext context, dynamic playlist) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColorsDark.surfaceContainerHigh,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(top: 12, bottom: 20),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.share, color: Colors.white),
+              title: const Text('Share', style: TextStyle(color: Colors.white)),
+              onTap: () {
+                Navigator.pop(ctx);
+                _sharePlaylist(playlist);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.playlist_add, color: Colors.white),
+              title: const Text('Add to playlist', style: TextStyle(color: Colors.white)),
+              onTap: () {
+                Navigator.pop(ctx);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.shuffle, color: Colors.white),
+              title: const Text('Shuffle play', style: TextStyle(color: Colors.white)),
+              onTap: () {
+                Navigator.pop(ctx);
+              },
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _sharePlaylist(dynamic playlist) {
+    final shareText = 'Check out this playlist: ${playlist.title}';
+    Clipboard.setData(ClipboardData(text: shareText));
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Playlist link copied to clipboard'),
+          backgroundColor: AppColorsDark.primary,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      );
+    }
   }
 }

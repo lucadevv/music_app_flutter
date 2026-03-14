@@ -20,8 +20,8 @@ class OAuthRequest {
 
   Map<String, dynamic> toJson() => {
     'provider': provider,
-    'access_token': accessToken,
-    if (idToken != null) 'id_token': idToken,
+    'accessToken': accessToken,
+    if (idToken != null) 'idToken': idToken,
     if (email != null) 'email': email,
     if (name != null) 'name': name,
   };

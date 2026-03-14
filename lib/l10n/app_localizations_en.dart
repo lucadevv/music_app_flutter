@@ -60,6 +60,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get offlineMode => 'Offline Mode';
 
   @override
+  String get offline => 'Offline';
+
+  @override
   String get noInternetConnection => 'No internet connection';
 
   @override
@@ -361,7 +364,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get register => 'Register';
 
   @override
-  String get welcome => 'Welcome';
+  String get welcome => 'Welcome Vibeat';
 
   @override
   String get signInToContinue => 'Sign in to continue';
@@ -533,4 +536,93 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get radio => 'Radio';
+
+  @override
+  String hello(String name) {
+    return 'Hello, $name!';
+  }
+
+  @override
+  String get selectCategories => 'Select Categories';
+
+  @override
+  String get searchFor => 'Search for a song, artist or album...';
+
+  @override
+  String get all => 'All';
+
+  @override
+  String get diveIntoYour => 'Dive Into Your';
+
+  @override
+  String get vibeat => 'Vibeat.';
+
+  @override
+  String get onboardingSubtitle =>
+      'Experience seamless music enjoyment,\ncrafted for every moment.';
+
+  @override
+  String get startExplore => 'Start Explore';
+
+  @override
+  String get recoverPassword => 'Recover password';
+
+  @override
+  String get emailSent => 'Email sent';
+
+  @override
+  String get checkInbox =>
+      'Check your inbox for instructions to reset your password';
+
+  @override
+  String get enterEmailInstructions =>
+      'Enter your email and we will send you instructions to reset your password';
+
+  @override
+  String get createAccount => 'Create account';
+
+  @override
+  String get signUpToStart => 'Sign up to get started';
+
+  @override
+  String get firstName => 'First name';
+
+  @override
+  String get lastName => 'Last name';
+
+  @override
+  String get confirmPassword => 'Confirm password';
+
+  @override
+  String get minimum8Characters => 'Minimum 8 characters';
+
+  @override
+  String get repeatYourPassword => 'Repeat your password';
+
+  @override
+  String get alreadyHaveAccount => 'Already have an account?';
+
+  @override
+  String get signIn => 'Sign in';
+
+  @override
+  String get emailLabel => 'Email';
+
+  @override
+  String get emailPlaceholder => 'your@email.com';
+
+  @override
+  String get pleaseEnterEmail => 'Please enter your email';
+
+  @override
+  String get enterValidEmail => 'Enter a valid email';
+
+  @override
+  String get sendInstructions => 'Send instructions';
+
+  @override
+  String get backToLogin => 'Back to login';
+
+  @override
+  String get successfullyLoggedIn => 'Successfully logged in';
 }

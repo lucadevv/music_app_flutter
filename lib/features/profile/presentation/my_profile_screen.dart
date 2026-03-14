@@ -334,7 +334,8 @@ class _MyProfileScreenState extends State<MyProfileScreen>
                     icon: Icons.favorite,
                     number: state.favoriteSongsCount.toString(),
                     label: l10n.songs,
-                    onTap: () => context.router.push(const LikedSongsRoute()),
+                    onTap: () =>
+                        context.router.push(const LikedSongsRoute()),
                   ),
                   Container(
                     width: 1,
@@ -355,9 +356,11 @@ class _MyProfileScreenState extends State<MyProfileScreen>
                     color: Colors.white.withValues(alpha: 0.1),
                   ),
                   _StatCard(
-                    icon: Icons.library_music,
-                    number: state.favoriteGenresCount.toString(),
-                    label: l10n.genres,
+                    icon: Icons.download_done,
+                    number: state.downloadedSongsCount.toString(),
+                    label: l10n.offline,
+                    onTap: () =>
+                        context.router.push(const DownloadsRoute()),
                   ),
                 ],
               ),

@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:music_app/core/presentation/widgets/song_list_item.dart';
 // Removed hard dependency on routes in this detail screen for now; navigation uses context.router.
 import 'package:music_app/core/theme/app_colors_dark.dart';
@@ -25,7 +26,7 @@ class UserPlaylistDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => UserPlaylistDetailCubit(
-        libraryService: context.read<LibraryService>(),
+        libraryService: GetIt.I<LibraryService>(),
         playerBloc: context.read<PlayerBlocBloc>(),
       )..loadPlaylist(playlistId),
       child: _UserPlaylistDetailView(playlistId: playlistId),

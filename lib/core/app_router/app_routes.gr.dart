@@ -740,7 +740,7 @@ class SocialLoginRoute extends _i35.PageRouteInfo<void> {
   static _i35.PageInfo page = _i35.PageInfo(
     name,
     builder: (data) {
-      return const _i30.SocialLoginScreen();
+      return _i35.WrappedRoute(child: const _i30.SocialLoginScreen());
     },
   );
 }
