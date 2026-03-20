@@ -17,10 +17,8 @@ import 'package:music_app/core/theme/theme_cubit.dart';
 import 'package:music_app/data/offline/services/offline_service.dart';
 import 'package:music_app/features/album/data/repositories/album_repository_impl.dart';
 import 'package:music_app/features/album/domain/repositories/album_repository.dart';
-import 'package:music_app/features/album/presentation/cubit/album_cubit.dart';
 import 'package:music_app/features/artist/data/repositories/artist_repository_impl.dart';
 import 'package:music_app/features/artist/domain/repositories/artist_repository.dart';
-import 'package:music_app/features/artist/presentation/cubit/artist_cubit.dart';
 import 'package:music_app/features/auth/data/services/oauth_service.dart';
 import 'package:music_app/features/auth/login/domain/use_cases/login_use_case.dart';
 import 'package:music_app/features/auth/login/domain/use_cases/oauth_sign_in_use_case.dart';
@@ -46,14 +44,11 @@ import 'package:music_app/features/home/data/data_sources/home_remote_data_sourc
 import 'package:music_app/features/home/data/repositories/home_repository_impl.dart';
 import 'package:music_app/features/home/domain/repositories/home_repository.dart';
 import 'package:music_app/features/home/domain/use_cases/get_home_use_case.dart';
-import 'package:music_app/features/home/presentation/cubit/home_cubit.dart';
 import 'package:music_app/features/library/library_service.dart';
-import 'package:music_app/features/library/presentation/cubit/library_cubit.dart';
 import 'package:music_app/features/mood_genre/data/data_sources/mood_genre_remote_data_source.dart';
 import 'package:music_app/features/mood_genre/data/repositories/mood_genre_repository_impl.dart';
 import 'package:music_app/features/mood_genre/domain/repositories/mood_genre_repository.dart';
 import 'package:music_app/features/mood_genre/domain/use_cases/get_mood_playlists_use_case.dart';
-import 'package:music_app/features/mood_genre/presentation/cubit/mood_genre_cubit.dart';
 import 'package:music_app/features/offline/presentation/cubit/history_cubit.dart';
 import 'package:music_app/features/offline/presentation/cubit/playlist_offline_cubit.dart';
 import 'package:music_app/features/player/data/datasources/radio_remote_data_source.dart';
@@ -97,11 +92,9 @@ class AppInjection {
   final String _baseUrl;
   bool _isInitialized = false;
 
-  AppInjection({
-    required GetIt getIt,
-    required String baseUrl,
-  }) : _getIt = getIt,
-       _baseUrl = baseUrl {
+  AppInjection({required GetIt getIt, required String baseUrl})
+    : _getIt = getIt,
+      _baseUrl = baseUrl {
     // Don't call _init() here - call init() explicitly from main.dart
   }
 
@@ -310,9 +303,7 @@ class AppInjection {
     }
 
     if (!_getIt.isRegistered<OrquestadorAuthCubit>()) {
-      _getIt.registerFactory<OrquestadorAuthCubit>(
-        OrquestadorAuthCubit.new,
-      );
+      _getIt.registerFactory<OrquestadorAuthCubit>(OrquestadorAuthCubit.new);
     }
   }
 
@@ -417,9 +408,7 @@ class AppInjection {
     // Bloc (singleton porque debe ser compartido en toda la app)
     // Nota: OfflineService se obtiene de forma lazy dentro del BLoC
     if (!_getIt.isRegistered<PlayerBlocBloc>()) {
-      _getIt.registerLazySingleton<PlayerBlocBloc>(
-        PlayerBlocBloc.new,
-      );
+      _getIt.registerLazySingleton<PlayerBlocBloc>(PlayerBlocBloc.new);
     }
 
     if (!_getIt.isRegistered<PlayerFacade>()) {
@@ -451,12 +440,8 @@ class AppInjection {
       );
     }
 
-    // Cubits (factory porque cada pantalla necesita su propia instancia)
-    if (!_getIt.isRegistered<HomeCubit>()) {
-      _getIt.registerFactory<HomeCubit>(
-        () => HomeCubit(_getIt<GetHomeUseCase>(), _getIt<PlayerFacade>()),
-      );
-    }
+    // NOTA: HomeCubit se crea ahora vía BlocProvider en HomeShell.wrappedRoute
+    // Se elimina el registro de GetIt para mantener consistencia con el patrón
   }
 
   void _registerMoodGenreFeature() {
@@ -481,12 +466,7 @@ class AppInjection {
       );
     }
 
-    // Cubits (factory porque cada pantalla necesita su propia instancia)
-    if (!_getIt.isRegistered<MoodGenreCubit>()) {
-      _getIt.registerFactory<MoodGenreCubit>(
-        () => MoodGenreCubit(_getIt<GetMoodPlaylistsUseCase>()),
-      );
-    }
+    // NOTA: MoodGenreCubit se crea ahora vía BlocProvider en MoodGenreScreen.wrappedRoute
   }
 
   void _registerPlaylistFeature() {
@@ -582,15 +562,8 @@ class AppInjection {
   }
 
   void _registerLibraryFeature() {
-    if (!_getIt.isRegistered<LibraryCubit>()) {
-      _getIt.registerFactory<LibraryCubit>(
-        () => LibraryCubit(
-          _getIt<LibraryService>(),
-          _getIt<OfflineService>(),
-          _getIt<PlayerFacade>(),
-        ),
-      );
-    }
+    // NOTA: LibraryCubit se crea ahora vía BlocProvider en LibraryScreen
+    // Se elimina el registro de GetIt para mantener consistencia
   }
 
   void _registerArtistFeature() {
@@ -601,12 +574,7 @@ class AppInjection {
       );
     }
 
-    // ArtistCubit - factory para crear nueva instancia
-    if (!_getIt.isRegistered<ArtistCubit>()) {
-      _getIt.registerFactory<ArtistCubit>(
-        () => ArtistCubit(_getIt<ArtistRepository>()),
-      );
-    }
+    // NOTA: ArtistCubit se crea ahora vía BlocProvider en ArtistScreen
   }
 
   void _registerAlbumFeature() {
@@ -617,12 +585,7 @@ class AppInjection {
       );
     }
 
-    // AlbumCubit - factory para crear nueva instancia
-    if (!_getIt.isRegistered<AlbumCubit>()) {
-      _getIt.registerFactory<AlbumCubit>(
-        () => AlbumCubit(_getIt<AlbumRepository>()),
-      );
-    }
+    // NOTA: AlbumCubit se crea ahora vía BlocProvider en AlbumScreen
   }
 
   void _registerFavoritesFeature() {
@@ -649,7 +612,9 @@ class AppInjection {
     // Repository
     if (!_getIt.isRegistered<RecentlyPlayedRepository>()) {
       _getIt.registerLazySingleton<RecentlyPlayedRepository>(
-        () => RecentlyPlayedRepositoryImpl(_getIt<RecentlyPlayedRemoteDataSource>()),
+        () => RecentlyPlayedRepositoryImpl(
+          _getIt<RecentlyPlayedRemoteDataSource>(),
+        ),
       );
     }
 
@@ -674,7 +639,10 @@ class AppInjection {
     // Data layer
     if (!_getIt.isRegistered<ProfileRemoteDataSource>()) {
       _getIt.registerLazySingleton<ProfileRemoteDataSource>(
-        () => ProfileRemoteDataSource(_getIt<ApiServices>(), _getIt<AuthManager>()),
+        () => ProfileRemoteDataSource(
+          _getIt<ApiServices>(),
+          _getIt<AuthManager>(),
+        ),
       );
     }
 

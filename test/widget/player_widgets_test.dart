@@ -35,8 +35,9 @@ void main() {
   setUpAll(registerFallbackValues);
 
   group('Player widgets (deterministic, fake engine)', () {
-    testWidgets('MiniPlayer is hidden when there is no currentTrack',
-        (tester) async {
+    testWidgets('MiniPlayer is hidden when there is no currentTrack', (
+      tester,
+    ) async {
       final engine = FakePlayerEngine();
       final bloc = PlayerBlocBloc(engine: engine);
       addTearDown(() async {
@@ -51,8 +52,9 @@ void main() {
       expect(find.textContaining('search.Song'), findsNothing);
     });
 
-    testWidgets('MiniPlayer shows track title after LoadTrackEvent',
-        (tester) async {
+    testWidgets('MiniPlayer shows track title after LoadTrackEvent', (
+      tester,
+    ) async {
       final engine = FakePlayerEngine();
       final bloc = PlayerBlocBloc(engine: engine);
       addTearDown(() async {
@@ -79,8 +81,7 @@ void main() {
       expect(find.text('Song W'), findsOneWidget);
     });
 
-    testWidgets('QueueScreen builds with localization (smoke)',
-        (tester) async {
+    testWidgets('QueueScreen builds with localization (smoke)', (tester) async {
       final engine = FakePlayerEngine();
       final bloc = PlayerBlocBloc(engine: engine);
       addTearDown(() async {
@@ -93,8 +94,9 @@ void main() {
       expect(find.text('Cola'), findsOneWidget);
     });
 
-    testWidgets('PlayerScreen (playAsSingle) drives bloc to currentTrack',
-        (tester) async {
+    testWidgets('PlayerScreen (playAsSingle) drives bloc to currentTrack', (
+      tester,
+    ) async {
       final engine = FakePlayerEngine();
       final bloc = PlayerBlocBloc(engine: engine);
       addTearDown(() async {
@@ -102,27 +104,28 @@ void main() {
         await engine.dispose();
       });
 
-      final track =
-          createTestNowPlayingData(videoId: 'ps1', title: 'Player Song');
+      final track = createTestNowPlayingData(
+        videoId: 'ps1',
+        title: 'Player Song',
+      );
 
-      await tester.pumpWidget(_wrapWithApp(
-        PlayerScreen(
-          nowPlayingData: track,
-          playAsSingle: true,
-          showFavoriteButton: false,
-          showExtras: false,
+      await tester.pumpWidget(
+        _wrapWithApp(
+          PlayerScreen(
+            nowPlayingData: track,
+            playAsSingle: true,
+            showFavoriteButton: false,
+            showExtras: false,
+          ),
+          bloc,
         ),
-        bloc,
-      ));
+      );
 
       await tester.pump(const Duration(milliseconds: 80));
       expect(bloc.state.currentTrack?.videoId, equals('ps1'));
 
-      // Dispose the screen cleanly to avoid pending animations rebuilding
-      // after the test scope ends.
       await tester.pumpWidget(const SizedBox.shrink());
       await tester.pump();
     });
   });
 }
-
