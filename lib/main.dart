@@ -19,10 +19,7 @@ void main() async {
   await _initAudioService();
 
   // Create AppInjection but DON'T call init() in constructor
-  final appInjection = AppInjection(
-    getIt: getIt,
-    baseUrl: AppConfig.baseUrl,
-  );
+  final appInjection = AppInjection(getIt: getIt, baseUrl: AppConfig.baseUrl);
 
   // CRITICAL: Call init() to register all dependencies in proper order
   // This ensures AuthManager is ready BEFORE ProfileCubit is registered
@@ -46,7 +43,9 @@ void main() async {
 
 /// Inicializa el servicio de audio para notificaciones y controles en pantalla de bloqueo
 ///
-/// Esta es la forma correcta según la documentación oficial de audio_service
+/// ESTA ES LA ÚNICA FUENTE DE AudioPlayer.
+/// Después de esta inicialización, TODO el código debe obtener el AudioPlayer
+/// exclusivamente a través de GetIt<AudioPlayerHandler>().player
 Future<void> _initAudioService() async {
   try {
     // El handler returned por AudioService.init() es el mismo que se crea en el builder
@@ -62,14 +61,17 @@ Future<void> _initAudioService() async {
       ),
     );
 
-    // registrar en GetIt para uso en PlayerBloc
+    // Registrar en GetIt para uso en PlayerBloc
+    // AudioPlayerHandler es un singleton - única fuente de AudioPlayer
     if (!GetIt.I.isRegistered<AudioPlayerHandler>()) {
       GetIt.I.registerSingleton<AudioPlayerHandler>(handler);
     }
 
     // IMPORTANTE: Llamar init() del handler para que transmita estados a notificaciones
+    // init() es idempotente, así que es seguro llamarlo múltiples veces
     handler.init();
   } catch (e) {
+    debugPrint('AudioService init error: $e');
     // No bloquea la app si falla
   }
 }

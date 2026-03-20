@@ -3,19 +3,21 @@ import 'package:music_app/core/bloc/base_bloc_mixin.dart';
 import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
 import 'package:music_app/data/offline/models/offline_playlist.dart';
 import 'package:music_app/data/offline/services/offline_service.dart';
-import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
+import 'package:music_app/features/player/domain/player_facade.dart';
 
 part 'library_state.dart';
 
 class LibraryCubit extends Cubit<LibraryState> with BaseBlocMixin {
   final LibraryService _libraryService;
   final OfflineService _offlineService;
-  final PlayerBlocBloc _playerBloc;
+  final PlayerFacade _player;
 
-  LibraryCubit(this._libraryService, this._offlineService, this._playerBloc)
-    : super(const LibraryState());
+  static const int _pageSize = 10;
+
+  LibraryCubit(this._libraryService, this._offlineService, this._player)
+      : super(const LibraryState());
 
   Future<void> loadLibrary() async {
     if (state.status == LibraryStatus.loading) return;
@@ -23,23 +25,20 @@ class LibraryCubit extends Cubit<LibraryState> with BaseBlocMixin {
     emit(state.copyWith(status: LibraryStatus.loading, clearError: true));
 
     try {
-      // Verificar conexión a internet
       final isOnline = await _offlineService.isOnline;
 
       if (!isOnline) {
-        // Modo offline: cargar playlists desde almacenamiento local
         await _loadOfflineLibrary();
         return;
       }
 
-      // Modo online: comportamiento normal
       final songsResponse = await _libraryService.getFavoriteSongs(
         page: 1,
-        limit: 10,
+        limit: _pageSize,
       );
       final playlistsResponse = await _libraryService.getFavoritePlaylists(
         page: 1,
-        limit: 10,
+        limit: _pageSize,
       );
       final userPlaylistsResponse = await _libraryService.getUserPlaylists(
         page: 1,
@@ -47,14 +46,12 @@ class LibraryCubit extends Cubit<LibraryState> with BaseBlocMixin {
       );
       final genresResponse = await _libraryService.getFavoriteGenres(
         page: 1,
-        limit: 10,
+        limit: _pageSize,
       );
       final summary = await _libraryService.getLibrarySummary();
 
-      // Combinar playlists del usuario + playlists favoritas de YouTube
       final allPlaylists = <PlaylistItem>[];
 
-      // Agregar playlists creadas por el usuario
       for (final userPlaylist in userPlaylistsResponse.data) {
         allPlaylists.add(
           PlaylistItem(
@@ -68,7 +65,6 @@ class LibraryCubit extends Cubit<LibraryState> with BaseBlocMixin {
         );
       }
 
-      // Agregar playlists favoritas de YouTube
       for (final favPlaylist in playlistsResponse.data) {
         allPlaylists.add(
           PlaylistItem(
@@ -97,7 +93,7 @@ class LibraryCubit extends Cubit<LibraryState> with BaseBlocMixin {
           totalSongs: songsResponse.total,
           totalPlaylists:
               userPlaylistsResponse.total +
-              playlistsResponse.total, // Todas las playlists
+              playlistsResponse.total,
           totalGenres: genresResponse.total,
           summary: summary,
           clearError: true,
@@ -115,12 +111,10 @@ class LibraryCubit extends Cubit<LibraryState> with BaseBlocMixin {
     }
   }
 
-  /// Carga la librería desde el almacenamiento offline
   Future<void> _loadOfflineLibrary() async {
     try {
       final offlinePlaylists = await _offlineService.getOfflinePlaylists();
 
-      // Convertir OfflinePlaylist a FavoritePlaylist
       final favoritePlaylists = offlinePlaylists
           .map(_convertToFavoritePlaylist)
           .toList();
@@ -130,9 +124,9 @@ class LibraryCubit extends Cubit<LibraryState> with BaseBlocMixin {
       emit(
         state.copyWith(
           status: LibraryStatus.success,
-          favoriteSongs: const [], // No hay canciones offline en este flujo
+          favoriteSongs: const [],
           favoritePlaylists: favoritePlaylists,
-          favoriteGenres: const [], // No hay géneros offline
+          favoriteGenres: const [],
           totalSongs: 0,
           totalPlaylists: favoritePlaylists.length,
           totalGenres: 0,
@@ -157,7 +151,6 @@ class LibraryCubit extends Cubit<LibraryState> with BaseBlocMixin {
     }
   }
 
-  /// Convierte un OfflinePlaylist a FavoritePlaylist
   FavoritePlaylist _convertToFavoritePlaylist(OfflinePlaylist offlinePlaylist) {
     return FavoritePlaylist(
       id: offlinePlaylist.playlistId,
@@ -178,10 +171,10 @@ class LibraryCubit extends Cubit<LibraryState> with BaseBlocMixin {
     emit(state.copyWith(isLoadingMoreSongs: true));
 
     try {
-      final nextPage = (state.favoriteSongs.length ~/ 20) + 1;
+      final nextPage = (state.favoriteSongs.length ~/ _pageSize) + 1;
       final response = await _libraryService.getFavoriteSongs(
         page: nextPage,
-        limit: 20,
+        limit: _pageSize,
       );
 
       if (isClosed) return;
@@ -211,7 +204,6 @@ class LibraryCubit extends Cubit<LibraryState> with BaseBlocMixin {
   }) async {
     try {
       if (currentlyFavorite) {
-        // El backend ahora acepta videoId directamente
         await _libraryService.removeFavoriteSong(videoId);
       } else {
         await _libraryService.addFavoriteSong(
@@ -232,28 +224,35 @@ class LibraryCubit extends Cubit<LibraryState> with BaseBlocMixin {
     }
   }
 
-  /// Reproduce una canción específica
-  /// Retorna el NowPlayingData para navegación
   NowPlayingData playSong(FavoriteSong song) {
     final nowPlayingData = _mapFavoriteSongToNowPlaying(song);
-    _playerBloc.add(LoadTrackEvent(nowPlayingData));
+    _player.playSingle(nowPlayingData);
     return nowPlayingData;
   }
 
-  /// Reproduce todas las canciones de favoritos
-  /// Retorna el primer NowPlayingData para navegación
-  /// Si ya hay una canción de la lista reproduciéndose, continúa desde esa posición
+  NowPlayingData? playAllFavoriteSongsFromIndex(List<FavoriteSong> songs, int startIndex) {
+    if (songs.isEmpty) return null;
+    if (startIndex < 0 || startIndex >= songs.length) startIndex = 0;
+
+    final playlist = songs.map(_mapFavoriteSongToNowPlaying).toList();
+
+    _player.playPlaylist(
+      playlist: playlist,
+      startIndex: startIndex,
+      sourceId: 'library',
+    );
+    return playlist[startIndex];
+  }
+
   NowPlayingData? playAllFavoriteSongs(List<FavoriteSong> songs) {
     if (songs.isEmpty) return null;
 
     final playlist = songs.map(_mapFavoriteSongToNowPlaying).toList();
 
-    // Verificar si hay una canción reproduciéndose actualmente que esté en la playlist
     int startIndex = 0;
-    final currentTrack = _playerBloc.state.currentTrack;
+    final currentTrack = _player.state.currentTrack;
     
     if (currentTrack != null) {
-      // Buscar el índice de la canción actual en la nueva playlist
       final currentIndex = playlist.indexWhere(
         (track) => track.videoId == currentTrack.videoId,
       );
@@ -262,15 +261,14 @@ class LibraryCubit extends Cubit<LibraryState> with BaseBlocMixin {
       }
     }
 
-     _playerBloc.add(LoadPlaylistEvent(
+     _player.playPlaylist(
        playlist: playlist,
        startIndex: startIndex,
        sourceId: 'library',
-     ));
+     );
      return playlist[startIndex];
    }
 
-  /// Helper: map a FavoriteSong to NowPlayingData using existing fields
   NowPlayingData _mapFavoriteSongToNowPlaying(FavoriteSong song) {
     return NowPlayingData.fromBasic(
       videoId: song.videoId,
@@ -286,7 +284,6 @@ class LibraryCubit extends Cubit<LibraryState> with BaseBlocMixin {
     );
   }
 
-  /// Crea una nueva playlist
   Future<void> createPlaylist(String name) async {
     try {
       await _libraryService.createUserPlaylist(name: name);

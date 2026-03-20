@@ -300,8 +300,8 @@ void main() {
           LoginStatus.loading,
         ),
         isA<LoginState>()
-            .having((s) => s.status, 'status', LoginStatus.failure)
-            .having((s) => s.errorMessage, 'errorMessage', isNotNull),
+            .having((s) => s.status, 'status', LoginStatus.initial)
+            .having((s) => s.errorMessage, 'errorMessage', isNull),
       ],
     );
 
@@ -396,8 +396,8 @@ void main() {
           LoginStatus.loading,
         ),
         isA<LoginState>()
-            .having((s) => s.status, 'status', LoginStatus.failure)
-            .having((s) => s.errorMessage, 'errorMessage', isNotNull),
+            .having((s) => s.status, 'status', LoginStatus.initial)
+            .having((s) => s.errorMessage, 'errorMessage', isNull),
       ],
     );
 

@@ -26,8 +26,36 @@ class LikedSongsScreen extends StatelessWidget {
   }
 }
 
-class _LikedSongsScreenView extends StatelessWidget {
+class _LikedSongsScreenView extends StatefulWidget {
   const _LikedSongsScreenView();
+
+  @override
+  State<_LikedSongsScreenView> createState() => _LikedSongsScreenViewState();
+}
+
+class _LikedSongsScreenViewState extends State<_LikedSongsScreenView> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent * 0.8) {
+      // Cargar más canciones cuando llegue al 80% del scroll
+      context.read<LibraryCubit>().loadMoreSongs();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +64,7 @@ class _LikedSongsScreenView extends StatelessWidget {
     return BlocBuilder<LibraryCubit, LibraryState>(
       builder: (context, state) {
         return CustomScrollView(
+          controller: _scrollController,
           slivers: [
             _buildHeader(context, state, l10n),
             if (state.status == LibraryStatus.loading) ...[
@@ -231,6 +260,22 @@ class _LikedSongsScreenView extends StatelessWidget {
 
     return SliverList(
       delegate: SliverChildBuilderDelegate((context, index) {
+        // Mostrar indicador de carga al final de la lista
+        if (index == state.favoriteSongs.length) {
+          if (state.isLoadingMoreSongs) {
+            return const Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Center(
+                child: CircularProgressIndicator(
+                  color: AppColorsDark.primary,
+                  strokeWidth: 2,
+                ),
+              ),
+            );
+          }
+          return const SizedBox.shrink();
+        }
+
         final song = state.favoriteSongs[index];
         return SongListItemWithRemove(
           title: song.title,
@@ -239,7 +284,7 @@ class _LikedSongsScreenView extends StatelessWidget {
           onTap: () => _playSong(context, song),
           onRemove: () => _removeSong(context, song),
         );
-      }, childCount: state.favoriteSongs.length),
+      }, childCount: state.favoriteSongs.length + (state.isLoadingMoreSongs || state.hasMoreSongs ? 1 : 0)),
     );
   }
 
@@ -280,16 +325,16 @@ class _LikedSongsScreenView extends StatelessWidget {
       songs,
     );
     if (nowPlayingData != null) {
-      // Navegar al reproductor
-      context.router.push(PlayerRoute(nowPlayingData: nowPlayingData));
+      // Playlist - mantener la lista
+      context.router.push(PlayerRoute(nowPlayingData: nowPlayingData, playAsSingle: false));
     }
   }
 
   void _playSong(BuildContext context, FavoriteSong song) {
     // Usar el método del Cubit
     final nowPlayingData = context.read<LibraryCubit>().playSong(song);
-    // Navegar al reproductor
-    context.router.push(PlayerRoute(nowPlayingData: nowPlayingData));
+    // Canción individual
+    context.router.push(PlayerRoute(nowPlayingData: nowPlayingData, playAsSingle: true));
   }
 
   void _removeSong(BuildContext context, FavoriteSong song) {

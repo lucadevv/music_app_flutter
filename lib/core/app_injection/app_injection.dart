@@ -58,6 +58,7 @@ import 'package:music_app/features/offline/presentation/cubit/history_cubit.dart
 import 'package:music_app/features/offline/presentation/cubit/playlist_offline_cubit.dart';
 import 'package:music_app/features/player/data/datasources/radio_remote_data_source.dart';
 import 'package:music_app/features/player/data/repositories/radio_repository_impl.dart';
+import 'package:music_app/features/player/domain/player_facade.dart';
 import 'package:music_app/features/player/domain/repositories/radio_repository.dart';
 import 'package:music_app/features/player/domain/usecases/get_radio_playlist_usecase.dart';
 import 'package:music_app/features/playlist/data/data_sources/playlist_remote_data_source.dart';
@@ -420,6 +421,12 @@ class AppInjection {
         PlayerBlocBloc.new,
       );
     }
+
+    if (!_getIt.isRegistered<PlayerFacade>()) {
+      _getIt.registerLazySingleton<PlayerFacade>(
+        () => PlayerFacade(_getIt<PlayerBlocBloc>()),
+      );
+    }
   }
 
   void _registerHomeFeature() {
@@ -447,7 +454,7 @@ class AppInjection {
     // Cubits (factory porque cada pantalla necesita su propia instancia)
     if (!_getIt.isRegistered<HomeCubit>()) {
       _getIt.registerFactory<HomeCubit>(
-        () => HomeCubit(_getIt<GetHomeUseCase>(), _getIt<PlayerBlocBloc>()),
+        () => HomeCubit(_getIt<GetHomeUseCase>(), _getIt<PlayerFacade>()),
       );
     }
   }
@@ -568,7 +575,7 @@ class AppInjection {
           await _getIt.getAsync<GetDownloadedSongsUseCase>(),
           await _getIt.getAsync<RemoveDownloadUseCase>(),
           await _getIt.getAsync<CheckDownloadStatusUseCase>(),
-          _getIt<PlayerBlocBloc>(),
+          _getIt<PlayerFacade>(),
         ),
       );
     }
@@ -580,7 +587,7 @@ class AppInjection {
         () => LibraryCubit(
           _getIt<LibraryService>(),
           _getIt<OfflineService>(),
-          _getIt<PlayerBlocBloc>(),
+          _getIt<PlayerFacade>(),
         ),
       );
     }

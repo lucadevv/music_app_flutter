@@ -15,9 +15,13 @@ part 'register_state.dart';
 /// Cubit para manejar el estado del registro
 class RegisterCubit extends Cubit<RegisterState> with BaseBlocMixin {
   final RegisterUseCase _registerUseCase;
+  final AuthManager? _authManager;
 
-  RegisterCubit({required RegisterUseCase registerUseCase})
-    : _registerUseCase = registerUseCase,
+  RegisterCubit({
+    required RegisterUseCase registerUseCase,
+    AuthManager? authManager,
+  })  : _registerUseCase = registerUseCase,
+      _authManager = authManager,
       super(const RegisterState());
 
   /// Registra un nuevo usuario
@@ -42,7 +46,7 @@ class RegisterCubit extends Cubit<RegisterState> with BaseBlocMixin {
       },
       (responseEntity) async {
         try {
-          final authManager = await getIt.getAsync<AuthManager>();
+          final authManager = _authManager ?? await getIt.getAsync<AuthManager>();
           await authManager.login(
             responseEntity.accessToken,
             responseEntity.refreshToken,

@@ -2,19 +2,19 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/downloads/domain/repositories/downloads_repository.dart';
 import 'package:music_app/features/downloads/domain/use_cases/check_download_status_use_case.dart';
 import 'package:music_app/features/downloads/domain/use_cases/download_song_use_case.dart';
 import 'package:music_app/features/downloads/domain/use_cases/get_downloaded_songs_use_case.dart';
 import 'package:music_app/features/downloads/domain/use_cases/remove_download_use_case.dart';
 import 'package:music_app/features/downloads/presentation/cubit/downloads_cubit.dart';
+import 'package:music_app/features/player/domain/player_facade.dart';
 
 import '../../../../helpers/test_helpers.dart';
 
 class MockDownloadsRepository extends Mock implements DownloadsRepository {}
 
-class MockPlayerBlocBloc extends Mock implements PlayerBlocBloc {}
+class MockPlayerFacade extends Mock implements PlayerFacade {}
 
 void main() {
   late DownloadsCubit downloadsCubit;
@@ -28,7 +28,7 @@ void main() {
 
   setUp(() {
     mockRepository = MockDownloadsRepository();
-    final mockPlayerBloc = MockPlayerBlocBloc();
+    final mockPlayer = MockPlayerFacade();
     downloadSongUseCase = DownloadSongUseCase(mockRepository);
     getDownloadedSongsUseCase = GetDownloadedSongsUseCase(mockRepository);
     removeDownloadUseCase = RemoveDownloadUseCase(mockRepository);
@@ -38,7 +38,8 @@ void main() {
       getDownloadedSongsUseCase,
       removeDownloadUseCase,
       checkDownloadStatusUseCase,
-      mockPlayerBloc,
+      mockPlayer,
+      autoLoad: false,
     );
   });
 

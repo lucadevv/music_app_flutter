@@ -113,13 +113,19 @@ void main() {
       build: () {
         when(
           () => mockRepository.search(any(that: isA<SearchRequest>())),
-        ).thenAnswer((_) async => Right(createTestSearchResponse()));
+        ).thenAnswer(
+          (_) async => Future.delayed(
+            const Duration(milliseconds: 50),
+            () => Right(createTestSearchResponse()),
+          ),
+        );
         return searchCubit;
       },
-      act: (cubit) async {
-        await cubit.search('query 1');
-        await cubit.search('query 2');
+      act: (cubit) {
+        cubit.search('query 1');
+        cubit.search('query 2'); // debe ignorarse por estar loading
       },
+      wait: const Duration(milliseconds: 60),
       expect: () => [
         isA<SearchState>().having(
           (s) => s.status,

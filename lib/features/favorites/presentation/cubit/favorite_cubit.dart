@@ -298,7 +298,12 @@ class FavoriteCubit extends Cubit<FavoriteState> with BaseBlocMixin {
   /// Reproduce una canción específica
   void playSong(FavoriteSong song) {
     final nowPlayingData = _mapToNowPlaying(song);
-    _playerBloc.add(LoadTrackEvent(nowPlayingData));
+    _playerBloc.add(
+      LoadTrackEvent(
+        nowPlayingData,
+        sourceId: 'favorites',
+      ),
+    );
   }
 
   /// Reproduce todas las canciones

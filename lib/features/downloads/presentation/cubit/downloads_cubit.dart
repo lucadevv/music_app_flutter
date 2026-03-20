@@ -1,13 +1,13 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/bloc/base_bloc_mixin.dart';
-import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/downloads/domain/entities/downloaded_song.dart';
 import 'package:music_app/features/downloads/domain/use_cases/check_download_status_use_case.dart';
 import 'package:music_app/features/downloads/domain/use_cases/download_song_use_case.dart';
 import 'package:music_app/features/downloads/domain/use_cases/get_downloaded_songs_use_case.dart';
 import 'package:music_app/features/downloads/domain/use_cases/remove_download_use_case.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
+import 'package:music_app/features/player/domain/player_facade.dart';
 // Removed unused import: thumbnail
 
 part 'downloads_state.dart';
@@ -24,17 +24,20 @@ class DownloadsCubit extends Cubit<DownloadsState> with BaseBlocMixin {
   final GetDownloadedSongsUseCase _getDownloadedSongsUseCase;
   final RemoveDownloadUseCase _removeDownloadUseCase;
   final CheckDownloadStatusUseCase _checkDownloadStatusUseCase;
-  final PlayerBlocBloc _playerBloc;
+  final PlayerFacade _player;
 
   DownloadsCubit(
     this._downloadSongUseCase,
     this._getDownloadedSongsUseCase,
     this._removeDownloadUseCase,
     this._checkDownloadStatusUseCase,
-    this._playerBloc,
-  ) : super(const DownloadsState()) {
-    // Cargar descargas automáticamente al iniciar
-    loadDownloads();
+    this._player,
+    {bool autoLoad = true,
+  }) : super(const DownloadsState()) {
+    if (autoLoad) {
+      // Cargar descargas automáticamente al iniciar
+      loadDownloads();
+    }
   }
 
   /// Carga las canciones descargadas
@@ -192,7 +195,7 @@ class DownloadsCubit extends Cubit<DownloadsState> with BaseBlocMixin {
       streamUrl: 'file://${song.localPath}',
     );
 
-    _playerBloc.add(LoadTrackEvent(nowPlayingData));
+    _player.playSingle(nowPlayingData);
     return nowPlayingData;
   }
 
@@ -219,7 +222,11 @@ class DownloadsCubit extends Cubit<DownloadsState> with BaseBlocMixin {
         .toList();
 
     if (playlist.isNotEmpty) {
-      _playerBloc.add(LoadPlaylistEvent(playlist: playlist, startIndex: 0));
+      _player.playPlaylist(
+        playlist: playlist,
+        startIndex: 0,
+        sourceId: 'downloads',
+      );
       return playlist.first;
     }
     return null;

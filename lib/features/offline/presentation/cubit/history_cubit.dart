@@ -221,13 +221,19 @@ class HistoryCubit extends Cubit<HistoryState> with BaseBlocMixin {
         .toList();
 
     if (playlist.isNotEmpty) {
-      _playerBloc.add(LoadPlaylistEvent(playlist: playlist, startIndex: 0));
+      _playerBloc.add(
+        LoadPlaylistEvent(
+          playlist: playlist,
+          startIndex: 0,
+          sourceId: 'history',
+        ),
+      );
     }
   }
 
   void _playFromHistoryItem(OfflineHistory historyItem) {
     final nowPlayingData = _mapToNowPlaying(historyItem);
-    _playerBloc.add(LoadTrackEvent(nowPlayingData));
+    _playerBloc.add(LoadTrackEvent(nowPlayingData, sourceId: 'history'));
   }
 
   NowPlayingData _mapToNowPlaying(OfflineHistory historyItem) {

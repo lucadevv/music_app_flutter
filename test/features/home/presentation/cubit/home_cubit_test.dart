@@ -2,16 +2,16 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/home/domain/repositories/home_repository.dart';
 import 'package:music_app/features/home/domain/use_cases/get_home_use_case.dart';
 import 'package:music_app/features/home/presentation/cubit/home_cubit.dart';
+import 'package:music_app/features/player/domain/player_facade.dart';
 
 import '../../../../helpers/test_helpers.dart';
 
 class MockHomeRepository extends Mock implements HomeRepository {}
 
-class MockPlayerBlocBloc extends Mock implements PlayerBlocBloc {}
+class MockPlayerFacade extends Mock implements PlayerFacade {}
 
 void main() {
   late HomeCubit homeCubit;
@@ -22,9 +22,9 @@ void main() {
 
   setUp(() {
     mockRepository = MockHomeRepository();
-    final mockPlayerBloc = MockPlayerBlocBloc();
+    final mockPlayer = MockPlayerFacade();
     getHomeUseCase = GetHomeUseCase(mockRepository);
-    homeCubit = HomeCubit(getHomeUseCase, mockPlayerBloc);
+    homeCubit = HomeCubit(getHomeUseCase, mockPlayer);
   });
 
   tearDown(() {
@@ -44,7 +44,12 @@ void main() {
       build: () {
         when(
           () => mockRepository.getHome(),
-        ).thenAnswer((_) async => Right(createTestHomeResponse()));
+        ).thenAnswer(
+          (_) async => Future.delayed(
+            const Duration(milliseconds: 50),
+            () => Right(createTestHomeResponse()),
+          ),
+        );
         return homeCubit;
       },
       act: (cubit) => cubit.loadHome(),
@@ -104,12 +109,11 @@ void main() {
         ).thenAnswer((_) async => Right(createTestHomeResponse()));
         return homeCubit;
       },
-      act: (cubit) async {
-        // Start first load
-        await cubit.loadHome();
-        // Try to start second load immediately
-        await cubit.loadHome();
+      act: (cubit) {
+        cubit.loadHome();
+        cubit.loadHome(); // debe ignorarse porque el primero sigue loading
       },
+      wait: const Duration(milliseconds: 60),
       expect: () => [
         // Only one loading and one success, not two
         isA<HomeState>().having((s) => s.status, 'status', HomeStatus.loading),

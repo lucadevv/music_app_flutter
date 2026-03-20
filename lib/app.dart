@@ -6,6 +6,7 @@ import 'package:music_app/core/app_router/app_routes.dart';
 import 'package:music_app/core/bloc/locale_cubit.dart';
 import 'package:music_app/core/theme/app_theme.dart';
 import 'package:music_app/core/theme/theme_cubit.dart';
+import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/downloads/presentation/cubit/downloads_cubit.dart';
 import 'package:music_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:music_app/l10n/app_localizations.dart';
@@ -22,9 +23,13 @@ class _AppState extends State<App> {
   final _router = getIt<AppRouter>();
   ThemeCubit? _themeCubit;
   LocaleCubit? _localeCubit;
- 
+
   DownloadsCubit? _downloadsCubit;
   ProfileCubit? _profileCubit;
+
+  // PlayerBlocBloc - se crea aquí para estar disponible en toda la app
+  late final PlayerBlocBloc _playerBlocBloc;
+
   bool _isInitialized = false;
 
   @override
@@ -37,9 +42,9 @@ class _AppState extends State<App> {
   void dispose() {
     _themeCubit?.close();
     _localeCubit?.close();
- 
     _downloadsCubit?.close();
     _profileCubit?.close();
+    _playerBlocBloc.close();
     super.dispose();
   }
 
@@ -52,13 +57,15 @@ class _AppState extends State<App> {
       // Now safe to get async singletons
       _themeCubit = await getIt.getAsync<ThemeCubit>();
       _localeCubit = await getIt.getAsync<LocaleCubit>();
-    
 
       // DownloadsCubit es lazy singleton async
       _downloadsCubit = await getIt.getAsync<DownloadsCubit>();
 
       // ProfileCubit es singleton registrado en AppInjection
       _profileCubit = getIt<ProfileCubit>();
+
+      // Crear PlayerBlocBloc aquí - estará disponible en toda la app
+      _playerBlocBloc = PlayerBlocBloc();
     } catch (e) {
       // Log error but don't crash
     } finally {
@@ -75,7 +82,6 @@ class _AppState extends State<App> {
     if (!_isInitialized ||
         _themeCubit == null ||
         _localeCubit == null ||
-     
         _downloadsCubit == null ||
         _profileCubit == null) {
       return MaterialApp(
@@ -94,6 +100,8 @@ class _AppState extends State<App> {
         BlocProvider.value(value: _localeCubit!),
         BlocProvider.value(value: _downloadsCubit!),
         BlocProvider.value(value: _profileCubit!),
+        // PlayerBlocBloc disponible en toda la app
+        BlocProvider.value(value: _playerBlocBloc),
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(
         builder: (context, themeState) {
@@ -105,9 +113,7 @@ class _AppState extends State<App> {
                 darkTheme: AppTheme.dark(),
                 themeMode: themeState.themeMode,
                 routerConfig: _router.config(
-                  navigatorObservers:() => [
-                    AutoRouteObserver(),
-                  ],
+                  navigatorObservers: () => [AutoRouteObserver()],
                 ),
                 debugShowCheckedModeBanner: false,
                 localizationsDelegates: AppLocalizations.localizationsDelegates,

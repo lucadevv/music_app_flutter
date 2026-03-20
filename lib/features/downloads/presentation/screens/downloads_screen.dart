@@ -215,8 +215,9 @@ class _DownloadsBody extends StatelessWidget {
                   final nowPlayingData = context
                       .read<DownloadsCubit>()
                       .playDownloadedSong(song);
+                  // Canción individual
                   context.router.push(
-                    PlayerRoute(nowPlayingData: nowPlayingData),
+                    PlayerRoute(nowPlayingData: nowPlayingData, playAsSingle: true),
                   );
                 },
                 onDelete: () {

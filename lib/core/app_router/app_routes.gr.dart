@@ -493,6 +493,8 @@ class PlayerRoute extends _i35.PageRouteInfo<PlayerRouteArgs> {
   PlayerRoute({
     required _i37.NowPlayingData nowPlayingData,
     bool playAsSingle = false,
+    bool showFavoriteButton = true,
+    bool showExtras = true,
     _i36.Key? key,
     List<_i35.PageRouteInfo>? children,
   }) : super(
@@ -500,6 +502,8 @@ class PlayerRoute extends _i35.PageRouteInfo<PlayerRouteArgs> {
          args: PlayerRouteArgs(
            nowPlayingData: nowPlayingData,
            playAsSingle: playAsSingle,
+           showFavoriteButton: showFavoriteButton,
+           showExtras: showExtras,
            key: key,
          ),
          initialChildren: children,
@@ -514,6 +518,8 @@ class PlayerRoute extends _i35.PageRouteInfo<PlayerRouteArgs> {
       return _i20.PlayerScreen(
         nowPlayingData: args.nowPlayingData,
         playAsSingle: args.playAsSingle,
+        showFavoriteButton: args.showFavoriteButton,
+        showExtras: args.showExtras,
         key: args.key,
       );
     },
@@ -524,6 +530,8 @@ class PlayerRouteArgs {
   const PlayerRouteArgs({
     required this.nowPlayingData,
     this.playAsSingle = false,
+    this.showFavoriteButton = true,
+    this.showExtras = true,
     this.key,
   });
 
@@ -531,11 +539,15 @@ class PlayerRouteArgs {
 
   final bool playAsSingle;
 
+  final bool showFavoriteButton;
+
+  final bool showExtras;
+
   final _i36.Key? key;
 
   @override
   String toString() {
-    return 'PlayerRouteArgs{nowPlayingData: $nowPlayingData, playAsSingle: $playAsSingle, key: $key}';
+    return 'PlayerRouteArgs{nowPlayingData: $nowPlayingData, playAsSingle: $playAsSingle, showFavoriteButton: $showFavoriteButton, showExtras: $showExtras, key: $key}';
   }
 
   @override
@@ -544,12 +556,18 @@ class PlayerRouteArgs {
     if (other is! PlayerRouteArgs) return false;
     return nowPlayingData == other.nowPlayingData &&
         playAsSingle == other.playAsSingle &&
+        showFavoriteButton == other.showFavoriteButton &&
+        showExtras == other.showExtras &&
         key == other.key;
   }
 
   @override
   int get hashCode =>
-      nowPlayingData.hashCode ^ playAsSingle.hashCode ^ key.hashCode;
+      nowPlayingData.hashCode ^
+      playAsSingle.hashCode ^
+      showFavoriteButton.hashCode ^
+      showExtras.hashCode ^
+      key.hashCode;
 }
 
 /// generated route for
@@ -571,9 +589,7 @@ class PlaylistRoute extends _i35.PageRouteInfo<PlaylistRouteArgs> {
     name,
     builder: (data) {
       final args = data.argsAs<PlaylistRouteArgs>();
-      return _i35.WrappedRoute(
-        child: _i21.PlaylistScreen(id: args.id, key: args.key),
-      );
+      return _i21.PlaylistScreen(id: args.id, key: args.key);
     },
   );
 }

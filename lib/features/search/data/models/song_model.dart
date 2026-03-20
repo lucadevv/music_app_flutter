@@ -81,12 +81,13 @@ class SongModel extends domain.Song {
       artists: artists,
       videoId: json['videoId'] as String? ?? '',
       duration: json['duration'] as String? ?? '0:00',
-      durationSeconds: json['duration_seconds'] as int? ?? 0,
+      durationSeconds:
+          (json['duration_seconds'] as int?) ?? (json['durationSeconds'] as int?) ?? 0,
       views: json['views'] as String? ?? '0',
       isExplicit: json['isExplicit'] as bool? ?? false,
       inLibrary: json['inLibrary'] as bool? ?? false,
       thumbnails: thumbnails,
-      streamUrl: json['stream_url'] as String?,
+      streamUrl: (json['stream_url'] as String?) ?? (json['streamUrl'] as String?),
       thumbnail: thumbnail,
     );
   }

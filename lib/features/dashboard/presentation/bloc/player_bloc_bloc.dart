@@ -1,6 +1,5 @@
 // ignore_for_file: unawaited_futures, deprecated_member_use
 import 'dart:async';
-
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,6 +9,8 @@ import 'package:music_app/core/services/audio_handler_service.dart';
 import 'package:music_app/data/offline/models/offline_history.dart';
 import 'package:music_app/data/offline/services/offline_service.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
+import 'package:music_app/features/player/domain/player_engine.dart';
+import 'package:music_app/features/player/infrastructure/just_audio_player_engine.dart';
 import 'package:music_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:music_app/features/recently_played/domain/usecases/record_listen_usecase.dart';
 
@@ -17,65 +18,44 @@ part 'player_bloc_event.dart';
 part 'player_bloc_state.dart';
 
 class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
-  // AudioPlayer se obtiene de forma lazy para evitar dependencia circular
-  // AudioPlayerHandler se registra en main.dart después de AudioService.init()
-  AudioPlayer? _audioPlayerInstance;
+  PlayerEngine? _engine;
+  bool _isEngineInitialized = false;
+  final PlayerEngine? _engineOverride;
 
-  /// Obtiene el player, creando uno nuevo si no está disponible del handler
-  AudioPlayer get _audioPlayer {
-    if (_audioPlayerInstance == null) {
-      try {
-        if (GetIt.I.isRegistered<AudioPlayerHandler>()) {
-          _audioPlayerInstance = GetIt.I<AudioPlayerHandler>().player;
-        } else {
-          // Fallback: crear un AudioPlayer básico si el handler no está disponible
-          _audioPlayerInstance = AudioPlayer();
-          // IMPORTANTE: Inicializar los streams del fallback player
-          _initializePlayer();
-        }
-      } catch (e) {
-        // Fallback final
-        _audioPlayerInstance = AudioPlayer();
-        // IMPORTANTE: Inicializar los streams del fallback player
-        _initializePlayer();
-      }
-    }
-    return _audioPlayerInstance!;
+  PlayerEngine get _playerEngine {
+    if (_engineOverride != null) return _engineOverride;
+    if (_engine != null) return _engine!;
+
+    // Obtener el AudioPlayer del handler
+    final handler = GetIt.I<AudioPlayerHandler>();
+    _engine = JustAudioPlayerEngine(handler.player);
+    return _engine!;
   }
 
-  PlayerBlocBloc() : super(PlayerBlocState.initial()) {
+  PlayerBlocBloc({PlayerEngine? engine})
+    : _engineOverride = engine,
+      super(PlayerBlocState.initial()) {
     _registerEventHandlers();
-    // No inicializar streams aquí - se hará cuando el player esté disponible
-    // Inicializar el handler de audio después de un pequeño delay para asegurar que todo esté listo
-    Future.microtask(() {
-      add(const InitializeAudioServiceEvent());
-    });
+
+    // Si hay engine override (tests), inicializar inmediatamente
+    if (_engineOverride != null) {
+      _initializeEngine();
+    }
   }
 
-  // OfflineService se obtiene de forma lazy para evitar dependencia circular
+  // Prevenir cargas duplicadas del mismo track
+  String? _lastLoadedVideoId;
+  String? _lastLoadedSourceId;
+  bool _isLoading = false;
+
   OfflineService? _offlineService;
 
-  late StreamSubscription _playerStateSubscription;
-  late StreamSubscription _positionSubscription;
-  late StreamSubscription _durationSubscription;
-  late StreamSubscription _bufferedPositionSubscription;
-  late StreamSubscription _currentIndexSubscription;
+  StreamSubscription? _playerStateSubscription;
+  StreamSubscription? _positionSubscription;
+  StreamSubscription? _durationSubscription;
+  StreamSubscription? _bufferedPositionSubscription;
+  StreamSubscription? _currentIndexSubscription;
 
-  // Flag para evitar inicialización múltiple de streams
-  bool _isPlayerInitialized = false;
-
-  // ==================== Historial de reproducción ====================
-  /// ID de la entrada de historial actual
-  String? _currentHistoryId;
-
-  /// Última posición guardada en el historial (en segundos)
-  /// Se usa para evitar guardar en cada cambio de posición
-  int _lastSavedPositionSeconds = 0;
-
-  /// Intervalo mínimo entre actualizaciones de historial (en segundos)
-  static const int _historyUpdateIntervalSeconds = 5;
-
-  /// Obtiene el OfflineService de forma lazy
   Future<OfflineService?> _getOfflineService() async {
     if (_offlineService != null) return _offlineService;
 
@@ -85,178 +65,43 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
         return _offlineService;
       }
     } catch (e) {
-      // Silently fail - no es crítico
+      debugPrint('PlayerBloc: OfflineService not available: $e');
     }
     return null;
   }
 
-  // ==================== Métodos de Historial ====================
+  void _initializeEngine() {
+    if (_isEngineInitialized) return;
 
-  /// Guarda la duración reproducida de la entrada de historial actual
-  /// Es "fire and forget" - no bloquea la reproducción
-  Future<void> _saveHistoryPlayedDuration(int positionSeconds) async {
-    if (_currentHistoryId == null) return;
+    final engine = _engineOverride ?? _playerEngine;
 
-    // Evitar guardar si la posición no cambió significativamente
-    if (positionSeconds - _lastSavedPositionSeconds <
-        _historyUpdateIntervalSeconds) {
-      return;
-    }
-
-    _lastSavedPositionSeconds = positionSeconds;
-
-    // Fire and forget - no esperamos el resultado
-    await _saveHistoryPlayedDurationInternal(
-      _currentHistoryId!,
-      positionSeconds,
+    _playerStateSubscription = engine.playerStateStream.listen(
+      (playerState) => add(AudioPlayerStateChangedEvent(playerState)),
     );
-  }
 
-  /// Implementación interna del guardado de historial
-  Future<void> _saveHistoryPlayedDurationInternal(
-    String historyId,
-    int positionSeconds,
-  ) async {
-    try {
-      final offlineService = await _getOfflineService();
-      if (offlineService != null && offlineService.isInitialized) {
-        await offlineService.updateHistoryPlayedDuration(
-          historyId,
-          positionSeconds,
-        );
-      }
-    } catch (e) {
-      // No propagar el error - el historial no debe afectar la reproducción
-    }
-  }
+    _positionSubscription = engine.positionStream.listen(
+      (position) => add(PositionChangedEvent(position)),
+    );
 
-  /// Actualiza el mediaItem del AudioHandler para que muestre la canción en la notificación
-  void _updateHandlerMediaItem(NowPlayingData track) {
-    try {
-      if (GetIt.I.isRegistered<AudioPlayerHandler>()) {
-        final handler = GetIt.I<AudioPlayerHandler>();
-        final mediaItem = track.toMediaItem();
-        handler.mediaItem.add(mediaItem);
-      }
-    } catch (e) {
-      // Silently fail - no es crítico
-    }
-  }
+    _durationSubscription = engine.durationStream.listen(
+      (duration) => add(DurationChangedEvent(duration ?? Duration.zero)),
+    );
 
-  /// Finaliza la entrada de historial actual y crea una nueva para el track
-  Future<void> _startNewHistoryEntry(NowPlayingData track) async {
-    // Primero, guardar el estado del historial anterior si existe
-    await _finalizeCurrentHistoryEntry();
-
-    try {
-      final offlineService = await _getOfflineService();
-      if (offlineService == null || !offlineService.isInitialized) {
-        return;
-      }
-
-      // Obtener el nombre del artista
-      final String artistName;
-      if (track.artists.isNotEmpty) {
-        artistName = track.artists.map((a) => a.name).join(', ');
-      } else {
-        artistName = 'Unknown Artist';
-      }
-
-      // Obtener la URL del thumbnail (usar .last para mejor calidad)
-      String? thumbnailUrl;
-      if (track.thumbnail != null) {
-        thumbnailUrl = track.thumbnail?.url;
-      } else if (track.thumbnails.isNotEmpty) {
-        thumbnailUrl = track.thumbnails.last.url;
-      }
-
-      // Crear nueva entrada de historial
-      final history = OfflineHistory.create(
-        songId: track.videoId, // Usamos videoId como songId si no hay otro
-        videoId: track.videoId,
-        title: track.title,
-        artist: artistName,
-        thumbnail: thumbnailUrl,
-        duration: track.durationSeconds,
-        playedAt: DateTime.now(),
-      );
-
-      await offlineService.addToHistory(history);
-
-      // Actualizar tracking
-      _currentHistoryId = history.historyId;
-      _lastSavedPositionSeconds = 0;
-    } catch (e) {
-      // No propagar el error - el historial no debe afectar la reproducción
-    }
-  }
-
-  /// Finaliza la entrada de historial actual
-  Future<void> _finalizeCurrentHistoryEntry() async {
-    if (_currentHistoryId == null) return;
-
-    try {
-      // Guardar la posición final
-      await _saveHistoryPlayedDurationInternal(
-        _currentHistoryId!,
-        _lastSavedPositionSeconds,
-      );
-    } catch (e) {
-      // Silently fail
-    } finally {
-      // Limpiar estado
-      _currentHistoryId = null;
-      _lastSavedPositionSeconds = 0;
-    }
-  }
-
-  /// Registra la reproducción en el servidor (historial online)
-  Future<void> _recordListenToServer(String videoId) async {
-    debugPrint('DEBUG _recordListenToServer: Iniciando para videoId=$videoId');
-    try {
-      if (GetIt.I.isRegistered<RecordListenUseCase>()) {
-        debugPrint('DEBUG _recordListenToServer: RecordListenUseCase registrado, llamando...');
-        final recordListenUseCase = GetIt.I<RecordListenUseCase>();
-        final result = await recordListenUseCase(videoId);
-        debugPrint('DEBUG _recordListenToServer: Resultado=$result');
-      } else {
-        debugPrint('DEBUG _recordListenToServer: RecordListenUseCase NO REGISTRADO');
-      }
-    } catch (e) {
-      debugPrint('DEBUG _recordListenToServer: ERROR=$e');
-      // Silently fail - el historial online no debe afectar la reproducción
-    }
-  }
-
-  void _initializePlayer() {
-    // Evitar inicialización múltiple
-    if (_isPlayerInitialized) {
-      return;
-    }
-
-    _playerStateSubscription = _audioPlayer.playerStateStream.listen((
-      playerState,
-    ) {
-      add(AudioPlayerStateChangedEvent(playerState));
-    });
-
-    _positionSubscription = _audioPlayer.positionStream.listen((position) {
-      add(PositionChangedEvent(position));
-    });
-
-    _durationSubscription = _audioPlayer.durationStream.listen((duration) {
-      add(DurationChangedEvent(duration ?? Duration.zero));
-    });
-
-    _bufferedPositionSubscription = _audioPlayer.bufferedPositionStream.listen(
+    _bufferedPositionSubscription = engine.bufferedPositionStream.listen(
       (bufferedPosition) => add(BufferedPositionChangedEvent(bufferedPosition)),
     );
 
-    _currentIndexSubscription = _audioPlayer.currentIndexStream.listen(
+    _currentIndexSubscription = engine.currentIndexStream.listen(
       (index) => add(CurrentIndexChangedEvent(index)),
     );
 
-    _isPlayerInitialized = true;
+    _isEngineInitialized = true;
+  }
+
+  void _ensureEngineInitialized() {
+    if (!_isEngineInitialized) {
+      _initializeEngine();
+    }
   }
 
   void _registerEventHandlers() {
@@ -296,50 +141,30 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
 
   Future<void> _onPlay(PlayEvent event, Emitter<PlayerBlocState> emit) async {
     try {
-      await _audioPlayer.play();
-
-      // IMPORTANTE: Emitir estado inmediatamente para actualizar la UI
-      // No depender solo del stream, ya que puede no estar inicializado
-      emit(
-        state.copyWith(
-          playbackState: PlaybackState.playing,
-          processingState: ProcessingState.ready,
-        ),
-      );
-        } catch (e) {
-      add(AudioErrorEvent('Error al reproducir: $e'));
+      _ensureEngineInitialized();
+      await _playerEngine.play();
+    } catch (e) {
+      emit(state.copyWith(error: 'Error al reproducir: $e'));
     }
   }
 
   Future<void> _onPause(PauseEvent event, Emitter<PlayerBlocState> emit) async {
     try {
-      await _audioPlayer.pause();
-
-      // IMPORTANTE: Emitir estado inmediatamente para actualizar la UI
-      emit(
-        state.copyWith(
-          playbackState: PlaybackState.paused,
-        ),
-      );
-        } catch (e) {
-      add(AudioErrorEvent('Error al pausar: $e'));
+      _ensureEngineInitialized();
+      await _playerEngine.pause();
+    } catch (e) {
+      emit(state.copyWith(error: 'Error al pausar: $e'));
     }
   }
 
   Future<void> _onStop(StopEvent event, Emitter<PlayerBlocState> emit) async {
     try {
-      // Finalizar entrada de historial actual antes de detener
+      _ensureEngineInitialized();
+      await _playerEngine.stop();
       await _finalizeCurrentHistoryEntry();
-
-      await _audioPlayer.stop();
-      emit(
-        state.copyWith(
-          playbackState: PlaybackState.stopped,
-          position: Duration.zero,
-        ),
-      );
-        } catch (e) {
-      add(AudioErrorEvent('Error al detener: $e'));
+      emit(state.copyWith(position: Duration.zero));
+    } catch (e) {
+      emit(state.copyWith(error: 'Error al detener: $e'));
     }
   }
 
@@ -347,25 +172,24 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     PlayPauseToggleEvent event,
     Emitter<PlayerBlocState> emit,
   ) async {
-    final currentState = state;
-    if (currentState.isPlaying) {
+    if (state.isPlaying) {
       add(const PauseEvent());
     } else {
       add(const PlayEvent());
     }
-    }
+  }
 
   Future<void> _onNextTrack(
     NextTrackEvent event,
     Emitter<PlayerBlocState> emit,
   ) async {
     try {
-      final currentState = state;
-      if (currentState.canPlayNext) {
-        await _audioPlayer.seekToNext();
+      _ensureEngineInitialized();
+      if (state.canPlayNext) {
+        await _playerEngine.seekToNext();
       }
-        } catch (e) {
-      add(AudioErrorEvent('Error al cambiar a siguiente: $e'));
+    } catch (e) {
+      emit(state.copyWith(error: 'Error al cambiar a siguiente: $e'));
     }
   }
 
@@ -374,20 +198,21 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     Emitter<PlayerBlocState> emit,
   ) async {
     try {
-      final currentState = state;
-      if (currentState.canPlayPrevious) {
-        await _audioPlayer.seekToPrevious();
+      _ensureEngineInitialized();
+      if (state.canPlayPrevious) {
+        await _playerEngine.seekToPrevious();
       }
-        } catch (e) {
-      add(AudioErrorEvent('Error al cambiar a anterior: $e'));
+    } catch (e) {
+      emit(state.copyWith(error: 'Error al cambiar a anterior: $e'));
     }
   }
 
   Future<void> _onSeek(SeekEvent event, Emitter<PlayerBlocState> emit) async {
     try {
-      await _audioPlayer.seek(event.position);
+      _ensureEngineInitialized();
+      await _playerEngine.seek(event.position);
     } catch (e) {
-      add(AudioErrorEvent('Error al hacer seek: $e'));
+      emit(state.copyWith(error: 'Error al hacer seek: $e'));
     }
   }
 
@@ -395,250 +220,230 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     PlayRequestEvent event,
     Emitter<PlayerBlocState> emit,
   ) async {
+    _ensureEngineInitialized();
     final currentVideoId = state.currentTrack?.videoId;
     final targetVideoId = event.track.videoId;
 
-    // Si ya está reproduciendo esta canción, no hacer nada
+    // Si es la misma canción, retomar si está pausada
     if (currentVideoId == targetVideoId) {
+      if (!state.isPlaying) {
+        add(const PlayEvent());
+      }
       return;
     }
 
-    // Si playAsSingle es true, siempre limpiar la cola y reproducir solo esta canción
+    // Si playAsSingle, cargar como canción individual
     if (event.playAsSingle) {
-      add(LoadTrackEvent(event.track, sourceId: null));
+      await _handleLoadTrack(
+        event.track,
+        'single:${event.track.videoId}',
+        emit,
+      );
       return;
     }
 
-    // Verificar si la canción está en la playlist actual
+    // Verificar si la canción ya está en la playlist
     if (state.playlist.isNotEmpty) {
       final trackIndex = state.playlist.indexWhere(
         (t) => t.videoId == targetVideoId,
       );
 
       if (trackIndex >= 0) {
-        // Está en la playlist - cambiar al index
-        add(PlayTrackAtIndexEvent(trackIndex));
+        await _handlePlayTrackAtIndex(trackIndex, emit);
         return;
       }
     }
 
-    // NO está en la playlist - reproducir como canción individual (limpia la cola)
-    add(LoadTrackEvent(event.track, sourceId: null));
+    // No está en playlist, cargar como individual
+    await _handleLoadTrack(event.track, null, emit);
   }
 
   Future<void> _onLoadTrack(
     LoadTrackEvent event,
     Emitter<PlayerBlocState> emit,
   ) async {
-    debugPrint('DEBUG PlayerBloc _onLoadTrack:');
-    debugPrint('  - track.videoId: ${event.track.videoId}');
-    debugPrint('  - track.title: ${event.track.title}');
-    debugPrint('  - track.streamUrl presente: ${event.track.streamUrl != null && event.track.streamUrl!.isNotEmpty}');
-    debugPrint('  - sourceId: ${event.sourceId}');
-    
+    _ensureEngineInitialized();
+    await _handleLoadTrack(event.track, event.sourceId, emit);
+  }
+
+  Future<void> _handleLoadTrack(
+    NowPlayingData track,
+    String? sourceId,
+    Emitter<PlayerBlocState> emit,
+  ) async {
+    debugPrint('PlayerBloc: Loading track ${track.videoId} - ${track.title}');
+
+    // Prevenir cargas duplicadas del mismo track con el mismo sourceId
+    if (_isLoading &&
+        _lastLoadedVideoId == track.videoId &&
+        _lastLoadedSourceId == sourceId) {
+      debugPrint(
+        'PlayerBloc: Ignoring duplicate load request for ${track.videoId}',
+      );
+      return;
+    }
+
+    _isLoading = true;
+    _lastLoadedVideoId = track.videoId;
+    _lastLoadedSourceId = sourceId;
+
     try {
-      // Resetear el player antes de cargar
-      debugPrint('DEBUG _onLoadTrack: Reset player...');
-      try {
-        await _audioPlayer.stop();
-        await _audioPlayer.seek(Duration.zero);
-        await _audioPlayer.setVolume(1.0);
-        await Future.delayed(const Duration(milliseconds: 100));
-      } catch (e) {
-        debugPrint('DEBUG _onLoadTrack: Error al resetear: $e');
-      }
+      // Verificar URL
+      String? streamUrl = track.streamUrl;
 
-      String? streamUrl = event.track.streamUrl;
-
-      // PRIMERO: Verificar si la canción está descargada localmente
+      // Verificar si hay versión offline
       final offlineService = await _getOfflineService();
       if (offlineService != null && offlineService.isInitialized) {
-        final localPath = await offlineService.getLocalAudioPath(
-          event.track.videoId,
-        );
-
+        final localPath = await offlineService.getLocalAudioPath(track.videoId);
         if (localPath != null && localPath.isNotEmpty) {
           streamUrl = 'file://$localPath';
         }
-      }
-
-      // Los endpoints ya devuelven stream_url con include_stream_urls=true
-      // Usar directamente la URL del track
-      if (streamUrl == null || streamUrl.isEmpty) {
-        streamUrl = event.track.streamUrl;
       }
 
       if (streamUrl == null || streamUrl.isEmpty) {
         emit(
           state.copyWith(
             isLoading: false,
-            error:
-                'No se pudo obtener la URL de streaming para esta canción. Intenta descargarla para escuchar offline.',
+            error: 'No se pudo obtener la URL de streaming',
           ),
         );
         return;
       }
 
-      await _loadTrackWithUrl(streamUrl, event.track, emit, sourceId: event.sourceId);
-      debugPrint('DEBUG _onLoadTrack: _loadTrackWithUrl completado');
-    } catch (e) {
-      debugPrint('DEBUG _onLoadTrack ERROR: $e');
+      // Emitir estado de carga
       emit(
         state.copyWith(
-          isLoading: false,
-          error: 'Error al cargar canción: $e',
+          isLoading: true,
+          error: null,
+          currentTrack: track,
+          currentIndex: 0,
+          playlist: [track],
+          sourceId: sourceId,
         ),
       );
+
+      // Preparar audio source
+      final parsedUri = Uri.parse(streamUrl);
+      final audioSource = ConcatenatingAudioSource(
+        useLazyPreparation: true,
+        children: [AudioSource.uri(parsedUri, tag: track.toMediaItem())],
+      );
+
+      // Cargar en el engine
+      await _playerEngine.setAudioSource(audioSource, preload: false);
+
+      // Actualizar notificación
+      _updateHandlerMediaItem(track);
+
+      // Iniciar reproducción
+      final actualDuration = Duration(
+        seconds: track.durationSeconds > 0 ? track.durationSeconds : 0,
+      );
+
+      emit(
+        state.copyWith(
+          playbackState: PlaybackState.playing,
+          processingState: ProcessingState.ready,
+          connectionState: AudioConnectionState.connected,
+          currentTrack: track,
+          currentStreamUrl: streamUrl,
+          currentIndex: 0,
+          duration: actualDuration,
+          position: Duration.zero,
+          isLoading: false,
+          error: null,
+        ),
+      );
+
+      await _playerEngine.play();
+      _recordListenToServer(track.videoId);
+    } catch (e) {
+      debugPrint('PlayerBloc: Error loading track: $e');
+      emit(
+        state.copyWith(isLoading: false, error: 'Error al cargar canción: $e'),
+      );
+    } finally {
+      if (_lastLoadedVideoId == track.videoId &&
+          _lastLoadedSourceId == sourceId) {
+        _isLoading = false;
+        _lastLoadedVideoId = null;
+        _lastLoadedSourceId = null;
+      }
     }
   }
 
-  Future<void> _loadTrackWithUrl(
-    String streamUrl,
-    NowPlayingData track,
-    Emitter<PlayerBlocState> emit, {
-    String? sourceId,
-  }) async {
-    debugPrint('DEBUG _loadTrackWithUrl: INICIO');
-    debugPrint('DEBUG _loadTrackWithUrl: streamUrl = ${streamUrl.substring(0, 50)}...');
-    debugPrint('DEBUG _loadTrackWithUrl: sourceId = $sourceId');
-    
-    // Verificar que el player esté conectado
-    debugPrint('DEBUG _loadTrackWithUrl: connectionState = ${state.connectionState}');
-    
-    try {
-      // La URL ya viene codificada del backend, solo parsear
-      final parsedUri = Uri.parse(streamUrl);
-      debugPrint('DEBUG _loadTrackWithUrl: Uri.parse OK');
-      
-      // Usar setAudioSource con MediaItem para notificaciones
-      debugPrint('DEBUG _loadTrackWithUrl: Llamando setAudioSource...');
-      
-      // Crear un ConcatenatingAudioSource con un solo elemento
-      // Esto es más estable que usar AudioSource.uri directamente
-      final audioSource = AudioSource.uri(parsedUri, tag: track.toMediaItem());
-      await _audioPlayer.setAudioSource(audioSource, preload: false);
-      debugPrint('DEBUG _loadTrackWithUrl: setAudioSource OK');
+  Future<void> _handlePlayTrackAtIndex(
+    int index,
+    Emitter<PlayerBlocState> emit,
+  ) async {
+    if (index < 0 || index >= state.playlist.length) return;
 
-      // Esperar a que el audio esté listo (processingState ready)
-      try {
-        await _audioPlayer.processingStateStream
-            .firstWhere((state) => state == ProcessingState.ready)
-            .timeout(
-              const Duration(seconds: 10),
-              onTimeout: () {
-                return ProcessingState.ready;
-              },
-            );
-      } catch (e) {
-        // Timeout o error - continuamos
+    final track = state.playlist[index];
+    final streamUrl = track.streamUrl;
+
+    if (streamUrl == null || streamUrl.isEmpty) {
+      emit(state.copyWith(error: 'La canción no tiene URL de streaming'));
+      return;
+    }
+
+    // Si ya es la canción actual, solo retomar si está pausada
+    if (state.currentIndex == index &&
+        state.currentTrack?.videoId == track.videoId) {
+      if (!state.isPlaying) {
+        await _playerEngine.play();
+        emit(state.copyWith(playbackState: PlaybackState.playing));
       }
+      return;
+    }
 
-      // IMPORTANTE: Esperar a que la duración esté disponible
-      // El durationStream puede tardar en emitirse mientras se descargan los headers
-      Duration actualDuration = _audioPlayer.duration ?? Duration.zero;
-      if (actualDuration == Duration.zero) {
-        try {
-          final durationValue = await _audioPlayer.durationStream
-              .firstWhere((d) => d != null && d.inSeconds > 0)
-              .timeout(
-                const Duration(seconds: 10),
-                onTimeout: () {
-                  // Usar la duración de los metadatos de la canción como fallback
-                  return Duration(seconds: track.durationSeconds);
-                },
-              );
-          actualDuration =
-              durationValue ?? Duration(seconds: track.durationSeconds);
-        } catch (e) {
-          // Usar la duración de los metadatos como fallback
-          actualDuration = Duration(seconds: track.durationSeconds);
-        }
-      }
+    // Seek al nuevo índice
+    await _playerEngine.seek(Duration.zero, index: index);
+    await _playerEngine.play();
+    _updateHandlerMediaItem(track);
 
-      // ACTUALIZAR NOTIFICACIONES: Actualizar el mediaItem del handler para que muestre la canción en la notificación
-      _updateHandlerMediaItem(track);
-
-      emit(
+    emit(
       state.copyWith(
-        playlist: [track], // Limpiar playlist - solo esta canción
         playbackState: PlaybackState.playing,
-        processingState: ProcessingState.ready,
-        connectionState: AudioConnectionState.connected,
+        currentIndex: index,
         currentTrack: track,
         currentStreamUrl: streamUrl,
-        currentIndex: 0, // Resetear índice
-        duration: actualDuration,
-        position: Duration.zero,
-        isLoading: false,
-        error: null,
-        sourceId: sourceId ?? state.sourceId, // Use provided sourceId or preserve existing
       ),
-      );
-      debugPrint('DEBUG _loadTrackWithUrl: Estado emitido, ahora play()');
-      await _audioPlayer.play();
-      debugPrint('DEBUG _loadTrackWithUrl: play() completado');
-
-      // Registrar la reproducción en el historial del servidor
-      _recordListenToServer(track.videoId);
-    } catch (e) {
-      debugPrint('DEBUG _loadTrackWithUrl ERROR: $e');
-      debugPrint('DEBUG _loadTrackWithUrl StackTrace: ${StackTrace.current}');
-      emit(
-       state.copyWith(
-         playlist: [track],
-         isLoading: false,
-         error: 'Error al cargar audio: $e',
-         connectionState: AudioConnectionState.disconnected,
-         currentIndex: 0,
-         currentTrack: track,
-         currentStreamUrl: streamUrl,
-         duration: Duration(seconds: track.durationSeconds),
-         sourceId: sourceId ?? state.sourceId, // Use provided sourceId or preserve existing
-        )
-       );
-      rethrow;
-    }
+    );
   }
 
   Future<void> _onLoadPlaylist(
     LoadPlaylistEvent event,
     Emitter<PlayerBlocState> emit,
   ) async {
+    _ensureEngineInitialized();
+
     try {
-      // Si el player no está inicializado, intentar inicializarlo primero
-      if (_audioPlayerInstance == null) {
-        // Forzar inicialización del player
-        final _ = _audioPlayer;
-      }
-
-      final startIndex = event.startIndex ?? 0;
-      final safeStartIndex = startIndex < event.playlist.length ? startIndex : 0;
-      final totalTracks = event.playlist.length;
-
       if (event.playlist.isEmpty) {
-        emit(
-         state.copyWith(
-          isLoading: false,
-            error: 'La playlist está vacía', 
-         )
-        );
+        emit(state.copyWith(isLoading: false, error: 'La playlist está vacía'));
         return;
       }
 
-      // Crear audio sources de la playlist
+      final startIndex = (event.startIndex ?? 0).clamp(
+        0,
+        event.playlist.length - 1,
+      );
+
+      // Emitir estado de carga
+      emit(state.copyWith(isLoading: true, error: null));
+
+      // Crear audio sources
       final audioSources = <AudioSource>[];
       for (final track in event.playlist) {
         if (track.streamUrl != null && track.streamUrl!.isNotEmpty) {
           try {
             final parsedUri = Uri.parse(track.streamUrl!);
             audioSources.add(
-              AudioSource.uri(
-                parsedUri,
-                tag: track.toMediaItem(),
-              ),
+              AudioSource.uri(parsedUri, tag: track.toMediaItem()),
             );
           } catch (e) {
-            // Continuar con los otros tracks si uno falla
+            debugPrint(
+              'PlayerBloc: Error parsing URL for ${track.videoId}: $e',
+            );
           }
         }
       }
@@ -648,167 +453,100 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
           state.copyWith(
             isLoading: false,
             error: 'No se pudieron cargar las URLs de streaming',
-            playlist: event.playlist,
           ),
         );
         return;
       }
 
-      // Cargar playlist con reintentos
-      Exception? lastError;
-      for (int retry = 0; retry < 3; retry++) {
-        try {
-          await _audioPlayer.setAudioSource(
-            ConcatenatingAudioSource(children: audioSources),
-          );
-          break; // Éxito
-        } catch (e) {
-          lastError = e as Exception;
-          if (retry < 2) {
-            await Future.delayed(Duration(milliseconds: 500 * (retry + 1)));
-          }
-        }
-      }
+      // Crear concatenating source
+      final concatenatingSource = ConcatenatingAudioSource(
+        useLazyPreparation: true,
+        children: audioSources,
+      );
 
-      // Habilitar loop de playlist para que pase a la siguiente canción automáticamente
-      await _audioPlayer.setLoopMode(LoopMode.all);
+      // Cargar en el engine
+      await _playerEngine.setAudioSource(concatenatingSource, preload: false);
+      await _playerEngine.setLoopMode(LoopMode.all);
 
-      if (lastError != null) {
-        emit(
-          state.copyWith(
-            isLoading: false,
-            error: 'Error al cargar playlist: $lastError',
-            playlist: event.playlist,
-          ),
-        );
-        return;
-      }
-      
-      // Esperar a que el player procese
-      await Future.delayed(const Duration(milliseconds: 500));
-       
-      final firstTrack = event.playlist[safeStartIndex];
-      final actualDuration = Duration(seconds: firstTrack.durationSeconds);
-      
-      // ACTUALIZAR NOTIFICACIONES: Actualizar el mediaItem del handler para la primera canción
+      final firstTrack = event.playlist[startIndex];
+      final actualDuration = Duration(
+        seconds: firstTrack.durationSeconds > 0
+            ? firstTrack.durationSeconds
+            : 0,
+      );
+
       _updateHandlerMediaItem(firstTrack);
-      
-      // DEBUG: Verificar sourceId
-      debugPrint('DEBUG _onLoadPlaylist: event.sourceId=${event.sourceId}');
-        
-      // Emitir estado
+
       emit(
-       state.copyWith(
+        state.copyWith(
           playbackState: PlaybackState.playing,
           playlist: event.playlist,
           isLoading: false,
-          loadingCompletedAt: DateTime.now(),
           connectionState: AudioConnectionState.connected,
-          currentIndex: safeStartIndex,
+          currentIndex: startIndex,
           currentTrack: firstTrack,
+          currentStreamUrl: firstTrack.streamUrl,
           duration: actualDuration,
           position: Duration.zero,
-          loadedCount: totalTracks,
-          totalToLoad: totalTracks,
           sourceId: event.sourceId,
-       )
+          error: null,
+        ),
       );
-      
-debugPrint('DEBUG _onLoadPlaylist: Estado emitido con sourceId=${state.sourceId}');
-        
-      // Play directamente
-      await _audioPlayer.play();
 
-      // Registrar la primera canción reproducida
+      // Seek al índice de inicio y reproducir
+      await _playerEngine.seek(Duration.zero, index: startIndex);
+      await _playerEngine.play();
       _recordListenToServer(firstTrack.videoId);
     } catch (e) {
+      debugPrint('PlayerBloc: Error loading playlist: $e');
       emit(
-       state.copyWith(
-         isLoading: false,
-          error: 'Error al cargar playlist: $e',
-          playlist: event.playlist,
-       )
+        state.copyWith(isLoading: false, error: 'Error al cargar playlist: $e'),
       );
     }
   }
-
- 
 
   Future<void> _onPlayTrackAtIndex(
     PlayTrackAtIndexEvent event,
     Emitter<PlayerBlocState> emit,
   ) async {
-    try {
-      final currentState = state;
-      if (event.index >= 0 && event.index < currentState.playlist.length) {
-        final track = currentState.playlist[event.index];
-
-        final streamUrl = track.streamUrl;
-
-        if (streamUrl == null || streamUrl.isEmpty) {
-          add(
-            const AudioErrorEvent(
-              'La canción no tiene URL de streaming. Asegúrate de usar include_stream_urls=true en el endpoint.',
-            ),
-          );
-          return;
-        }
-
-        await _audioPlayer.seek(Duration.zero, index: event.index);
-        await _audioPlayer.play();
-
-        // ACTUALIZAR NOTIFICACIONES: Actualizar el mediaItem del handler
-        _updateHandlerMediaItem(track);
-
-        emit(
-          currentState.copyWith(
-            currentIndex: event.index,
-            currentTrack: track,
-            currentStreamUrl: streamUrl,
-            sourceId: currentState.sourceId, // Preserve sourceId
-          ),
-        );
-      }
-        } catch (e) {
-      add(
-        AudioErrorEvent(
-          'Error al reproducir canción en índice ${event.index}: $e',
-        ),
-      );
-    }
+    _ensureEngineInitialized();
+    await _handlePlayTrackAtIndex(event.index, emit);
   }
 
   Future<void> _onAddToPlaylist(
     AddToPlaylistEvent event,
     Emitter<PlayerBlocState> emit,
   ) async {
-    try {
-      final currentState = state;
+    _ensureEngineInitialized();
 
+    try {
       final streamUrl = event.track.streamUrl;
 
       if (streamUrl == null || streamUrl.isEmpty) {
-        add(
-          const AudioErrorEvent(
-            'La canción no tiene URL de streaming. Asegúrate de usar include_stream_urls=true en el endpoint.',
-          ),
-        );
+        emit(state.copyWith(error: 'La canción no tiene URL de streaming'));
         return;
       }
 
-      final newPlaylist = List<NowPlayingData>.from(currentState.playlist)
-        ..add(event.track);
+      // Verificar si ya existe
+      final exists = state.playlist.any(
+        (t) => t.videoId == event.track.videoId,
+      );
+      if (exists) {
+        debugPrint('PlayerBloc: Track already in playlist');
+        return;
+      }
 
-      // La URL ya viene codificada del backend, solo parsear
+      final newPlaylist = List<NowPlayingData>.from(state.playlist)
+        ..add(event.track);
       final parsedUri = Uri.parse(streamUrl);
 
-      await _audioPlayer.addAudioSource(
+      await _playerEngine.addAudioSources([
         AudioSource.uri(parsedUri, tag: event.track.toMediaItem()),
-      );
+      ]);
 
-      emit(currentState.copyWith(playlist: newPlaylist));
+      emit(state.copyWith(playlist: newPlaylist));
     } catch (e) {
-      add(AudioErrorEvent('Error al agregar canción a playlist: $e'));
+      emit(state.copyWith(error: 'Error al agregar canción a playlist: $e'));
     }
   }
 
@@ -816,56 +554,95 @@ debugPrint('DEBUG _onLoadPlaylist: Estado emitido con sourceId=${state.sourceId}
     AddMultipleToPlaylistEvent event,
     Emitter<PlayerBlocState> emit,
   ) async {
-    try {
-      final currentState = state;
+    _ensureEngineInitialized();
 
-      // Filtrar tracks que tienen streamUrl válida
-      final validTracks = event.tracks.where((track) =>
-          track.streamUrl != null && track.streamUrl!.isNotEmpty).toList();
+    try {
+      final existingVideoIds = state.playlist.map((t) => t.videoId).toSet();
+      final validTracks = event.tracks
+          .where(
+            (track) =>
+                track.streamUrl != null &&
+                track.streamUrl!.isNotEmpty &&
+                !existingVideoIds.contains(track.videoId),
+          )
+          .toList();
 
       if (validTracks.isEmpty) {
+        debugPrint('PlayerBloc: No valid tracks to add');
         return;
       }
 
-      // Crear nuevas fuentes de audio
       final newSources = validTracks.map((track) {
         final parsedUri = Uri.parse(track.streamUrl!);
         return AudioSource.uri(parsedUri, tag: track.toMediaItem());
       }).toList();
 
-      // Agregar todas las fuentes de una vez
-      await _audioPlayer.addAudioSource(
-        ConcatenatingAudioSource(children: newSources),
-      );
+      await _playerEngine.addAudioSources(newSources);
 
-      // Actualizar playlist en el estado
-      final newPlaylist = List<NowPlayingData>.from(currentState.playlist)
+      final newPlaylist = List<NowPlayingData>.from(state.playlist)
         ..addAll(validTracks);
-
-      emit(currentState.copyWith(playlist: newPlaylist));
+      emit(state.copyWith(playlist: newPlaylist));
     } catch (e) {
-      add(AudioErrorEvent('Error al agregar canciones a playlist: $e'));
+      emit(state.copyWith(error: 'Error al agregar canciones: $e'));
     }
   }
-
-
 
   Future<void> _onRemoveFromPlaylist(
     RemoveFromPlaylistEvent event,
     Emitter<PlayerBlocState> emit,
   ) async {
+    _ensureEngineInitialized();
+
     try {
-      final currentState = state;
-      if (event.index >= 0 && event.index < currentState.playlist.length) {
-        final newPlaylist = List<NowPlayingData>.from(currentState.playlist)
-          ..removeAt(event.index);
+      if (event.index < 0 || event.index >= state.playlist.length) return;
 
-        await _audioPlayer.removeAudioSourceAt(event.index);
+      final removedTrack = state.playlist[event.index];
+      final wasCurrentTrack =
+          state.currentTrack?.videoId == removedTrack.videoId;
 
-        emit(currentState.copyWith(playlist: newPlaylist));
+      final newPlaylist = List<NowPlayingData>.from(state.playlist)
+        ..removeAt(event.index);
+
+      await _playerEngine.removeAudioSourceAt(event.index);
+
+      if (wasCurrentTrack) {
+        if (newPlaylist.isEmpty) {
+          await _playerEngine.stop();
+          emit(
+            state.copyWith(
+              playlist: [],
+              clearCurrentIndex: true,
+              clearCurrentTrack: true,
+              currentStreamUrl: null,
+              playbackState: PlaybackState.stopped,
+              processingState: ProcessingState.idle,
+              position: Duration.zero,
+            ),
+          );
+          return;
+        }
+
+        final safeIndex = (event.index >= newPlaylist.length)
+            ? newPlaylist.length - 1
+            : event.index;
+        final nextTrack = newPlaylist[safeIndex];
+
+        await _playerEngine.seek(Duration.zero, index: safeIndex);
+
+        emit(
+          state.copyWith(
+            playlist: newPlaylist,
+            currentIndex: safeIndex,
+            currentTrack: nextTrack,
+            currentStreamUrl: nextTrack.streamUrl,
+          ),
+        );
+        return;
       }
-        } catch (e) {
-      add(AudioErrorEvent('Error al remover canción de playlist: $e'));
+
+      emit(state.copyWith(playlist: newPlaylist));
+    } catch (e) {
+      emit(state.copyWith(error: 'Error al remover canción: $e'));
     }
   }
 
@@ -874,12 +651,12 @@ debugPrint('DEBUG _onLoadPlaylist: Estado emitido con sourceId=${state.sourceId}
     Emitter<PlayerBlocState> emit,
   ) async {
     try {
+      _ensureEngineInitialized();
       final clampedVolume = event.volume.clamp(0.0, 1.0);
-      await _audioPlayer.setVolume(clampedVolume);
-
+      await _playerEngine.setVolume(clampedVolume);
       emit(state.copyWith(volume: clampedVolume));
-        } catch (e) {
-      add(AudioErrorEvent('Error al cambiar volumen: $e'));
+    } catch (e) {
+      emit(state.copyWith(error: 'Error al cambiar volumen: $e'));
     }
   }
 
@@ -888,12 +665,12 @@ debugPrint('DEBUG _onLoadPlaylist: Estado emitido con sourceId=${state.sourceId}
     Emitter<PlayerBlocState> emit,
   ) async {
     try {
+      _ensureEngineInitialized();
       final clampedSpeed = event.speed.clamp(0.5, 2.0);
-      await _audioPlayer.setSpeed(clampedSpeed);
-
+      await _playerEngine.setSpeed(clampedSpeed);
       emit(state.copyWith(speed: clampedSpeed));
-        } catch (e) {
-      add(AudioErrorEvent('Error al cambiar velocidad: $e'));
+    } catch (e) {
+      emit(state.copyWith(error: 'Error al cambiar velocidad: $e'));
     }
   }
 
@@ -902,11 +679,11 @@ debugPrint('DEBUG _onLoadPlaylist: Estado emitido con sourceId=${state.sourceId}
     Emitter<PlayerBlocState> emit,
   ) async {
     try {
-      await _audioPlayer.setLoopMode(event.loopMode);
-
+      _ensureEngineInitialized();
+      await _playerEngine.setLoopMode(event.loopMode);
       emit(state.copyWith(loopMode: event.loopMode));
-        } catch (e) {
-      add(AudioErrorEvent('Error al cambiar modo de repetición: $e'));
+    } catch (e) {
+      emit(state.copyWith(error: 'Error al cambiar modo de repetición: $e'));
     }
   }
 
@@ -915,14 +692,12 @@ debugPrint('DEBUG _onLoadPlaylist: Estado emitido con sourceId=${state.sourceId}
     Emitter<PlayerBlocState> emit,
   ) async {
     try {
-      final currentState = state;
-      final newShuffleState = !currentState.isShuffleEnabled;
-
-      await _audioPlayer.setShuffleModeEnabled(newShuffleState);
-
-      emit(currentState.copyWith(isShuffleEnabled: newShuffleState));
-        } catch (e) {
-      add(AudioErrorEvent('Error al cambiar modo shuffle: $e'));
+      _ensureEngineInitialized();
+      final newState = !state.isShuffleEnabled;
+      await _playerEngine.setShuffleModeEnabled(newState);
+      emit(state.copyWith(isShuffleEnabled: newState));
+    } catch (e) {
+      emit(state.copyWith(error: 'Error al cambiar modo shuffle: $e'));
     }
   }
 
@@ -930,9 +705,9 @@ debugPrint('DEBUG _onLoadPlaylist: Estado emitido con sourceId=${state.sourceId}
     AudioPlayerStateChangedEvent event,
     Emitter<PlayerBlocState> emit,
   ) async {
-    // Si el estado no es PlayerBlocState, crear uno nuevo con los datos del player
     final currentState = state;
     final previousProcessingState = currentState.processingState;
+
     final playbackState = event.playerState.playing
         ? PlaybackState.playing
         : PlaybackState.paused;
@@ -944,46 +719,32 @@ debugPrint('DEBUG _onLoadPlaylist: Estado emitido con sourceId=${state.sourceId}
       ),
     );
 
-    // Auto-play: cuando termina una canción, reproducir la siguiente automáticamente
-    // Solo si:
-    // 1. La canción actual terminó (processingState changed to completed)
-    // 2. No es el modo loop.one (repetir una)
-    // 3. Auto-play está habilitado en settings
+    // Auto-play: cuando termina una canción, reproducir la siguiente
     if (previousProcessingState != ProcessingState.completed &&
         event.playerState.processingState == ProcessingState.completed) {
       await _handleAutoPlay();
     }
   }
 
-  /// Maneja la reproducción automática de la siguiente canción
   Future<void> _handleAutoPlay() async {
     try {
-      // Verificar si auto-play está habilitado
       final profileCubit = GetIt.I<ProfileCubit>();
       final autoPlayEnabled = profileCubit.state.settings?.autoPlay ?? true;
 
-      if (!autoPlayEnabled) {
-        return;
-      }
+      if (!autoPlayEnabled) return;
 
-      // Verificar el modo de repetición actual
       final currentState = state;
 
-      // Si está en modo loop.one, no necesitamos avanzar automáticamente
-      if (currentState.loopMode == LoopMode.one) {
-        return;
-      }
+      if (currentState.loopMode == LoopMode.one) return;
 
-      // Verificar si hay siguiente canción
       if (currentState.canPlayNext) {
         add(const NextTrackEvent());
       } else if (currentState.loopMode == LoopMode.all &&
           currentState.playlist.isNotEmpty) {
-        // Si está en modo loop all y es la última canción, volver al inicio
         add(const PlayTrackAtIndexEvent(0));
       }
-        } catch (e) {
-      // Silently fail
+    } catch (e) {
+      debugPrint('PlayerBloc: Auto-play error: $e');
     }
   }
 
@@ -992,8 +753,6 @@ debugPrint('DEBUG _onLoadPlaylist: Estado emitido con sourceId=${state.sourceId}
     Emitter<PlayerBlocState> emit,
   ) async {
     emit(state.copyWith(position: event.position));
-
-    // Actualizar historial cada ~5 segundos (fire and forget)
     unawaited(_saveHistoryPlayedDuration(event.position.inSeconds));
   }
 
@@ -1002,18 +761,14 @@ debugPrint('DEBUG _onLoadPlaylist: Estado emitido con sourceId=${state.sourceId}
     Emitter<PlayerBlocState> emit,
   ) async {
     emit(state.copyWith(duration: event.duration));
-    }
+  }
 
   Future<void> _onBufferedPositionChanged(
     BufferedPositionChangedEvent event,
     Emitter<PlayerBlocState> emit,
   ) async {
-    emit(
-      state.copyWith(
-        bufferedPosition: event.bufferedPosition,
-      ),
-    );
-    }
+    emit(state.copyWith(bufferedPosition: event.bufferedPosition));
+  }
 
   Future<void> _onCurrentIndexChanged(
     CurrentIndexChangedEvent event,
@@ -1025,13 +780,9 @@ debugPrint('DEBUG _onLoadPlaylist: Estado emitido con sourceId=${state.sourceId}
         ? currentState.playlist[event.index!]
         : null;
 
-    // Si cambió el track, actualizar notificación y crear nueva entrada de historial
     if (currentTrack != null && event.index != currentState.currentIndex) {
-      // Actualizar notificación con la nueva canción
       _updateHandlerMediaItem(currentTrack);
-      // Crear nueva entrada de historial (fire and forget)
       unawaited(_startNewHistoryEntry(currentTrack));
-      // Registrar en el servidor (historial online)
       _recordListenToServer(currentTrack.videoId);
     }
 
@@ -1048,63 +799,23 @@ debugPrint('DEBUG _onLoadPlaylist: Estado emitido con sourceId=${state.sourceId}
     Emitter<PlayerBlocState> emit,
   ) async {
     emit(
-      state.copyWith(
-        error: event.error,
-        processingState: ProcessingState.idle,
-      ),
+      state.copyWith(error: event.error, processingState: ProcessingState.idle),
     );
-    }
+  }
 
   Future<void> _onInitializeAudioService(
     InitializeAudioServiceEvent event,
     Emitter<PlayerBlocState> emit,
   ) async {
-    try {
-      // Intentar obtener el AudioPlayerHandler
-      if (GetIt.I.isRegistered<AudioPlayerHandler>()) {
-        final handler = GetIt.I<AudioPlayerHandler>();
-        _audioPlayerInstance = handler.player;
-        _initializePlayer();
-      } else {
-        // Reintentar después de un delay
-        await Future.delayed(const Duration(seconds: 2));
-        if (GetIt.I.isRegistered<AudioPlayerHandler>()) {
-          final handler = GetIt.I<AudioPlayerHandler>();
-          _audioPlayerInstance = handler.player;
-          _initializePlayer();
-        } else {
-          // FALLBACK: Crear AudioPlayer básico SI NO se ha creado antes
-          // Esto asegura que los streams se inicialicen
-          if (_audioPlayerInstance == null) {
-            _audioPlayerInstance = AudioPlayer();
-            _initializePlayer();
-          }
-        }
-      }
-
-      emit(
-        state.copyWith(
-          connectionState: AudioConnectionState.connected,
-        ),
-      );
-        } catch (e) {
-      add(AudioErrorEvent('Error initializing audio handler: $e'));
-    }
+    _ensureEngineInitialized();
+    emit(state.copyWith(connectionState: AudioConnectionState.connected));
   }
 
   Future<void> _onDisposeAudioService(
     DisposeAudioServiceEvent event,
     Emitter<PlayerBlocState> emit,
   ) async {
-    try {
-      emit(
-        state.copyWith(
-          connectionState: AudioConnectionState.disconnected,
-        ),
-      );
-        } catch (e) {
-      add(AudioErrorEvent('Error al cerrar audio service: $e'));
-    }
+    emit(state.copyWith(connectionState: AudioConnectionState.disconnected));
   }
 
   Future<void> _onResetPlayer(
@@ -1112,32 +823,145 @@ debugPrint('DEBUG _onLoadPlaylist: Estado emitido con sourceId=${state.sourceId}
     Emitter<PlayerBlocState> emit,
   ) async {
     try {
-      // Detener el audio
-      await _audioPlayer.stop();
-      
-      // Limpiar la playlist
-      await _audioPlayer.setAudioSource(
+      await _playerEngine.stop();
+      await _playerEngine.setAudioSource(
         ConcatenatingAudioSource(children: []),
       );
-
-      // Emitir estado inicial
+      await _finalizeCurrentHistoryEntry();
       emit(PlayerBlocState.initial());
-        } catch (e) {
-      add(AudioErrorEvent('Error al resetear player: $e'));
+    } catch (e) {
+      emit(state.copyWith(error: 'Error al resetear player: $e'));
+    }
+  }
+
+  // ========== Historial de reproducción ==========
+
+  String? _currentHistoryId;
+  int _lastSavedPositionSeconds = 0;
+  static const int _historyUpdateIntervalSeconds = 5;
+
+  Future<void> _saveHistoryPlayedDuration(int positionSeconds) async {
+    if (_currentHistoryId == null) return;
+
+    if (positionSeconds - _lastSavedPositionSeconds <
+        _historyUpdateIntervalSeconds) {
+      return;
+    }
+
+    _lastSavedPositionSeconds = positionSeconds;
+
+    try {
+      final offlineService = await _getOfflineService();
+      if (offlineService != null && offlineService.isInitialized) {
+        await offlineService.updateHistoryPlayedDuration(
+          _currentHistoryId!,
+          positionSeconds,
+        );
+      }
+    } catch (e) {
+      debugPrint('PlayerBloc: History save error: $e');
+    }
+  }
+
+  Future<void> _startNewHistoryEntry(NowPlayingData track) async {
+    await _finalizeCurrentHistoryEntry();
+
+    try {
+      final offlineService = await _getOfflineService();
+      if (offlineService == null || !offlineService.isInitialized) return;
+
+      final artistName = track.artists.isNotEmpty
+          ? track.artists.map((a) => a.name).join(', ')
+          : 'Unknown Artist';
+
+      String? thumbnailUrl;
+      if (track.thumbnail != null) {
+        thumbnailUrl = track.thumbnail?.url;
+      } else if (track.thumbnails.isNotEmpty) {
+        thumbnailUrl = track.thumbnails.last.url;
+      }
+
+      final history = OfflineHistory.create(
+        songId: track.videoId,
+        videoId: track.videoId,
+        title: track.title,
+        artist: artistName,
+        thumbnail: thumbnailUrl,
+        duration: track.durationSeconds,
+        playedAt: DateTime.now(),
+      );
+
+      await offlineService.addToHistory(history);
+      _currentHistoryId = history.historyId;
+      _lastSavedPositionSeconds = 0;
+    } catch (e) {
+      debugPrint('PlayerBloc: History entry error: $e');
+    }
+  }
+
+  Future<void> _finalizeCurrentHistoryEntry() async {
+    if (_currentHistoryId == null) return;
+
+    try {
+      await _saveHistoryPlayedDurationInternal(
+        _currentHistoryId!,
+        _lastSavedPositionSeconds,
+      );
+    } finally {
+      _currentHistoryId = null;
+      _lastSavedPositionSeconds = 0;
+    }
+  }
+
+  Future<void> _saveHistoryPlayedDurationInternal(
+    String historyId,
+    int positionSeconds,
+  ) async {
+    try {
+      final offlineService = await _getOfflineService();
+      if (offlineService != null && offlineService.isInitialized) {
+        await offlineService.updateHistoryPlayedDuration(
+          historyId,
+          positionSeconds,
+        );
+      }
+    } catch (e) {
+      debugPrint('PlayerBloc: History finalize error: $e');
+    }
+  }
+
+  void _updateHandlerMediaItem(NowPlayingData track) {
+    try {
+      if (GetIt.I.isRegistered<AudioPlayerHandler>()) {
+        final handler = GetIt.I<AudioPlayerHandler>();
+        handler.updateNowPlaying(track);
+      }
+    } catch (e) {
+      debugPrint('PlayerBloc: Handler update error: $e');
+    }
+  }
+
+  Future<void> _recordListenToServer(String videoId) async {
+    try {
+      if (GetIt.I.isRegistered<RecordListenUseCase>()) {
+        final recordListenUseCase = GetIt.I<RecordListenUseCase>();
+        await recordListenUseCase(videoId);
+      }
+    } catch (e) {
+      debugPrint('PlayerBloc: Record listen error: $e');
     }
   }
 
   @override
   Future<void> close() async {
-    // Finalizar entrada de historial antes de dispose
     await _finalizeCurrentHistoryEntry();
 
-    await _playerStateSubscription.cancel();
-    await _positionSubscription.cancel();
-    await _durationSubscription.cancel();
-    await _bufferedPositionSubscription.cancel();
-    await _currentIndexSubscription.cancel();
-    await _audioPlayer.dispose();
+    await _playerStateSubscription?.cancel();
+    await _positionSubscription?.cancel();
+    await _durationSubscription?.cancel();
+    await _bufferedPositionSubscription?.cancel();
+    await _currentIndexSubscription?.cancel();
+
     return super.close();
   }
 }

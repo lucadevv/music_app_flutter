@@ -114,9 +114,10 @@ class _SongItem extends StatelessWidget {
     // Fire and forget - no bloqueamos la navegación
     context.read<OrquestadorSearchCubit>().saveSelectedSong(song, query);
 
-    // Navegar al player
+    final nowPlayingData = NowPlayingData.fromSong(song);
+    // Navegar al player - es una canción individual
     context.router.push(
-      PlayerRoute(nowPlayingData: NowPlayingData.fromSong(song)),
+      PlayerRoute(nowPlayingData: nowPlayingData, playAsSingle: true),
     );
   }
 

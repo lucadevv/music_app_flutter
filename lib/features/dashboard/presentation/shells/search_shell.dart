@@ -1,13 +1,13 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:music_app/features/search/domain/use_cases/get_recent_searches_use_case.dart';
 import 'package:music_app/features/search/domain/use_cases/search_use_case.dart';
 import 'package:music_app/features/search/domain/use_cases/update_selected_song_use_case.dart';
 import 'package:music_app/features/search/presentation/cubit/orquestador_search_cubit.dart';
 import 'package:music_app/features/search/presentation/cubit/recent_searches_cubit.dart';
 import 'package:music_app/features/search/presentation/cubit/search_cubit.dart';
-import 'package:music_app/main.dart';
 
 @RoutePage()
 class SearchShell extends StatelessWidget implements AutoRouteWrapper {
@@ -15,27 +15,24 @@ class SearchShell extends StatelessWidget implements AutoRouteWrapper {
 
   @override
   Widget wrappedRoute(BuildContext context) {
+    // Use cases son dependencias no-reactivas, usamos GetIt
+    // Los blocs se crean aquí con BlocProvider
     return MultiBlocProvider(
       providers: [
         BlocProvider<SearchCubit>(
-          create: (context) =>
-              SearchCubit(searchUseCase: getIt<SearchUseCase>()),
+          create: (_) => SearchCubit(searchUseCase: GetIt.I<SearchUseCase>()),
         ),
         BlocProvider<RecentSearchesCubit>(
-          create: (context) => RecentSearchesCubit(
-            getRecentSearchesUseCase: getIt<GetRecentSearchesUseCase>(),
+          create: (_) => RecentSearchesCubit(
+            getRecentSearchesUseCase: GetIt.I<GetRecentSearchesUseCase>(),
           ),
         ),
         BlocProvider<OrquestadorSearchCubit>(
-          create: (context) {
-            final searchCubit = context.read<SearchCubit>();
-            final recentSearchesCubit = context.read<RecentSearchesCubit>();
-            return OrquestadorSearchCubit(
-              searchCubit: searchCubit,
-              recentSearchesCubit: recentSearchesCubit,
-              updateSelectedSongUseCase: getIt<UpdateSelectedSongUseCase>(),
-            );
-          },
+          create: (context) => OrquestadorSearchCubit(
+            searchCubit: context.read<SearchCubit>(),
+            recentSearchesCubit: context.read<RecentSearchesCubit>(),
+            updateSelectedSongUseCase: GetIt.I<UpdateSelectedSongUseCase>(),
+          ),
         ),
       ],
       child: this,

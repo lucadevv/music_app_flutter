@@ -279,8 +279,14 @@ class _ArtistView extends StatelessWidget {
       thumbnailUrl: song.thumbnail,
     );
 
-    context.read<PlayerBlocBloc>().add(LoadTrackEvent(nowPlayingData));
-    context.router.push(PlayerRoute(nowPlayingData: nowPlayingData));
+    context.read<PlayerBlocBloc>().add(
+      LoadTrackEvent(
+        nowPlayingData,
+        sourceId: 'single:${nowPlayingData.videoId}',
+      ),
+    );
+    // Canción individual
+    context.router.push(PlayerRoute(nowPlayingData: nowPlayingData, playAsSingle: true));
   }
 
   void _playAllTopSongs(BuildContext context, List<ArtistSong> songs) {
@@ -301,10 +307,15 @@ class _ArtistView extends StatelessWidget {
         .toList();
 
     context.read<PlayerBlocBloc>().add(
-      LoadPlaylistEvent(playlist: playlist, startIndex: 0),
+      LoadPlaylistEvent(
+        playlist: playlist,
+        startIndex: 0,
+        sourceId: 'artist:$artistId',
+      ),
     );
 
-    context.router.push(PlayerRoute(nowPlayingData: playlist.first));
+    // Playlist - mantener la lista
+    context.router.push(PlayerRoute(nowPlayingData: playlist.first, playAsSingle: false));
   }
 }
 

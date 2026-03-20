@@ -63,7 +63,11 @@ class QueueScreen extends StatelessWidget {
             final state = context.read<PlayerBlocBloc>().state;
             if (state.playlist.isNotEmpty) {
               context.read<PlayerBlocBloc>().add(
-                const LoadPlaylistEvent(playlist: [], startIndex: 0),
+                const LoadPlaylistEvent(
+                  playlist: [],
+                  startIndex: 0,
+                  sourceId: 'queue',
+                ),
               );
             }
           },
@@ -243,10 +247,10 @@ class QueueScreen extends StatelessWidget {
         return _QueueItemWidget(
           track: track,
           onTap: () {
-            // Reproducir esta canción
+            // Reproducir esta canción dentro de la playlist existente
             context.read<PlayerBlocBloc>().add(PlayTrackAtIndexEvent(index));
-            // Navegar al reproductor
-            context.router.push(PlayerRoute(nowPlayingData: track));
+            // Navegar al reproductor - mantener playlist
+            context.router.push(PlayerRoute(nowPlayingData: track, playAsSingle: false));
           },
           onRemove: () {
             // Eliminar de la playlist usando el evento existente

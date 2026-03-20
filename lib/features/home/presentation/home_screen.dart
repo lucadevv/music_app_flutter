@@ -24,14 +24,14 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _searchController = TextEditingController();
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+      GlobalKey<RefreshIndicatorState>();
 
   @override
   void initState() {
     super.initState();
-    // Cargar datos del home al iniciar (no resetear para mantener el estado)
     context.read<HomeCubit>().loadHome();
-    
-    // Asegurar que el perfil esté cargado para mostrar avatar en el header
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final profileCubit = context.read<ProfileCubit>();
       if (profileCubit.state.profile == null && !profileCubit.state.isLoading) {
@@ -50,6 +50,10 @@ class _HomeScreenState extends State<HomeScreen> {
     context.read<OrquestadorHomeCubit>().filterHome(value);
   }
 
+  Future<void> _onRefresh() async {
+    await context.read<HomeCubit>().loadHome();
+  }
+
   @override
   Widget build(BuildContext context) {
     return HomeListeners(
@@ -60,90 +64,85 @@ class _HomeScreenState extends State<HomeScreen> {
               final state = orquestadorState.homeState;
               final filterQueryTextEmpty = _searchController.text.isEmpty;
 
-              // Mostrar shimmer cuando está cargando o en estado inicial
+              // Loading inicial muestra shimmer completo
               if (state.status == HomeStatus.loading ||
                   state.status == HomeStatus.initial) {
                 return const HomeLoadingWidget();
               }
 
+              // Error con opción de reintentar
               if (state.status == HomeStatus.failure) {
-                return HomeErrorWidget(errorMessage: state.errorMessage);
+                return HomeErrorWidget(
+                  errorMessage: state.errorMessage ?? 'Unknown error',
+                );
               }
 
               final homeResponse = state.homeResponse;
               if (homeResponse == null) {
-                return const SizedBox.shrink();
+                return _buildEmptyState('No content available');
               }
 
-              // Obtenemos las secciones ya filtradas por el dominio (HomeState)
               final filteredSections = state.filteredSections;
 
-              return CustomScrollView(
-                slivers: [
-                  // Header with greeting & search bar
-                  SliverToBoxAdapter(
-                    child: HomeHeaderWidget(
-                      searchController: _searchController,
-                      onSearchChanged: _onSearchChanged,
-                    ),
-                  ),
-
-                  // Categories (Moods & Genres) - solo mostrar si no hay búsqueda
-                  if (filterQueryTextEmpty)
+              return RefreshIndicator(
+                key: _refreshIndicatorKey,
+                onRefresh: _onRefresh,
+                color: Colors.white,
+                backgroundColor: Colors.black54,
+                child: CustomScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  slivers: [
                     SliverToBoxAdapter(
-                      child: CategoriesRowWidget(
-                        moods: homeResponse.moods,
-                        genres: homeResponse.genres,
+                      child: HomeHeaderWidget(
+                        searchController: _searchController,
+                        onSearchChanged: _onSearchChanged,
                       ),
                     ),
 
-                  // Mostrar mensaje si no hay resultados
-                  if (!filterQueryTextEmpty && filteredSections.isEmpty)
-                    SliverFillRemaining(
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.search_off,
-                              size: 64,
-                              color: Colors.white.withValues(alpha: 0.5),
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'No results for "${_searchController.text}"',
-                              style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.7),
-                                fontSize: 16,
-                              ),
-                            ),
-                          ],
+                    if (filterQueryTextEmpty)
+                      SliverToBoxAdapter(
+                        child: CategoriesRowWidget(
+                          moods: homeResponse.moods,
+                          genres: homeResponse.genres,
+                        ),
+                      ),
+
+                    // Empty state cuando no hay resultados de búsqueda
+                    if (!filterQueryTextEmpty && filteredSections.isEmpty)
+                      SliverFillRemaining(
+                        child: _buildEmptyState(
+                          'No results for "${_searchController.text}"',
+                        ),
+                      ),
+
+                    ...filteredSections.map(
+                      (section) => SliverToBoxAdapter(
+                        child: HomeSectionWidget(
+                          section: section,
+                          onSongTap: _playSong,
+                          onPlaylistTap: (item) {
+                            if (item.playlistId != null &&
+                                item.playlistId!.isNotEmpty) {
+                              context.router.push(
+                                PlaylistRoute(id: item.playlistId!),
+                              );
+                            }
+                          },
+                          onAlbumTap: (item) {
+                            if (item.browseId != null &&
+                                item.browseId!.isNotEmpty) {
+                              context.router.push(
+                                AlbumRoute(albumId: item.browseId!),
+                              );
+                            }
+                          },
                         ),
                       ),
                     ),
 
-                  // Content Sections (Filtered or All)
-                  ...filteredSections.map(
-                    (section) => SliverToBoxAdapter(
-                      child: HomeSectionWidget(
-                        section: section,
-                        onSongTap: _playSong,
-                        onPlaylistTap: (item) {
-                          if (item.playlistId != null && item.playlistId!.isNotEmpty) {
-                            context.router.push(PlaylistRoute(id: item.playlistId!));
-                          }
-                        },
-                        onAlbumTap: (item) {
-                          if (item.browseId != null && item.browseId!.isNotEmpty) {
-                            context.router.push(AlbumRoute(albumId: item.browseId!));
-                          }
-                        },
-                      ),
-                    ),
-                  ),
-                   
-                  const SliverToBoxAdapter(child: SizedBox(height: 120)), // Space for bottom nav
-                ],
+                    const SliverToBoxAdapter(child: SizedBox(height: 120)),
+                  ],
+                ),
               );
             },
           ),
@@ -152,13 +151,48 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  /// Reproduce una canción usando el OrquestadorHomeCubit
+  Widget _buildEmptyState(String message) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.search_off,
+            size: 64,
+            color: Colors.white.withValues(alpha: 0.5),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            message,
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.7),
+              fontSize: 16,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton.icon(
+            onPressed: _onRefresh,
+            icon: const Icon(Icons.refresh),
+            label: const Text('Retry'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white24,
+              foregroundColor: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _playSong(HomeContentItem item) {
     final nowPlayingData = context
         .read<OrquestadorHomeCubit>()
         .playContentItemAsSingle(item);
     if (nowPlayingData != null) {
-      context.router.push(PlayerRoute(nowPlayingData: nowPlayingData));
+      context.router.push(
+        PlayerRoute(nowPlayingData: nowPlayingData, playAsSingle: true),
+      );
     }
   }
 }

@@ -2,12 +2,16 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/core/utils/extension/sizedbox_extension.dart';
 import 'package:music_app/core/widgets/custom_search_bar.dart';
 import 'package:music_app/core/widgets/shimmer_widgets.dart';
+import 'package:get_it/get_it.dart';
+import 'package:music_app/data/offline/services/offline_service.dart';
 import 'package:music_app/features/library/library_service.dart';
+import 'package:music_app/features/player/domain/player_facade.dart';
 import 'package:music_app/features/library/presentation/cubit/library_cubit.dart';
 import 'package:music_app/features/library/presentation/widgets/atoms/profile_avatar.dart';
 import 'package:music_app/features/library/presentation/widgets/molecules/playlist_card.dart';
@@ -17,7 +21,6 @@ import 'package:music_app/features/library/presentation/widgets/templates/librar
 import 'package:music_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:music_app/features/song_options/presentation/widgets/song_options_bottom_sheet.dart';
 import 'package:music_app/l10n/app_localizations.dart';
-import 'package:music_app/main.dart';
 
 @RoutePage()
 class LibraryScreen extends StatelessWidget {
@@ -25,9 +28,8 @@ class LibraryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // LibraryCubit es factory, así que puede crear nuevas instancias
-    // ProfileCubit es singleton, así que se usa BlocProvider.value del padre (app.dart)
-    // Cargar perfil al entrar si no está cargado
+    // ProfileCubit es singleton proveído en app.dart
+    // LibraryCubit se crea aquí con LibraryService como dependencia
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final profileCubit = context.read<ProfileCubit>();
       if (!profileCubit.state.isLoading && profileCubit.state.profile == null) {
@@ -36,8 +38,13 @@ class LibraryScreen extends StatelessWidget {
     });
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (_) => getIt<LibraryCubit>()..loadLibrary()),
-        // ProfileCubit ya está proporcionado en app.dart como singleton
+        BlocProvider(
+          create: (_) => LibraryCubit(
+            GetIt.I<LibraryService>(),
+            GetIt.I<OfflineService>(),
+            GetIt.I<PlayerFacade>(),
+          )..loadLibrary(),
+        ),
       ],
       child: const _LibraryView(),
     );
@@ -53,12 +60,28 @@ class _LibraryView extends StatefulWidget {
 
 class _LibraryViewState extends State<_LibraryView> {
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
   String _searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
     super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent * 0.8) {
+      context.read<LibraryCubit>().loadMoreSongs();
+    }
   }
 
   void _onSearchChanged(String value) {
@@ -77,31 +100,30 @@ class _LibraryViewState extends State<_LibraryView> {
         child: BlocBuilder<LibraryCubit, LibraryState>(
           builder: (context, state) {
             return RefreshIndicator(
-              color: AppColorsDark.primary,
+              color: Colors.white,
+              backgroundColor: Colors.black54,
               onRefresh: () => context.read<LibraryCubit>().loadLibrary(),
               child: CustomScrollView(
+                controller: _scrollController,
                 physics: const AlwaysScrollableScrollPhysics(),
                 slivers: <Widget>[
                   _buildHeader(context, l10n),
                   if (state.status == LibraryStatus.loading)
-                    const SliverFillRemaining(
-                      child: _LibraryLoadingView(),
-                    )
+                    const SliverFillRemaining(child: _LibraryLoadingView())
                   else if (state.status == LibraryStatus.failure)
                     SliverFillRemaining(
                       child: _buildError(state.errorMessage, context, l10n),
                     )
                   else ...[
-                    // Filtrar playlists si hay búsqueda
                     _buildQuickAccess(context, state, l10n),
-                    if (state.favoritePlaylists.isNotEmpty || state.favoriteSongs.isNotEmpty)
+                    if (state.favoritePlaylists.isNotEmpty ||
+                        state.favoriteSongs.isNotEmpty)
                       _buildFilteredContent(context, state, l10n),
                     if (state.isEmpty && state.status == LibraryStatus.success)
                       SliverFillRemaining(
                         child: LibraryEmptyState(
                           l10n: l10n,
                           onExplore: () {
-                            // Navegar al tab de home (índice 0)
                             context.tabsRouter.setActiveIndex(0);
                           },
                         ),
@@ -117,11 +139,13 @@ class _LibraryViewState extends State<_LibraryView> {
     );
   }
 
-  Widget _buildFilteredContent(BuildContext context, LibraryState state, AppLocalizations l10n) {
-    // Usar allPlaylists que tiene isUserCreated
+  Widget _buildFilteredContent(
+    BuildContext context,
+    LibraryState state,
+    AppLocalizations l10n,
+  ) {
     final allPlaylists = state.allPlaylists;
-    
-    // Filtrar playlists
+
     final filteredPlaylists = _searchQuery.isEmpty
         ? allPlaylists
         : allPlaylists.where((p) {
@@ -129,17 +153,18 @@ class _LibraryViewState extends State<_LibraryView> {
             return name.contains(_searchQuery);
           }).toList();
 
-    // Filtrar songs
     final filteredSongs = _searchQuery.isEmpty
         ? state.favoriteSongs
         : state.favoriteSongs.where((s) {
             final title = s.title.toLowerCase() ?? '';
             final artist = s.artist.toLowerCase() ?? '';
-            return title.contains(_searchQuery) || artist.contains(_searchQuery);
+            return title.contains(_searchQuery) ||
+                artist.contains(_searchQuery);
           }).toList();
 
-    // Mostrar mensaje si no hay resultados
-    if (_searchQuery.isNotEmpty && filteredPlaylists.isEmpty && filteredSongs.isEmpty) {
+    if (_searchQuery.isNotEmpty &&
+        filteredPlaylists.isEmpty &&
+        filteredSongs.isEmpty) {
       return SliverFillRemaining(
         child: Center(
           child: Column(
@@ -164,7 +189,6 @@ class _LibraryViewState extends State<_LibraryView> {
       );
     }
 
-    // Return SliverToBoxAdapter with all content instead of SliverList
     return SliverToBoxAdapter(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -173,8 +197,7 @@ class _LibraryViewState extends State<_LibraryView> {
             _buildPlaylistsSectionFiltered(context, filteredPlaylists, l10n),
           if (filteredSongs.isNotEmpty)
             _buildSongsSectionFiltered(context, filteredSongs, l10n),
-            60.spaceh,
-            
+          60.spaceh,
         ],
       ),
     );
@@ -210,7 +233,7 @@ class _LibraryViewState extends State<_LibraryView> {
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            itemCount: playlists.length > 10 ? 10 : playlists.length,
+            itemCount: playlists.length,
             itemBuilder: (context, index) {
               final playlist = playlists[index];
               return Padding(
@@ -261,16 +284,23 @@ class _LibraryViewState extends State<_LibraryView> {
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           padding: const EdgeInsets.symmetric(horizontal: 20),
-          itemCount: songs.length > 10 ? 10 : songs.length,
+          itemCount: songs.length,
           itemBuilder: (context, index) {
             final song = songs[index];
             return SongListItemWidget(
               song: song,
               onTap: () {
-                final nowPlayingData = context.read<LibraryCubit>().playSong(song);
-                context.router.push(
-                  PlayerRoute(nowPlayingData: nowPlayingData, playAsSingle: true),
-                );
+                final nowPlayingData = context
+                    .read<LibraryCubit>()
+                    .playAllFavoriteSongsFromIndex(songs, index);
+                if (nowPlayingData != null) {
+                  context.router.push(
+                    PlayerRoute(
+                      nowPlayingData: nowPlayingData,
+                      playAsSingle: false,
+                    ),
+                  );
+                }
               },
               onOptionsTap: () => _showSongOptions(context, song, l10n),
             );
@@ -305,11 +335,12 @@ class _LibraryViewState extends State<_LibraryView> {
                     BlocBuilder<ProfileCubit, ProfileState>(
                       builder: (context, profileState) {
                         return GestureDetector(
-                          onTap: () => context.router.push(const MyProfileRoute()),
+                          onTap: () =>
+                              context.router.push(const MyProfileRoute()),
                           child: ProfileAvatar(
                             avatarUrl: profileState.avatarUrl,
-                            initials: profileState.initials.isNotEmpty 
-                                ? profileState.initials 
+                            initials: profileState.initials.isNotEmpty
+                                ? profileState.initials
                                 : 'U',
                           ),
                         );
@@ -498,9 +529,7 @@ class _LibraryViewState extends State<_LibraryView> {
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              itemCount: state.allPlaylists.length > 10
-                  ? 10
-                  : state.allPlaylists.length,
+              itemCount: state.allPlaylists.length,
               itemBuilder: (context, index) {
                 final playlist = state.allPlaylists[index];
                 return Padding(
@@ -563,21 +592,22 @@ class _LibraryViewState extends State<_LibraryView> {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            itemCount: state.favoriteSongs.length > 10
-                ? 10
-                : state.favoriteSongs.length,
+            itemCount: state.favoriteSongs.length,
             itemBuilder: (context, index) {
               final song = state.favoriteSongs[index];
-                return SongListItemWidget(
-                 song: song,
-                 onTap: () {
-                   final nowPlayingData = context.read<LibraryCubit>().playSong(
-                     song,
-                   );
-                   context.router.push(
-                     PlayerRoute(nowPlayingData: nowPlayingData, playAsSingle: true),
-                   );
-                 },
+              return SongListItemWidget(
+                song: song,
+                onTap: () {
+                  final nowPlayingData = context.read<LibraryCubit>().playSong(
+                    song,
+                  );
+                  context.router.push(
+                    PlayerRoute(
+                      nowPlayingData: nowPlayingData,
+                      playAsSingle: true,
+                    ),
+                  );
+                },
                 onOptionsTap: () => _showSongOptions(context, song, l10n),
               );
             },
@@ -613,9 +643,7 @@ class _LibraryViewState extends State<_LibraryView> {
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: AppColorsDark.surfaceContainerHigh,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
           l10n.createPlaylist,
           style: const TextStyle(color: Colors.white, fontFamily: 'Poppins'),
@@ -653,7 +681,7 @@ class _LibraryViewState extends State<_LibraryView> {
       ),
     );
 
-      if (result != null && result.isNotEmpty && context.mounted) {
+    if (result != null && result.isNotEmpty && context.mounted) {
       await context.read<LibraryCubit>().createPlaylist(result);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -671,7 +699,6 @@ class _LibraryViewState extends State<_LibraryView> {
   }
 }
 
-/// Widget de loading con shimmer para LibraryScreen
 class _LibraryLoadingView extends StatelessWidget {
   const _LibraryLoadingView();
 
@@ -682,7 +709,6 @@ class _LibraryLoadingView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Quick access shimmer
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
             child: Row(
@@ -691,7 +717,9 @@ class _LibraryLoadingView extends StatelessWidget {
                 const TextShimmer(width: 140, height: 24),
                 Icon(
                   Icons.chevron_right,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
                 ),
               ],
             ),
@@ -702,21 +730,18 @@ class _LibraryLoadingView extends StatelessWidget {
               spacing: 8,
               runSpacing: 8,
               children: List.generate(4, (index) {
-                 // Clone real dimensions of QuickAccessChip
-                 return Container(
-                    width: (MediaQuery.of(context).size.width - 48) / 2,
-                    height: 56,
-                    decoration: BoxDecoration(
-                      color: AppColorsDark.surfaceContainerHigh,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                 );
+                return Container(
+                  width: (MediaQuery.of(context).size.width - 48) / 2,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    color: AppColorsDark.surfaceContainerHigh,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                );
               }),
             ),
           ),
           const SizedBox(height: 32),
-          
-          // Playlists section shimmer
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 20),
             child: TextShimmer(width: 100, height: 24),
@@ -745,8 +770,6 @@ class _LibraryLoadingView extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 32),
-          
-          // Songs section shimmer
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 20),
             child: TextShimmer(width: 120, height: 24),

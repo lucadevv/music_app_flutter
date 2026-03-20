@@ -12,11 +12,13 @@ import '../organisms/player_shimmer_widgets.dart';
 class PlayerInfoWidget extends StatelessWidget {
   final NowPlayingData track;
   final bool isLoading;
+  final bool showFavoriteButton;
 
   const PlayerInfoWidget({
     required this.track,
     super.key,
     this.isLoading = false,
+    this.showFavoriteButton = true,
   });
 
   @override
@@ -44,16 +46,17 @@ class PlayerInfoWidget extends StatelessWidget {
                 ),
               ),
               // Botón de favorito
-              FavoriteButton(
-                videoId: track.videoId,
-                size: 28,
-                metadata: SongMetadata(
-                  title: track.title,
-                  artist: track.artistsNames,
-                  thumbnail: track.highResThumbnail.url,
-                  duration: track.durationSeconds,
+              if (showFavoriteButton)
+                FavoriteButton(
+                  videoId: track.videoId,
+                  size: 28,
+                  metadata: SongMetadata(
+                    title: track.title,
+                    artist: track.artistsNames,
+                    thumbnail: track.highResThumbnail.url,
+                    duration: track.durationSeconds,
+                  ),
                 ),
-              ),
             ],
           ),
         const SizedBox(height: 8),

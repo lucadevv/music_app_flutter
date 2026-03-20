@@ -128,7 +128,8 @@ class PlaylistCubit extends Cubit<PlaylistState> with BaseBlocMixin {
             .toList();
 
         // Si hay una playlist reproduciéndose, agregar los nuevos tracks al player
-        if (_playerBloc.state.hasCurrentTrack) {
+        final isSamePlaybackContext = _playerBloc.state.sourceId == _currentPlaylistId;
+        if (isSamePlaybackContext && _playerBloc.state.hasCurrentTrack) {
           _playerBloc.add(AddMultipleToPlaylistEvent(nowPlayingTracks));
         }
         

@@ -18,7 +18,7 @@ class RecentlyPlayedRemoteDataSourceImpl implements RecentlyPlayedRemoteDataSour
   @override
   Future<Map<String, dynamic>> getRecentlyPlayed() async {
     try {
-      final response = await _apiServices.get('/music/recently-listened?include_stream_urls=false');
+      final response = await _apiServices.get('/music/recently-listened?include_stream_urls=true');
       // Handle Dio Response wrapper - return data or the response itself
       return response is Response ? response.data : response;
     } catch (e) {

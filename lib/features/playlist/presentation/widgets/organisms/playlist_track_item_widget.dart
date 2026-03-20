@@ -15,10 +15,12 @@ import 'package:music_app/features/song_options/presentation/widgets/song_option
 class PlaylistTrackItemWidget extends StatelessWidget {
   final PlaylistTrack track;
   final List<PlaylistTrack> allTracks;
+  final String playlistId;
 
   const PlaylistTrackItemWidget({
     required this.track, // ignore: always_put_required_named_parameters_first
     required this.allTracks,
+    required this.playlistId,
     super.key,
   });
 
@@ -117,6 +119,21 @@ class PlaylistTrackItemWidget extends StatelessWidget {
             onTap: isDisabled
                 ? null
                 : () {
+                    // Si es la canción actual, NO recargar playlist (evita reiniciar desde 0).
+                    // Solo navegar al player y, si estaba pausada, reanudar.
+                    if (isCurrentTrack) {
+                      if (!playerState.isPlaying) {
+                        playerBloc.add(const PlayEvent());
+                      }
+                      context.router.push(
+                        PlayerRoute(
+                          nowPlayingData: _toNowPlayingData(),
+                          playAsSingle: false,
+                        ),
+                      );
+                      return;
+                    }
+
                     // Filtrar tracks válidos
                     final validTracks = allTracks
                         .where((t) =>
@@ -141,6 +158,7 @@ class PlaylistTrackItemWidget extends StatelessWidget {
                     playerBloc.add(LoadPlaylistEvent(
                       playlist: nowPlayingTracks,
                       startIndex: index >= 0 ? index : 0,
+                      sourceId: playlistId,
                     ));
 
                     // Navegar al player (playAsSingle: false para ver el carousel)

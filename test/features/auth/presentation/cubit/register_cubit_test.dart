@@ -27,7 +27,10 @@ void main() {
     mockRepository = MockAuthRepository();
     mockAuthManager = MockAuthManager();
     registerUseCase = RegisterUseCase(mockRepository);
-    registerCubit = RegisterCubit(registerUseCase: registerUseCase);
+    registerCubit = RegisterCubit(
+      registerUseCase: registerUseCase,
+      authManager: mockAuthManager,
+    );
   });
 
   tearDown(() {
@@ -135,12 +138,24 @@ void main() {
         when(
           () => mockRepository.register(any(that: isA<RegisterRequest>())),
         ).thenAnswer((_) async => Right(createTestRegisterResponse()));
+        when(
+          () => mockAuthManager.login(
+            any(),
+            any(),
+            isEmailVerified: any(named: 'isEmailVerified'),
+            email: any(named: 'email'),
+          ),
+        ).thenAnswer((_) async {});
+        when(
+          () => mockAuthManager.isEmailVerified(),
+        ).thenAnswer((_) async => true);
         return registerCubit;
       },
       act: (cubit) async {
         cubit.register(createTestRegisterRequest());
         cubit.register(createTestRegisterRequest());
       },
+      wait: const Duration(milliseconds: 20),
       expect: () => [
         isA<RegisterState>().having(
           (s) => s.status,
@@ -161,6 +176,17 @@ void main() {
         when(
           () => mockRepository.register(any(that: isA<RegisterRequest>())),
         ).thenAnswer((_) async => Right(createTestRegisterResponse()));
+        when(
+          () => mockAuthManager.login(
+            any(),
+            any(),
+            isEmailVerified: any(named: 'isEmailVerified'),
+            email: any(named: 'email'),
+          ),
+        ).thenAnswer((_) async {});
+        when(
+          () => mockAuthManager.isEmailVerified(),
+        ).thenAnswer((_) async => true);
         return registerCubit;
       },
       act: (cubit) async {

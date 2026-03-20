@@ -50,7 +50,7 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
       
       // Construir endpoint con paginación
       final endpoint = '/music/search?q=$encodedQuery&filter=${request.filter}'
-          '&start_index=${request.startIndex}&include_stream_urls=false';
+          '&start_index=${request.startIndex}&include_stream_urls=true';
 
       final response = await _apiServices.get(endpoint);
 
@@ -101,7 +101,7 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
   }) async {
     try {
       final endpoint =
-          '/music/recent-searches?limit=$limit&include_stream_urls=false';
+          '/music/recent-searches?limit=$limit&include_stream_urls=true';
       final response = await _apiServices.get(endpoint);
 
       // Dio devuelve Response, necesitamos acceder a response.data
@@ -207,7 +207,7 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
   @override
   Future<Either<AppException, List<MoodGenreModel>>> getCategories() async {
     try {
-      const endpoint = '/music/explore?include_stream_urls=false';
+      const endpoint = '/music/explore?include_stream_urls=true';
       final response = await _apiServices.get(endpoint);
 
       final responseData = response is Response ? response.data : response;
@@ -253,6 +253,13 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
           'duration': song.duration,
           'durationSeconds': song.durationSeconds,
           'views': song.views,
+          if (song.streamUrl != null && song.streamUrl!.isNotEmpty) 'stream_url': song.streamUrl,
+          if (song.thumbnail != null)
+            'thumbnail': {
+              'url': song.thumbnail!.url,
+              'width': song.thumbnail!.width,
+              'height': song.thumbnail!.height,
+            },
         },
       };
 

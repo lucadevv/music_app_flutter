@@ -12,7 +12,9 @@ import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 
 class MiniPlayer extends StatelessWidget {
-  const MiniPlayer({super.key});
+  final bool showFavoriteButton;
+
+  const MiniPlayer({super.key, this.showFavoriteButton = true});
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +68,7 @@ class MiniPlayer extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: Row(
                             children: [
-                              _TrackThumbnail(thumbnail: track.highResThumbnail.url),
+                              _TrackThumbnail(thumbnail: track.bestThumbnail?.url),
                               const SizedBox(width: 12),
                               Expanded(
                                 child: _TrackInfo(
@@ -74,17 +76,18 @@ class MiniPlayer extends StatelessWidget {
                                   artist: track.artistsNames,
                                 ),
                               ),
-                              FavoriteButton(
-                                videoId: track.videoId,
-                                size: 22,
-                                metadata: SongMetadata(
-                                  title: track.title,
-                                  artist: track.artistsNames,
-                                  thumbnail: track.highResThumbnail.url,
-                                  duration: track.durationSeconds,
-                                  streamUrl: track.streamUrl,
+                              if (showFavoriteButton)
+                                FavoriteButton(
+                                  videoId: track.videoId,
+                                  size: 22,
+                                  metadata: SongMetadata(
+                                    title: track.title,
+                                    artist: track.artistsNames,
+                                    thumbnail: track.highResThumbnail.url,
+                                    duration: track.durationSeconds,
+                                    streamUrl: track.streamUrl,
+                                  ),
                                 ),
-                              ),
                               _PlayerControls(
                                 isPlaying: isPlaying,
                                 canPlayNext: state.canPlayNext,
@@ -110,7 +113,8 @@ class MiniPlayer extends StatelessWidget {
   }
 
   void _openPlayer(BuildContext context, NowPlayingData track) {
-    context.router.push(PlayerRoute(nowPlayingData: track));
+    // Abrir el player - mantener el estado actual de playlist
+    context.router.push(PlayerRoute(nowPlayingData: track, playAsSingle: false));
   }
 }
 

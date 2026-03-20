@@ -5,7 +5,7 @@ import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/presentation/widgets/song_list_item.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/core/widgets/shimmer_widgets.dart';
-import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
+import 'package:music_app/features/player/domain/player_facade.dart';
 import 'package:music_app/features/recently_played/domain/entities/recently_played_song.dart';
 import 'package:music_app/features/recently_played/domain/usecases/get_recently_played_usecase.dart';
 import 'package:music_app/features/recently_played/presentation/cubit/recently_played_cubit.dart';
@@ -21,7 +21,7 @@ class RecentlyPlayedScreen extends StatelessWidget {
     return BlocProvider(
       create: (_) => RecentlyPlayedCubit(
         getRecentlyPlayedUseCase: getIt<GetRecentlyPlayedUseCase>(),
-        playerBloc: context.read<PlayerBlocBloc>(),
+        player: context.read<PlayerFacade>(),
       )..loadRecentlyPlayed(),
       child: const _RecentlyPlayedView(),
     );
@@ -151,7 +151,10 @@ class _RecentlyPlayedView extends StatelessWidget {
     return SliverList(
       delegate: SliverChildBuilderDelegate((context, index) {
         final song = state.songs[index];
-        return _SongItem(song: song, onTap: () => _playSong(context, song));
+        return _SongItem(
+          song: song,
+          onTap: () => _playSong(context, song),
+        );
       }, childCount: state.songs.length),
     );
   }
@@ -219,8 +222,12 @@ class _RecentlyPlayedView extends StatelessWidget {
   }
 
   void _playSong(BuildContext context, RecentlyPlayedSong song) {
+    // Usa PlayRequestEvent que tiene la lógica correcta en el PlayerBloc:
+    // - Si ya está reproduciendo → no hace nada
+    // - Si está en playlist actual → cambia al índice
+    // - Si NO está → carga como canción individual
     final nowPlayingData = context.read<RecentlyPlayedCubit>().playSong(song);
-    context.router.push(PlayerRoute(nowPlayingData: nowPlayingData));
+    context.router.push(PlayerRoute(nowPlayingData: nowPlayingData, playAsSingle: true));
   }
 }
 

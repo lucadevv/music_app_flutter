@@ -1,4 +1,3 @@
-// import 'package:flutter/foundation.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,33 +15,31 @@ class DashboardShell extends StatefulWidget implements AutoRouteWrapper {
   const DashboardShell({super.key});
 
   @override
-  Widget wrappedRoute(BuildContext context) {
-    return MultiBlocProvider(providers: [
-      BlocProvider(create:(context) => PlayerBlocBloc(),)
-    ], child: this);
-  }
+  State<DashboardShell> createState() => _DashboardShellState();
 
   @override
-  State<DashboardShell> createState() => _DashboardShellState();
+  Widget wrappedRoute(BuildContext context) {
+    // PlayerBlocBloc ya está proveído en app.dart, solo necesitamos acceso al contexto
+    return this;
+  }
 }
 
 class _DashboardShellState extends State<DashboardShell> {
   @override
   void initState() {
     super.initState();
-    
+
     BottomSheetVisibility().addListener(_onBottomSheetChanged);
-    WidgetsBinding.instance.addPostFrameCallback((_) async{
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       await _currentAccessToken();
     });
   }
 
-
   Future<void> _currentAccessToken() async {
-      final authManager = getIt<AuthManager>();
-    final accessToken =await authManager.getCurrentAccessToken();
+    final authManager = getIt<AuthManager>();
+    final accessToken = await authManager.getCurrentAccessToken();
     debugPrint('Current token: $accessToken');
-    }
+  }
 
   @override
   void dispose() {
@@ -52,30 +49,28 @@ class _DashboardShellState extends State<DashboardShell> {
 
   void _onBottomSheetChanged() {
     if (mounted) {
-      setState(() {}); 
+      setState(() {});
     }
   }
 
   @override
   Widget build(BuildContext context) {
-
     final visibleRoutes = [
       '/dashboard/home',
       '/dashboard/search',
       '/dashboard/library',
     ];
 
-    
     final currentPath = context.router.currentPath;
     final isEmailVerificationRoute = currentPath.contains('email-verification');
 
-    
     if (isEmailVerificationRoute) {
       return const Scaffold(
         backgroundColor: AppColorsDark.surface,
         body: AutoRouter(),
       );
     }
+
     return AutoTabsRouter.pageView(
       physics: const NeverScrollableScrollPhysics(),
       routes: const [HomeShell(), SearchShell(), LibraryShell()],
@@ -85,30 +80,25 @@ class _DashboardShellState extends State<DashboardShell> {
         final isVisible = visibleRoutes.contains(tabsPath);
 
         return BlocBuilder<PlayerBlocBloc, PlayerBlocState>(
-         
           buildWhen: (previous, current) {
-        
             return previous.currentTrack?.videoId !=
                     current.currentTrack?.videoId ||
                 previous.playbackState != current.playbackState ||
                 previous.position != current.position ||
                 previous.duration != current.duration;
-      
           },
           builder: (context, playerState) {
-            final hasTrack =
-                playerState.currentTrack != null;
+            final hasTrack = playerState.currentTrack != null;
             final isBottomSheetOpen = BottomSheetVisibility().isBottomSheetOpen;
 
-       
-            final miniPlayerBottom = isBottomSheetOpen ? 512 :0;
+            final miniPlayerBottom = isBottomSheetOpen ? 512 : 0;
 
             return Scaffold(
               backgroundColor: AppColorsDark.surface,
               body: Stack(
                 children: [
                   child,
-                  
+
                   if (isVisible && hasTrack)
                     AnimatedPositioned(
                       duration: const Duration(milliseconds: 300),
@@ -118,15 +108,23 @@ class _DashboardShellState extends State<DashboardShell> {
                       bottom: miniPlayerBottom.toDouble(),
                       child: const MiniPlayer(),
                     ),
-                  
+
                   if (isVisible) ...[
                     Align(
                       alignment: Alignment.bottomCenter,
                       child: GlassBottomNav(
                         currentIndex: tabsRouter.activeIndex,
                         onTap: tabsRouter.setActiveIndex,
-                        outlinedIcons: const [Icons.home_outlined, Icons.search_outlined, Icons.library_music_outlined],
-                        filledIcons: const [Icons.home, Icons.search, Icons.library_music],
+                        outlinedIcons: const [
+                          Icons.home_outlined,
+                          Icons.search_outlined,
+                          Icons.library_music_outlined,
+                        ],
+                        filledIcons: const [
+                          Icons.home,
+                          Icons.search,
+                          Icons.library_music,
+                        ],
                       ),
                     ),
                   ],
@@ -139,5 +137,3 @@ class _DashboardShellState extends State<DashboardShell> {
     );
   }
 }
-
-// Removed _ItemNavbar class as it's replaced by GlassBottomNav

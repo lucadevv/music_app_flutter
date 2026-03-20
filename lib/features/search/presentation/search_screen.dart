@@ -24,6 +24,7 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -32,14 +33,34 @@ class _SearchScreenState extends State<SearchScreen> {
     context.read<OrquestadorSearchCubit>().resetSearchState();
     // Cargar búsquedas recientes al iniciar
     context.read<RecentSearchesCubit>().getRecentSearches();
+
+    _scrollController.addListener(_onScroll);
   }
 
   @override
   void dispose() {
     // Cancelar el debounce al salir
     context.read<SearchCubit>().cancelDebounce();
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+
+    final position = _scrollController.position;
+    // umbral: 300px antes del fondo
+    if (position.pixels >= position.maxScrollExtent - 300) {
+      final state = context.read<OrquestadorSearchCubit>().state.searchState;
+      if (state.query.isNotEmpty &&
+          state.hasMore &&
+          state.status != SearchStatus.loadingMore &&
+          state.status != SearchStatus.loading) {
+        context.read<SearchCubit>().loadMore();
+      }
+    }
   }
 
   void _onSearchChanged(String value) {
@@ -63,6 +84,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   searchState.responseEntity != null;
 
               return CustomScrollView(
+                controller: _scrollController,
                 slivers: [
                   // Search Bar
                   SliverToBoxAdapter(
