@@ -9,6 +9,7 @@ import 'package:music_app/core/presentation/widgets/song_list_item.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/core/widgets/shimmer_widgets.dart';
 import 'package:music_app/features/album/domain/entities/album.dart';
+import 'package:music_app/features/album/domain/repositories/album_repository.dart';
 import 'package:music_app/features/album/presentation/cubit/album_cubit.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
@@ -23,7 +24,7 @@ class AlbumScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => GetIt.I<AlbumCubit>()..loadAlbum(albumId),
+      create: (_) => AlbumCubit(GetIt.I<AlbumRepository>())..loadAlbum(albumId),
       child: _AlbumView(albumId: albumId),
     );
   }
@@ -272,7 +273,9 @@ class _AlbumView extends StatelessWidget {
       ),
     );
     // Canción individual
-    context.router.push(PlayerRoute(nowPlayingData: nowPlayingData, playAsSingle: true));
+    context.router.push(
+      PlayerRoute(nowPlayingData: nowPlayingData, playAsSingle: true),
+    );
   }
 
   void _playAllSongs(BuildContext context, List<AlbumSong> songs) {
@@ -301,7 +304,9 @@ class _AlbumView extends StatelessWidget {
     );
 
     // Playlist - mantener la lista
-    context.router.push(PlayerRoute(nowPlayingData: playlist.first, playAsSingle: false));
+    context.router.push(
+      PlayerRoute(nowPlayingData: playlist.first, playAsSingle: false),
+    );
   }
 }
 
@@ -389,7 +394,7 @@ class _AlbumLoadingView extends StatelessWidget {
             ),
           ),
         ),
-        
+
         // Action buttons shimmer
         const SliverToBoxAdapter(
           child: Padding(
@@ -407,7 +412,7 @@ class _AlbumLoadingView extends StatelessWidget {
             ),
           ),
         ),
-        
+
         // Songs list shimmer
         SliverList(
           delegate: SliverChildBuilderDelegate(
@@ -415,7 +420,7 @@ class _AlbumLoadingView extends StatelessWidget {
             childCount: 10,
           ),
         ),
-        
+
         const SliverToBoxAdapter(child: SizedBox(height: 100)),
       ],
     );

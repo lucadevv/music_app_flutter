@@ -9,6 +9,7 @@ import 'package:music_app/core/presentation/widgets/song_list_item.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/core/widgets/shimmer_widgets.dart';
 import 'package:music_app/features/artist/domain/entities/artist.dart';
+import 'package:music_app/features/artist/domain/repositories/artist_repository.dart';
 import 'package:music_app/features/artist/presentation/cubit/artist_cubit.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
@@ -23,7 +24,8 @@ class ArtistScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => GetIt.I<ArtistCubit>()..loadArtist(artistId),
+      create: (_) =>
+          ArtistCubit(GetIt.I<ArtistRepository>())..loadArtist(artistId),
       child: _ArtistView(artistId: artistId),
     );
   }
@@ -286,7 +288,9 @@ class _ArtistView extends StatelessWidget {
       ),
     );
     // Canción individual
-    context.router.push(PlayerRoute(nowPlayingData: nowPlayingData, playAsSingle: true));
+    context.router.push(
+      PlayerRoute(nowPlayingData: nowPlayingData, playAsSingle: true),
+    );
   }
 
   void _playAllTopSongs(BuildContext context, List<ArtistSong> songs) {
@@ -315,7 +319,9 @@ class _ArtistView extends StatelessWidget {
     );
 
     // Playlist - mantener la lista
-    context.router.push(PlayerRoute(nowPlayingData: playlist.first, playAsSingle: false));
+    context.router.push(
+      PlayerRoute(nowPlayingData: playlist.first, playAsSingle: false),
+    );
   }
 }
 

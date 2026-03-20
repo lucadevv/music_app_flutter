@@ -4,9 +4,9 @@ import 'package:auto_route/auto_route.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/features/mood_genre/domain/use_cases/get_mood_playlists_use_case.dart';
-import 'package:music_app/main.dart';
 import 'cubit/mood_genre_cubit.dart';
 import 'widgets/mood_genre_error_widget.dart';
 import 'widgets/mood_genre_listeners.dart';
@@ -22,9 +22,7 @@ class MoodGenreScreen extends StatefulWidget implements AutoRouteWrapper {
   @override
   Widget wrappedRoute(BuildContext context) {
     return BlocProvider<MoodGenreCubit>(
-      create: (context) {
-        return MoodGenreCubit(getIt<GetMoodPlaylistsUseCase>());
-      },
+      create: (_) => MoodGenreCubit(GetIt.I<GetMoodPlaylistsUseCase>()),
       child: this,
     );
   }
@@ -49,7 +47,8 @@ class _MoodGenreScreenState extends State<MoodGenreScreen> {
           builder: (context, state) {
             // Obtener thumbnail para el fondo (de la primera playlist)
             String? backgroundImageUrl;
-            if (state.response != null && state.response!.playlists.isNotEmpty) {
+            if (state.response != null &&
+                state.response!.playlists.isNotEmpty) {
               final firstPlaylist = state.response!.playlists.first;
               if (firstPlaylist.thumbnails.isNotEmpty) {
                 backgroundImageUrl = firstPlaylist.thumbnails.first.url;
@@ -66,7 +65,9 @@ class _MoodGenreScreenState extends State<MoodGenreScreen> {
                       child: Container(
                         decoration: BoxDecoration(
                           image: DecorationImage(
-                            image: CachedNetworkImageProvider(backgroundImageUrl),
+                            image: CachedNetworkImageProvider(
+                              backgroundImageUrl,
+                            ),
                             fit: BoxFit.cover,
                             colorFilter: ColorFilter.mode(
                               Colors.black.withValues(alpha: 0.7),
@@ -83,9 +84,7 @@ class _MoodGenreScreenState extends State<MoodGenreScreen> {
                   ),
 
                 // Contenido principal
-                SafeArea(
-                  child: _buildContent(context, state),
-                ),
+                SafeArea(child: _buildContent(context, state)),
               ],
             );
           },
@@ -171,13 +170,12 @@ class _MoodGenreScreenState extends State<MoodGenreScreen> {
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
             sliver: SliverGrid(
-              gridDelegate:
-                  const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                    childAspectRatio: 0.75,
-                  ),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+                childAspectRatio: 0.75,
+              ),
               delegate: SliverChildBuilderDelegate((context, index) {
                 final playlist = response.playlists[index];
                 return MoodPlaylistCardWidget(
@@ -185,9 +183,7 @@ class _MoodGenreScreenState extends State<MoodGenreScreen> {
                   onTap: () {
                     // Navegar a la playlist usando el browseId
                     if (playlist.browseId.isNotEmpty) {
-                      context.router.push(
-                        PlaylistRoute(id: playlist.browseId),
-                      );
+                      context.router.push(PlaylistRoute(id: playlist.browseId));
                     }
                   },
                 );
