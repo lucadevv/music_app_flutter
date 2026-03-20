@@ -133,7 +133,19 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
                 CustomScrollView(
                   slivers: [
-                    const SliverToBoxAdapter(child: PlayerHeaderWidget()),
+                    SliverToBoxAdapter(
+                      child: PlayerHeaderWidget(
+                        playlistId: widget.nowPlayingData?.videoId,
+                        playlistName: widget.nowPlayingData?.title,
+                        currentIndex: currentIndex ?? 0,
+                        totalTracks: playlist.length,
+                        currentVideoId: currentTrack.videoId,
+                        currentTitle: currentTrack.title,
+                        currentArtist: currentTrack.artistsNames,
+                        currentThumbnail: currentTrack.bestThumbnail?.url,
+                        currentDuration: currentTrack.durationSeconds,
+                      ),
+                    ),
 
                     if (playlist.length > 1 && !widget.playAsSingle)
                       SliverToBoxAdapter(

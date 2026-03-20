@@ -310,11 +310,7 @@ class AlbumListItemWidget extends StatelessWidget {
   final HomeContentItem item;
   final VoidCallback? onTap;
 
-  const AlbumListItemWidget({
-    required this.item,
-    super.key,
-    this.onTap,
-  });
+  const AlbumListItemWidget({required this.item, super.key, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -366,10 +362,7 @@ class AlbumListItemWidget extends StatelessWidget {
                   color: AppColorsDark.primaryContainer,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Icon(
-                  Icons.album,
-                  color: AppColorsDark.primary,
-                ),
+                child: const Icon(Icons.album, color: AppColorsDark.primary),
               ),
         title: Text(
           item.title,
@@ -391,7 +384,24 @@ class AlbumListItemWidget extends StatelessWidget {
             Icons.more_vert,
             color: Colors.white.withValues(alpha: 0.6),
           ),
-          onPressed: () {},
+          onPressed: () {
+            final thumb = item.thumbnails.isNotEmpty
+                ? item.thumbnails.last
+                : null;
+            SongOptionsBottomSheet.show(
+              context: context,
+              song: SongOptionsData(
+                videoId: item.videoId ?? '',
+                title: item.title,
+                artist: artistsNames.isNotEmpty
+                    ? artistsNames
+                    : 'Various Artists',
+                thumbnail: thumb?.url,
+                streamUrl: item.streamUrl,
+                isFavorite: false,
+              ),
+            );
+          },
         ),
       ),
     );
@@ -485,18 +495,18 @@ class SongListItemWidget extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
         ),
         trailing: Row(
-           mainAxisSize: MainAxisSize.min,
-           children: [
-             FavoriteButton(
-               videoId: item.videoId ?? '',
-               size: 22,
-               metadata: SongMetadata(
-                 title: item.title,
-                 artist: artistsNames,
-                 thumbnail: thumbnail?.url,
-                 streamUrl: item.streamUrl,
-               ),
-             ),
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FavoriteButton(
+              videoId: item.videoId ?? '',
+              size: 22,
+              metadata: SongMetadata(
+                title: item.title,
+                artist: artistsNames,
+                thumbnail: thumbnail?.url,
+                streamUrl: item.streamUrl,
+              ),
+            ),
             IconButton(
               icon: Icon(
                 Icons.more_vert,
@@ -609,7 +619,22 @@ class PlaylistListItemWidget extends StatelessWidget {
             Icons.more_vert,
             color: Colors.white.withValues(alpha: 0.6),
           ),
-          onPressed: () {},
+          onPressed: () {
+            final thumb = item.thumbnails.isNotEmpty
+                ? item.thumbnails.last
+                : null;
+            SongOptionsBottomSheet.show(
+              context: context,
+              song: SongOptionsData(
+                videoId: item.videoId ?? '',
+                title: item.title,
+                artist: item.artists.map((a) => a.name).join(', '),
+                thumbnail: thumb?.url,
+                streamUrl: item.streamUrl,
+                isFavorite: false,
+              ),
+            );
+          },
         ),
       ),
     );

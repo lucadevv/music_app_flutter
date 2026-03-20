@@ -13,6 +13,7 @@ import 'package:music_app/features/artist/domain/repositories/artist_repository.
 import 'package:music_app/features/artist/presentation/cubit/artist_cubit.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
+import 'package:music_app/features/song_options/presentation/widgets/song_options_bottom_sheet.dart';
 import 'package:music_app/l10n/app_localizations.dart';
 
 @RoutePage()
@@ -359,7 +360,19 @@ class _ArtistSongItem extends StatelessWidget {
                 Icons.more_vert,
                 color: Colors.white.withValues(alpha: 0.6),
               ),
-              onPressed: () {},
+              onPressed: () {
+                SongOptionsBottomSheet.show(
+                  context: context,
+                  song: SongOptionsData(
+                    videoId: song.videoId,
+                    title: song.title,
+                    artist: '',
+                    thumbnail: song.thumbnail,
+                    durationSeconds: song.durationSeconds,
+                    isFavorite: false,
+                  ),
+                );
+              },
             ),
           ],
         ),

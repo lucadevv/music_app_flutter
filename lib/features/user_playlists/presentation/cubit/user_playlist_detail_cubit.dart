@@ -75,15 +75,19 @@ class UserPlaylistDetailCubit extends Cubit<UserPlaylistDetailState>
         )
         .toList();
 
-    debugPrint('DEBUG playAll: Cargando playlist con ${playlist.length} canciones');
+    debugPrint(
+      'DEBUG playAll: Cargando playlist con ${playlist.length} canciones',
+    );
     debugPrint('DEBUG playAll: sourceId = ${state.playlist!.id}');
 
     // SIMPLIFICADO: Always use LoadPlaylistEvent to load entire playlist
-    _playerBloc.add(LoadPlaylistEvent(
-      playlist: playlist,
-      startIndex: 0,
-      sourceId: state.playlist!.id,
-    ));
+    _playerBloc.add(
+      LoadPlaylistEvent(
+        playlist: playlist,
+        startIndex: 0,
+        sourceId: state.playlist!.id,
+      ),
+    );
     debugPrint('DEBUG playAll: LoadPlaylistEvent enviado');
   }
 
@@ -120,18 +124,20 @@ class UserPlaylistDetailCubit extends Cubit<UserPlaylistDetailState>
     debugPrint('DEBUG playSong: Cargando playlist desde índice $index');
     debugPrint('DEBUG playSong: sourceId = ${state.playlist!.id}');
 
-    _playerBloc.add(LoadPlaylistEvent(
-      playlist: playlist,
-      startIndex: index,
-      sourceId: state.playlist!.id,
-    ));
+    _playerBloc.add(
+      LoadPlaylistEvent(
+        playlist: playlist,
+        startIndex: index,
+        sourceId: state.playlist!.id,
+      ),
+    );
   }
 
   String _formatDuration(int seconds) {
     final minutes = seconds ~/ 60;
     final secs = seconds % 60;
     return '$minutes:${secs.toString().padLeft(2, '0')}';
-}
+  }
 
   /// Actualiza el nombre de la playlist
   Future<void> updatePlaylist(String playlistId, String name) async {
@@ -159,6 +165,32 @@ class UserPlaylistDetailCubit extends Cubit<UserPlaylistDetailState>
       await loadPlaylist(playlistId);
     } catch (e) {
       emit(state.copyWith(errorMessage: e.toString()));
+    }
+  }
+
+  /// Agrega una canción a la playlist
+  Future<bool> addSongToPlaylist({
+    required String playlistId,
+    required String videoId,
+    required String title,
+    required String artist,
+    String? thumbnail,
+    int? duration,
+  }) async {
+    try {
+      await _libraryService.addSongToUserPlaylist(
+        playlistId,
+        videoId: videoId,
+        title: title,
+        artist: artist,
+        thumbnail: thumbnail,
+        duration: duration,
+      );
+      await loadPlaylist(playlistId);
+      return true;
+    } catch (e) {
+      emit(state.copyWith(errorMessage: e.toString()));
+      return false;
     }
   }
 }

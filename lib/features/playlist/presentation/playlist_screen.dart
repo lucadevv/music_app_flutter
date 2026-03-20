@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
+import 'package:music_app/core/utils/bottom_sheet_visibility.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 import 'package:music_app/features/playlist/domain/use_cases/get_playlist_use_case.dart';
@@ -18,6 +19,7 @@ import 'package:music_app/features/playlist/presentation/widgets/organisms/playl
 import 'package:music_app/features/playlist/presentation/widgets/organisms/playlist_header_widget.dart';
 import 'package:music_app/features/playlist/presentation/widgets/organisms/playlist_listeners.dart';
 import 'package:music_app/features/playlist/presentation/widgets/organisms/playlist_track_item_widget.dart';
+import 'package:music_app/features/song_options/presentation/widgets/song_options_bottom_sheet.dart';
 
 @RoutePage()
 class PlaylistScreen extends StatefulWidget implements AutoRouteWrapper {
@@ -383,12 +385,8 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
   void _showPlaylistMenu(BuildContext context, dynamic playlist) {
     final playlistState = context.read<PlaylistCubit>().state;
 
-    showModalBottomSheet(
+    BottomSheetVisibility().showBottomSheet(
       context: context,
-      backgroundColor: AppColorsDark.surfaceContainerHigh,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
       builder: (ctx) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -418,6 +416,7 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
               ),
               onTap: () {
                 Navigator.pop(ctx);
+                _showAddPlaylistSongsDialog(ctx, playlistState);
               },
             ),
             ListTile(
@@ -488,5 +487,131 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
         ),
       );
     }
+  }
+
+  void _showAddPlaylistSongsDialog(
+    BuildContext ctx,
+    PlaylistState playlistState,
+  ) {
+    final tracks = playlistState.allTracks.isNotEmpty
+        ? playlistState.allTracks
+        : playlistState.response?.tracks ?? [];
+
+    if (tracks.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No songs in this playlist'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    BottomSheetVisibility().showBottomSheet(
+      context: ctx,
+      builder: (sheetContext) => Container(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(sheetContext).size.height * 0.7,
+        ),
+        padding: EdgeInsets.only(
+          top: 16,
+          bottom: MediaQuery.of(sheetContext).padding.bottom + 16,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Select a song to add',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Colors.white),
+                    onPressed: () => Navigator.pop(sheetContext),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(color: Colors.white24),
+            Flexible(
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: tracks.length,
+                itemBuilder: (context, index) {
+                  final track = tracks[index];
+                  return ListTile(
+                    leading: Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: AppColorsDark.primaryContainer,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: track.thumbnails?.isNotEmpty == true
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.network(
+                                track.thumbnails!.last.url,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => const Icon(
+                                  Icons.music_note,
+                                  color: AppColorsDark.primary,
+                                ),
+                              ),
+                            )
+                          : const Icon(
+                              Icons.music_note,
+                              color: AppColorsDark.primary,
+                            ),
+                    ),
+                    title: Text(
+                      track.title ?? 'Unknown',
+                      style: const TextStyle(color: Colors.white),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    subtitle: Text(
+                      track.artists?.map((a) => a.name).join(', ') ?? '',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.6),
+                        fontSize: 12,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    onTap: () {
+                      Navigator.pop(sheetContext);
+                      SongOptionsBottomSheet.show(
+                        context: ctx,
+                        song: SongOptionsData(
+                          videoId: track.videoId ?? '',
+                          title: track.title ?? '',
+                          artist:
+                              track.artists?.map((a) => a.name).join(', ') ??
+                              '',
+                          thumbnail: track.thumbnails?.isNotEmpty == true
+                              ? track.thumbnails!.last.url
+                              : null,
+                          durationSeconds: track.durationSeconds,
+                          isFavorite: track.inLibrary ?? false,
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
