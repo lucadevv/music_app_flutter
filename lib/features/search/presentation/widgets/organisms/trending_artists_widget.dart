@@ -1,15 +1,21 @@
+import 'dart:async';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
+import 'package:music_app/core/services/network/api_services.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/favorites/presentation/widgets/favorite_button.dart';
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 import 'package:music_app/features/search/domain/entities/recent_search.dart';
 import 'package:music_app/features/search/presentation/cubit/orquestador_search_cubit.dart';
-import 'package:music_app/features/search/presentation/cubit/recent_searches_cubit.dart' show RecentSearchesStatus;
+import 'package:music_app/features/search/presentation/cubit/recent_searches_cubit.dart'
+    show RecentSearchesStatus;
 import 'package:music_app/features/song_options/presentation/widgets/song_options_bottom_sheet.dart';
 
 class RecentSearchesWidget extends StatelessWidget {
@@ -55,14 +61,19 @@ class RecentSearchesWidget extends StatelessWidget {
                   horizontal: 24,
                   vertical: 16,
                 ),
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: recentSearchesState.recentSearches.length,
-                  itemBuilder: (context, index) {
-                    final recentSearch =
-                        recentSearchesState.recentSearches[index];
-                    return _RecentSearchItem(recentSearch: recentSearch);
+                child: Builder(
+                  builder: (context) {
+                    final validRecentSearches =
+                        recentSearchesState.recentSearches;
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: validRecentSearches.length,
+                      itemBuilder: (context, index) {
+                        final recentSearch = validRecentSearches[index];
+                        return _RecentSearchItem(recentSearch: recentSearch);
+                      },
+                    );
                   },
                 ),
               )
@@ -89,21 +100,57 @@ class _RecentSearchItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final song = recentSearch.songData;
+
     // Obtener la mejor thumbnail (la más grande disponible)
-    final thumbnail = song.thumbnails.isNotEmpty
-        ? song.thumbnails.last
-        : null; // Usar la última que suele ser la más grande
+    final thumbnailUrl = song.bestThumbnail;
 
     // Obtener nombres de artistas
-    final artistsNames = song.artists.map((a) => a.name).join(', ');
+    final artistsNames = song.artistNames.isNotEmpty
+        ? song.artistNames.join(', ')
+        : song.artist;
 
     return GestureDetector(
-      onTap: () {
-        final nowPlayingData = NowPlayingData.fromSong(song);
-        // Navegar al player y reproducir la canción - es individual
-        context.router.push(
-          PlayerRoute(nowPlayingData: nowPlayingData, playAsSingle: true),
+      onTap: () async {
+        // ✅ Save the selected song first to update search state
+        context.read<OrquestadorSearchCubit>().saveSelectedSong(
+          song,
+          recentSearch.query,
         );
+
+        // ✅ Fetch streamUrl on demand si no existe
+        String? streamUrl = song.streamUrl;
+        if (streamUrl == null || streamUrl.isEmpty) {
+          streamUrl = await _fetchStreamUrl(song.videoId);
+        }
+
+        // Crear NowPlayingData con streamUrl actualizado usando fromBasic
+        final onTapArtistNames = song.artistNames.isNotEmpty
+            ? song.artistNames
+            : [song.artist];
+        final onTapThumbnailUrl = song.bestThumbnail;
+
+        final nowPlayingData = NowPlayingData.fromBasic(
+          videoId: song.videoId,
+          title: song.title,
+          artistNames: onTapArtistNames,
+          albumName: song.album ?? '',
+          duration: song.duration,
+          durationSeconds: song.durationSeconds,
+          views: song.views ?? '0',
+          isExplicit: song.isExplicit,
+          inLibrary: song.inLibrary,
+          thumbnailUrl: onTapThumbnailUrl,
+          streamUrl: streamUrl,
+        );
+
+        // Navegar al player y reproducir la canción - es individual
+        if (context.mounted) {
+          unawaited(
+            context.router.push(
+              PlayerRoute(nowPlayingData: nowPlayingData, playAsSingle: true),
+            ),
+          );
+        }
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
@@ -114,9 +161,9 @@ class _RecentSearchItem extends StatelessWidget {
               tag: 'song_artwork_${song.videoId}',
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: thumbnail != null
+                child: thumbnailUrl != null
                     ? CachedNetworkImage(
-                        imageUrl: thumbnail.url,
+                        imageUrl: thumbnailUrl,
                         width: 60,
                         height: 60,
                         fit: BoxFit.cover,
@@ -176,7 +223,7 @@ class _RecentSearchItem extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '$artistsNames • ${song.album.name}',
+                    '$artistsNames • ${song.album ?? ''}',
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.6),
                       fontSize: 14,
@@ -205,7 +252,7 @@ class _RecentSearchItem extends StatelessWidget {
                   metadata: SongMetadata(
                     title: song.title,
                     artist: artistsNames,
-                    thumbnail: thumbnail?.url,
+                    thumbnail: thumbnailUrl,
                     duration: song.durationSeconds,
                   ),
                 ),
@@ -221,7 +268,7 @@ class _RecentSearchItem extends StatelessWidget {
                         videoId: song.videoId,
                         title: song.title,
                         artist: artistsNames,
-                        thumbnail: thumbnail?.url,
+                        thumbnail: thumbnailUrl,
                         streamUrl: song.streamUrl,
                         durationSeconds: song.durationSeconds,
                         isFavorite: song.inLibrary,
@@ -235,5 +282,22 @@ class _RecentSearchItem extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  /// Fetch streamUrl desde el backend
+  Future<String?> _fetchStreamUrl(String videoId) async {
+    try {
+      final apiServices = GetIt.I.get<ApiServices>();
+      final response = await apiServices.get('/music/stream/$videoId');
+      final Map<String, dynamic>? data = response is Map<String, dynamic>
+          ? response
+          : (response.data as Map<String, dynamic>?);
+      return data?['streamUrl'] as String?;
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Error fetching streamUrl: $e');
+      }
+      return null;
+    }
   }
 }

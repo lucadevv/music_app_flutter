@@ -296,14 +296,10 @@ class FavoriteCubit extends Cubit<FavoriteState> with BaseBlocMixin {
   }
 
   /// Reproduce una canción específica
-  void playSong(FavoriteSong song) {
+  /// NO disparamos LoadTrackEvent aquí - PlayerScreen lo hace
+  NowPlayingData playSong(FavoriteSong song) {
     final nowPlayingData = _mapToNowPlaying(song);
-    _playerBloc.add(
-      LoadTrackEvent(
-        nowPlayingData,
-        sourceId: 'favorites',
-      ),
-    );
+    return nowPlayingData;
   }
 
   /// Reproduce todas las canciones

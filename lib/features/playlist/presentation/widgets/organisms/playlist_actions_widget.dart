@@ -167,7 +167,7 @@ class PlaylistActionsWidget extends StatelessWidget {
                       },
                     ),
                     const SizedBox(width: 8),
-                    IconButton(
+                    const IconButton(
                       icon: Icon(
                         Icons.download_outlined,
                         color: Colors.white,

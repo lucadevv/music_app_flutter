@@ -42,11 +42,15 @@ class AlbumSong {
   final String? thumbnail;
   final int durationSeconds;
   final int trackNumber;
+  final String? streamUrl;
 
   const AlbumSong({
     required this.videoId,
     required this.title,
-    required this.durationSeconds, required this.trackNumber, this.thumbnail,
+    required this.durationSeconds,
+    required this.trackNumber,
+    this.thumbnail,
+    this.streamUrl,
   });
 
   String get formattedDuration {

@@ -5,7 +5,7 @@ import 'song.dart';
 class SearchResponse {
   final List<Song> results;
   final String query;
-  
+
   // Campos adicionales para paginación
   final List<dynamic> albums;
   final List<dynamic> artists;

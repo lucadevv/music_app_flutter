@@ -18,23 +18,51 @@ part 'player_bloc_event.dart';
 part 'player_bloc_state.dart';
 
 class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
+  final AudioPlayerHandler? _playerHandler;
   PlayerEngine? _engine;
   bool _isEngineInitialized = false;
   final PlayerEngine? _engineOverride;
+
+  // ProfileCubit para acceder a settings (autoPlay)
+  ProfileCubit? _profileCubit;
+
+  /// Setter para inyectar ProfileCubit después de la construcción.
+  /// Necesario para evitar dependencia circular:
+  /// PlayerBlocBloc -> ProfileCubit -> FavoriteCubit -> PlayerBlocBloc
+  void setProfileCubit(ProfileCubit profileCubit) {
+    _profileCubit = profileCubit;
+  }
+
+  final _playlistPlaybackStartedController =
+      StreamController<PlaylistPlaybackStartedEvent>.broadcast();
+  Stream<PlaylistPlaybackStartedEvent> get playlistPlaybackStartedStream =>
+      _playlistPlaybackStartedController.stream;
 
   PlayerEngine get _playerEngine {
     if (_engineOverride != null) return _engineOverride;
     if (_engine != null) return _engine!;
 
-    // Obtener el AudioPlayer del handler
-    final handler = GetIt.I<AudioPlayerHandler>();
+    // Usar el handler inyectado por constructor
+    final handler = _playerHandler;
+    if (handler == null) {
+      throw StateError(
+        'PlayerBlocBloc: playerHandler is required when not using engine override',
+      );
+    }
     _engine = JustAudioPlayerEngine(handler.player);
     return _engine!;
   }
 
-  PlayerBlocBloc({PlayerEngine? engine})
-    : _engineOverride = engine,
-      super(PlayerBlocState.initial()) {
+  /// Creates a PlayerBlocBloc.
+  ///
+  /// [playerHandler] is required in production to access the audio player.
+  /// [engine] can be provided for testing to bypass the real audio player.
+  PlayerBlocBloc({
+    AudioPlayerHandler? playerHandler,
+    PlayerEngine? engine,
+  }) : _playerHandler = playerHandler,
+       _engineOverride = engine,
+       super(PlayerBlocState.initial()) {
     _registerEventHandlers();
 
     // Si hay engine override (tests), inicializar inmediatamente
@@ -137,6 +165,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     on<InitializeAudioServiceEvent>(_onInitializeAudioService);
     on<DisposeAudioServiceEvent>(_onDisposeAudioService);
     on<ResetPlayerEvent>(_onResetPlayer);
+    on<PlaylistPlaybackStartedEvent>(_onPlaylistPlaybackStarted);
   }
 
   Future<void> _onPlay(PlayEvent event, Emitter<PlayerBlocState> emit) async {
@@ -497,6 +526,10 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
       await _playerEngine.seek(Duration.zero, index: startIndex);
       await _playerEngine.play();
       _recordListenToServer(firstTrack.videoId);
+
+      _playlistPlaybackStartedController.add(
+        PlaylistPlaybackStartedEvent(sourceId: event.sourceId),
+      );
     } catch (e) {
       debugPrint('PlayerBloc: Error loading playlist: $e');
       emit(
@@ -728,8 +761,8 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
 
   Future<void> _handleAutoPlay() async {
     try {
-      final profileCubit = GetIt.I<ProfileCubit>();
-      final autoPlayEnabled = profileCubit.state.settings?.autoPlay ?? true;
+      // Usar el campo inyectado en lugar de GetIt
+      final autoPlayEnabled = _profileCubit?.state.settings?.autoPlay ?? true;
 
       if (!autoPlayEnabled) return;
 
@@ -834,6 +867,15 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     }
   }
 
+  void _onPlaylistPlaybackStarted(
+    PlaylistPlaybackStartedEvent event,
+    Emitter<PlayerBlocState> emit,
+  ) {
+    debugPrint(
+      'PlayerBloc: Playlist playback started - sourceId=${event.sourceId}',
+    );
+  }
+
   // ========== Historial de reproducción ==========
 
   String? _currentHistoryId;
@@ -931,11 +973,10 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
   }
 
   void _updateHandlerMediaItem(NowPlayingData track) {
+    final handler = _playerHandler;
+    if (handler == null) return; // No-op en tests con engine override
     try {
-      if (GetIt.I.isRegistered<AudioPlayerHandler>()) {
-        final handler = GetIt.I<AudioPlayerHandler>();
-        handler.updateNowPlaying(track);
-      }
+      handler.updateNowPlaying(track);
     } catch (e) {
       debugPrint('PlayerBloc: Handler update error: $e');
     }
@@ -961,6 +1002,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     await _durationSubscription?.cancel();
     await _bufferedPositionSubscription?.cancel();
     await _currentIndexSubscription?.cancel();
+    await _playlistPlaybackStartedController.close();
 
     return super.close();
   }

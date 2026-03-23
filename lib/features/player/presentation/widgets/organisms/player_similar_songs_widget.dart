@@ -1,8 +1,10 @@
 // ignore_for_file: use_late_for_private_fields_and_variables, avoid_dynamic_calls
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:music_app/core/services/network/api_services.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/home/presentation/widgets/organisms/home_shimmer.dart';
@@ -259,14 +261,14 @@ class _PlayerSimilarSongsWidgetState extends State<PlayerSimilarSongsWidget> {
     );
   }
 
-  void _playTrack({
+  Future<void> _playTrack({
     required String videoId,
     required String title,
     required String artist,
     required String? thumbnailUrl,
     required String? streamUrl,
     required String duration,
-  }) {
+  }) async {
     // Convert duration string to seconds (handles "M:SS" and "H:MM:SS" formats)
     int durationSeconds = 0;
     try {
@@ -278,6 +280,12 @@ class _PlayerSimilarSongsWidgetState extends State<PlayerSimilarSongsWidget> {
       }
     } catch (_) {}
 
+    // ✅ Fetch streamUrl on demand si no existe
+    String? resolvedStreamUrl = streamUrl;
+    if (resolvedStreamUrl == null || resolvedStreamUrl.isEmpty) {
+      resolvedStreamUrl = await _fetchStreamUrl(videoId);
+    }
+
     final nowPlayingData = NowPlayingData.fromBasic(
       videoId: videoId,
       title: title,
@@ -286,10 +294,27 @@ class _PlayerSimilarSongsWidgetState extends State<PlayerSimilarSongsWidget> {
       duration: duration,
       durationSeconds: durationSeconds,
       thumbnailUrl: thumbnailUrl,
-      streamUrl: streamUrl,
+      streamUrl: resolvedStreamUrl,
     );
 
-    context.read<PlayerBlocBloc>().add(LoadTrackEvent(nowPlayingData, sourceId: 'radio'));
+    if (mounted) {
+      context.read<PlayerBlocBloc>().add(LoadTrackEvent(nowPlayingData, sourceId: 'radio'));
+    }
+  }
+
+  /// Fetch streamUrl desde el backend
+  Future<String?> _fetchStreamUrl(String videoId) async {
+    try {
+      final apiServices = GetIt.I.get<ApiServices>();
+      final response = await apiServices.get('/music/stream/$videoId');
+      final data = response is Map ? response : (response.data as Map?);
+      return data?['streamUrl'] as String?;
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Error fetching streamUrl: $e');
+      }
+      return null;
+    }
   }
 }
 

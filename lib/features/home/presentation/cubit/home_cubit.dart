@@ -1,13 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/bloc/base_bloc_mixin.dart';
+import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/home/domain/entities/chart_song.dart';
 import 'package:music_app/features/home/domain/entities/home_content_item.dart';
 import 'package:music_app/features/home/domain/entities/home_response.dart';
 import 'package:music_app/features/home/domain/entities/home_section.dart';
 import 'package:music_app/features/home/domain/use_cases/get_home_use_case.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
-import 'package:music_app/features/player/domain/player_facade.dart';
 
 part 'home_state.dart';
 
@@ -19,9 +19,9 @@ part 'home_state.dart';
 /// Clean Architecture: Capa de presentación - maneja el estado de la UI
 class HomeCubit extends Cubit<HomeState> with BaseBlocMixin {
   final GetHomeUseCase _getHomeUseCase;
-  final PlayerFacade _player;
+  final PlayerBlocBloc _playerBloc;
 
-  HomeCubit(this._getHomeUseCase, this._player) : super(const HomeState());
+  HomeCubit(this._getHomeUseCase, this._playerBloc) : super(const HomeState());
 
   /// Carga los datos del home
   Future<void> loadHome() async {
@@ -62,9 +62,11 @@ class HomeCubit extends Cubit<HomeState> with BaseBlocMixin {
     final nowPlaying = _mapContentItemToNowPlaying(item);
     if (nowPlaying == null) return;
     final playlist = [nowPlaying];
-    _player.playPlaylist(playlist: playlist, startIndex: 0, sourceId: 'home');
+    _playerBloc.add(
+      LoadPlaylistEvent(playlist: playlist, startIndex: 0, sourceId: 'home'),
+    );
   }
-  
+
   /// Filtra las secciones del home en base a un string de búsqueda.
   void filterHome(String query) {
     emit(state.copyWith(filterQuery: query));
@@ -75,10 +77,12 @@ class HomeCubit extends Cubit<HomeState> with BaseBlocMixin {
     final nowPlaying = _mapContentItemToNowPlaying(item);
     if (nowPlaying == null) return;
     final playlist = [nowPlaying];
-    _player.playPlaylist(
-      playlist: playlist,
-      startIndex: trackIndex,
-      sourceId: 'home',
+    _playerBloc.add(
+      LoadPlaylistEvent(
+        playlist: playlist,
+        startIndex: trackIndex,
+        sourceId: 'home',
+      ),
     );
   }
 
@@ -91,8 +95,10 @@ class HomeCubit extends Cubit<HomeState> with BaseBlocMixin {
     debugPrint('  - videoId: ${item.videoId}');
     debugPrint('  - title: ${item.title}');
     debugPrint('  - streamUrl: ${item.streamUrl}');
-    debugPrint('  - has streamUrl: ${item.streamUrl != null && item.streamUrl!.isNotEmpty}');
-    
+    debugPrint(
+      '  - has streamUrl: ${item.streamUrl != null && item.streamUrl!.isNotEmpty}',
+    );
+
     NowPlayingData? nowPlayingData;
 
     // Determinar tipo de contenido
@@ -113,22 +119,24 @@ class HomeCubit extends Cubit<HomeState> with BaseBlocMixin {
             thumbnail: item.thumbnail,
             streamUrl: item.streamUrl,
           );
-          debugPrint('DEBUG: Creando NowPlayingData con streamUrl: ${nowPlayingData.streamUrl}');
-          _player.playSingle(nowPlayingData);
+          debugPrint(
+            'DEBUG: Creando NowPlayingData con streamUrl: ${nowPlayingData.streamUrl}',
+          );
+          // NO disparamos LoadTrackEvent aquí - PlayerScreen lo hace
           return nowPlayingData;
         }
         break;
-        
+
       case HomeContentType.album:
         // Es un álbum - no se reproduce directamente, se navega al álbum
         debugPrint('DEBUG: Es un álbum, no se reproduce directamente');
         break;
-        
+
       case HomeContentType.playlist:
         // Es una playlist - no se reproduce directamente, se navega a la playlist
         debugPrint('DEBUG: Es una playlist, no se reproduce directamente');
         break;
-        
+
       case HomeContentType.unknown:
         debugPrint('DEBUG: Tipo desconocido');
         break;
@@ -153,7 +161,7 @@ class HomeCubit extends Cubit<HomeState> with BaseBlocMixin {
       thumbnailUrl: song.thumbnail,
     );
 
-    _player.playSingle(nowPlayingData);
+    // NO disparamos LoadTrackEvent aquí - PlayerScreen lo hace
     return nowPlayingData;
   }
 

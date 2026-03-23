@@ -3,14 +3,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/bloc/base_bloc_mixin.dart';
 import 'package:music_app/features/album/domain/entities/album.dart';
 import 'package:music_app/features/album/domain/repositories/album_repository.dart';
+import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
+import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 
 part 'album_state.dart';
 
 class AlbumCubit extends Cubit<AlbumState> with BaseBlocMixin {
   final AlbumRepository _repository;
+  final PlayerBlocBloc _playerBloc;
   String? _currentAlbumId;
 
-  AlbumCubit(this._repository) : super(const AlbumState());
+  AlbumCubit(this._repository, this._playerBloc) : super(const AlbumState());
 
   Future<void> loadAlbum(String albumId) async {
     if (state.status == AlbumStatus.loading) return;
@@ -62,7 +65,61 @@ class AlbumCubit extends Cubit<AlbumState> with BaseBlocMixin {
     }
   }
 
-  void playSong(AlbumSong song) {
-    // This will be connected to PlayerBloc via the screen
+  bool playSong(AlbumSong song, List<AlbumSong> allSongs) {
+    // Validar streamUrl
+    if (song.streamUrl == null || song.streamUrl!.isEmpty) {
+      emit(state.copyWith(errorMessage: 'Canción no disponible'));
+      return false;
+    }
+
+    // NO disparamos LoadTrackEvent aquí - PlayerScreen lo hace
+    // Solo preparamos los datos y retornamos true
+    return true;
+  }
+
+  NowPlayingData? playAllAlbumSongs(List<AlbumSong> songs, {int startIndex = 0}) {
+    if (songs.isEmpty) return null;
+
+    final validSongs = songs
+        .where(
+          (s) =>
+              s.videoId.isNotEmpty &&
+              s.streamUrl != null &&
+              s.streamUrl!.isNotEmpty,
+        )
+        .toList();
+
+    if (validSongs.isEmpty) return null;
+
+    if (startIndex < 0 || startIndex >= validSongs.length) {
+      startIndex = 0;
+    }
+
+    final playlist = validSongs.map(mapAlbumSongToNowPlaying).toList();
+
+    _playerBloc.add(
+      LoadPlaylistEvent(
+        playlist: playlist,
+        startIndex: startIndex,
+        sourceId: 'album:$_currentAlbumId',
+      ),
+    );
+
+    return playlist[startIndex];
+  }
+
+  NowPlayingData mapAlbumSongToNowPlaying(AlbumSong song) {
+    final albumName = state.album?.title ?? '';
+    final artistName = state.album?.artistName ?? 'Unknown Artist';
+    return NowPlayingData.fromBasic(
+      videoId: song.videoId,
+      title: song.title,
+      artistNames: [artistName],
+      albumName: albumName,
+      duration: song.formattedDuration,
+      durationSeconds: song.durationSeconds,
+      thumbnailUrl: song.thumbnail,
+      streamUrl: song.streamUrl,
+    );
   }
 }

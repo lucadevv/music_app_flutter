@@ -5,6 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/core/widgets/language_selector.dart';
+import 'package:music_app/features/auth/login/domain/use_cases/login_use_case.dart';
+import 'package:music_app/features/auth/login/domain/use_cases/oauth_sign_in_use_case.dart';
 import 'package:music_app/features/auth/login/presentation/cubit/login_cubit.dart';
 import 'package:music_app/features/auth/login/presentation/widgets/login_listeners.dart';
 import 'package:music_app/features/auth/presentation/cubit/orquestador_auth_cubit.dart';
@@ -23,9 +25,15 @@ class SocialLoginScreen extends StatefulWidget implements AutoRouteWrapper {
   Widget wrappedRoute(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<LoginCubit>(create: (_) => getIt<LoginCubit>()),
+        BlocProvider<LoginCubit>(
+          create: (_) => LoginCubit(
+            loginUseCase: getIt<LoginUseCase>(),
+            googleSignInUseCase: getIt<GoogleSignInUseCase>(),
+            appleSignInUseCase: getIt<AppleSignInUseCase>(),
+          ),
+        ),
         BlocProvider<OrquestadorAuthCubit>(
-          create: (_) => getIt<OrquestadorAuthCubit>(),
+          create: (_) => OrquestadorAuthCubit(),
         ),
       ],
       child: this,

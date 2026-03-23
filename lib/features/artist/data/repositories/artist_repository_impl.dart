@@ -30,7 +30,10 @@ class ArtistRepositoryImpl implements ArtistRepository {
   @override
   Future<List<ArtistSong>> getArtistTopSongs(String artistId) async {
     try {
-      final response = await _apiServices.get('/artists/$artistId/top-songs');
+      final response = await _apiServices.get(
+        '/artists/$artistId/top-songs',
+        queryParameters: {'include_stream_urls': 'true'},
+      );
       final data = response is Response ? response.data : response;
       final List<dynamic> songs = data['songs'] ?? [];
 
@@ -42,6 +45,7 @@ class ArtistRepositoryImpl implements ArtistRepository {
               thumbnail: song['thumbnail'],
               durationSeconds: song['durationSeconds'] ?? 0,
               views: song['views'] ?? 0,
+              streamUrl: song['streamUrl'],
             ),
           )
           .toList();

@@ -8,6 +8,7 @@ import 'package:music_app/core/utils/extension/sizedbox_extension.dart';
 import 'package:music_app/core/widgets/language_selector.dart';
 import 'package:music_app/features/auth/presentation/cubit/orquestador_auth_cubit.dart';
 import 'package:music_app/features/auth/register/domain/entities/register_request.dart';
+import 'package:music_app/features/auth/register/domain/use_cases/register_use_case.dart';
 import 'package:music_app/features/auth/register/presentation/cubit/register_cubit.dart';
 
 import 'package:music_app/features/auth/register/presentation/notifiers/register_form_notifier.dart';
@@ -28,9 +29,13 @@ class RegisterScreen extends StatefulWidget implements AutoRouteWrapper {
   Widget wrappedRoute(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<RegisterCubit>(create: (_) => getIt<RegisterCubit>()),
+        BlocProvider<RegisterCubit>(
+          create: (_) => RegisterCubit(
+            registerUseCase: getIt<RegisterUseCase>(),
+          ),
+        ),
         BlocProvider<OrquestadorAuthCubit>(
-          create: (_) => getIt<OrquestadorAuthCubit>(),
+          create: (_) => OrquestadorAuthCubit(),
         ),
       ],
       child: this,

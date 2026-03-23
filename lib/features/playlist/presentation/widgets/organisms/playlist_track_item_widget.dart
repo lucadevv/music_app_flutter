@@ -6,6 +6,7 @@ import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/presentation/widgets/song_list_item.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
+import 'package:music_app/features/favorites/presentation/cubit/favorite_cubit.dart';
 import 'package:music_app/features/favorites/presentation/widgets/favorite_button.dart';
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
@@ -34,7 +35,6 @@ class PlaylistTrackItemWidget extends StatelessWidget {
   }
 
   @override
-
   Widget build(BuildContext context) {
     final thumbnail =
         track.thumbnail ??
@@ -55,7 +55,7 @@ class PlaylistTrackItemWidget extends StatelessWidget {
 
         final isCurrentlyPlaying = isCurrentTrack && playerState.isPlaying;
 
-//         final isPlaylistLoaded = _isPlaylistLoaded(playerState, allTracks);
+        //         final isPlaylistLoaded = _isPlaylistLoaded(playerState, allTracks);
 
         return Opacity(
           opacity: isDisabled ? 0.5 : 1.0,
@@ -76,18 +76,18 @@ class PlaylistTrackItemWidget extends StatelessWidget {
                           size: 20,
                         )
                       : isCurrentTrack
-                          ? const Icon(
-                              Icons.pause,
-                              color: AppColorsDark.primary,
-                              size: 20,
-                            )
-                          : Icon(
-                              Icons.play_arrow,
-                              color: Colors.white.withValues(
-                                alpha: isDisabled ? 0.3 : 0.6,
-                              ),
-                              size: 20,
-                            ),
+                      ? const Icon(
+                          Icons.pause,
+                          color: AppColorsDark.primary,
+                          size: 20,
+                        )
+                      : Icon(
+                          Icons.play_arrow,
+                          color: Colors.white.withValues(
+                            alpha: isDisabled ? 0.3 : 0.6,
+                          ),
+                          size: 20,
+                        ),
                 ),
                 const SizedBox(width: 8),
                 // Botón de favorito
@@ -136,12 +136,14 @@ class PlaylistTrackItemWidget extends StatelessWidget {
 
                     // Filtrar tracks válidos
                     final validTracks = allTracks
-                        .where((t) =>
-                            t.isAvailable &&
-                            t.videoId != null &&
-                            t.videoId!.isNotEmpty &&
-                            t.streamUrl != null &&
-                            t.streamUrl!.isNotEmpty)
+                        .where(
+                          (t) =>
+                              t.isAvailable &&
+                              t.videoId != null &&
+                              t.videoId!.isNotEmpty &&
+                              t.streamUrl != null &&
+                              t.streamUrl!.isNotEmpty,
+                        )
                         .toList();
 
                     if (validTracks.isEmpty) return;
@@ -152,14 +154,18 @@ class PlaylistTrackItemWidget extends StatelessWidget {
                         .toList();
 
                     // Encontrar el índice de la canción seleccionada
-                    final index = validTracks.indexWhere((t) => t.videoId == track.videoId);
+                    final index = validTracks.indexWhere(
+                      (t) => t.videoId == track.videoId,
+                    );
 
                     // Cargar toda la playlist empezando desde la canción seleccionada
-                    playerBloc.add(LoadPlaylistEvent(
-                      playlist: nowPlayingTracks,
-                      startIndex: index >= 0 ? index : 0,
-                      sourceId: playlistId,
-                    ));
+                    playerBloc.add(
+                      LoadPlaylistEvent(
+                        playlist: nowPlayingTracks,
+                        startIndex: index >= 0 ? index : 0,
+                        sourceId: playlistId,
+                      ),
+                    );
 
                     // Navegar al player (playAsSingle: false para ver el carousel)
                     context.router.push(
@@ -176,6 +182,9 @@ class PlaylistTrackItemWidget extends StatelessWidget {
   }
 
   void _showTrackOptionsBottomSheet(BuildContext context) {
+    final favoriteCubit = context.read<FavoriteCubit>();
+    final isFavorite = favoriteCubit.isSongFavorite(track.videoId ?? '');
+
     SongOptionsBottomSheet.show(
       context: context,
       song: SongOptionsData(
@@ -187,7 +196,7 @@ class PlaylistTrackItemWidget extends StatelessWidget {
             (track.thumbnails.isNotEmpty ? track.thumbnails.last.url : null),
         streamUrl: track.streamUrl,
         durationSeconds: track.durationSeconds,
-        isFavorite: track.inLibrary ?? false,
+        isFavorite: isFavorite,
       ),
     );
   }

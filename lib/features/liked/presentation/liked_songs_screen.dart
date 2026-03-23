@@ -1,14 +1,16 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/presentation/widgets/song_list_item.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/core/widgets/shimmer_widgets.dart';
+import 'package:music_app/data/offline/services/offline_service.dart';
+import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/library/presentation/cubit/library_cubit.dart';
 import 'package:music_app/l10n/app_localizations.dart';
+import 'package:music_app/main.dart';
 
 @RoutePage()
 class LikedSongsScreen extends StatelessWidget {
@@ -17,7 +19,11 @@ class LikedSongsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => GetIt.I<LibraryCubit>()..loadLibrary(),
+      create: (_) => LibraryCubit(
+        getIt<LibraryService>(),
+        getIt<OfflineService>(),
+        context.read<PlayerBlocBloc>(),
+      )..loadLibrary(),
       child: const Scaffold(
         backgroundColor: Color(0xFF0D0D0D),
         body: _LikedSongsScreenView(),
@@ -86,8 +92,7 @@ class _LikedSongsScreenViewState extends State<_LikedSongsScreenView> {
                   childCount: 10,
                 ),
               ),
-            ]
-            else if (state.status == LibraryStatus.failure)
+            ] else if (state.status == LibraryStatus.failure)
               SliverFillRemaining(
                 child: _buildError(state.errorMessage, context, l10n),
               )
@@ -259,32 +264,37 @@ class _LikedSongsScreenViewState extends State<_LikedSongsScreenView> {
     }
 
     return SliverList(
-      delegate: SliverChildBuilderDelegate((context, index) {
-        // Mostrar indicador de carga al final de la lista
-        if (index == state.favoriteSongs.length) {
-          if (state.isLoadingMoreSongs) {
-            return const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Center(
-                child: CircularProgressIndicator(
-                  color: AppColorsDark.primary,
-                  strokeWidth: 2,
+      delegate: SliverChildBuilderDelegate(
+        (context, index) {
+          // Mostrar indicador de carga al final de la lista
+          if (index == state.favoriteSongs.length) {
+            if (state.isLoadingMoreSongs) {
+              return const Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Center(
+                  child: CircularProgressIndicator(
+                    color: AppColorsDark.primary,
+                    strokeWidth: 2,
+                  ),
                 ),
-              ),
-            );
+              );
+            }
+            return const SizedBox.shrink();
           }
-          return const SizedBox.shrink();
-        }
 
-        final song = state.favoriteSongs[index];
-        return SongListItemWithRemove(
-          title: song.title,
-          artist: song.artist,
-          thumbnail: song.thumbnail,
-          onTap: () => _playSong(context, song),
-          onRemove: () => _removeSong(context, song),
-        );
-      }, childCount: state.favoriteSongs.length + (state.isLoadingMoreSongs || state.hasMoreSongs ? 1 : 0)),
+          final song = state.favoriteSongs[index];
+          return SongListItemWithRemove(
+            title: song.title,
+            artist: song.artist,
+            thumbnail: song.thumbnail,
+            onTap: () => _playSong(context, song),
+            onRemove: () => _removeSong(context, song),
+          );
+        },
+        childCount:
+            state.favoriteSongs.length +
+            (state.isLoadingMoreSongs || state.hasMoreSongs ? 1 : 0),
+      ),
     );
   }
 
@@ -326,7 +336,9 @@ class _LikedSongsScreenViewState extends State<_LikedSongsScreenView> {
     );
     if (nowPlayingData != null) {
       // Playlist - mantener la lista
-      context.router.push(PlayerRoute(nowPlayingData: nowPlayingData, playAsSingle: false));
+      context.router.push(
+        PlayerRoute(nowPlayingData: nowPlayingData, playAsSingle: false),
+      );
     }
   }
 
@@ -334,7 +346,9 @@ class _LikedSongsScreenViewState extends State<_LikedSongsScreenView> {
     // Usar el método del Cubit
     final nowPlayingData = context.read<LibraryCubit>().playSong(song);
     // Canción individual
-    context.router.push(PlayerRoute(nowPlayingData: nowPlayingData, playAsSingle: true));
+    context.router.push(
+      PlayerRoute(nowPlayingData: nowPlayingData, playAsSingle: true),
+    );
   }
 
   void _removeSong(BuildContext context, FavoriteSong song) {

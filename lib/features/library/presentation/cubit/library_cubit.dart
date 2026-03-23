@@ -3,21 +3,21 @@ import 'package:music_app/core/bloc/base_bloc_mixin.dart';
 import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
 import 'package:music_app/data/offline/models/offline_playlist.dart';
 import 'package:music_app/data/offline/services/offline_service.dart';
+import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
-import 'package:music_app/features/player/domain/player_facade.dart';
 
 part 'library_state.dart';
 
 class LibraryCubit extends Cubit<LibraryState> with BaseBlocMixin {
   final LibraryService _libraryService;
   final OfflineService _offlineService;
-  final PlayerFacade _player;
+  final PlayerBlocBloc _playerBloc;
 
   static const int _pageSize = 10;
 
-  LibraryCubit(this._libraryService, this._offlineService, this._player)
-      : super(const LibraryState());
+  LibraryCubit(this._libraryService, this._offlineService, this._playerBloc)
+    : super(const LibraryState());
 
   Future<void> loadLibrary() async {
     if (state.status == LibraryStatus.loading) return;
@@ -91,9 +91,7 @@ class LibraryCubit extends Cubit<LibraryState> with BaseBlocMixin {
           allPlaylists: allPlaylists,
           favoriteGenres: genresResponse.data,
           totalSongs: songsResponse.total,
-          totalPlaylists:
-              userPlaylistsResponse.total +
-              playlistsResponse.total,
+          totalPlaylists: userPlaylistsResponse.total + playlistsResponse.total,
           totalGenres: genresResponse.total,
           summary: summary,
           clearError: true,
@@ -226,20 +224,25 @@ class LibraryCubit extends Cubit<LibraryState> with BaseBlocMixin {
 
   NowPlayingData playSong(FavoriteSong song) {
     final nowPlayingData = _mapFavoriteSongToNowPlaying(song);
-    _player.playSingle(nowPlayingData);
+    // NO disparamos LoadTrackEvent aquí - PlayerScreen lo hace
     return nowPlayingData;
   }
 
-  NowPlayingData? playAllFavoriteSongsFromIndex(List<FavoriteSong> songs, int startIndex) {
+  NowPlayingData? playAllFavoriteSongsFromIndex(
+    List<FavoriteSong> songs,
+    int startIndex,
+  ) {
     if (songs.isEmpty) return null;
     if (startIndex < 0 || startIndex >= songs.length) startIndex = 0;
 
     final playlist = songs.map(_mapFavoriteSongToNowPlaying).toList();
 
-    _player.playPlaylist(
-      playlist: playlist,
-      startIndex: startIndex,
-      sourceId: 'library',
+    _playerBloc.add(
+      LoadPlaylistEvent(
+        playlist: playlist,
+        startIndex: startIndex,
+        sourceId: 'library',
+      ),
     );
     return playlist[startIndex];
   }
@@ -250,8 +253,8 @@ class LibraryCubit extends Cubit<LibraryState> with BaseBlocMixin {
     final playlist = songs.map(_mapFavoriteSongToNowPlaying).toList();
 
     int startIndex = 0;
-    final currentTrack = _player.state.currentTrack;
-    
+    final currentTrack = _playerBloc.state.currentTrack;
+
     if (currentTrack != null) {
       final currentIndex = playlist.indexWhere(
         (track) => track.videoId == currentTrack.videoId,
@@ -261,13 +264,15 @@ class LibraryCubit extends Cubit<LibraryState> with BaseBlocMixin {
       }
     }
 
-     _player.playPlaylist(
-       playlist: playlist,
-       startIndex: startIndex,
-       sourceId: 'library',
-     );
-     return playlist[startIndex];
-   }
+    _playerBloc.add(
+      LoadPlaylistEvent(
+        playlist: playlist,
+        startIndex: startIndex,
+        sourceId: 'library',
+      ),
+    );
+    return playlist[startIndex];
+  }
 
   NowPlayingData _mapFavoriteSongToNowPlaying(FavoriteSong song) {
     return NowPlayingData.fromBasic(

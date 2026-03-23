@@ -9,8 +9,8 @@ import 'package:music_app/core/utils/extension/sizedbox_extension.dart';
 import 'package:music_app/core/widgets/custom_search_bar.dart';
 import 'package:music_app/core/widgets/shimmer_widgets.dart';
 import 'package:music_app/data/offline/services/offline_service.dart';
+import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/library/library_service.dart';
-import 'package:music_app/features/player/domain/player_facade.dart';
 import 'package:music_app/features/library/presentation/cubit/library_cubit.dart';
 import 'package:music_app/features/library/presentation/widgets/atoms/profile_avatar.dart';
 import 'package:music_app/features/library/presentation/widgets/molecules/playlist_card.dart';
@@ -38,10 +38,10 @@ class LibraryScreen extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (_) => LibraryCubit(
+          create: (ctx) => LibraryCubit(
             GetIt.I<LibraryService>(),
             GetIt.I<OfflineService>(),
-            GetIt.I<PlayerFacade>(),
+            ctx.read<PlayerBlocBloc>(),
           )..loadLibrary(),
         ),
       ],

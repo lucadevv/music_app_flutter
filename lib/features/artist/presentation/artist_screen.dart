@@ -12,23 +12,29 @@ import 'package:music_app/features/artist/domain/entities/artist.dart';
 import 'package:music_app/features/artist/domain/repositories/artist_repository.dart';
 import 'package:music_app/features/artist/presentation/cubit/artist_cubit.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
-import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 import 'package:music_app/features/song_options/presentation/widgets/song_options_bottom_sheet.dart';
 import 'package:music_app/l10n/app_localizations.dart';
 
 @RoutePage()
-class ArtistScreen extends StatelessWidget {
+class ArtistScreen extends StatelessWidget implements AutoRouteWrapper {
   final String artistId;
 
   const ArtistScreen({@PathParam('id') required this.artistId, super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget wrappedRoute(BuildContext context) {
     return BlocProvider(
-      create: (_) =>
-          ArtistCubit(GetIt.I<ArtistRepository>())..loadArtist(artistId),
-      child: _ArtistView(artistId: artistId),
+      create: (_) => ArtistCubit(
+        GetIt.I<ArtistRepository>(),
+        context.read<PlayerBlocBloc>(),
+      )..loadArtist(artistId),
+      child: this,
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _ArtistView(artistId: artistId);
   }
 }
 
@@ -272,57 +278,32 @@ class _ArtistView extends StatelessWidget {
     ArtistSong song,
     List<ArtistSong> allSongs,
   ) {
-    final nowPlayingData = NowPlayingData.fromBasic(
-      videoId: song.videoId,
-      title: song.title,
-      artistNames: [allSongs.first.title],
-      albumName: '',
-      duration: song.formattedDuration,
-      durationSeconds: song.durationSeconds,
-      thumbnailUrl: song.thumbnail,
-    );
+    final cubit = context.read<ArtistCubit>();
 
-    context.read<PlayerBlocBloc>().add(
-      LoadTrackEvent(
-        nowPlayingData,
-        sourceId: 'single:${nowPlayingData.videoId}',
-      ),
-    );
-    // Canción individual
-    context.router.push(
-      PlayerRoute(nowPlayingData: nowPlayingData, playAsSingle: true),
-    );
+    // Usar el método del Cubit para reproducir (con validación de streamUrl)
+    final success = cubit.playSong(song, allSongs);
+
+    // Navegar al player solo si la reproducción fue exitosa
+    if (success) {
+      final nowPlayingData = cubit.mapArtistSongToNowPlaying(song);
+      context.router.push(
+        PlayerRoute(nowPlayingData: nowPlayingData, playAsSingle: true),
+      );
+    }
   }
 
   void _playAllTopSongs(BuildContext context, List<ArtistSong> songs) {
     if (songs.isEmpty) return;
 
-    final playlist = songs
-        .map(
-          (song) => NowPlayingData.fromBasic(
-            videoId: song.videoId,
-            title: song.title,
-            artistNames: const [],
-            albumName: '',
-            duration: song.formattedDuration,
-            durationSeconds: song.durationSeconds,
-            thumbnailUrl: song.thumbnail,
-          ),
-        )
-        .toList();
+    // Usar el método del Cubit para cargar la playlist
+    final nowPlayingData = context.read<ArtistCubit>().playAllTopSongs(songs);
 
-    context.read<PlayerBlocBloc>().add(
-      LoadPlaylistEvent(
-        playlist: playlist,
-        startIndex: 0,
-        sourceId: 'artist:$artistId',
-      ),
-    );
-
-    // Playlist - mantener la lista
-    context.router.push(
-      PlayerRoute(nowPlayingData: playlist.first, playAsSingle: false),
-    );
+    if (nowPlayingData != null) {
+      // Navegar al player
+      context.router.push(
+        PlayerRoute(nowPlayingData: nowPlayingData, playAsSingle: false),
+      );
+    }
   }
 }
 

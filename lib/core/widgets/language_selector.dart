@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/bloc/locale_cubit.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
-import 'package:music_app/main.dart';
 
-/// Widget reutilizable para seleccionar idioma
+/// Widget reutilizable for seleccionar idioma
 class LanguageSelector extends StatelessWidget {
   final Color? backgroundColor;
   final Color? textColor;
@@ -50,15 +49,13 @@ class LanguageSelector extends StatelessWidget {
   }
 
   void _changeLanguage(BuildContext context, String languageCode) {
+    // Usar el contexto para obtener el cubit del árbol de widgets (ya provisto en app.dart)
     try {
-      // Usar el contexto para obtener el cubit del widget tree
       final localeCubit = context.read<LocaleCubit>();
       localeCubit.setLocaleByCode(languageCode);
     } catch (e) {
       // Fallback: obtener de getIt si no está en el contexto
-      if (getIt.isRegistered<LocaleCubit>()) {
-        getIt<LocaleCubit>().setLocaleByCode(languageCode);
-      }
+      // No longer needed - LocaleCubit is now provided via BlocProvider in app.dart
     }
   }
 }

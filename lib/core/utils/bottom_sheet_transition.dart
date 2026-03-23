@@ -1,5 +1,7 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:music_app/core/utils/bottom_sheet_visibility.dart';
 
 /// Helper para transiciones seguras entre bottom sheets
@@ -65,15 +67,17 @@ class BottomSheetTransition {
 
         if (!context.mounted) return;
 
-        BottomSheetVisibility().showBottomSheet(
-          context: context,
-          builder: builder,
+        unawaited(
+          BottomSheetVisibility().showBottomSheet(
+            context: context,
+            builder: builder,
+          ),
         );
       } catch (e) {
         debugPrint('Error in bottom sheet async transition: $e');
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
+            const SnackBar(
               content: Text('Error al abrir opciones'),
               backgroundColor: Colors.red,
             ),

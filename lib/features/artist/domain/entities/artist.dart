@@ -32,12 +32,15 @@ class ArtistSong {
   final String? thumbnail;
   final int durationSeconds;
   final int views;
+  final String? streamUrl;
 
   const ArtistSong({
     required this.videoId,
     required this.title,
-    required this.durationSeconds, this.thumbnail,
+    required this.durationSeconds,
+    this.thumbnail,
     this.views = 0,
+    this.streamUrl,
   });
 
   String get formattedDuration {

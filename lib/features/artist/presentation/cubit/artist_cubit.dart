@@ -3,14 +3,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/bloc/base_bloc_mixin.dart';
 import 'package:music_app/features/artist/domain/entities/artist.dart';
 import 'package:music_app/features/artist/domain/repositories/artist_repository.dart';
+import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
+import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 
 part 'artist_state.dart';
 
 class ArtistCubit extends Cubit<ArtistState> with BaseBlocMixin {
   final ArtistRepository _repository;
+  final PlayerBlocBloc _playerBloc;
   String? _currentArtistId;
 
-  ArtistCubit(this._repository) : super(const ArtistState());
+  ArtistCubit(this._repository, this._playerBloc) : super(const ArtistState());
 
   Future<void> loadArtist(String artistId) async {
     if (state.status == ArtistStatus.loading) return;
@@ -67,8 +70,60 @@ class ArtistCubit extends Cubit<ArtistState> with BaseBlocMixin {
     }
   }
 
-  void playSong(ArtistSong song) {
-    // This will be connected to PlayerBloc
-    // For now, the UI will handle this
+  bool playSong(ArtistSong song, List<ArtistSong> allSongs) {
+    // Validar streamUrl
+    if (song.streamUrl == null || song.streamUrl!.isEmpty) {
+      emit(state.copyWith(errorMessage: 'Canción no disponible'));
+      return false;
+    }
+
+    // NO disparamos LoadTrackEvent aquí - PlayerScreen lo hace
+    // Solo preparamos los datos y retornamos true
+    return true;
+  }
+
+  NowPlayingData? playAllTopSongs(List<ArtistSong> songs, {int startIndex = 0}) {
+    if (songs.isEmpty) return null;
+
+    final validSongs = songs
+        .where(
+          (s) =>
+              s.videoId.isNotEmpty &&
+              s.streamUrl != null &&
+              s.streamUrl!.isNotEmpty,
+        )
+        .toList();
+
+    if (validSongs.isEmpty) return null;
+
+    if (startIndex < 0 || startIndex >= validSongs.length) {
+      startIndex = 0;
+    }
+
+    final playlist = validSongs.map(mapArtistSongToNowPlaying).toList();
+
+    _playerBloc.add(
+      LoadPlaylistEvent(
+        playlist: playlist,
+        startIndex: startIndex,
+        sourceId: 'artist:$_currentArtistId',
+      ),
+    );
+
+    return playlist[startIndex];
+  }
+
+  NowPlayingData mapArtistSongToNowPlaying(ArtistSong song) {
+    final artistName = state.artist?.name ?? 'Unknown Artist';
+    return NowPlayingData.fromBasic(
+      videoId: song.videoId,
+      title: song.title,
+      artistNames: [artistName],
+      albumName: '',
+      duration: song.formattedDuration,
+      durationSeconds: song.durationSeconds,
+      thumbnailUrl: song.thumbnail,
+      streamUrl: song.streamUrl,
+    );
   }
 }

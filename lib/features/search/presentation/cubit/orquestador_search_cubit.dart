@@ -3,7 +3,7 @@ import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:music_app/features/search/domain/entities/song.dart';
+import 'package:music_app/core/domain/entities/song.dart';
 import 'package:music_app/features/search/domain/use_cases/update_selected_song_use_case.dart';
 
 import '../cubit/recent_searches_cubit.dart'
@@ -35,13 +35,9 @@ class OrquestadorSearchCubit extends Cubit<OrquestadorSearchState> {
   }
 
   void saveSelectedSong(Song song, String query) {
-     _updateSelectedSongUseCase(
-      query: query,
-      videoId: song.videoId,
-      song: song,
-    );
-     // Recargar lista de busquedas luego de insertar
-     _recentSearchesCubit.getRecentSearches();
+    _updateSelectedSongUseCase(query: query, videoId: song.videoId, song: song);
+    // Recargar lista de busquedas luego de insertar
+    _recentSearchesCubit.getRecentSearches();
   }
 
   void _startListening() {

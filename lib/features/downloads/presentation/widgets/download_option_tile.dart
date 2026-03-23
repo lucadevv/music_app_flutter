@@ -62,7 +62,6 @@ class _DownloadOptionTileState extends State<DownloadOptionTile> {
 
   Future<void> _initCubit() async {
     try {
-      // Intentar usar el provider global primero
       _cubit = context.read<DownloadsCubit>();
 
       // Subscribe to stream to keep UI updated
@@ -78,30 +77,8 @@ class _DownloadOptionTileState extends State<DownloadOptionTile> {
         });
       }
     } catch (e) {
-      // Provider no disponible - usar getIt (fallback para backward compatibility)
-      try {
-        _cubit = await GetIt.I.getAsync<DownloadsCubit>();
-
-        _subscription = _cubit!.stream.listen((state) {
-          if (mounted) {
-            setState(() {});
-          }
-        });
-
-        if (mounted) {
-          setState(() {
-            _isInitialized = true;
-          });
-        }
-      } catch (e) {
-        if (kDebugMode) {
-          debugPrint('Error initializing DownloadsCubit: $e');
-        }
-        // Retry after a short delay
-        await Future.delayed(const Duration(milliseconds: 500));
-        if (mounted) {
-          await _initCubit();
-        }
+      if (kDebugMode) {
+        debugPrint('Error initializing DownloadsCubit: $e');
       }
     }
   }

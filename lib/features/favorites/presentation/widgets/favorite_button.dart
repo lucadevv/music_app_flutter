@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/favorites/presentation/cubit/favorite_cubit.dart';
 import 'package:music_app/features/library/library_service.dart';
-import 'package:music_app/main.dart';
 
 class FavoriteButton extends StatefulWidget {
   final String videoId;
@@ -86,45 +85,43 @@ class _FavoriteButtonState extends State<FavoriteButton>
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: getIt<FavoriteCubit>(),
-      child: BlocBuilder<FavoriteCubit, FavoriteState>(
-        builder: (context, state) {
-          final isFavorite = _checkIsFavorite(state);
+    // FavoriteCubit está provisto en app.dart, usamos context.watch directamente
+    return BlocBuilder<FavoriteCubit, FavoriteState>(
+      builder: (context, state) {
+        final isFavorite = _checkIsFavorite(state);
 
-          return AnimatedBuilder(
-            animation: _scaleAnimation,
-            builder: (context, child) {
-              return Transform.scale(
-                scale: _scaleAnimation.value,
-                child: child,
-              );
-            },
-            child: GestureDetector(
-              onTap: _isProcessing
-                  ? null
-                  : () => _handleTap(context.read<FavoriteCubit>(), isFavorite),
-              child: Container(
-                padding: widget.showBackground ? const EdgeInsets.all(8) : null,
-                decoration: widget.showBackground
-                    ? BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.1),
-                        shape: BoxShape.circle,
-                      )
-                    : null,
-                child: Icon(
-                  isFavorite ? Icons.favorite : Icons.favorite_border,
-                  color: isFavorite
-                      ? (widget.activeColor ?? AppColorsDark.primary)
-                      : (widget.inactiveColor ??
-                            Colors.white.withValues(alpha: 0.6)),
-                  size: widget.size,
-                ),
+        return AnimatedBuilder(
+          animation: _scaleAnimation,
+          builder: (context, child) {
+            return Transform.scale(
+              scale: _scaleAnimation.value,
+              child: child,
+            );
+          },
+          child: GestureDetector(
+            onTap: _isProcessing
+                ? null
+                : () => _handleTap(context.read<FavoriteCubit>(), isFavorite),
+            child: Container(
+              padding: widget.showBackground ? const EdgeInsets.all(8) : null,
+              decoration: widget.showBackground
+                  ? BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    )
+                  : null,
+              child: Icon(
+                isFavorite ? Icons.favorite : Icons.favorite_border,
+                color: isFavorite
+                    ? (widget.activeColor ?? AppColorsDark.primary)
+                    : (widget.inactiveColor ??
+                        Colors.white.withValues(alpha: 0.6)),
+                size: widget.size,
               ),
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 

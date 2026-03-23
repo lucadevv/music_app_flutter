@@ -2,6 +2,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:music_app/core/domain/entities/song.dart';
 import 'package:music_app/core/services/network/api_services.dart';
 import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
 import 'package:music_app/core/utils/exeptions/exception_handler.dart';
@@ -11,7 +12,6 @@ import 'package:music_app/features/search/data/models/recent_search_model.dart';
 import 'package:music_app/features/search/domain/entities/recent_search.dart';
 
 import '../../domain/entities/search_request.dart';
-import '../../domain/entities/song.dart';
 import '../models/search_response_model.dart';
 
 /// Data source remoto para operaciones de búsqueda
@@ -47,9 +47,10 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
     try {
       // Codificar la query para URL (espacios -> %20)
       final encodedQuery = Uri.encodeComponent(request.query);
-      
+
       // Construir endpoint con paginación
-      final endpoint = '/music/search?q=$encodedQuery&filter=${request.filter}'
+      final endpoint =
+          '/music/search?q=$encodedQuery&filter=${request.filter}'
           '&start_index=${request.startIndex}&include_stream_urls=true';
 
       final response = await _apiServices.get(endpoint);
@@ -86,7 +87,9 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
       }
 
       // Off-loading JSON parsing a un Isolate Secundario (Performance)
-      final searchResponse = await SearchResponseParsingIsolate.parseResponse(jsonData);
+      final searchResponse = await SearchResponseParsingIsolate.parseResponse(
+        jsonData,
+      );
       return Right(searchResponse);
     } catch (e) {
       final appException = ExceptionHandler.handleException(e);
@@ -174,11 +177,8 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
             try {
               if (item is Map<String, dynamic>) {
                 recentSearches.add(RecentSearchModel.fromJson(item));
-              } else if (item is String) {
-             
-              }
+              } else if (item is String) {}
             } catch (e) {
-             
               continue;
             }
           }
@@ -217,13 +217,17 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
             responseData['moods_genres'] as List<dynamic>? ?? [];
 
         final categories = moodsGenresList
-            .map((json) => MoodGenreModel.fromJson(json as Map<String, dynamic>))
+            .map(
+              (json) => MoodGenreModel.fromJson(json as Map<String, dynamic>),
+            )
             .where((category) => category.params.isNotEmpty)
             .toList();
 
         return Right(categories);
       } else {
-        return const Left(ServerException('Respuesta del servidor en formato incorrecto'));
+        return const Left(
+          ServerException('Respuesta del servidor en formato incorrecto'),
+        );
       }
     } catch (e) {
       final appException = ExceptionHandler.handleException(e);
@@ -240,26 +244,32 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
   }) async {
     try {
       const endpoint = '/music/recent-searches/select';
-      
+
       final body = {
         'query': query,
         'videoId': videoId,
         'songData': {
           'videoId': song.videoId,
           'title': song.title,
-          'artists': song.artists.map((a) => {'id': a.id, 'name': a.name}).toList(),
-          'album': {'id': song.album.id, 'name': song.album.name},
-          'thumbnails': song.thumbnails.map((t) => {'url': t.url, 'width': t.width, 'height': t.height}).toList(),
+          'artist': song.artist,
+          'artistNames': song.artistNames,
+          'album': song.album,
+          'thumbnail': song.thumbnail,
+          'highThumbnail': song.highThumbnail,
+          'thumbnails': song.thumbnails
+              .map((t) => {'url': t.url, 'width': t.width, 'height': t.height})
+              .toList(),
           'duration': song.duration,
           'durationSeconds': song.durationSeconds,
           'views': song.views,
-          if (song.streamUrl != null && song.streamUrl!.isNotEmpty) 'stream_url': song.streamUrl,
-          if (song.thumbnail != null)
-            'thumbnail': {
-              'url': song.thumbnail!.url,
-              'width': song.thumbnail!.width,
-              'height': song.thumbnail!.height,
-            },
+          'isExplicit': song.isExplicit,
+          'inLibrary': song.inLibrary,
+          if (song.streamUrl != null && song.streamUrl!.isNotEmpty)
+            'streamUrl': song.streamUrl,
+          if (song.localPath != null) 'localPath': song.localPath,
+          if (song.fileSize != null) 'fileSize': song.fileSize,
+          if (song.downloadedAt != null)
+            'downloadedAt': song.downloadedAt?.toIso8601String(),
         },
       };
 
@@ -267,7 +277,10 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
       return const Right(null);
     } catch (e) {
       final appException = ExceptionHandler.handleException(e);
-      ExceptionHandler.logException(appException, context: 'updateSelectedSong');
+      ExceptionHandler.logException(
+        appException,
+        context: 'updateSelectedSong',
+      );
       return Left(appException);
     }
   }

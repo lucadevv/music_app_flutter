@@ -128,7 +128,6 @@ class AddMultipleToPlaylistEvent extends PlayerBlocEvent {
 
 /// Cargar una canción con URL ya resuelta (para playlist loading)
 
-
 /// Remover canción de la playlist
 class RemoveFromPlaylistEvent extends PlayerBlocEvent {
   final int index;
@@ -236,6 +235,19 @@ class AudioErrorEvent extends PlayerBlocEvent {
 
   @override
   List<Object?> get props => [error];
+}
+
+// ========== Eventos de notificación a cubits ==========
+
+/// Notifica que la reproducción de una playlist comenzó exitosamente
+/// Usado para que PlaylistCubit y otros puedan completar sus estados de loading
+class PlaylistPlaybackStartedEvent extends PlayerBlocEvent {
+  final String? sourceId;
+
+  const PlaylistPlaybackStartedEvent({this.sourceId});
+
+  @override
+  List<Object?> get props => [sourceId];
 }
 
 // ========== Eventos de AudioService ==========

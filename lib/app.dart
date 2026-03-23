@@ -1,16 +1,33 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:music_app/core/app_router/app_routes.dart';
 import 'package:music_app/core/bloc/locale_cubit.dart';
+import 'package:music_app/core/managers/auth/auth_manager.dart';
+import 'package:music_app/core/services/audio_handler_service.dart';
+import 'package:music_app/core/services/logger/app_logger.dart';
 import 'package:music_app/core/theme/app_theme.dart';
 import 'package:music_app/core/theme/theme_cubit.dart';
+import 'package:music_app/data/offline/services/offline_service.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
+import 'package:music_app/features/downloads/domain/use_cases/check_download_status_use_case.dart';
+import 'package:music_app/features/downloads/domain/use_cases/download_song_use_case.dart';
+import 'package:music_app/features/downloads/domain/use_cases/get_downloaded_songs_use_case.dart';
+import 'package:music_app/features/downloads/domain/use_cases/remove_download_use_case.dart';
 import 'package:music_app/features/downloads/presentation/cubit/downloads_cubit.dart';
+import 'package:music_app/features/favorites/presentation/cubit/favorite_cubit.dart';
+import 'package:music_app/features/library/library_service.dart';
+import 'package:music_app/features/offline/presentation/cubit/playlist_offline_cubit.dart';
+import 'package:music_app/features/player/domain/player_facade.dart';
+import 'package:music_app/features/profile/domain/use_cases/get_profile_use_case.dart';
+import 'package:music_app/features/profile/domain/use_cases/get_settings_use_case.dart';
+import 'package:music_app/features/profile/domain/use_cases/logout_use_case.dart';
+import 'package:music_app/features/profile/domain/use_cases/update_profile_use_case.dart';
+import 'package:music_app/features/profile/domain/use_cases/update_settings_use_case.dart';
 import 'package:music_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:music_app/l10n/app_localizations.dart';
 import 'package:music_app/main.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class App extends StatefulWidget {
   const App({super.key});
@@ -23,12 +40,11 @@ class _AppState extends State<App> {
   final _router = getIt<AppRouter>();
   ThemeCubit? _themeCubit;
   LocaleCubit? _localeCubit;
-
   DownloadsCubit? _downloadsCubit;
   ProfileCubit? _profileCubit;
-
-  // PlayerBlocBloc - se crea aquí para estar disponible en toda la app
-  late final PlayerBlocBloc _playerBlocBloc;
+  PlayerBlocBloc? _playerBlocBloc;
+  FavoriteCubit? _favoriteCubit;
+  PlaylistOfflineCubit? _playlistOfflineCubit;
 
   bool _isInitialized = false;
 
@@ -44,30 +60,81 @@ class _AppState extends State<App> {
     _localeCubit?.close();
     _downloadsCubit?.close();
     _profileCubit?.close();
-    _playerBlocBloc.close();
+    _playerBlocBloc?.close();
+    _favoriteCubit?.close();
+    _playlistOfflineCubit?.close();
     super.dispose();
   }
 
   Future<void> _initApp() async {
     try {
-      // CRITICAL: Must wait for all async singletons to be ready first
-      // This ensures ThemeCubit, LocaleCubit, DownloadsCubit are fully initialized
-      await getIt.allReady();
+      // Obtener dependencias async de GetIt (servicios, NO blocs)
+      final prefs = await getIt.getAsync<SharedPreferences>();
+      final authManager = await getIt.getAsync<AuthManager>();
+      final offlineService = await getIt.getAsync<OfflineService>();
 
-      // Now safe to get async singletons
-      _themeCubit = await getIt.getAsync<ThemeCubit>();
-      _localeCubit = await getIt.getAsync<LocaleCubit>();
+      // Crear los Blocs/Cubits directamente (NO desde GetIt)
+      _themeCubit = ThemeCubit(prefs);
+      _localeCubit = LocaleCubit(prefs);
 
-      // DownloadsCubit es lazy singleton async
-      _downloadsCubit = await getIt.getAsync<DownloadsCubit>();
+      // Obtener AudioPlayerHandler para inyectarlo en PlayerBlocBloc
+      final audioPlayerHandler = getIt<AudioPlayerHandler>();
+      _playerBlocBloc = PlayerBlocBloc(playerHandler: audioPlayerHandler);
 
-      // ProfileCubit es singleton registrado en AppInjection
-      _profileCubit = getIt<ProfileCubit>();
+      // Conectar PlayerBlocBloc con AudioPlayerHandler para delegación de eventos
+      audioPlayerHandler.setPlayerBloc(_playerBlocBloc!);
 
-      // Crear PlayerBlocBloc aquí - estará disponible en toda la app
-      _playerBlocBloc = PlayerBlocBloc();
-    } catch (e) {
-      // Log error but don't crash
+      // Registrar PlayerFacade con el PlayerBlocBloc creado (para DownloadsCubit)
+      if (!getIt.isRegistered<PlayerFacade>()) {
+        getIt.registerLazySingleton<PlayerFacade>(
+          () => PlayerFacade(_playerBlocBloc!),
+        );
+      }
+
+      // Crear PlaylistOfflineCubit (depende de OfflineService)
+      _playlistOfflineCubit = PlaylistOfflineCubit(offlineService);
+
+      // Crear FavoriteCubit (depende de LibraryService, PlaylistOfflineCubit, OfflineService, PlayerBlocBloc)
+      _favoriteCubit = FavoriteCubit(
+        getIt<LibraryService>(),
+        _playlistOfflineCubit!,
+        offlineService,
+        _playerBlocBloc!,
+      );
+
+      // Crear DownloadsCubit (depende de use cases async + PlayerFacade)
+      _downloadsCubit = DownloadsCubit(
+        await getIt.getAsync<DownloadSongUseCase>(),
+        await getIt.getAsync<GetDownloadedSongsUseCase>(),
+        await getIt.getAsync<RemoveDownloadUseCase>(),
+        await getIt.getAsync<CheckDownloadStatusUseCase>(),
+        getIt<PlayerFacade>(),
+      );
+
+      // Crear ProfileCubit (depende de use cases + AuthManager + OfflineService + FavoriteCubit)
+      _profileCubit = ProfileCubit(
+        getProfileUseCase: getIt<GetProfileUseCase>(),
+        updateProfileUseCase: getIt<UpdateProfileUseCase>(),
+        getSettingsUseCase: getIt<GetSettingsUseCase>(),
+        updateSettingsUseCase: getIt<UpdateSettingsUseCase>(),
+        logoutUseCase: getIt<LogoutUseCase>(),
+        authManager: authManager,
+        offlineService: offlineService,
+        favoriteCubit: _favoriteCubit!,
+      );
+
+      // Conectar ProfileCubit con PlayerBlocBloc para autoPlay settings
+      _playerBlocBloc!.setProfileCubit(_profileCubit!);
+
+      // Cargar profile y settings si el usuario está logueado
+      final isLoggedIn = await authManager.isUserLoggedIn();
+      if (isLoggedIn) {
+        await _profileCubit!.loadProfile();
+        await _profileCubit!.loadSettings();
+      }
+    } catch (e, stackTrace) {
+      AppLogger.error('Error initializing app', e, stackTrace);
+      rethrow;
     } finally {
       if (mounted) {
         setState(() {
@@ -83,10 +150,13 @@ class _AppState extends State<App> {
         _themeCubit == null ||
         _localeCubit == null ||
         _downloadsCubit == null ||
-        _profileCubit == null) {
+        _profileCubit == null ||
+        _playerBlocBloc == null ||
+        _favoriteCubit == null ||
+        _playlistOfflineCubit == null) {
       return MaterialApp(
         title: 'Vibeat',
-        theme: AppTheme.dark(),
+        theme: AppTheme.dark(), // Usar tema oscuro durante carga para consistencia
         home: const Scaffold(body: Center(child: CircularProgressIndicator())),
         debugShowCheckedModeBanner: false,
         localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -100,8 +170,9 @@ class _AppState extends State<App> {
         BlocProvider.value(value: _localeCubit!),
         BlocProvider.value(value: _downloadsCubit!),
         BlocProvider.value(value: _profileCubit!),
-        // PlayerBlocBloc disponible en toda la app
-        BlocProvider.value(value: _playerBlocBloc),
+        BlocProvider.value(value: _playerBlocBloc!),
+        BlocProvider.value(value: _favoriteCubit!),
+        BlocProvider.value(value: _playlistOfflineCubit!),
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(
         builder: (context, themeState) {

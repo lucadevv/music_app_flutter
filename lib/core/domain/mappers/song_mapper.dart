@@ -1,7 +1,10 @@
 // ignore_for_file: deprecated_member_use_from_same_package
 import 'package:music_app/core/domain/entities/song.dart' as core;
+import 'package:music_app/features/album/domain/entities/album.dart' as album;
+import 'package:music_app/features/artist/domain/entities/artist.dart' as artist;
 import 'package:music_app/features/downloads/domain/entities/downloaded_song.dart';
 import 'package:music_app/features/home/domain/entities/chart_song.dart';
+import 'package:music_app/features/library/domain/entities/library_entities.dart';
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/search/domain/entities/song.dart' as search;
 
@@ -126,6 +129,7 @@ class SongMapper {
       title: song.title,
       artist: song.artist,
       thumbnail: song.thumbnail,
+      streamUrl: song.streamUrl,
       durationSeconds: song.duration ?? 0,
       duration: _formatDuration(song.duration ?? 0),
       inLibrary: true,
@@ -139,6 +143,7 @@ class SongMapper {
       title: song.title,
       artist: song.artist,
       thumbnail: song.thumbnail,
+      streamUrl: song.streamUrl,
       durationSeconds: song.duration ?? 0,
       duration: _formatDuration(song.duration ?? 0),
     );
@@ -153,6 +158,50 @@ class SongMapper {
       thumbnail: song.thumbnail,
       durationSeconds: song.durationSeconds,
       duration: _formatDuration(song.durationSeconds),
+    );
+  }
+
+  /// Crea una instancia de [core.Song] desde [artist.ArtistSong]
+  static core.Song fromArtistSong(artist.ArtistSong song) {
+    return core.Song(
+      videoId: song.videoId,
+      title: song.title,
+      artist: '', // ArtistSong no tiene campo artist
+      thumbnail: song.thumbnail,
+      streamUrl: song.streamUrl,
+      durationSeconds: song.durationSeconds,
+      duration: song.formattedDuration,
+      views: song.views > 0 ? song.views.toString() : null,
+    );
+  }
+
+  /// Crea una instancia de [core.Song] desde [album.AlbumSong]
+  static core.Song fromAlbumSong(album.AlbumSong song, {String? artistName}) {
+    return core.Song(
+      videoId: song.videoId,
+      title: song.title,
+      artist: artistName ?? '',
+      thumbnail: song.thumbnail,
+      streamUrl: song.streamUrl,
+      durationSeconds: song.durationSeconds,
+      duration: song.formattedDuration,
+    );
+  }
+
+  /// Crea una instancia de [core.Song] desde [FavoriteSongEntity] (library domain)
+  static core.Song fromFavoriteSongEntity(FavoriteSongEntity song) {
+    int durationSeconds = 0;
+    if (song.duration != null) {
+      durationSeconds = song.duration!;
+    }
+    return core.Song(
+      videoId: song.videoId,
+      title: song.title ?? 'Unknown',
+      artist: song.artist ?? 'Unknown Artist',
+      thumbnail: song.thumbnail,
+      durationSeconds: durationSeconds,
+      duration: _formatDuration(durationSeconds),
+      inLibrary: true,
     );
   }
 
@@ -174,6 +223,26 @@ class SongMapper {
   /// Convierte una lista de [RecentSong] a [core.Song]
   static List<core.Song> fromRecentSongList(List<RecentSong> songs) {
     return songs.map(fromRecentSong).toList();
+  }
+
+  /// Convierte una lista de [artist.ArtistSong] a [core.Song]
+  static List<core.Song> fromArtistSongList(List<artist.ArtistSong> songs) {
+    return songs.map(fromArtistSong).toList();
+  }
+
+  /// Convierte una lista de [album.AlbumSong] a [core.Song]
+  static List<core.Song> fromAlbumSongList(
+    List<album.AlbumSong> songs, {
+    String? artistName,
+  }) {
+    return songs.map((s) => fromAlbumSong(s, artistName: artistName)).toList();
+  }
+
+  /// Convierte una lista de [FavoriteSongEntity] a [core.Song]
+  static List<core.Song> fromFavoriteSongEntityList(
+    List<FavoriteSongEntity> songs,
+  ) {
+    return songs.map(fromFavoriteSongEntity).toList();
   }
 }
 

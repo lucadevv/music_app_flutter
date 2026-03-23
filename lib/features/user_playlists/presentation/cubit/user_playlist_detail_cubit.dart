@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/bloc/base_bloc_mixin.dart';
@@ -19,12 +21,29 @@ class UserPlaylistDetailCubit extends Cubit<UserPlaylistDetailState>
   final LibraryService _libraryService;
   final PlayerBlocBloc _playerBloc;
 
+  bool _isLoadingPlayback = false;
+  StreamSubscription? _playbackStartedSubscription;
+
   UserPlaylistDetailCubit({
     required LibraryService libraryService,
     required PlayerBlocBloc playerBloc,
   }) : _libraryService = libraryService,
        _playerBloc = playerBloc,
-       super(const UserPlaylistDetailState());
+       super(const UserPlaylistDetailState()) {
+    _listenToPlaybackStarted();
+  }
+
+  void _listenToPlaybackStarted() {
+    _playbackStartedSubscription = _playerBloc.playlistPlaybackStartedStream
+        .listen((event) {
+          if (event.sourceId == state.playlist?.id && _isLoadingPlayback) {
+            debugPrint(
+              'UserPlaylistDetailCubit: Playback started for ${event.sourceId}',
+            );
+            _isLoadingPlayback = false;
+          }
+        });
+  }
 
   /// Carga una playlist por ID
   Future<void> loadPlaylist(String playlistId) async {
@@ -58,7 +77,13 @@ class UserPlaylistDetailCubit extends Cubit<UserPlaylistDetailState>
       return;
     }
 
+    if (_isLoadingPlayback) {
+      debugPrint('DEBUG playAll: Ya hay una carga en progreso, ignorando');
+      return;
+    }
+
     final playlist = state.playlist!.songs
+        .where((s) => s.streamUrl != null && s.streamUrl!.isNotEmpty)
         .map(
           (s) => NowPlayingData.fromBasic(
             videoId: s.videoId,
@@ -75,12 +100,18 @@ class UserPlaylistDetailCubit extends Cubit<UserPlaylistDetailState>
         )
         .toList();
 
+    if (playlist.isEmpty) {
+      debugPrint('DEBUG playAll: No hay canciones con streamUrl válido');
+      return;
+    }
+
     debugPrint(
       'DEBUG playAll: Cargando playlist con ${playlist.length} canciones',
     );
     debugPrint('DEBUG playAll: sourceId = ${state.playlist!.id}');
 
-    // SIMPLIFICADO: Always use LoadPlaylistEvent to load entire playlist
+    _isLoadingPlayback = true;
+
     _playerBloc.add(
       LoadPlaylistEvent(
         playlist: playlist,
@@ -104,7 +135,13 @@ class UserPlaylistDetailCubit extends Cubit<UserPlaylistDetailState>
       return;
     }
 
+    if (_isLoadingPlayback) {
+      debugPrint('DEBUG playSong: Ya hay una carga en progreso, ignorando');
+      return;
+    }
+
     final playlist = state.playlist!.songs
+        .where((s) => s.streamUrl != null && s.streamUrl!.isNotEmpty)
         .map(
           (s) => NowPlayingData.fromBasic(
             videoId: s.videoId,
@@ -121,8 +158,15 @@ class UserPlaylistDetailCubit extends Cubit<UserPlaylistDetailState>
         )
         .toList();
 
+    if (playlist.isEmpty) {
+      debugPrint('DEBUG playSong: No hay canciones con streamUrl válido');
+      return;
+    }
+
     debugPrint('DEBUG playSong: Cargando playlist desde índice $index');
     debugPrint('DEBUG playSong: sourceId = ${state.playlist!.id}');
+
+    _isLoadingPlayback = true;
 
     _playerBloc.add(
       LoadPlaylistEvent(
@@ -192,5 +236,11 @@ class UserPlaylistDetailCubit extends Cubit<UserPlaylistDetailState>
       emit(state.copyWith(errorMessage: e.toString()));
       return false;
     }
+  }
+
+  @override
+  Future<void> close() {
+    _playbackStartedSubscription?.cancel();
+    return super.close();
   }
 }

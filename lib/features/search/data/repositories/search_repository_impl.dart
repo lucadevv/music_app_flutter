@@ -1,11 +1,11 @@
 // ignore_for_file: deprecated_member_use_from_same_package
 import 'package:dartz/dartz.dart';
+import 'package:music_app/core/domain/entities/song.dart';
 import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
 import 'package:music_app/features/search/domain/entities/recent_search.dart';
+
 import '../../domain/entities/search_request.dart';
 import '../../domain/entities/search_response.dart';
-import '../../domain/entities/song.dart';
-
 import '../../domain/repositories/search_repository.dart';
 import '../data_sources/search_remote_data_source.dart';
 

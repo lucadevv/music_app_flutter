@@ -47,6 +47,17 @@ class _PlayerScreenState extends State<PlayerScreen> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Resetear el flag cuando el videoId cambia (cubre casos de AutoRoute que no disparan didUpdateWidget)
+    final currentVideoId = widget.nowPlayingData.videoId;
+    if (currentVideoId != _lastVideoId) {
+      _hasRequestedPlay = false;
+      _lastVideoId = currentVideoId;
+    }
+  }
+
+  @override
   void didUpdateWidget(PlayerScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.nowPlayingData.videoId != widget.nowPlayingData.videoId) {
@@ -135,8 +146,8 @@ class _PlayerScreenState extends State<PlayerScreen> {
                   slivers: [
                     SliverToBoxAdapter(
                       child: PlayerHeaderWidget(
-                        playlistId: widget.nowPlayingData?.videoId,
-                        playlistName: widget.nowPlayingData?.title,
+                         playlistId: widget.nowPlayingData.videoId,
+                         playlistName: widget.nowPlayingData.title,
                         currentIndex: currentIndex ?? 0,
                         totalTracks: playlist.length,
                         currentVideoId: currentTrack.videoId,

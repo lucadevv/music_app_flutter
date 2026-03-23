@@ -1,39 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/features/home/presentation/widgets/molecules/mood_genre_card_widget.dart';
+import 'package:music_app/features/search/domain/use_cases/get_categories_usecase.dart';
 import 'package:music_app/features/search/presentation/cubit/categories_cubit.dart';
 import 'package:music_app/main.dart';
 
 /// Widget para mostrar el grid de categorías (moods/genres) en la pantalla de búsqueda
-class CategoriesGridWidget extends StatefulWidget {
+class CategoriesGridWidget extends StatelessWidget {
   const CategoriesGridWidget({super.key});
 
   @override
-  State<CategoriesGridWidget> createState() => _CategoriesGridWidgetState();
-}
-
-class _CategoriesGridWidgetState extends State<CategoriesGridWidget> {
-  late final CategoriesCubit _categoriesCubit;
-
-  @override
-  void initState() {
-    super.initState();
-    // Crear una única instancia del cubit
-    _categoriesCubit = getIt<CategoriesCubit>();
-    // Cargar categorías al iniciar
-    _categoriesCubit.loadCategories();
-  }
-
-  @override
-  void dispose() {
-    _categoriesCubit.close();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: _categoriesCubit,
+    return BlocProvider(
+      create: (context) => CategoriesCubit(getIt<GetCategoriesUseCase>())
+        ..loadCategories(),
       child: BlocBuilder<CategoriesCubit, CategoriesState>(
         builder: (context, state) {
           // Si está cargando, mostrar shimmer o loading

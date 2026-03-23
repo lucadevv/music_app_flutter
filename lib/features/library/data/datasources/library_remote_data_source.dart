@@ -27,7 +27,11 @@ class LibraryRemoteDataSource {
     try {
       final response = await _api.get(
         '/library/songs',
-        queryParameters: {'page': page, 'limit': limit},
+        queryParameters: {
+          'page': page,
+          'limit': limit,
+          'include_stream_urls': true,
+        },
       );
       return response is Response ? response.data : response;
     } catch (e) {

@@ -1,9 +1,11 @@
 // ignore_for_file: deprecated_member_use_from_same_package
-import 'song.dart';
+import 'package:music_app/core/domain/entities/song.dart';
+
 
 /// Entidad del dominio para una búsqueda reciente
 class RecentSearch {
   final String id;
+  final String query;
   final String videoId;
   final Song songData;
   final DateTime createdAt;
@@ -11,6 +13,7 @@ class RecentSearch {
 
   const RecentSearch({
     required this.id,
+    required this.query,
     required this.videoId,
     required this.songData,
     required this.createdAt,

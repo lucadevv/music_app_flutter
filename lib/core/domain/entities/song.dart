@@ -154,6 +154,67 @@ class Song extends Equatable {
     return null;
   }
 
+  /// Convert the song to a JSON map for serialization
+  Map<String, dynamic> toJson() {
+    return {
+      'videoId': videoId,
+      'title': title,
+      'artist': artist,
+      'artistNames': artistNames,
+      'album': album,
+      'thumbnail': thumbnail,
+      'highThumbnail': highThumbnail,
+      'thumbnails': thumbnails.map((t) => t.toJson()).toList(),
+      'streamUrl': streamUrl,
+      'durationSeconds': durationSeconds,
+      'duration': duration,
+      'views': views,
+      'isExplicit': isExplicit,
+      'inLibrary': inLibrary,
+      'localPath': localPath,
+      'fileSize': fileSize,
+      'downloadedAt': downloadedAt?.toIso8601String(),
+    };
+  }
+
+  /// Create a Song from a JSON map
+  factory Song.fromJson(Map<String, dynamic> json) {
+    return Song(
+      videoId: json['videoId'] as String? ?? '',
+      title: json['title'] as String? ?? '',
+      artist: json['artist'] as String? ?? '',
+      artistNames:
+          (json['artistNames'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          [],
+      album: json['album'] as String?,
+      thumbnail: json['thumbnail'] as String?,
+      highThumbnail: json['highThumbnail'] as String?,
+      thumbnails:
+          (json['thumbnails'] as List<dynamic>?)?.map((e) {
+            final map = e as Map<String, dynamic>;
+            return Thumbnail(
+              url: map['url'] as String? ?? '',
+              width: map['width'] as int? ?? 0,
+              height: map['height'] as int? ?? 0,
+            );
+          }).toList() ??
+          [],
+      streamUrl: json['streamUrl'] as String?,
+      durationSeconds: json['durationSeconds'] as int? ?? 0,
+      duration: json['duration'] as String? ?? '0:00',
+      views: json['views'] as String? ?? '0',
+      isExplicit: json['isExplicit'] as bool? ?? false,
+      inLibrary: json['inLibrary'] as bool? ?? false,
+      localPath: json['localPath'] as String?,
+      fileSize: json['fileSize'] as int?,
+      downloadedAt: json['downloadedAt'] != null
+          ? DateTime.parse(json['downloadedAt'] as String)
+          : null,
+    );
+  }
+
   @override
   List<Object?> get props => [
     videoId,
@@ -187,6 +248,11 @@ class Thumbnail extends Equatable {
     required this.width,
     required this.height,
   });
+
+  /// Convert the thumbnail to a JSON map for serialization
+  Map<String, dynamic> toJson() {
+    return {'url': url, 'width': width, 'height': height};
+  }
 
   @override
   List<Object?> get props => [url, width, height];

@@ -8,6 +8,8 @@ import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/core/utils/extension/sizedbox_extension.dart';
 import 'package:music_app/core/widgets/language_selector.dart';
 import 'package:music_app/features/auth/login/domain/entities/login_request.dart';
+import 'package:music_app/features/auth/login/domain/use_cases/login_use_case.dart';
+import 'package:music_app/features/auth/login/domain/use_cases/oauth_sign_in_use_case.dart';
 import 'package:music_app/features/auth/login/presentation/cubit/login_cubit.dart'
     show LoginCubit;
 import 'package:music_app/features/auth/login/presentation/notifiers/login_form_notifier.dart';
@@ -29,9 +31,15 @@ class LoginScreen extends StatefulWidget implements AutoRouteWrapper {
   Widget wrappedRoute(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<LoginCubit>(create: (_) => getIt<LoginCubit>()),
+        BlocProvider<LoginCubit>(
+          create: (_) => LoginCubit(
+            loginUseCase: getIt<LoginUseCase>(),
+            googleSignInUseCase: getIt<GoogleSignInUseCase>(),
+            appleSignInUseCase: getIt<AppleSignInUseCase>(),
+          ),
+        ),
         BlocProvider<OrquestadorAuthCubit>(
-          create: (_) => getIt<OrquestadorAuthCubit>(),
+          create: (_) => OrquestadorAuthCubit(),
         ),
       ],
       child: this,

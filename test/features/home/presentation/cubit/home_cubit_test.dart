@@ -2,16 +2,16 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/home/domain/repositories/home_repository.dart';
 import 'package:music_app/features/home/domain/use_cases/get_home_use_case.dart';
 import 'package:music_app/features/home/presentation/cubit/home_cubit.dart';
-import 'package:music_app/features/player/domain/player_facade.dart';
 
 import '../../../../helpers/test_helpers.dart';
 
 class MockHomeRepository extends Mock implements HomeRepository {}
 
-class MockPlayerFacade extends Mock implements PlayerFacade {}
+class MockPlayerBlocBloc extends Mock implements PlayerBlocBloc {}
 
 void main() {
   late HomeCubit homeCubit;
@@ -22,7 +22,7 @@ void main() {
 
   setUp(() {
     mockRepository = MockHomeRepository();
-    final mockPlayer = MockPlayerFacade();
+    final mockPlayer = MockPlayerBlocBloc();
     getHomeUseCase = GetHomeUseCase(mockRepository);
     homeCubit = HomeCubit(getHomeUseCase, mockPlayer);
   });
@@ -42,9 +42,7 @@ void main() {
     blocTest<HomeCubit, HomeState>(
       'should emit [loading, success] when loadHome succeeds',
       build: () {
-        when(
-          () => mockRepository.getHome(),
-        ).thenAnswer(
+        when(() => mockRepository.getHome()).thenAnswer(
           (_) async => Future.delayed(
             const Duration(milliseconds: 50),
             () => Right(createTestHomeResponse()),

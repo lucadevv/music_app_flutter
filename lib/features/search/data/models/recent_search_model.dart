@@ -1,10 +1,11 @@
+import '../../../../core/domain/entities/song.dart';
 import '../../domain/entities/recent_search.dart';
-import 'song_model.dart';
 
 /// Modelo de datos para una búsqueda reciente
 class RecentSearchModel extends RecentSearch {
   const RecentSearchModel({
     required super.id,
+    required super.query,
     required super.videoId,
     required super.songData,
     required super.createdAt,
@@ -13,25 +14,37 @@ class RecentSearchModel extends RecentSearch {
 
   factory RecentSearchModel.fromJson(Map<String, dynamic> json) {
     // Manejar songData que puede venir como Map o como objeto
-    Map<String, dynamic> songDataMap;
-    if (json['songData'] is Map<String, dynamic>) {
-      songDataMap = json['songData'] as Map<String, dynamic>;
-    } else if (json['songData'] != null) {
-      // Si viene como otro tipo de objeto, intentar convertirlo
-      try {
-        songDataMap = Map<String, dynamic>.from(json['songData'] as Map);
-      } catch (e) {
-        // Si falla, crear un objeto vacío
-        songDataMap = {};
-      }
+    Song songData;
+    if (json['songData'] != null) {
+      songData = Song.fromJson(json['songData'] as Map<String, dynamic>);
     } else {
-      songDataMap = {};
+      // Crear un objeto Song vacío si no hay songData
+      songData = Song(
+        videoId: '',
+        title: '',
+        artist: '',
+        artistNames: const [],
+        album: '',
+        thumbnail: '',
+        highThumbnail: '',
+        thumbnails: const [],
+        streamUrl: '',
+        durationSeconds: 0,
+        duration: '0:00',
+        views: '0',
+        isExplicit: false,
+        inLibrary: false,
+        localPath: '',
+        fileSize: 0,
+        downloadedAt: DateTime.now(),
+      );
     }
 
     return RecentSearchModel(
       id: json['id'] as String? ?? '',
+      query: json['query'] as String? ?? '',
       videoId: json['videoId'] as String? ?? '',
-      songData: SongModel.fromJson(songDataMap),
+      songData: songData,
       createdAt: DateTime.parse(
         json['createdAt'] as String? ?? DateTime.now().toIso8601String(),
       ),
@@ -44,8 +57,9 @@ class RecentSearchModel extends RecentSearch {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'query': query,
       'videoId': videoId,
-      'songData': (songData as SongModel).toJson(),
+      'songData': songData.toJson(),
       'createdAt': createdAt.toIso8601String(),
       'lastSearchedAt': lastSearchedAt.toIso8601String(),
     };

@@ -1,9 +1,13 @@
 // ignore_for_file: deprecated_member_use_from_same_package, unawaited_futures
 import 'package:auto_route/auto_route.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
+import 'package:music_app/core/domain/mappers/song_mapper.dart';
+import 'package:music_app/core/services/network/api_services.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/favorites/presentation/widgets/favorite_button.dart';
 import 'package:music_app/features/library/library_service.dart';
@@ -51,7 +55,9 @@ class _SearchResultsWidgetState extends State<SearchResultsWidget> {
   void _onScroll() {
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
-      if (widget.hasMore && !widget.isLoadingMore && widget.onLoadMore != null) {
+      if (widget.hasMore &&
+          !widget.isLoadingMore &&
+          widget.onLoadMore != null) {
         widget.onLoadMore!();
       }
     }
@@ -84,17 +90,16 @@ class _SearchResultsWidgetState extends State<SearchResultsWidget> {
             padding: EdgeInsets.symmetric(vertical: 16),
             child: Center(
               child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(AppColorsDark.primary),
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  AppColorsDark.primary,
+                ),
               ),
             ),
           );
         }
 
         final song = widget.results[index];
-        return _SongItem(
-          song: song,
-          query: widget.query,
-        );
+        return _SongItem(song: song, query: widget.query);
       },
     );
   }
@@ -104,21 +109,65 @@ class _SongItem extends StatelessWidget {
   final Song song;
   final String query;
 
-  const _SongItem({
-    required this.song,
-    required this.query,
-  });
+  const _SongItem({required this.song, required this.query});
 
   Future<void> _onSongSelected(BuildContext context) async {
     // Actualizar la búsqueda reciente con la canción seleccionada
     // Fire and forget - no bloqueamos la navegación
-    context.read<OrquestadorSearchCubit>().saveSelectedSong(song, query);
-
-    final nowPlayingData = NowPlayingData.fromSong(song);
-    // Navegar al player - es una canción individual
-    context.router.push(
-      PlayerRoute(nowPlayingData: nowPlayingData, playAsSingle: true),
+    context.read<OrquestadorSearchCubit>().saveSelectedSong(
+      SongMapper.fromSearchSong(song),
+      query,
     );
+
+    // ✅ Fetch streamUrl on demand si no existe
+    String? streamUrl = song.streamUrl;
+    if (streamUrl == null || streamUrl.isEmpty) {
+      streamUrl = await _fetchStreamUrl(song.videoId);
+    }
+
+    // Crear NowPlayingData con streamUrl actualizado usando fromBasic
+    final artistsNames = song.artists.map((a) => a.name).toList();
+    final thumbnailUrl = song.thumbnails.isNotEmpty
+        ? song.thumbnails.last.url
+        : null;
+
+    final nowPlayingData = NowPlayingData.fromBasic(
+      videoId: song.videoId,
+      title: song.title,
+      artistNames: artistsNames,
+      albumName: song.album.name,
+      duration: song.duration,
+      durationSeconds: song.durationSeconds,
+      views: song.views,
+      isExplicit: song.isExplicit,
+      inLibrary: song.inLibrary,
+      thumbnailUrl: thumbnailUrl,
+      streamUrl: streamUrl,
+    );
+
+    // Navegar al player - es una canción individual
+    if (context.mounted) {
+      context.router.push(
+        PlayerRoute(nowPlayingData: nowPlayingData, playAsSingle: true),
+      );
+    }
+  }
+
+  /// Fetch streamUrl desde el backend
+  Future<String?> _fetchStreamUrl(String videoId) async {
+    try {
+      final apiServices = GetIt.I.get<ApiServices>();
+      final response = await apiServices.get('/music/stream/$videoId');
+      final Map<String, dynamic>? data = response is Map<String, dynamic>
+          ? response
+          : (response.data as Map<String, dynamic>?);
+      return data?['streamUrl'] as String?;
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Error fetching streamUrl: $e');
+      }
+      return null;
+    }
   }
 
   @override

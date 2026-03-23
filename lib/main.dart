@@ -1,13 +1,10 @@
-import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:music_app/app.dart';
 import 'package:music_app/core/app_injection/app_injection.dart';
 import 'package:music_app/core/config/app_config.dart';
-import 'package:music_app/core/managers/auth/auth_manager.dart';
-import 'package:music_app/core/services/audio_handler_service.dart';
+import 'package:music_app/core/services/audio_initialization_service.dart';
 import 'package:music_app/data/offline/services/offline_service.dart';
-import 'package:music_app/features/profile/presentation/cubit/profile_cubit.dart';
 
 final GetIt getIt = GetIt.instance;
 
@@ -22,76 +19,20 @@ void main() async {
   final appInjection = AppInjection(getIt: getIt, baseUrl: AppConfig.baseUrl);
 
   // CRITICAL: Call init() to register all dependencies in proper order
-  // This ensures AuthManager is ready BEFORE ProfileCubit is registered
   await appInjection.init();
-  // Log: AppInjection.init() complete, waiting for allReady()...
 
   // Now wait for all async singletons to be ready
   await getIt.allReady();
-  // Log: getIt.allReady() complete
 
   // Forzar inicialización de OfflineService
   await getIt.getAsync<OfflineService>();
-
-  // Cargar settings después de que la app esté lista
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    _loadUserSettings();
-  });
 
   runApp(const App());
 }
 
 /// Inicializa el servicio de audio para notificaciones y controles en pantalla de bloqueo
-///
-/// ESTA ES LA ÚNICA FUENTE DE AudioPlayer.
-/// Después de esta inicialización, TODO el código debe obtener el AudioPlayer
-/// exclusivamente a través de GetIt<AudioPlayerHandler>().player
+/// Usa el AudioInitializationService para evitar importaciones circulares
 Future<void> _initAudioService() async {
-  try {
-    // El handler returned por AudioService.init() es el mismo que se crea en el builder
-    final handler = await AudioService.init(
-      builder: AudioPlayerHandler.new,
-      config: const AudioServiceConfig(
-        androidNotificationChannelId: 'com.lucadev.musicapp.channel.audio',
-        androidNotificationChannelName: 'Music Playback',
-        androidNotificationOngoing: true,
-        androidShowNotificationBadge: true,
-        androidStopForegroundOnPause: true,
-        androidNotificationIcon: 'drawable/ic_notification',
-      ),
-    );
-
-    // Registrar en GetIt para uso en PlayerBloc
-    // AudioPlayerHandler es un singleton - única fuente de AudioPlayer
-    if (!GetIt.I.isRegistered<AudioPlayerHandler>()) {
-      GetIt.I.registerSingleton<AudioPlayerHandler>(handler);
-    }
-
-    // IMPORTANTE: Llamar init() del handler para que transmita estados a notificaciones
-    // init() es idempotente, así que es seguro llamarlo múltiples veces
-    handler.init();
-  } catch (e) {
-    debugPrint('AudioService init error: $e');
-    // No bloquea la app si falla
-  }
-}
-
-/// Carga los settings del usuario
-Future<void> _loadUserSettings() async {
-  try {
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    final authManager = getIt<AuthManager>();
-    final isLoggedIn = await authManager.isUserLoggedIn();
-
-    if (isLoggedIn) {
-      final profileCubit = getIt<ProfileCubit>();
-      // Cargar profile para obtener nombre, avatar, etc.
-      await profileCubit.loadProfile();
-      // Cargar settings para idioma, calidad, etc.
-      await profileCubit.loadSettings();
-    }
-  } catch (e) {
-    // Silently fail
-  }
+  final audioInitializationService = AudioInitializationService();
+  await audioInitializationService.initializeAudioService();
 }

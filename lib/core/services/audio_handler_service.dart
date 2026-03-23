@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:audio_service/audio_service.dart';
-import 'package:get_it/get_it.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
@@ -18,6 +17,15 @@ class AudioPlayerHandler extends BaseAudioHandler
   AudioPlayer? _player;
   bool _isInitialized = false;
   final List<StreamSubscription> _subscriptions = [];
+
+  // PlayerBlocBloc para delegar eventos desde notificaciones
+  PlayerBlocBloc? _playerBloc;
+
+  /// Setter para inyectar PlayerBlocBloc después de la construcción.
+  /// Necesario porque AudioPlayerHandler se crea en main.dart antes que PlayerBlocBloc.
+  void setPlayerBloc(PlayerBlocBloc bloc) {
+    _playerBloc = bloc;
+  }
 
   /// Obtiene el AudioPlayer. Solo disponible después de init().
   AudioPlayer get player {
@@ -160,13 +168,7 @@ class AudioPlayerHandler extends BaseAudioHandler
 
   /// Delega un evento al PlayerBloc si está disponible
   void _delegateToBloc(PlayerBlocEvent event) {
-    try {
-      if (GetIt.I.isRegistered<PlayerBlocBloc>()) {
-        GetIt.I<PlayerBlocBloc>().add(event);
-      }
-    } catch (e) {
-      // Silently fail - el bloc puede no estar listo todavía
-    }
+    _playerBloc?.add(event);
   }
 
   @override

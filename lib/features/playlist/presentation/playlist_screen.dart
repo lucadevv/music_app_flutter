@@ -555,34 +555,26 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                         color: AppColorsDark.primaryContainer,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: track.thumbnails?.isNotEmpty == true
+                      child: track.thumbnails.isNotEmpty
                           ? ClipRRect(
                               borderRadius: BorderRadius.circular(8),
                               child: Image.network(
-                                track.thumbnails!.last.url,
+                                track.thumbnails.last.url,
                                 fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => const Icon(
-                                  Icons.music_note,
-                                  color: AppColorsDark.primary,
-                                ),
                               ),
                             )
-                          : const Icon(
-                              Icons.music_note,
-                              color: AppColorsDark.primary,
-                            ),
+                          : const Icon(Icons.music_note, color: Colors.white54),
                     ),
                     title: Text(
-                      track.title ?? 'Unknown',
+                      track.title,
                       style: const TextStyle(color: Colors.white),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     subtitle: Text(
-                      track.artists?.map((a) => a.name).join(', ') ?? '',
+                      track.artists.map((a) => a.name).join(', '),
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.6),
-                        fontSize: 12,
+                        color: Colors.white.withValues(alpha: 0.7),
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -593,15 +585,13 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                         context: ctx,
                         song: SongOptionsData(
                           videoId: track.videoId ?? '',
-                          title: track.title ?? '',
-                          artist:
-                              track.artists?.map((a) => a.name).join(', ') ??
-                              '',
-                          thumbnail: track.thumbnails?.isNotEmpty == true
-                              ? track.thumbnails!.last.url
-                              : null,
-                          durationSeconds: track.durationSeconds,
+                          title: track.title,
+                          artist: track.artists.map((a) => a.name).join(', '),
+                          thumbnail: track.thumbnails.isNotEmpty
+                              ? track.thumbnails.last.url
+                              : '',
                           isFavorite: track.inLibrary ?? false,
+                          durationSeconds: track.durationSeconds,
                         ),
                       );
                     },

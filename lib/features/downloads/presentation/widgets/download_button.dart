@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/downloads/presentation/cubit/downloads_cubit.dart';
 
@@ -57,7 +56,6 @@ class _DownloadButtonState extends State<DownloadButton> {
 
   Future<void> _initCubit() async {
     try {
-      // Intentar usar el provider global primero
       _downloadsCubit = context.read<DownloadsCubit>();
       await _checkDownloadStatus();
 
@@ -78,29 +76,7 @@ class _DownloadButtonState extends State<DownloadButton> {
         });
       });
     } catch (e) {
-      // Provider no disponible - intentar obtener de getIt (fallback)
-      try {
-        _downloadsCubit = await GetIt.I.getAsync<DownloadsCubit>();
-        await _checkDownloadStatus();
-
-        _subscription = _downloadsCubit!.stream.listen((state) {
-          if (!mounted) return;
-
-          final progress = state.downloadProgress[widget.videoId];
-          final isDownloading = state.downloadingIds.contains(widget.videoId);
-          final isDownloaded = state.downloadedSongs.any(
-            (s) => s.videoId == widget.videoId,
-          );
-
-          setState(() {
-            _progress = progress ?? 0.0;
-            _isDownloading = isDownloading;
-            _isDownloaded = isDownloaded;
-          });
-        });
-      } catch (e) {
-        // DownloadsCubit not available - hide download button
-      }
+      // DownloadsCubit not available - hide download button
     }
   }
 

@@ -8,7 +8,6 @@ import 'package:music_app/core/presentation/widgets/song_list_item.dart';
 // Removed hard dependency on routes in this detail screen for now; navigation uses context.router.
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/core/utils/bottom_sheet_visibility.dart';
-import 'package:music_app/core/utils/bottom_sheet_transition.dart';
 import 'package:music_app/core/widgets/shimmer_widgets.dart';
 
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
@@ -77,7 +76,7 @@ class _UserPlaylistDetailView extends StatelessWidget {
     List<dynamic> searchResults = [];
     bool isLoading = false;
     String? error;
-    Set<String> selectedVideoIds = {};
+    final Set<String> selectedVideoIds = {};
 
     await BottomSheetVisibility().showBottomSheet(
       context: context,
@@ -345,7 +344,7 @@ class _UserPlaylistDetailView extends StatelessWidget {
           setResults([]);
         },
         (response) {
-          setResults(response.results ?? []);
+          setResults(response.results);
         },
       );
     } catch (e) {

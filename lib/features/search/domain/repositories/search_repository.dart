@@ -1,10 +1,11 @@
 // ignore_for_file: deprecated_member_use_from_same_package
 import 'package:dartz/dartz.dart';
+import 'package:music_app/core/domain/entities/song.dart';
 import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
 import 'package:music_app/features/search/domain/entities/recent_search.dart';
+
 import '../entities/search_request.dart';
 import '../entities/search_response.dart';
-import '../entities/song.dart';
 
 /// Interfaz del repositorio de búsqueda
 /// Define el contrato que debe cumplir cualquier implementación
