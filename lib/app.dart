@@ -82,7 +82,7 @@ class _AppState extends State<App> {
       _playerBlocBloc = PlayerBlocBloc(playerHandler: audioPlayerHandler);
 
       // Conectar PlayerBlocBloc con AudioPlayerHandler para delegación de eventos
-      audioPlayerHandler.setPlayerBloc(_playerBlocBloc!);
+      audioPlayerHandler.playerBloc = _playerBlocBloc!;
 
       // Registrar PlayerFacade con el PlayerBlocBloc creado (para DownloadsCubit)
       if (!getIt.isRegistered<PlayerFacade>()) {
@@ -124,7 +124,7 @@ class _AppState extends State<App> {
       );
 
       // Conectar ProfileCubit con PlayerBlocBloc para autoPlay settings
-      _playerBlocBloc!.setProfileCubit(_profileCubit!);
+      _playerBlocBloc!.profileCubit = _profileCubit!;
 
       // Cargar profile y settings si el usuario está logueado
       final isLoggedIn = await authManager.isUserLoggedIn();
@@ -156,7 +156,8 @@ class _AppState extends State<App> {
         _playlistOfflineCubit == null) {
       return MaterialApp(
         title: 'Vibeat',
-        theme: AppTheme.dark(), // Usar tema oscuro durante carga para consistencia
+        theme:
+            AppTheme.dark(), // Usar tema oscuro durante carga para consistencia
         home: const Scaffold(body: Center(child: CircularProgressIndicator())),
         debugShowCheckedModeBanner: false,
         localizationsDelegates: AppLocalizations.localizationsDelegates,

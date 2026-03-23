@@ -299,7 +299,7 @@ class _PlaylistTile extends StatelessWidget {
                 child: CachedNetworkImage(
                   imageUrl: playlist.thumbnail!,
                   fit: BoxFit.cover,
-                  errorWidget: (_, __, ___) => const Icon(
+                  errorWidget: (_, _, _) => const Icon(
                     Icons.playlist_play,
                     color: AppColorsDark.primary,
                   ),

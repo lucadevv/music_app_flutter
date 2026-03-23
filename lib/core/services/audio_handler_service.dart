@@ -23,7 +23,7 @@ class AudioPlayerHandler extends BaseAudioHandler
 
   /// Setter para inyectar PlayerBlocBloc después de la construcción.
   /// Necesario porque AudioPlayerHandler se crea en main.dart antes que PlayerBlocBloc.
-  void setPlayerBloc(PlayerBlocBloc bloc) {
+  set playerBloc(PlayerBlocBloc bloc) {
     _playerBloc = bloc;
   }
 

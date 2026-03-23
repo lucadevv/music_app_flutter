@@ -29,8 +29,8 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
   /// Setter para inyectar ProfileCubit después de la construcción.
   /// Necesario para evitar dependencia circular:
   /// PlayerBlocBloc -> ProfileCubit -> FavoriteCubit -> PlayerBlocBloc
-  void setProfileCubit(ProfileCubit profileCubit) {
-    _profileCubit = profileCubit;
+  set profileCubit(ProfileCubit cubit) {
+    _profileCubit = cubit;
   }
 
   final _playlistPlaybackStartedController =
@@ -57,12 +57,10 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
   ///
   /// [playerHandler] is required in production to access the audio player.
   /// [engine] can be provided for testing to bypass the real audio player.
-  PlayerBlocBloc({
-    AudioPlayerHandler? playerHandler,
-    PlayerEngine? engine,
-  }) : _playerHandler = playerHandler,
-       _engineOverride = engine,
-       super(PlayerBlocState.initial()) {
+  PlayerBlocBloc({AudioPlayerHandler? playerHandler, PlayerEngine? engine})
+    : _playerHandler = playerHandler,
+      _engineOverride = engine,
+      super(PlayerBlocState.initial()) {
     _registerEventHandlers();
 
     // Si hay engine override (tests), inicializar inmediatamente

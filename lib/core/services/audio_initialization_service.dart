@@ -5,12 +5,11 @@ import 'package:music_app/core/services/logger/app_logger.dart';
 
 /// Servicio dedicado a la inicialización de AudioService para evitar importaciones circulares
 class AudioInitializationService {
-
   /// Inicializa el servicio de audio para notificaciones y controles en pantalla de bloqueo
   ///
-  /// ESTA ES LA ÚNICA FUENTE DE AudioPlayer.
-  /// Después de esta inicialización, TODO el código debe obtener el AudioPlayer
-  /// exclusivamente a través de GetIt<AudioPlayerHandler>().player
+  /// ESTA ES LA ÚNICA FUENTE de `AudioPlayer`.
+  /// Después de esta inicialización, TODO el código debe obtener el `AudioPlayer`
+  /// exclusivamente a través de `GetIt<AudioPlayerHandler>().player`
   Future<void> initializeAudioService() async {
     try {
       // El handler returned por AudioService.init() es el mismo que se crea en el builder

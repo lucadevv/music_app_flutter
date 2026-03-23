@@ -291,7 +291,7 @@ class _RecentSearchItem extends StatelessWidget {
       final response = await apiServices.get('/music/stream/$videoId');
       final Map<String, dynamic>? data = response is Map<String, dynamic>
           ? response
-          : (response.data as Map<String, dynamic>?);
+          : ((response as dynamic).data as Map<String, dynamic>?);
       return data?['streamUrl'] as String?;
     } catch (e) {
       if (kDebugMode) {

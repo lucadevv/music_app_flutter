@@ -13,6 +13,7 @@ import 'package:music_app/core/widgets/shimmer_widgets.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/search/domain/entities/search_request.dart';
+import 'package:music_app/features/search/domain/entities/song.dart';
 import 'package:music_app/features/search/domain/repositories/search_repository.dart';
 import 'package:music_app/features/song_options/presentation/widgets/song_options_bottom_sheet.dart';
 import 'package:music_app/features/user_playlists/presentation/cubit/user_playlist_detail_cubit.dart';
@@ -73,7 +74,8 @@ class _UserPlaylistDetailView extends StatelessWidget {
     final searchRepository = GetIt.I<SearchRepository>();
     final cubit = context.read<UserPlaylistDetailCubit>();
     final searchController = TextEditingController();
-    List<dynamic> searchResults = [];
+    // ignore: deprecated_member_use_from_same_package
+    List<Song> searchResults = [];
     bool isLoading = false;
     String? error;
     final Set<String> selectedVideoIds = {};
@@ -113,15 +115,15 @@ class _UserPlaylistDetailView extends StatelessWidget {
                               onPressed: () async {
                                 bool allSuccess = true;
                                 for (final song in searchResults) {
-                                  final videoId = song.videoId ?? '';
+                                  final videoId = song.videoId;
                                   if (selectedVideoIds.contains(videoId)) {
                                     final success = await cubit
                                         .addSongToPlaylist(
                                           playlistId: playlistId,
                                           videoId: videoId,
-                                          title: song.title ?? '',
+                                          title: song.title,
                                           artist: _getArtistNames(song),
-                                          thumbnail: song.thumbnailUrl,
+                                          thumbnail: song.thumbnail?.url,
                                           duration: song.durationSeconds,
                                         );
                                     if (!success) allSuccess = false;
@@ -233,7 +235,7 @@ class _UserPlaylistDetailView extends StatelessWidget {
                       itemCount: searchResults.length,
                       itemBuilder: (context, index) {
                         final song = searchResults[index];
-                        final videoId = song.videoId ?? '';
+                        final videoId = song.videoId;
                         final isSelected = selectedVideoIds.contains(videoId);
                         return ListTile(
                           leading: ClipRRect(
@@ -242,11 +244,11 @@ class _UserPlaylistDetailView extends StatelessWidget {
                               width: 48,
                               height: 48,
                               color: AppColorsDark.primaryContainer,
-                              child: song.thumbnailUrl != null
+                              child: song.thumbnail?.url != null
                                   ? CachedNetworkImage(
-                                      imageUrl: song.thumbnailUrl!,
+                                      imageUrl: song.thumbnail!.url,
                                       fit: BoxFit.cover,
-                                      errorWidget: (_, __, ___) =>
+                                      errorWidget: (_, _, _) =>
                                           const Icon(Icons.music_note),
                                     )
                                   : const Icon(
@@ -256,7 +258,7 @@ class _UserPlaylistDetailView extends StatelessWidget {
                             ),
                           ),
                           title: Text(
-                            song.title ?? '',
+                            song.title,
                             style: const TextStyle(color: Colors.white),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -310,21 +312,17 @@ class _UserPlaylistDetailView extends StatelessWidget {
     );
   }
 
-  String _getArtistNames(dynamic song) {
-    if (song.artistNames != null) {
-      if (song.artistNames is List) {
-        return (song.artistNames as List).join(', ');
-      }
-      return song.artistNames.toString();
-    }
-    return '';
+  // ignore: deprecated_member_use_from_same_package
+  String _getArtistNames(Song song) {
+    return song.artists.map((a) => a.name).join(', ');
   }
 
   Future<void> _performSearch(
     String query,
     SearchRepository searchRepository,
     void Function(void Function()) setState,
-    void Function(List) setResults,
+    // ignore: deprecated_member_use_from_same_package
+    void Function(List<Song>) setResults,
     void Function(bool) setLoading,
     void Function(String?) setError,
   ) async {
@@ -344,6 +342,7 @@ class _UserPlaylistDetailView extends StatelessWidget {
           setResults([]);
         },
         (response) {
+          // ignore: deprecated_member_use
           setResults(response.results);
         },
       );
