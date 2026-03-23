@@ -2,6 +2,7 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:equatable/equatable.dart';
 
+import 'package:music_app/core/domain/entities/song.dart';
 import 'package:music_app/features/playlist/domain/entities/playlist_track.dart';
 import 'package:music_app/features/search/domain/entities/album.dart'
     as search_album;
@@ -49,7 +50,58 @@ class NowPlayingData extends Equatable {
     this.thumbnail,
   });
 
-  /// Constructor desde Song
+  /// Constructor desde Song canónico (core/domain/entities/song.dart)
+  factory NowPlayingData.fromCanonicalSong(Song song) {
+    final thumbnails = song.thumbnails
+        .map(
+          (t) => search_thumb.Thumbnail(
+            url: t.url,
+            width: t.width,
+            height: t.height,
+          ),
+        )
+        .toList();
+
+    search_thumb.Thumbnail? bestThumb;
+    if (song.highThumbnail != null) {
+      bestThumb = search_thumb.Thumbnail(
+        url: song.highThumbnail!,
+        width: 544,
+        height: 544,
+      );
+    } else if (song.thumbnail != null) {
+      bestThumb = search_thumb.Thumbnail(
+        url: song.thumbnail!,
+        width: 544,
+        height: 544,
+      );
+    } else if (thumbnails.isNotEmpty) {
+      bestThumb = thumbnails.last;
+    }
+
+    return NowPlayingData(
+      videoId: song.videoId,
+      title: song.title,
+      artists: song.artistNames
+          .map((name) => search_artist.SearchArtist(name: name, id: ''))
+          .toList(),
+      album: search_album.SearchAlbum(
+        name: song.album ?? 'Unknown Album',
+        id: '',
+      ),
+      duration: song.duration,
+      durationSeconds: song.durationSeconds,
+      views: song.views ?? '0',
+      isExplicit: song.isExplicit,
+      inLibrary: song.inLibrary,
+      thumbnails: thumbnails,
+      streamUrl: song.streamUrl,
+      thumbnail: bestThumb,
+    );
+  }
+
+  /// Constructor desde Song (search.Song - deprecated, usar fromCanonicalSong)
+  @Deprecated('Usar NowPlayingData.fromCanonicalSong(Song) en su lugar')
   factory NowPlayingData.fromSong(search.Song song) {
     // Map search.Song properties to now_playing_data types
     final searchThumbnails = song.thumbnails

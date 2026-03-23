@@ -42,9 +42,14 @@ import 'package:music_app/features/mood_genre/data/repositories/mood_genre_repos
 import 'package:music_app/features/mood_genre/domain/repositories/mood_genre_repository.dart';
 import 'package:music_app/features/mood_genre/domain/use_cases/get_mood_playlists_use_case.dart';
 import 'package:music_app/features/player/data/datasources/radio_remote_data_source.dart';
+import 'package:music_app/features/player/data/repositories/player_repository_impl.dart';
 import 'package:music_app/features/player/data/repositories/radio_repository_impl.dart';
+import 'package:music_app/features/player/domain/repositories/player_repository.dart';
 import 'package:music_app/features/player/domain/repositories/radio_repository.dart';
+import 'package:music_app/features/player/domain/usecases/get_history_use_case.dart';
+import 'package:music_app/features/player/domain/usecases/get_similar_songs_use_case.dart';
 import 'package:music_app/features/player/domain/usecases/get_radio_playlist_usecase.dart';
+import 'package:music_app/features/player/domain/usecases/manage_history_use_case.dart';
 import 'package:music_app/features/playlist/data/data_sources/playlist_remote_data_source.dart';
 import 'package:music_app/features/playlist/data/repositories/playlist_repository_impl.dart';
 import 'package:music_app/features/playlist/domain/repositories/playlist_repository.dart';
@@ -77,8 +82,8 @@ class AppInjection {
   bool _isInitialized = false;
 
   AppInjection({required GetIt getIt, required String baseUrl})
-      : _getIt = getIt,
-        _baseUrl = baseUrl {
+    : _getIt = getIt,
+      _baseUrl = baseUrl {
     // Don't call _init() here - call init() explicitly from main.dart
   }
 
@@ -320,6 +325,35 @@ class AppInjection {
     if (!_getIt.isRegistered<GetRadioPlaylistUseCase>()) {
       _getIt.registerLazySingleton<GetRadioPlaylistUseCase>(
         () => GetRadioPlaylistUseCase(_getIt<RadioRepository>()),
+      );
+    }
+
+    // PlayerRepository - singleton async (needs OfflineService which is async)
+    if (!_getIt.isRegistered<PlayerRepository>()) {
+      _getIt.registerLazySingletonAsync<PlayerRepository>(
+        () async => PlayerRepositoryImpl(
+          offlineService: await _getIt.getAsync<OfflineService>(),
+          recordListenUseCase: _getIt<RecordListenUseCase>(),
+        ),
+      );
+    }
+
+    // Player Use Cases - factory (new instance each time for stateful use cases)
+    if (!_getIt.isRegistered<ManageHistoryUseCase>()) {
+      _getIt.registerFactory<ManageHistoryUseCase>(
+        () => ManageHistoryUseCase(_getIt<PlayerRepository>()),
+      );
+    }
+
+    if (!_getIt.isRegistered<GetHistoryUseCase>()) {
+      _getIt.registerFactory<GetHistoryUseCase>(
+        () => GetHistoryUseCase(_getIt<PlayerRepository>()),
+      );
+    }
+
+    if (!_getIt.isRegistered<GetSimilarSongsUseCase>()) {
+      _getIt.registerFactory<GetSimilarSongsUseCase>(
+        () => GetSimilarSongsUseCase(_getIt<PlayerRepository>()),
       );
     }
 

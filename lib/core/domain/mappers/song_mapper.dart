@@ -1,12 +1,17 @@
 // ignore_for_file: deprecated_member_use_from_same_package
 import 'package:music_app/core/domain/entities/song.dart' as core;
 import 'package:music_app/features/album/domain/entities/album.dart' as album;
-import 'package:music_app/features/artist/domain/entities/artist.dart' as artist;
+import 'package:music_app/features/artist/domain/entities/artist.dart'
+    as artist;
 import 'package:music_app/features/downloads/domain/entities/downloaded_song.dart';
 import 'package:music_app/features/home/domain/entities/chart_song.dart';
 import 'package:music_app/features/library/domain/entities/library_entities.dart';
 import 'package:music_app/features/library/library_service.dart';
+import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
+import 'package:music_app/features/playlist/domain/entities/playlist_track.dart';
 import 'package:music_app/features/search/domain/entities/song.dart' as search;
+import 'package:music_app/data/offline/models/offline_song.dart' as offline;
+import 'package:music_app/data/offline/models/offline_history.dart' as offline;
 
 /// Entidad para canciones reproducidas recientemente (usada en recently_played)
 class RecentSong {
@@ -22,7 +27,8 @@ class RecentSong {
     required this.videoId,
     required this.title,
     required this.artist,
-    required this.duration, this.thumbnail,
+    required this.duration,
+    this.thumbnail,
     this.durationSeconds = 0,
     this.playedAt,
   });
@@ -243,6 +249,132 @@ class SongMapper {
     List<FavoriteSongEntity> songs,
   ) {
     return songs.map(fromFavoriteSongEntity).toList();
+  }
+
+  /// Convierte [core.Song] a [NowPlayingData] para el reproductor
+  static NowPlayingData toNowPlayingData(core.Song song) {
+    return NowPlayingData.fromCanonicalSong(song);
+  }
+
+  /// Convierte [core.Song] a [offline.OfflineSong] para persistencia offline
+  static offline.OfflineSong toOfflineSong(core.Song song) {
+    return offline.OfflineSong()
+      ..songId = song.videoId
+      ..videoId = song.videoId
+      ..title = song.title
+      ..artist = song.artist
+      ..thumbnail = song.thumbnail
+      ..duration = song.durationSeconds
+      ..localAudioPath = song.localPath
+      ..addedAt = song.downloadedAt ?? DateTime.now();
+  }
+
+  /// Convierte [offline.OfflineSong] a [core.Song]
+  static core.Song fromOfflineSong(offline.OfflineSong offlineSong) {
+    return core.Song(
+      videoId: offlineSong.videoId,
+      title: offlineSong.title,
+      artist: offlineSong.artist,
+      thumbnail: offlineSong.thumbnail,
+      durationSeconds: offlineSong.duration ?? 0,
+      duration: _formatDuration(offlineSong.duration ?? 0),
+      localPath: offlineSong.localAudioPath,
+      downloadedAt: offlineSong.addedAt,
+    );
+  }
+
+  /// Convierte un Map (respuesta API) a [core.Song]
+  static core.Song fromApiSong(Map<String, dynamic> json) {
+    final thumbnails = _parseThumbnails(json['thumbnails']);
+    return core.Song(
+      videoId: json['videoId'] as String? ?? '',
+      title: json['title'] as String? ?? '',
+      artist: _extractArtistName(json),
+      artistNames: _extractArtistNames(json),
+      album: json['album']?['name'] as String?,
+      thumbnail: thumbnails.isNotEmpty ? thumbnails.first.url : null,
+      highThumbnail: thumbnails.isNotEmpty ? thumbnails.last.url : null,
+      thumbnails: thumbnails,
+      streamUrl: json['stream_url'] as String? ?? json['streamUrl'] as String?,
+      durationSeconds:
+          json['duration_seconds'] as int? ??
+          json['durationSeconds'] as int? ??
+          0,
+      duration: json['duration'] as String? ?? '0:00',
+      views: json['views'] as String?,
+      isExplicit: json['isExplicit'] as bool? ?? false,
+      inLibrary: json['inLibrary'] as bool? ?? false,
+    );
+  }
+
+  /// Convierte [PlaylistTrack] a [core.Song]
+  static core.Song fromPlaylistTrack(PlaylistTrack track) {
+    return core.Song(
+      videoId: track.videoId ?? '',
+      title: track.title,
+      artist: track.artists.isNotEmpty ? track.artists.first.name : 'Unknown',
+      artistNames: track.artists.map((a) => a.name).toList(),
+      album: track.album?.name,
+      thumbnail: track.thumbnail?.url ?? track.thumbnails.lastOrNull?.url,
+      thumbnails: track.thumbnails
+          .map(
+            (t) => core.Thumbnail(url: t.url, width: t.width, height: t.height),
+          )
+          .toList(),
+      streamUrl: track.streamUrl,
+      durationSeconds: track.durationSeconds,
+      duration: track.duration,
+      views: track.views,
+      isExplicit: track.isExplicit,
+      inLibrary: track.inLibrary ?? false,
+    );
+  }
+
+  /// Convierte una lista de Map (respuesta API) a [core.Song]
+  static List<core.Song> fromApiSongList(List<dynamic> jsonList) {
+    return jsonList
+        .map((json) => fromApiSong(json as Map<String, dynamic>))
+        .toList();
+  }
+
+  /// Convierte [offline.OfflineHistory] a [core.Song]
+  static core.Song fromOfflineHistory(offline.OfflineHistory history) {
+    return core.Song(
+      videoId: history.videoId,
+      title: history.title,
+      artist: history.artist,
+      thumbnail: history.thumbnail,
+      durationSeconds: history.duration ?? 0,
+      duration: _formatDuration(history.duration ?? 0),
+    );
+  }
+
+  // Private helpers
+  static List<core.Thumbnail> _parseThumbnails(dynamic data) {
+    if (data == null) return [];
+    return (data as List).map((t) {
+      final map = t as Map<String, dynamic>;
+      return core.Thumbnail(
+        url: map['url'] as String? ?? '',
+        width: map['width'] as int? ?? 0,
+        height: map['height'] as int? ?? 0,
+      );
+    }).toList();
+  }
+
+  static String _extractArtistName(Map<String, dynamic> json) {
+    final artists = json['artists'] as List<dynamic>?;
+    if (artists == null || artists.isEmpty) return 'Unknown Artist';
+    return (artists.first as Map<String, dynamic>)['name'] as String? ??
+        'Unknown Artist';
+  }
+
+  static List<String> _extractArtistNames(Map<String, dynamic> json) {
+    final artists = json['artists'] as List<dynamic>?;
+    if (artists == null) return [];
+    return artists
+        .map((a) => (a as Map<String, dynamic>)['name'] as String? ?? '')
+        .toList();
   }
 }
 
