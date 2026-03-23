@@ -19,6 +19,8 @@ import 'package:music_app/features/favorites/presentation/cubit/favorite_cubit.d
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/offline/presentation/cubit/playlist_offline_cubit.dart';
 import 'package:music_app/features/player/domain/player_facade.dart';
+import 'package:music_app/features/player/domain/repositories/player_repository.dart';
+import 'package:music_app/features/player/domain/usecases/manage_history_use_case.dart';
 import 'package:music_app/features/profile/domain/use_cases/get_profile_use_case.dart';
 import 'package:music_app/features/profile/domain/use_cases/get_settings_use_case.dart';
 import 'package:music_app/features/profile/domain/use_cases/logout_use_case.dart';
@@ -79,7 +81,11 @@ class _AppState extends State<App> {
 
       // Obtener AudioPlayerHandler para inyectarlo en PlayerBlocBloc
       final audioPlayerHandler = getIt<AudioPlayerHandler>();
-      _playerBlocBloc = PlayerBlocBloc(playerHandler: audioPlayerHandler);
+      _playerBlocBloc = PlayerBlocBloc(
+        playerHandler: audioPlayerHandler,
+        repository: await getIt.getAsync<PlayerRepository>(),
+        manageHistoryUseCase: getIt<ManageHistoryUseCase>(),
+      );
 
       // Conectar PlayerBlocBloc con AudioPlayerHandler para delegación de eventos
       audioPlayerHandler.playerBloc = _playerBlocBloc!;

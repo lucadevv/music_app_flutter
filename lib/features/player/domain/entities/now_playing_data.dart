@@ -292,6 +292,30 @@ class NowPlayingData extends Equatable {
     );
   }
 
+  /// Convierte NowPlayingData a Song canónico
+  ///
+  /// Útil para pasar datos a use cases que requieren Song
+  Song toSong() {
+    return Song(
+      videoId: videoId,
+      title: title,
+      artist: artists.isNotEmpty ? artists.first.name : 'Unknown Artist',
+      artistNames: artists.map((a) => a.name).toList(),
+      album: album.name,
+      thumbnail: bestThumbnail?.url,
+      highThumbnail: bestThumbnail?.url,
+      thumbnails: thumbnails
+          .map((t) => Thumbnail(url: t.url, width: t.width, height: t.height))
+          .toList(),
+      streamUrl: streamUrl,
+      durationSeconds: durationSeconds,
+      duration: duration,
+      views: views,
+      isExplicit: isExplicit,
+      inLibrary: inLibrary,
+    );
+  }
+
   /// Verifica si tiene información completa
   ///
   /// Útil para validar que la entidad tiene todos los datos necesarios

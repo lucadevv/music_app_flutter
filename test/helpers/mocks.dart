@@ -13,6 +13,8 @@ import 'package:music_app/features/downloads/domain/entities/downloaded_song.dar
 import 'package:music_app/features/downloads/domain/repositories/downloads_repository.dart';
 import 'package:music_app/features/home/domain/entities/home_response.dart';
 import 'package:music_app/features/home/domain/repositories/home_repository.dart';
+import 'package:music_app/features/player/domain/repositories/player_repository.dart';
+import 'package:music_app/features/player/domain/usecases/manage_history_use_case.dart';
 import 'package:music_app/features/search/domain/entities/recent_search.dart';
 import 'package:music_app/features/search/domain/entities/search_request.dart';
 import 'package:music_app/features/search/domain/entities/search_response.dart';
@@ -27,6 +29,10 @@ class MockSearchRepository extends Mock implements SearchRepository {}
 class MockDownloadsRepository extends Mock implements DownloadsRepository {}
 
 class MockAuthRepository extends Mock implements AuthRepository {}
+
+class MockPlayerRepository extends Mock implements PlayerRepository {}
+
+class MockManageHistoryUseCase extends Mock implements ManageHistoryUseCase {}
 
 // ============ Manager Mocks ============
 

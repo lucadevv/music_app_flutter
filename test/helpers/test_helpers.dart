@@ -8,6 +8,7 @@ import 'package:music_app/features/auth/login/domain/use_cases/oauth_sign_in_use
 import 'package:music_app/features/auth/register/domain/entities/register_request.dart';
 import 'package:music_app/features/auth/register/domain/entities/register_response.dart';
 import 'package:music_app/features/auth/register/domain/entities/user.dart';
+import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/downloads/domain/entities/downloaded_song.dart';
 import 'package:music_app/features/home/domain/entities/chart_song.dart';
 import 'package:music_app/features/home/domain/entities/home_content_item.dart';
@@ -15,6 +16,7 @@ import 'package:music_app/features/home/domain/entities/home_response.dart';
 import 'package:music_app/features/home/domain/entities/home_section.dart';
 import 'package:music_app/features/home/domain/entities/mood_genre.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
+import 'package:music_app/features/player/domain/player_engine.dart';
 import 'package:music_app/features/search/domain/entities/album.dart' as album;
 import 'package:music_app/features/search/domain/entities/artist.dart'
     as artist;
@@ -22,6 +24,8 @@ import 'package:music_app/features/search/domain/entities/search_request.dart';
 import 'package:music_app/features/search/domain/entities/search_response.dart';
 import 'package:music_app/features/search/domain/entities/thumbnail.dart'
     as thumb;
+
+import 'mocks.dart';
 
 // ============ OAuth Mock Classes ============
 
@@ -403,5 +407,32 @@ OAuthResult createTestOAuthResult({
     name: name,
     photoUrl: photoUrl,
     provider: provider,
+  );
+}
+
+// ============ PlayerBlocBloc Test Helpers ============
+
+PlayerBlocBloc createTestPlayerBloc({
+  PlayerEngine? engine,
+  MockPlayerRepository? mockRepository,
+  MockManageHistoryUseCase? mockManageHistoryUseCase,
+}) {
+  final repo = mockRepository ?? MockPlayerRepository();
+  final historyUseCase = mockManageHistoryUseCase ?? MockManageHistoryUseCase();
+
+  when(() => repo.getLocalAudioPath(any())).thenAnswer((_) async => null);
+  when(() => repo.recordListen(any())).thenAnswer((_) async {});
+  when(
+    () => historyUseCase.startNewEntry(any()),
+  ).thenAnswer((_) async => 'test_history_id');
+  when(
+    () => historyUseCase.updatePlayedDuration(any()),
+  ).thenAnswer((_) async {});
+  when(() => historyUseCase.finalizeCurrent()).thenAnswer((_) async {});
+
+  return PlayerBlocBloc(
+    engine: engine,
+    repository: repo,
+    manageHistoryUseCase: historyUseCase,
   );
 }

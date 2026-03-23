@@ -17,7 +17,7 @@ void main() {
   group('PlayerBloc - Casos de Uso Principales', () {
     blocTest<PlayerBlocBloc, PlayerBlocState>(
       'Estado inicial es correcto',
-      build: () => PlayerBlocBloc(engine: FakePlayerEngine()),
+      build: () => createTestPlayerBloc(engine: FakePlayerEngine()),
       verify: (bloc) {
         expect(bloc.state.playbackState, PlaybackState.stopped);
         expect(bloc.state.processingState, ProcessingState.idle);
@@ -29,7 +29,7 @@ void main() {
 
     blocTest<PlayerBlocBloc, PlayerBlocState>(
       'PlayRequestEvent(single) debe cargar track como single',
-      build: () => PlayerBlocBloc(engine: FakePlayerEngine()),
+      build: () => createTestPlayerBloc(engine: FakePlayerEngine()),
       act: (bloc) => bloc.add(PlayRequestEvent(track1, playAsSingle: true)),
       wait: const Duration(milliseconds: 20),
       verify: (bloc) {
@@ -40,7 +40,7 @@ void main() {
 
     blocTest<PlayerBlocBloc, PlayerBlocState>(
       'LoadPlaylistEvent vacío debe setear error',
-      build: () => PlayerBlocBloc(engine: FakePlayerEngine()),
+      build: () => createTestPlayerBloc(engine: FakePlayerEngine()),
       act: (bloc) => bloc.add(
         const LoadPlaylistEvent(playlist: [], startIndex: 0, sourceId: 'test'),
       ),
@@ -50,7 +50,7 @@ void main() {
 
     blocTest<PlayerBlocBloc, PlayerBlocState>(
       'LoadPlaylistEvent debe setear playlist y track actual',
-      build: () => PlayerBlocBloc(engine: FakePlayerEngine()),
+      build: () => createTestPlayerBloc(engine: FakePlayerEngine()),
       act: (bloc) => bloc.add(
         LoadPlaylistEvent(playlist: playlist, startIndex: 2, sourceId: 'test'),
       ),
@@ -64,7 +64,7 @@ void main() {
 
     blocTest<PlayerBlocBloc, PlayerBlocState>(
       'PlayTrackAtIndexEvent debe actualizar índice/track (solo estado)',
-      build: () => PlayerBlocBloc(engine: FakePlayerEngine()),
+      build: () => createTestPlayerBloc(engine: FakePlayerEngine()),
       seed: () => PlayerBlocState(
         playlist: playlist,
         currentTrack: track1,
@@ -82,7 +82,7 @@ void main() {
 
     blocTest<PlayerBlocBloc, PlayerBlocState>(
       'RemoveFromPlaylistEvent (no actual) debe reducir playlist',
-      build: () => PlayerBlocBloc(engine: FakePlayerEngine()),
+      build: () => createTestPlayerBloc(engine: FakePlayerEngine()),
       seed: () => PlayerBlocState(
         playlist: playlist,
         currentTrack: track1,
@@ -95,7 +95,7 @@ void main() {
 
     blocTest<PlayerBlocBloc, PlayerBlocState>(
       'RemoveFromPlaylistEvent (actual) debe mover track actual',
-      build: () => PlayerBlocBloc(engine: FakePlayerEngine()),
+      build: () => createTestPlayerBloc(engine: FakePlayerEngine()),
       seed: () => PlayerBlocState(
         playlist: playlist,
         currentTrack: track2,
@@ -112,7 +112,7 @@ void main() {
 
     blocTest<PlayerBlocBloc, PlayerBlocState>(
       'RemoveFromPlaylistEvent (última) debe limpiar currentTrack',
-      build: () => PlayerBlocBloc(engine: FakePlayerEngine()),
+      build: () => createTestPlayerBloc(engine: FakePlayerEngine()),
       seed: () => PlayerBlocState(
         playlist: [track1],
         currentTrack: track1,
@@ -127,4 +127,3 @@ void main() {
     );
   });
 }
-

@@ -39,7 +39,7 @@ void main() {
       tester,
     ) async {
       final engine = FakePlayerEngine();
-      final bloc = PlayerBlocBloc(engine: engine);
+      final bloc = createTestPlayerBloc(engine: engine);
       addTearDown(() async {
         await bloc.close();
         await engine.dispose();
@@ -56,7 +56,7 @@ void main() {
       tester,
     ) async {
       final engine = FakePlayerEngine();
-      final bloc = PlayerBlocBloc(engine: engine);
+      final bloc = createTestPlayerBloc(engine: engine);
       addTearDown(() async {
         await bloc.close();
         await engine.dispose();
@@ -83,7 +83,7 @@ void main() {
 
     testWidgets('QueueScreen builds with localization (smoke)', (tester) async {
       final engine = FakePlayerEngine();
-      final bloc = PlayerBlocBloc(engine: engine);
+      final bloc = createTestPlayerBloc(engine: engine);
       addTearDown(() async {
         await bloc.close();
         await engine.dispose();
@@ -98,7 +98,7 @@ void main() {
       tester,
     ) async {
       final engine = FakePlayerEngine();
-      final bloc = PlayerBlocBloc(engine: engine);
+      final bloc = createTestPlayerBloc(engine: engine);
       addTearDown(() async {
         await bloc.close();
         await engine.dispose();
@@ -121,11 +121,8 @@ void main() {
         ),
       );
 
-      await tester.pump(const Duration(milliseconds: 80));
-      expect(bloc.state.currentTrack?.videoId, equals('ps1'));
-
-      await tester.pumpWidget(const SizedBox.shrink());
-      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 30));
+      expect(find.text('Player Song'), findsOneWidget);
     });
   });
 }
