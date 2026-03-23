@@ -10,8 +10,8 @@ import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 import 'package:music_app/features/playlist/domain/entities/playlist_track.dart';
 import 'package:music_app/features/search/domain/entities/song.dart' as search;
-import 'package:music_app/data/offline/models/offline_song.dart' as offline;
-import 'package:music_app/data/offline/models/offline_history.dart' as offline;
+import 'package:music_app/core/data/offline/models/offline_song.dart' as offline;
+import 'package:music_app/core/data/offline/models/offline_history.dart' as offline;
 
 /// Entidad para canciones reproducidas recientemente (usada en recently_played)
 class RecentSong {

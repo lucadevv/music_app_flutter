@@ -1,9 +1,8 @@
 part of 'player_bloc_bloc.dart';
 
-/// Estado único del reproductor
 class PlayerBlocState extends Equatable {
   final PlaybackState playbackState;
-  final ProcessingState processingState;
+  final ProcessingStateType processingState;
   final AudioConnectionState connectionState;
   final List<NowPlayingData> playlist;
   final int? currentIndex;
@@ -14,7 +13,7 @@ class PlayerBlocState extends Equatable {
   final Duration bufferedPosition;
   final double volume;
   final double speed;
-  final LoopMode loopMode;
+  final LoopModeType loopMode;
   final bool isShuffleEnabled;
   final String? error;
   final bool isLoading;
@@ -25,7 +24,7 @@ class PlayerBlocState extends Equatable {
 
   const PlayerBlocState({
     this.playbackState = PlaybackState.stopped,
-    this.processingState = ProcessingState.idle,
+    this.processingState = ProcessingStateType.idle,
     this.connectionState = AudioConnectionState.disconnected,
     this.playlist = const [],
     this.currentIndex,
@@ -36,7 +35,7 @@ class PlayerBlocState extends Equatable {
     this.bufferedPosition = Duration.zero,
     this.volume = 1.0,
     this.speed = 1.0,
-    this.loopMode = LoopMode.off,
+    this.loopMode = LoopModeType.off,
     this.isShuffleEnabled = false,
     this.error,
     this.isLoading = false,
@@ -46,34 +45,32 @@ class PlayerBlocState extends Equatable {
     this.sourceId,
   });
 
-  /// Factory para estado inicial
   factory PlayerBlocState.initial() => const PlayerBlocState(
-        playbackState: PlaybackState.stopped,
-        processingState: ProcessingState.idle,
-        connectionState: AudioConnectionState.disconnected,
-        playlist: [],
-        currentIndex: null,
-        currentTrack: null,
-        currentStreamUrl: null,
-        position: Duration.zero,
-        duration: Duration.zero,
-        bufferedPosition: Duration.zero,
-        volume: 1.0,
-        speed: 1.0,
-        loopMode: LoopMode.off,
-        isShuffleEnabled: false,
-        error: null,
-        isLoading: false,
-        loadingCompletedAt: null,
-        loadedCount: null,
-        totalToLoad: null,
-        sourceId: null,
+    playbackState: PlaybackState.stopped,
+    processingState: ProcessingStateType.idle,
+    connectionState: AudioConnectionState.disconnected,
+    playlist: [],
+    currentIndex: null,
+    currentTrack: null,
+    currentStreamUrl: null,
+    position: Duration.zero,
+    duration: Duration.zero,
+    bufferedPosition: Duration.zero,
+    volume: 1.0,
+    speed: 1.0,
+    loopMode: LoopModeType.off,
+    isShuffleEnabled: false,
+    error: null,
+    isLoading: false,
+    loadingCompletedAt: null,
+    loadedCount: null,
+    totalToLoad: null,
+    sourceId: null,
   );
 
-  /// copyWith
   PlayerBlocState copyWith({
     PlaybackState? playbackState,
-    ProcessingState? processingState,
+    ProcessingStateType? processingState,
     AudioConnectionState? connectionState,
     List<NowPlayingData>? playlist,
     int? currentIndex,
@@ -84,7 +81,7 @@ class PlayerBlocState extends Equatable {
     Duration? bufferedPosition,
     double? volume,
     double? speed,
-    LoopMode? loopMode,
+    LoopModeType? loopMode,
     bool? isShuffleEnabled,
     String? error,
     bool? isLoading,
@@ -102,8 +99,12 @@ class PlayerBlocState extends Equatable {
       processingState: processingState ?? this.processingState,
       connectionState: connectionState ?? this.connectionState,
       playlist: playlist ?? this.playlist,
-      currentIndex: clearCurrentIndex ? null : (currentIndex ?? this.currentIndex),
-      currentTrack: clearCurrentTrack ? null : (currentTrack ?? this.currentTrack),
+      currentIndex: clearCurrentIndex
+          ? null
+          : (currentIndex ?? this.currentIndex),
+      currentTrack: clearCurrentTrack
+          ? null
+          : (currentTrack ?? this.currentTrack),
       currentStreamUrl: currentStreamUrl ?? this.currentStreamUrl,
       position: position ?? this.position,
       duration: duration ?? this.duration,
@@ -121,24 +122,28 @@ class PlayerBlocState extends Equatable {
     );
   }
 
-  /// Getters
   bool get isPlaying => playbackState == PlaybackState.playing;
   bool get isPaused => playbackState == PlaybackState.paused;
   bool get isStopped => playbackState == PlaybackState.stopped;
-  bool get isBuffering => processingState == ProcessingState.buffering;
-  bool get isReady => processingState == ProcessingState.ready;
-  bool get isCompleted => processingState == ProcessingState.completed;
+  bool get isBuffering => processingState == ProcessingStateType.buffering;
+  bool get isReady => processingState == ProcessingStateType.ready;
+  bool get isCompleted => processingState == ProcessingStateType.completed;
   bool get hasError => error != null;
   bool get hasPlaylist => playlist.isNotEmpty;
   bool get hasCurrentTrack => currentTrack != null;
   bool get canPlayNext =>
-      hasPlaylist && currentIndex != null && currentIndex! < playlist.length - 1;
+      hasPlaylist &&
+      currentIndex != null &&
+      currentIndex! < playlist.length - 1;
   bool get canPlayPrevious =>
       hasPlaylist && currentIndex != null && currentIndex! > 0;
 
   bool get isPlaylistFullyLoaded => loadingCompletedAt != null && !isLoading;
   bool get isPlaylistLoading =>
-      isLoading && loadedCount != null && totalToLoad != null && loadedCount! < totalToLoad!;
+      isLoading &&
+      loadedCount != null &&
+      totalToLoad != null &&
+      loadedCount! < totalToLoad!;
 
   double get loadingProgress {
     if (totalToLoad == null || totalToLoad == 0) return 0.0;
@@ -158,27 +163,27 @@ class PlayerBlocState extends Equatable {
 
   @override
   List<Object?> get props => [
-        playbackState,
-        processingState,
-        connectionState,
-        playlist,
-        currentIndex,
-        currentTrack,
-        currentStreamUrl,
-        position,
-        duration,
-        bufferedPosition,
-        volume,
-        speed,
-        loopMode,
-        isShuffleEnabled,
-        error,
-        isLoading,
-        loadingCompletedAt,
-        loadedCount,
-        totalToLoad,
-        sourceId,
-      ];
+    playbackState,
+    processingState,
+    connectionState,
+    playlist,
+    currentIndex,
+    currentTrack,
+    currentStreamUrl,
+    position,
+    duration,
+    bufferedPosition,
+    volume,
+    speed,
+    loopMode,
+    isShuffleEnabled,
+    error,
+    isLoading,
+    loadingCompletedAt,
+    loadedCount,
+    totalToLoad,
+    sourceId,
+  ];
 }
 
 enum PlaybackState { stopped, playing, paused }

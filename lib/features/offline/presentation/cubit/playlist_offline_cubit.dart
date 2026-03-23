@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/bloc/base_bloc_mixin.dart';
 import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
-import 'package:music_app/data/offline/models/offline_playlist.dart';
-import 'package:music_app/data/offline/services/offline_service.dart';
+import 'package:music_app/core/data/offline/models/offline_playlist.dart';
+import 'package:music_app/core/data/offline/services/offline_service.dart';
 import 'package:music_app/features/library/library_service.dart';
 
 part 'playlist_offline_state.dart';

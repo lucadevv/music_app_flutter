@@ -12,7 +12,7 @@ import 'package:music_app/core/services/local/onboarding_service.dart';
 import 'package:music_app/core/services/local/shared_preferences_service_impl.dart';
 import 'package:music_app/core/services/network/api_services.dart';
 import 'package:music_app/core/services/network/dio_services_impl.dart';
-import 'package:music_app/data/offline/services/offline_service.dart';
+import 'package:music_app/core/data/offline/services/offline_service.dart';
 import 'package:music_app/features/album/data/repositories/album_repository_impl.dart';
 import 'package:music_app/features/album/domain/repositories/album_repository.dart';
 import 'package:music_app/features/artist/data/repositories/artist_repository_impl.dart';
@@ -46,6 +46,7 @@ import 'package:music_app/features/player/data/repositories/player_repository_im
 import 'package:music_app/features/player/data/repositories/radio_repository_impl.dart';
 import 'package:music_app/features/player/domain/repositories/player_repository.dart';
 import 'package:music_app/features/player/domain/repositories/radio_repository.dart';
+import 'package:music_app/features/player/domain/services/history_state_service.dart';
 import 'package:music_app/features/player/domain/usecases/get_history_use_case.dart';
 import 'package:music_app/features/player/domain/usecases/get_similar_songs_use_case.dart';
 import 'package:music_app/features/player/domain/usecases/get_radio_playlist_usecase.dart';
@@ -333,15 +334,22 @@ class AppInjection {
       _getIt.registerLazySingletonAsync<PlayerRepository>(
         () async => PlayerRepositoryImpl(
           offlineService: await _getIt.getAsync<OfflineService>(),
-          recordListenUseCase: _getIt<RecordListenUseCase>(),
+          recentlyPlayedRepository: _getIt<RecentlyPlayedRepository>(),
         ),
+      );
+    }
+
+    // HistoryStateService - singleton to manage history state
+    if (!_getIt.isRegistered<HistoryStateService>()) {
+      _getIt.registerLazySingleton<HistoryStateService>(
+        () => HistoryStateService(_getIt<PlayerRepository>()),
       );
     }
 
     // Player Use Cases - factory (new instance each time for stateful use cases)
     if (!_getIt.isRegistered<ManageHistoryUseCase>()) {
       _getIt.registerFactory<ManageHistoryUseCase>(
-        () => ManageHistoryUseCase(_getIt<PlayerRepository>()),
+        () => ManageHistoryUseCase(_getIt<HistoryStateService>()),
       );
     }
 

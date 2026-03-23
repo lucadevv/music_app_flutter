@@ -1,14 +1,9 @@
 import 'dart:async';
 
-import 'package:just_audio/just_audio.dart';
+import 'package:music_app/features/player/domain/types/player_types.dart';
 
-/// Abstracción del motor de audio.
-///
-/// Objetivo: poder testear PlayerBloc de forma determinista (con fakes) y
-/// aislar a `just_audio` para manejar mejor condiciones de carrera.
 abstract interface class PlayerEngine {
-  /// Streams principales del motor.
-  Stream<PlayerState> get playerStateStream;
+  Stream<PlayerStateInfo> get playerStateStream;
   Stream<Duration> get positionStream;
   Stream<Duration?> get durationStream;
   Stream<Duration> get bufferedPositionStream;
@@ -24,13 +19,17 @@ abstract interface class PlayerEngine {
   Future<void> seekToNext();
   Future<void> seekToPrevious();
 
-  Future<void> addAudioSources(List<AudioSource> sources);
+  Future<void> addAudioSources(List<AudioSourceConfig> sources);
   Future<void> removeAudioSourceAt(int index);
 
-  Future<void> setAudioSource(AudioSource source, {bool preload = false});
-  Future<void> setLoopMode(LoopMode mode);
+  Future<void> setAudioSource(AudioSourceConfig source, {bool preload = false});
+  Future<void> setAudioSources(
+    List<AudioSourceConfig> sources, {
+    bool preload = false,
+    int? initialIndex,
+  });
+  Future<void> setLoopMode(LoopModeType mode);
   Future<void> setShuffleModeEnabled(bool enabled);
   Future<void> setSpeed(double speed);
   Future<void> setVolume(double volume);
 }
-

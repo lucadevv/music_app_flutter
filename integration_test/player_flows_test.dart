@@ -1,8 +1,10 @@
+import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/player/domain/player_facade.dart';
 import 'package:music_app/features/player/domain/repositories/player_repository.dart';
@@ -82,11 +84,13 @@ void main() {
     when(() => repo.recordListen(any())).thenAnswer((_) async {});
     when(
       () => historyUseCase.startNewEntry(any()),
-    ).thenAnswer((_) async => 'test_id');
+    ).thenAnswer((_) async => const Right('test_id'));
     when(
       () => historyUseCase.updatePlayedDuration(any()),
-    ).thenAnswer((_) async {});
-    when(() => historyUseCase.finalizeCurrent()).thenAnswer((_) async {});
+    ).thenAnswer((_) async => const Right(null));
+    when(
+      () => historyUseCase.finalizeCurrent(),
+    ).thenAnswer((_) async => const Right(null));
 
     final bloc = PlayerBlocBloc(
       engine: engine,

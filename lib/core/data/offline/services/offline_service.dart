@@ -4,10 +4,10 @@ import 'dart:io';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:music_app/data/offline/models/offline_history.dart';
-import 'package:music_app/data/offline/models/offline_playlist.dart';
-import 'package:music_app/data/offline/models/offline_song.dart';
-import 'package:music_app/data/offline/services/audio_download_service.dart';
+import 'package:music_app/core/data/offline/models/offline_history.dart';
+import 'package:music_app/core/data/offline/models/offline_playlist.dart';
+import 'package:music_app/core/data/offline/models/offline_song.dart';
+import 'package:music_app/core/data/offline/services/audio_download_service.dart';
 import 'package:path_provider/path_provider.dart';
 
 /// Constantes para los nombres de las cajas de Hive

@@ -1,4 +1,4 @@
-import 'package:music_app/data/offline/services/offline_service.dart';
+import 'package:music_app/core/data/offline/services/offline_service.dart';
 import 'package:music_app/features/offline/domain/entities/offline_song_entity.dart';
 
 /// Data source for offline operations.

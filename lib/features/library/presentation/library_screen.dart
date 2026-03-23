@@ -8,7 +8,7 @@ import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/core/utils/extension/sizedbox_extension.dart';
 import 'package:music_app/core/widgets/custom_search_bar.dart';
 import 'package:music_app/core/widgets/shimmer_widgets.dart';
-import 'package:music_app/data/offline/services/offline_service.dart';
+import 'package:music_app/core/data/offline/services/offline_service.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/library/presentation/cubit/library_cubit.dart';

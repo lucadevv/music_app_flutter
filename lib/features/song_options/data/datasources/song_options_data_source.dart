@@ -1,4 +1,4 @@
-import 'package:music_app/data/offline/services/offline_service.dart';
+import 'package:music_app/core/data/offline/services/offline_service.dart';
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/song_options/domain/entities/song_option_entity.dart';
 

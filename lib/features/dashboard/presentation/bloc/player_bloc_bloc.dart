@@ -2,11 +2,11 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:music_app/core/services/audio_handler_service.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 import 'package:music_app/features/player/domain/player_engine.dart';
 import 'package:music_app/features/player/domain/repositories/player_repository.dart';
+import 'package:music_app/features/player/domain/types/player_types.dart';
 import 'package:music_app/features/player/domain/usecases/manage_history_use_case.dart';
 import 'package:music_app/features/player/infrastructure/just_audio_player_engine.dart';
 import 'package:music_app/features/profile/presentation/cubit/profile_cubit.dart';
@@ -139,7 +139,10 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     on<CurrentIndexChangedEvent>(_onCurrentIndexChanged);
     on<AudioErrorEvent>(
       (e, emit) => emit(
-        state.copyWith(error: e.error, processingState: ProcessingState.idle),
+        state.copyWith(
+          error: e.error,
+          processingState: ProcessingStateType.idle,
+        ),
       ),
     );
 
@@ -242,13 +245,15 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
         ),
       );
 
-      final audioSource = ConcatenatingAudioSource(
-        useLazyPreparation: true,
-        children: [
-          AudioSource.uri(Uri.parse(streamUrl), tag: track.toMediaItem()),
-        ],
+      final audioConfig = AudioSourceConfig(
+        id: track.videoId,
+        url: streamUrl,
+        title: track.title,
+        artist: track.artistsNames,
+        duration: Duration(seconds: track.durationSeconds),
+        mediaItem: track.toMediaItem(),
       );
-      await _playerEngine.setAudioSource(audioSource, preload: false);
+      await _playerEngine.setAudioSource(audioConfig, preload: false);
       _updateHandlerMediaItem(track);
 
       final duration = Duration(
@@ -257,7 +262,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
       emit(
         state.copyWith(
           playbackState: PlaybackState.playing,
-          processingState: ProcessingState.ready,
+          processingState: ProcessingStateType.ready,
           connectionState: AudioConnectionState.connected,
           currentTrack: track,
           currentStreamUrl: streamUrl,
@@ -331,12 +336,19 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     final startIdx = (e.startIndex ?? 0).clamp(0, e.playlist.length - 1);
     emit(state.copyWith(isLoading: true, error: null));
 
-    final sources = <AudioSource>[];
+    final sources = <AudioSourceConfig>[];
     for (final t in e.playlist) {
       if (t.streamUrl != null && t.streamUrl!.isNotEmpty) {
         try {
           sources.add(
-            AudioSource.uri(Uri.parse(t.streamUrl!), tag: t.toMediaItem()),
+            AudioSourceConfig(
+              id: t.videoId,
+              url: t.streamUrl!,
+              title: t.title,
+              artist: t.artistsNames,
+              duration: Duration(seconds: t.durationSeconds),
+              mediaItem: t.toMediaItem(),
+            ),
           );
         } catch (_) {}
       }
@@ -349,11 +361,8 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
       return;
     }
 
-    await _playerEngine.setAudioSource(
-      ConcatenatingAudioSource(useLazyPreparation: true, children: sources),
-      preload: false,
-    );
-    await _playerEngine.setLoopMode(LoopMode.all);
+    await _playerEngine.setAudioSources(sources, preload: false);
+    await _playerEngine.setLoopMode(LoopModeType.all);
 
     final first = e.playlist[startIdx];
     _updateHandlerMediaItem(first);
@@ -406,9 +415,13 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     if (state.playlist.any((t) => t.videoId == e.track.videoId)) return;
 
     await _playerEngine.addAudioSources([
-      AudioSource.uri(
-        Uri.parse(e.track.streamUrl!),
-        tag: e.track.toMediaItem(),
+      AudioSourceConfig(
+        id: e.track.videoId,
+        url: e.track.streamUrl!,
+        title: e.track.title,
+        artist: e.track.artistsNames,
+        duration: Duration(seconds: e.track.durationSeconds),
+        mediaItem: e.track.toMediaItem(),
       ),
     ]);
     emit(state.copyWith(playlist: [...state.playlist, e.track]));
@@ -433,8 +446,14 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     await _playerEngine.addAudioSources(
       valid
           .map(
-            (t) =>
-                AudioSource.uri(Uri.parse(t.streamUrl!), tag: t.toMediaItem()),
+            (t) => AudioSourceConfig(
+              id: t.videoId,
+              url: t.streamUrl!,
+              title: t.title,
+              artist: t.artistsNames,
+              duration: Duration(seconds: t.durationSeconds),
+              mediaItem: t.toMediaItem(),
+            ),
           )
           .toList(),
     );
@@ -465,7 +484,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
             clearCurrentTrack: true,
             currentStreamUrl: null,
             playbackState: PlaybackState.stopped,
-            processingState: ProcessingState.idle,
+            processingState: ProcessingStateType.idle,
             position: Duration.zero,
           ),
         );
@@ -533,7 +552,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     Emitter<PlayerBlocState> emit,
   ) async {
     final prevProcessing = state.processingState;
-    final pbState = e.playerState.playing
+    final pbState = e.playerState.isPlaying
         ? PlaybackState.playing
         : PlaybackState.paused;
     emit(
@@ -543,18 +562,19 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
       ),
     );
 
-    if (prevProcessing != ProcessingState.completed &&
-        e.playerState.processingState == ProcessingState.completed) {
+    if (prevProcessing != ProcessingStateType.completed &&
+        e.playerState.processingState == ProcessingStateType.completed) {
       await _handleAutoPlay();
     }
   }
 
   Future<void> _handleAutoPlay() async {
     final autoPlay = _profileCubit?.state.settings?.autoPlay ?? true;
-    if (!autoPlay || state.loopMode == LoopMode.one) return;
+    if (!autoPlay || state.loopMode == LoopModeType.one) return;
     if (state.canPlayNext) {
       add(const NextTrackEvent());
-    } else if (state.loopMode == LoopMode.all && state.playlist.isNotEmpty) {
+    } else if (state.loopMode == LoopModeType.all &&
+        state.playlist.isNotEmpty) {
       add(const PlayTrackAtIndexEvent(0));
     }
   }
@@ -585,7 +605,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
 
   Future<void> _onResetPlayer(_, Emitter<PlayerBlocState> emit) async {
     await _playerEngine.stop();
-    await _playerEngine.setAudioSource(ConcatenatingAudioSource(children: []));
+    await _playerEngine.setAudioSources([]);
     await _manageHistoryUseCase.finalizeCurrent();
     emit(PlayerBlocState.initial());
   }

@@ -8,7 +8,7 @@ import 'package:music_app/core/services/audio_handler_service.dart';
 import 'package:music_app/core/services/logger/app_logger.dart';
 import 'package:music_app/core/theme/app_theme.dart';
 import 'package:music_app/core/theme/theme_cubit.dart';
-import 'package:music_app/data/offline/services/offline_service.dart';
+import 'package:music_app/core/data/offline/services/offline_service.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/downloads/domain/use_cases/check_download_status_use_case.dart';
 import 'package:music_app/features/downloads/domain/use_cases/download_song_use_case.dart';

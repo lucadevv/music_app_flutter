@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
+import 'package:music_app/features/player/domain/types/player_types.dart';
 
 class PlayerControlsWidget extends StatelessWidget {
   final bool isPlaying;
   final bool canPlayNext;
   final bool canPlayPrevious;
   final bool isShuffleEnabled;
-  final LoopMode loopMode;
+  final LoopModeType loopMode;
   final VoidCallback? onPlayPause;
   final VoidCallback? onNext;
   final VoidCallback? onPrevious;
@@ -30,11 +30,11 @@ class PlayerControlsWidget extends StatelessWidget {
 
   Color _getRepeatColor() {
     switch (loopMode) {
-      case LoopMode.off:
+      case LoopModeType.off:
         return AppColorsDark.onSurfaceVariant;
-      case LoopMode.one:
+      case LoopModeType.one:
         return AppColorsDark.primary;
-      case LoopMode.all:
+      case LoopModeType.all:
         return AppColorsDark.primary;
     }
   }
@@ -56,7 +56,9 @@ class PlayerControlsWidget extends StatelessWidget {
               Icons.shuffle,
               color: onShuffle == null
                   ? AppColorsDark.onSurfaceVariant.withValues(alpha: 0.3)
-                  : (isShuffleEnabled ? AppColorsDark.primary : AppColorsDark.onSurfaceVariant),
+                  : (isShuffleEnabled
+                        ? AppColorsDark.primary
+                        : AppColorsDark.onSurfaceVariant),
             ),
             onPressed: onShuffle,
           ),
@@ -103,7 +105,7 @@ class PlayerControlsWidget extends StatelessWidget {
           ),
           IconButton(
             icon: Icon(
-              loopMode == LoopMode.one ? Icons.repeat_one : Icons.repeat,
+              loopMode == LoopModeType.one ? Icons.repeat_one : Icons.repeat,
               color: onRepeat == null
                   ? AppColorsDark.onSurfaceVariant.withValues(alpha: 0.3)
                   : _getRepeatColor(),

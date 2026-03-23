@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
+import 'package:music_app/features/player/domain/types/player_types.dart';
 
 import '../../../../helpers/test_helpers.dart';
 
@@ -171,15 +171,15 @@ void main() {
     group('SetLoopModeEvent', () {
       test('should support value equality', () {
         expect(
-          const SetLoopModeEvent(LoopMode.one),
-          equals(const SetLoopModeEvent(LoopMode.one)),
+          const SetLoopModeEvent(LoopModeType.one),
+          equals(const SetLoopModeEvent(LoopModeType.one)),
         );
       });
 
       test('props should contain loopMode', () {
         expect(
-          const SetLoopModeEvent(LoopMode.one).props,
-          contains(LoopMode.one),
+          const SetLoopModeEvent(LoopModeType.one).props,
+          contains(LoopModeType.one),
         );
       });
     });
@@ -226,7 +226,7 @@ void main() {
       test('should have correct default values', () {
         const state = PlayerBlocState();
         expect(state.playbackState, equals(PlaybackState.stopped));
-        expect(state.processingState, equals(ProcessingState.idle));
+        expect(state.processingState, equals(ProcessingStateType.idle));
         expect(
           state.connectionState,
           equals(AudioConnectionState.disconnected),
@@ -238,7 +238,7 @@ void main() {
         expect(state.duration, equals(Duration.zero));
         expect(state.volume, equals(1.0));
         expect(state.speed, equals(1.0));
-        expect(state.loopMode, equals(LoopMode.off));
+        expect(state.loopMode, equals(LoopModeType.off));
         expect(state.isShuffleEnabled, isFalse);
         expect(state.error, isNull);
         expect(state.isLoading, isFalse);
@@ -286,9 +286,7 @@ void main() {
       });
 
       test('hasCurrentTrack should be true when currentTrack is not null', () {
-        final state = PlayerBlocState(
-          currentTrack: createTestNowPlayingData(),
-        );
+        final state = PlayerBlocState(currentTrack: createTestNowPlayingData());
         expect(state.hasCurrentTrack, isTrue);
       });
 

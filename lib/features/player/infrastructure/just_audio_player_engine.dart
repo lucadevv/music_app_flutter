@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:just_audio/just_audio.dart';
 import 'package:music_app/features/player/domain/player_engine.dart';
+import 'package:music_app/features/player/domain/types/player_types.dart';
 
 class JustAudioPlayerEngine implements PlayerEngine {
   final AudioPlayer _player;
@@ -7,7 +10,8 @@ class JustAudioPlayerEngine implements PlayerEngine {
   JustAudioPlayerEngine(this._player);
 
   @override
-  Stream<PlayerState> get playerStateStream => _player.playerStateStream;
+  Stream<PlayerStateInfo> get playerStateStream =>
+      _player.playerStateStream.map(_mapPlayerState);
 
   @override
   Stream<Duration> get positionStream => _player.positionStream;
@@ -37,7 +41,8 @@ class JustAudioPlayerEngine implements PlayerEngine {
   Future<void> stop() => _player.stop();
 
   @override
-  Future<void> seek(Duration position, {int? index}) => _player.seek(position, index: index);
+  Future<void> seek(Duration position, {int? index}) =>
+      _player.seek(position, index: index);
 
   @override
   Future<void> seekToNext() => _player.seekToNext();
@@ -46,18 +51,44 @@ class JustAudioPlayerEngine implements PlayerEngine {
   Future<void> seekToPrevious() => _player.seekToPrevious();
 
   @override
-  Future<void> addAudioSources(List<AudioSource> sources) =>
-      _player.addAudioSources(sources);
+  Future<void> addAudioSources(List<AudioSourceConfig> sources) =>
+      _player.addAudioSources(sources.map(_toAudioSource).toList());
 
   @override
-  Future<void> removeAudioSourceAt(int index) => _player.removeAudioSourceAt(index);
+  Future<void> removeAudioSourceAt(int index) =>
+      _player.removeAudioSourceAt(index);
 
   @override
-  Future<void> setAudioSource(AudioSource source, {bool preload = false}) =>
-      _player.setAudioSource(source, preload: preload);
+  Future<void> setAudioSource(
+    AudioSourceConfig source, {
+    bool preload = false,
+  }) {
+    final concatenating = ConcatenatingAudioSource(
+      useLazyPreparation: true,
+      children: [_toAudioSource(source)],
+    );
+    return _player.setAudioSource(concatenating, preload: preload);
+  }
 
   @override
-  Future<void> setLoopMode(LoopMode mode) => _player.setLoopMode(mode);
+  Future<void> setAudioSources(
+    List<AudioSourceConfig> sources, {
+    bool preload = false,
+    int? initialIndex,
+  }) async {
+    final concatenating = ConcatenatingAudioSource(
+      useLazyPreparation: true,
+      children: sources.map(_toAudioSource).toList(),
+    );
+    await _player.setAudioSource(concatenating, preload: preload);
+    if (initialIndex != null && initialIndex > 0) {
+      await _player.seek(Duration.zero, index: initialIndex);
+    }
+  }
+
+  @override
+  Future<void> setLoopMode(LoopModeType mode) =>
+      _player.setLoopMode(_mapLoopMode(mode));
 
   @override
   Future<void> setShuffleModeEnabled(bool enabled) =>
@@ -68,5 +99,33 @@ class JustAudioPlayerEngine implements PlayerEngine {
 
   @override
   Future<void> setVolume(double volume) => _player.setVolume(volume);
-}
 
+  AudioSource _toAudioSource(AudioSourceConfig config) {
+    return AudioSource.uri(Uri.parse(config.url), tag: config.mediaItem);
+  }
+
+  PlayerStateInfo _mapPlayerState(PlayerState state) {
+    return PlayerStateInfo(
+      isPlaying: state.playing,
+      processingState: _mapProcessingState(state.processingState),
+    );
+  }
+
+  ProcessingStateType _mapProcessingState(ProcessingState state) {
+    return switch (state) {
+      ProcessingState.idle => ProcessingStateType.idle,
+      ProcessingState.loading => ProcessingStateType.loading,
+      ProcessingState.buffering => ProcessingStateType.buffering,
+      ProcessingState.ready => ProcessingStateType.ready,
+      ProcessingState.completed => ProcessingStateType.completed,
+    };
+  }
+
+  LoopMode _mapLoopMode(LoopModeType mode) {
+    return switch (mode) {
+      LoopModeType.off => LoopMode.off,
+      LoopModeType.one => LoopMode.one,
+      LoopModeType.all => LoopMode.all,
+    };
+  }
+}

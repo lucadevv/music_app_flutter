@@ -1,7 +1,7 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
+import 'package:music_app/features/player/domain/types/player_types.dart';
 
 import '../../../../fakes/fake_player_engine.dart';
 import '../../../../helpers/test_helpers.dart';
@@ -20,7 +20,7 @@ void main() {
       build: () => createTestPlayerBloc(engine: FakePlayerEngine()),
       verify: (bloc) {
         expect(bloc.state.playbackState, PlaybackState.stopped);
-        expect(bloc.state.processingState, ProcessingState.idle);
+        expect(bloc.state.processingState, ProcessingStateType.idle);
         expect(bloc.state.playlist, isEmpty);
         expect(bloc.state.currentTrack, isNull);
         expect(bloc.state.currentIndex, isNull);
@@ -70,7 +70,7 @@ void main() {
         currentTrack: track1,
         currentIndex: 0,
         playbackState: PlaybackState.playing,
-        processingState: ProcessingState.ready,
+        processingState: ProcessingStateType.ready,
       ),
       act: (bloc) => bloc.add(const PlayTrackAtIndexEvent(2)),
       wait: const Duration(milliseconds: 20),

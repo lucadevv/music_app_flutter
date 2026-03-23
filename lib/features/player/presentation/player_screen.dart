@@ -1,9 +1,9 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
+import 'package:music_app/features/player/domain/types/player_types.dart';
 import 'package:music_app/features/player/presentation/widgets/atoms/player_backdrop_widget.dart';
 import 'package:music_app/features/player/presentation/widgets/atoms/player_error_widget.dart';
 import 'package:music_app/features/player/presentation/widgets/molecules/player_artwork_widget.dart';
@@ -131,7 +131,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
             final canPlayNext = isLoaded && state.canPlayNext;
             final canPlayPrevious = isLoaded && state.canPlayPrevious;
             final isShuffleEnabled = isLoaded && state.isShuffleEnabled;
-            final repeatMode = isLoaded ? state.loopMode : LoopMode.off;
+            final repeatMode = isLoaded ? state.loopMode : LoopModeType.off;
 
             final position = state.position;
             final duration = state.duration.inMilliseconds > 0
@@ -146,8 +146,8 @@ class _PlayerScreenState extends State<PlayerScreen> {
                   slivers: [
                     SliverToBoxAdapter(
                       child: PlayerHeaderWidget(
-                         playlistId: widget.nowPlayingData.videoId,
-                         playlistName: widget.nowPlayingData.title,
+                        playlistId: widget.nowPlayingData.videoId,
+                        playlistName: widget.nowPlayingData.title,
                         currentIndex: currentIndex ?? 0,
                         totalTracks: playlist.length,
                         currentVideoId: currentTrack.videoId,
@@ -221,13 +221,13 @@ class _PlayerScreenState extends State<PlayerScreen> {
                                   : null,
                               onRepeat: () {
                                 final currentMode = repeatMode;
-                                LoopMode nextMode;
-                                if (currentMode == LoopMode.off) {
-                                  nextMode = LoopMode.one;
-                                } else if (currentMode == LoopMode.one) {
-                                  nextMode = LoopMode.all;
+                                LoopModeType nextMode;
+                                if (currentMode == LoopModeType.off) {
+                                  nextMode = LoopModeType.one;
+                                } else if (currentMode == LoopModeType.one) {
+                                  nextMode = LoopModeType.all;
                                 } else {
-                                  nextMode = LoopMode.off;
+                                  nextMode = LoopModeType.off;
                                 }
                                 context.read<PlayerBlocBloc>().add(
                                   SetLoopModeEvent(nextMode),

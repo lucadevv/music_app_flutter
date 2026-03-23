@@ -1,11 +1,10 @@
 import 'dart:async';
 
-import 'package:just_audio/just_audio.dart';
 import 'package:music_app/features/player/domain/player_engine.dart';
+import 'package:music_app/features/player/domain/types/player_types.dart';
 
-/// Fake determinista de PlayerEngine para tests.
 class FakePlayerEngine implements PlayerEngine {
-  final _playerStateController = StreamController<PlayerState>.broadcast();
+  final _playerStateController = StreamController<PlayerStateInfo>.broadcast();
   final _positionController = StreamController<Duration>.broadcast();
   final _durationController = StreamController<Duration?>.broadcast();
   final _bufferedController = StreamController<Duration>.broadcast();
@@ -14,11 +13,12 @@ class FakePlayerEngine implements PlayerEngine {
   bool _playing = false;
   int? _currentIndex;
 
-  AudioSource? lastSource;
+  AudioSourceConfig? lastSource;
   int setAudioSourceCallCount = 0;
 
   @override
-  Stream<PlayerState> get playerStateStream => _playerStateController.stream;
+  Stream<PlayerStateInfo> get playerStateStream =>
+      _playerStateController.stream;
 
   @override
   Stream<Duration> get positionStream => _positionController.stream;
@@ -38,14 +38,11 @@ class FakePlayerEngine implements PlayerEngine {
   @override
   int? get currentIndex => _currentIndex;
 
-  void emitPlayerState({
-    bool? playing,
-    ProcessingState? processing,
-  }) {
+  void emitPlayerState({bool? playing, ProcessingStateType? processing}) {
     _playerStateController.add(
-      PlayerState(
-        playing ?? _playing,
-        processing ?? ProcessingState.ready,
+      PlayerStateInfo(
+        isPlaying: playing ?? _playing,
+        processingState: processing ?? ProcessingStateType.ready,
       ),
     );
   }
@@ -82,7 +79,7 @@ class FakePlayerEngine implements PlayerEngine {
   @override
   Future<void> stop() async {
     _playing = false;
-    emitPlayerState(playing: false, processing: ProcessingState.idle);
+    emitPlayerState(playing: false, processing: ProcessingStateType.idle);
     emitPosition(Duration.zero);
   }
 
@@ -109,43 +106,47 @@ class FakePlayerEngine implements PlayerEngine {
   }
 
   @override
-  Future<void> addAudioSources(List<AudioSource> sources) async {
-    // no-op para fake
-  }
+  Future<void> addAudioSources(List<AudioSourceConfig> sources) async {}
 
   @override
-  Future<void> removeAudioSourceAt(int index) async {
-    // no-op para fake
-  }
+  Future<void> removeAudioSourceAt(int index) async {}
 
   @override
-  Future<void> setAudioSource(AudioSource source, {bool preload = false}) async {
+  Future<void> setAudioSource(
+    AudioSourceConfig source, {
+    bool preload = false,
+  }) async {
     setAudioSourceCallCount++;
     lastSource = source;
-    emitPlayerState(processing: ProcessingState.loading);
-    // Simular carga determinista.
-    emitPlayerState(processing: ProcessingState.ready);
+    emitPlayerState(processing: ProcessingStateType.loading);
+    emitPlayerState(processing: ProcessingStateType.ready);
   }
 
   @override
-  Future<void> setLoopMode(LoopMode mode) async {
-    // no-op para fake
+  Future<void> setAudioSources(
+    List<AudioSourceConfig> sources, {
+    bool preload = false,
+    int? initialIndex,
+  }) async {
+    if (sources.isNotEmpty) {
+      lastSource = sources.first;
+    }
+    setAudioSourceCallCount++;
+    emitPlayerState(processing: ProcessingStateType.loading);
+    emitPlayerState(processing: ProcessingStateType.ready);
   }
 
   @override
-  Future<void> setShuffleModeEnabled(bool enabled) async {
-    // no-op para fake
-  }
+  Future<void> setLoopMode(LoopModeType mode) async {}
 
   @override
-  Future<void> setSpeed(double speed) async {
-    // no-op para fake
-  }
+  Future<void> setShuffleModeEnabled(bool enabled) async {}
 
   @override
-  Future<void> setVolume(double volume) async {
-    // no-op para fake
-  }
+  Future<void> setSpeed(double speed) async {}
+
+  @override
+  Future<void> setVolume(double volume) async {}
 
   Future<void> dispose() async {
     await _playerStateController.close();
@@ -155,4 +156,3 @@ class FakePlayerEngine implements PlayerEngine {
     await _currentIndexController.close();
   }
 }
-

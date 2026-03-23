@@ -1,8 +1,8 @@
 // ignore_for_file: avoid_slow_async_io
 import 'dart:io';
 
-import 'package:music_app/data/offline/models/offline_song.dart';
-import 'package:music_app/data/offline/services/offline_service.dart';
+import 'package:music_app/core/data/offline/models/offline_song.dart';
+import 'package:music_app/core/data/offline/services/offline_service.dart';
 import 'package:music_app/features/downloads/data/models/downloaded_song_model.dart';
 
 /// Data source local para gestionar las descargas

@@ -1,9 +1,5 @@
 part of 'player_bloc_bloc.dart';
 
-/// Eventos del reproductor
-///
-/// SOLID: Open/Closed Principle (OCP)
-/// Fácil de extender con nuevos eventos sin modificar código existente
 sealed class PlayerBlocEvent extends Equatable {
   const PlayerBlocEvent();
 
@@ -11,41 +7,30 @@ sealed class PlayerBlocEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-// ========== Eventos de control básico ==========
-
-/// Reproducir la canción actual
 class PlayEvent extends PlayerBlocEvent {
   const PlayEvent();
 }
 
-/// Pausar la reproducción
 class PauseEvent extends PlayerBlocEvent {
   const PauseEvent();
 }
 
-/// Detener la reproducción
 class StopEvent extends PlayerBlocEvent {
   const StopEvent();
 }
 
-/// Alternar entre reproducir y pausar
 class PlayPauseToggleEvent extends PlayerBlocEvent {
   const PlayPauseToggleEvent();
 }
 
-// ========== Eventos de navegación ==========
-
-/// Reproducir siguiente canción
 class NextTrackEvent extends PlayerBlocEvent {
   const NextTrackEvent();
 }
 
-/// Reproducir canción anterior
 class PreviousTrackEvent extends PlayerBlocEvent {
   const PreviousTrackEvent();
 }
 
-/// Buscar a una posición específica
 class SeekEvent extends PlayerBlocEvent {
   final Duration position;
 
@@ -55,9 +40,6 @@ class SeekEvent extends PlayerBlocEvent {
   List<Object?> get props => [position];
 }
 
-// ========== Eventos de playlist ==========
-
-/// Solicita reproducir una pista, delegando la decisión de navegación al BLoC.
 class PlayRequestEvent extends PlayerBlocEvent {
   final NowPlayingData track;
   final bool playAsSingle;
@@ -68,7 +50,6 @@ class PlayRequestEvent extends PlayerBlocEvent {
   List<Object?> get props => [track, playAsSingle];
 }
 
-/// Cargar una sola canción
 class LoadTrackEvent extends PlayerBlocEvent {
   final NowPlayingData track;
   final String? sourceId;
@@ -79,7 +60,6 @@ class LoadTrackEvent extends PlayerBlocEvent {
   List<Object?> get props => [track, sourceId];
 }
 
-/// Cargar una playlist
 class LoadPlaylistEvent extends PlayerBlocEvent {
   final List<NowPlayingData> playlist;
   final int? startIndex;
@@ -95,7 +75,6 @@ class LoadPlaylistEvent extends PlayerBlocEvent {
   List<Object?> get props => [playlist, startIndex, sourceId];
 }
 
-/// Reproducir canción en un índice específico
 class PlayTrackAtIndexEvent extends PlayerBlocEvent {
   final int index;
 
@@ -105,7 +84,6 @@ class PlayTrackAtIndexEvent extends PlayerBlocEvent {
   List<Object?> get props => [index];
 }
 
-/// Agregar canción a la playlist
 class AddToPlaylistEvent extends PlayerBlocEvent {
   final NowPlayingData track;
 
@@ -115,7 +93,6 @@ class AddToPlaylistEvent extends PlayerBlocEvent {
   List<Object?> get props => [track];
 }
 
-/// Agregar múltiples canciones a la playlist
 class AddMultipleToPlaylistEvent extends PlayerBlocEvent {
   final List<NowPlayingData> tracks;
   final String? sourceId;
@@ -126,9 +103,6 @@ class AddMultipleToPlaylistEvent extends PlayerBlocEvent {
   List<Object?> get props => [tracks, sourceId];
 }
 
-/// Cargar una canción con URL ya resuelta (para playlist loading)
-
-/// Remover canción de la playlist
 class RemoveFromPlaylistEvent extends PlayerBlocEvent {
   final int index;
 
@@ -138,9 +112,6 @@ class RemoveFromPlaylistEvent extends PlayerBlocEvent {
   List<Object?> get props => [index];
 }
 
-// ========== Eventos de configuración ==========
-
-/// Cambiar volumen
 class SetVolumeEvent extends PlayerBlocEvent {
   final double volume;
 
@@ -150,7 +121,6 @@ class SetVolumeEvent extends PlayerBlocEvent {
   List<Object?> get props => [volume];
 }
 
-/// Cambiar velocidad de reproducción
 class SetSpeedEvent extends PlayerBlocEvent {
   final double speed;
 
@@ -160,9 +130,8 @@ class SetSpeedEvent extends PlayerBlocEvent {
   List<Object?> get props => [speed];
 }
 
-/// Cambiar modo de repetición
 class SetLoopModeEvent extends PlayerBlocEvent {
-  final LoopMode loopMode;
+  final LoopModeType loopMode;
 
   const SetLoopModeEvent(this.loopMode);
 
@@ -170,24 +139,22 @@ class SetLoopModeEvent extends PlayerBlocEvent {
   List<Object?> get props => [loopMode];
 }
 
-/// Alternar modo shuffle
 class ToggleShuffleEvent extends PlayerBlocEvent {
   const ToggleShuffleEvent();
 }
 
-// ========== Eventos de estado del reproductor ==========
-
-/// Estado del reproductor cambió
 class AudioPlayerStateChangedEvent extends PlayerBlocEvent {
-  final PlayerState playerState;
+  final PlayerStateInfo playerState;
 
   const AudioPlayerStateChangedEvent(this.playerState);
 
   @override
-  List<Object?> get props => [playerState.playing, playerState.processingState];
+  List<Object?> get props => [
+    playerState.isPlaying,
+    playerState.processingState,
+  ];
 }
 
-/// Posición de reproducción cambió
 class PositionChangedEvent extends PlayerBlocEvent {
   final Duration position;
 
@@ -197,7 +164,6 @@ class PositionChangedEvent extends PlayerBlocEvent {
   List<Object?> get props => [position];
 }
 
-/// Duración de la canción cambió
 class DurationChangedEvent extends PlayerBlocEvent {
   final Duration duration;
 
@@ -207,7 +173,6 @@ class DurationChangedEvent extends PlayerBlocEvent {
   List<Object?> get props => [duration];
 }
 
-/// Posición bufferizada cambió
 class BufferedPositionChangedEvent extends PlayerBlocEvent {
   final Duration bufferedPosition;
 
@@ -217,7 +182,6 @@ class BufferedPositionChangedEvent extends PlayerBlocEvent {
   List<Object?> get props => [bufferedPosition];
 }
 
-/// Índice actual de la playlist cambió
 class CurrentIndexChangedEvent extends PlayerBlocEvent {
   final int? index;
 
@@ -227,7 +191,6 @@ class CurrentIndexChangedEvent extends PlayerBlocEvent {
   List<Object?> get props => [index];
 }
 
-/// Error en el reproductor
 class AudioErrorEvent extends PlayerBlocEvent {
   final String error;
 
@@ -237,10 +200,6 @@ class AudioErrorEvent extends PlayerBlocEvent {
   List<Object?> get props => [error];
 }
 
-// ========== Eventos de notificación a cubits ==========
-
-/// Notifica que la reproducción de una playlist comenzó exitosamente
-/// Usado para que PlaylistCubit y otros puedan completar sus estados de loading
 class PlaylistPlaybackStartedEvent extends PlayerBlocEvent {
   final String? sourceId;
 
@@ -250,19 +209,14 @@ class PlaylistPlaybackStartedEvent extends PlayerBlocEvent {
   List<Object?> get props => [sourceId];
 }
 
-// ========== Eventos de AudioService ==========
-
-/// Inicializar AudioService
 class InitializeAudioServiceEvent extends PlayerBlocEvent {
   const InitializeAudioServiceEvent();
 }
 
-/// Cerrar AudioService
 class DisposeAudioServiceEvent extends PlayerBlocEvent {
   const DisposeAudioServiceEvent();
 }
 
-/// Resetear el player al estado inicial (para cuando se reproduce una canción individual)
 class ResetPlayerEvent extends PlayerBlocEvent {
   const ResetPlayerEvent();
 }

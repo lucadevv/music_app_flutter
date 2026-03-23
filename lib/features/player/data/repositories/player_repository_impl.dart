@@ -1,25 +1,19 @@
 import 'package:music_app/core/domain/entities/song.dart';
 import 'package:music_app/core/domain/mappers/song_mapper.dart';
-import 'package:music_app/data/offline/models/offline_history.dart';
-import 'package:music_app/data/offline/services/offline_service.dart';
+import 'package:music_app/core/data/offline/models/offline_history.dart';
+import 'package:music_app/core/data/offline/services/offline_service.dart';
 import 'package:music_app/features/player/domain/repositories/player_repository.dart';
-import 'package:music_app/features/recently_played/domain/usecases/record_listen_usecase.dart';
+import 'package:music_app/features/recently_played/domain/repositories/recently_played_repository.dart';
 
-/// Implementation of PlayerRepository that delegates to OfflineService and RecordListenUseCase
-///
-/// Follows Clean Architecture:
-/// - Implements domain interface
-/// - Uses data layer services
-/// - Returns domain entities
 class PlayerRepositoryImpl implements PlayerRepository {
   final OfflineService _offlineService;
-  final RecordListenUseCase _recordListenUseCase;
+  final RecentlyPlayedRepository _recentlyPlayedRepository;
 
   PlayerRepositoryImpl({
     required OfflineService offlineService,
-    required RecordListenUseCase recordListenUseCase,
+    required RecentlyPlayedRepository recentlyPlayedRepository,
   }) : _offlineService = offlineService,
-       _recordListenUseCase = recordListenUseCase;
+       _recentlyPlayedRepository = recentlyPlayedRepository;
 
   @override
   Future<List<Song>> getHistory({int limit = 50}) async {
@@ -58,17 +52,14 @@ class PlayerRepositoryImpl implements PlayerRepository {
 
   @override
   Future<List<Song>> getSimilarSongs(String videoId, {int limit = 20}) async {
-    // TODO: Implement via API when available
-    // For now, return empty list - can be extended with recommendations API
     return [];
   }
 
   @override
   Future<void> recordListen(String videoId) async {
-    await _recordListenUseCase(videoId);
+    await _recentlyPlayedRepository.recordListen(videoId);
   }
 
-  /// Helper to create OfflineHistory from Song
   OfflineHistory _createOfflineHistory(Song song) {
     final artistName = song.artist.isNotEmpty ? song.artist : 'Unknown Artist';
     return OfflineHistory.create(

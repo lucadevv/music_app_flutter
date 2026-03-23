@@ -424,11 +424,13 @@ PlayerBlocBloc createTestPlayerBloc({
   when(() => repo.recordListen(any())).thenAnswer((_) async {});
   when(
     () => historyUseCase.startNewEntry(any()),
-  ).thenAnswer((_) async => 'test_history_id');
+  ).thenAnswer((_) async => const Right('test_history_id'));
   when(
     () => historyUseCase.updatePlayedDuration(any()),
-  ).thenAnswer((_) async {});
-  when(() => historyUseCase.finalizeCurrent()).thenAnswer((_) async {});
+  ).thenAnswer((_) async => const Right(null));
+  when(
+    () => historyUseCase.finalizeCurrent(),
+  ).thenAnswer((_) async => const Right(null));
 
   return PlayerBlocBloc(
     engine: engine,

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/favorites/presentation/cubit/favorite_cubit.dart';
 import 'package:music_app/features/favorites/presentation/widgets/favorite_button.dart';
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
+import 'package:music_app/features/player/domain/types/player_types.dart';
 import 'package:music_app/features/playlist/domain/entities/playlist_response.dart';
 import 'package:music_app/features/playlist/presentation/cubit/playlist_cubit.dart';
 import 'package:music_app/features/playlist/presentation/cubit/playlist_state.dart';
@@ -145,23 +145,23 @@ class PlaylistActionsWidget extends StatelessWidget {
                     const SizedBox(width: 8),
                     IconButton(
                       icon: Icon(
-                        playerState.loopMode == LoopMode.one
+                        playerState.loopMode == LoopModeType.one
                             ? Icons.repeat_one
                             : Icons.repeat,
-                        color: playerState.loopMode != LoopMode.off
+                        color: playerState.loopMode != LoopModeType.off
                             ? AppColorsDark.primary
                             : Colors.white,
                         size: 28,
                       ),
                       onPressed: () {
                         final currentMode = playerState.loopMode;
-                        LoopMode nextMode;
-                        if (currentMode == LoopMode.off) {
-                          nextMode = LoopMode.one;
-                        } else if (currentMode == LoopMode.one) {
-                          nextMode = LoopMode.all;
+                        LoopModeType nextMode;
+                        if (currentMode == LoopModeType.off) {
+                          nextMode = LoopModeType.one;
+                        } else if (currentMode == LoopModeType.one) {
+                          nextMode = LoopModeType.all;
                         } else {
-                          nextMode = LoopMode.off;
+                          nextMode = LoopModeType.off;
                         }
                         playerBloc.add(SetLoopModeEvent(nextMode));
                       },
