@@ -3,17 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
-import 'package:music_app/features/player/domain/types/player_types.dart';
-import 'package:music_app/features/player/presentation/widgets/atoms/player_backdrop_widget.dart';
-import 'package:music_app/features/player/presentation/widgets/atoms/player_error_widget.dart';
-import 'package:music_app/features/player/presentation/widgets/molecules/player_artwork_widget.dart';
-import 'package:music_app/features/player/presentation/widgets/molecules/player_controls_widget.dart';
-import 'package:music_app/features/player/presentation/widgets/molecules/player_header_widget.dart';
-import 'package:music_app/features/player/presentation/widgets/molecules/player_info_widget.dart';
-import 'package:music_app/features/player/presentation/widgets/molecules/player_progress_bar_widget.dart';
-import 'package:music_app/features/player/presentation/widgets/organisms/lyrics_widget.dart';
-import 'package:music_app/features/player/presentation/widgets/organisms/player_shimmer_widgets.dart';
-import 'package:music_app/features/player/presentation/widgets/organisms/player_similar_songs_widget.dart';
+import 'package:music_app/features/player/presentation/widgets/organisms/player_content_builder_widget.dart';
 
 @RoutePage()
 class PlayerScreen extends StatefulWidget {
@@ -49,7 +39,6 @@ class _PlayerScreenState extends State<PlayerScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Resetear el flag cuando el videoId cambia (cubre casos de AutoRoute que no disparan didUpdateWidget)
     final currentVideoId = widget.nowPlayingData.videoId;
     if (currentVideoId != _lastVideoId) {
       _hasRequestedPlay = false;
@@ -104,253 +93,18 @@ class _PlayerScreenState extends State<PlayerScreen> {
         left: false,
         child: BlocConsumer<PlayerBlocBloc, PlayerBlocState>(
           listener: (context, state) {
-            // Cuando el estado cambia, verificar si necesitamos iniciar reproducción
             _requestPlayIfNeeded(context.read<PlayerBlocBloc>(), state);
           },
           builder: (context, state) {
-            final isLoaded =
-                state.connectionState == AudioConnectionState.connected ||
-                state.connectionState == AudioConnectionState.connecting;
-
-            final isCurrentSong =
-                state.currentTrack?.videoId == _nowPlayingData.videoId;
-
-            final currentTrack = (isCurrentSong && state.currentTrack != null)
-                ? state.currentTrack!
-                : _nowPlayingData;
-
-            final playlist = state.playlist;
-            final currentIndex = state.currentIndex;
-
-            final isLoading = isLoaded && state.isLoading;
-            final isBuffering = isLoaded && state.isBuffering;
-            final hasError = isLoaded && state.hasError;
-            final errorMessage = state.error;
-
-            final isPlaying = isLoaded && state.isPlaying;
-            final canPlayNext = isLoaded && state.canPlayNext;
-            final canPlayPrevious = isLoaded && state.canPlayPrevious;
-            final isShuffleEnabled = isLoaded && state.isShuffleEnabled;
-            final repeatMode = isLoaded ? state.loopMode : LoopModeType.off;
-
-            final position = state.position;
-            final duration = state.duration.inMilliseconds > 0
-                ? state.duration
-                : Duration(seconds: currentTrack.durationSeconds);
-
-            return Stack(
-              children: [
-                PlayerBackdropWidget(thumbnail: currentTrack.highResThumbnail),
-
-                CustomScrollView(
-                  slivers: [
-                    SliverToBoxAdapter(
-                      child: PlayerHeaderWidget(
-                        playlistId: widget.nowPlayingData.videoId,
-                        playlistName: widget.nowPlayingData.title,
-                        currentIndex: currentIndex ?? 0,
-                        totalTracks: playlist.length,
-                        currentVideoId: currentTrack.videoId,
-                        currentTitle: currentTrack.title,
-                        currentArtist: currentTrack.artistsNames,
-                        currentThumbnail: currentTrack.bestThumbnail?.url,
-                        currentDuration: currentTrack.durationSeconds,
-                      ),
-                    ),
-
-                    if (playlist.length > 1 && !widget.playAsSingle)
-                      SliverToBoxAdapter(
-                        child: _SongCarousel(
-                          playlist: playlist,
-                          currentIndex: currentIndex ?? 0,
-                        ),
-                      )
-                    else
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 24),
-                          child: Center(
-                            child: PlayerArtworkWidget(
-                              thumbnail: currentTrack.highResThumbnail,
-                              videoId: currentTrack.videoId,
-                              isLoading: isLoading,
-                            ),
-                          ),
-                        ),
-                      ),
-
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24),
-                        child: Column(
-                          children: [
-                            const SizedBox(height: 24),
-                            PlayerInfoWidget(
-                              track: currentTrack,
-                              isLoading: isLoading,
-                              showFavoriteButton: widget.showFavoriteButton,
-                            ),
-                            const SizedBox(height: 16),
-                            PlayerProgressBarWidget(
-                              position: position,
-                              duration: duration,
-                              onSeek: (pos) => context
-                                  .read<PlayerBlocBloc>()
-                                  .add(SeekEvent(pos)),
-                            ),
-                            const SizedBox(height: 16),
-                            PlayerControlsWidget(
-                              isPlaying: isPlaying,
-                              canPlayNext: canPlayNext,
-                              canPlayPrevious: canPlayPrevious,
-                              isShuffleEnabled: isShuffleEnabled,
-                              loopMode: repeatMode,
-                              onPlayPause: () => context
-                                  .read<PlayerBlocBloc>()
-                                  .add(const PlayPauseToggleEvent()),
-                              onNext: () => context.read<PlayerBlocBloc>().add(
-                                const NextTrackEvent(),
-                              ),
-                              onPrevious: () => context
-                                  .read<PlayerBlocBloc>()
-                                  .add(const PreviousTrackEvent()),
-                              onShuffle: playlist.length > 1
-                                  ? () => context.read<PlayerBlocBloc>().add(
-                                      const ToggleShuffleEvent(),
-                                    )
-                                  : null,
-                              onRepeat: () {
-                                final currentMode = repeatMode;
-                                LoopModeType nextMode;
-                                if (currentMode == LoopModeType.off) {
-                                  nextMode = LoopModeType.one;
-                                } else if (currentMode == LoopModeType.one) {
-                                  nextMode = LoopModeType.all;
-                                } else {
-                                  nextMode = LoopModeType.off;
-                                }
-                                context.read<PlayerBlocBloc>().add(
-                                  SetLoopModeEvent(nextMode),
-                                );
-                              },
-                            ),
-                            const SizedBox(height: 24),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    if (widget.showExtras && !hasError && !isLoading)
-                      SliverToBoxAdapter(
-                        child: PlayerSimilarSongsWidget(
-                          videoId: currentTrack.videoId,
-                        ),
-                      ),
-
-                    if (widget.showExtras && !hasError && !isLoading)
-                      SliverToBoxAdapter(
-                        child: LyricsWidget(videoId: currentTrack.videoId),
-                      ),
-
-                    if (hasError)
-                      SliverToBoxAdapter(
-                        child: PlayerErrorWidget(
-                          message: errorMessage ?? 'Unknown error',
-                        ),
-                      ),
-
-                    if (isLoading || isBuffering)
-                      const SliverToBoxAdapter(child: PlayerShimmerWidget()),
-
-                    const SliverToBoxAdapter(child: SizedBox(height: 100)),
-                  ],
-                ),
-              ],
+            return PlayerContentBuilderWidget(
+              nowPlayingData: _nowPlayingData,
+              state: state,
+              playAsSingle: widget.playAsSingle,
+              showFavoriteButton: widget.showFavoriteButton,
+              showExtras: widget.showExtras,
             );
           },
         ),
-      ),
-    );
-  }
-}
-
-class _SongCarousel extends StatefulWidget {
-  final List<NowPlayingData> playlist;
-  final int currentIndex;
-
-  const _SongCarousel({required this.playlist, required this.currentIndex});
-
-  @override
-  State<_SongCarousel> createState() => _SongCarouselState();
-}
-
-class _SongCarouselState extends State<_SongCarousel> {
-  late PageController _pageController;
-
-  @override
-  void initState() {
-    super.initState();
-    _pageController = PageController(
-      viewportFraction: 0.8,
-      initialPage: widget.currentIndex,
-    );
-  }
-
-  @override
-  void didUpdateWidget(_SongCarousel oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.currentIndex != widget.currentIndex) {
-      _scrollToIndex(widget.currentIndex);
-    }
-  }
-
-  void _scrollToIndex(int index) {
-    if (!_pageController.hasClients) return;
-    if (index < 0 || index >= widget.playlist.length) return;
-
-    try {
-      _pageController.jumpToPage(index);
-    } catch (_) {
-      final viewportWidth = _pageController.position.viewportDimension;
-      final itemWidth = viewportWidth * 0.8;
-      final targetPosition = index * itemWidth;
-
-      try {
-        _pageController.jumpTo(targetPosition);
-      } catch (_) {}
-    }
-  }
-
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 320,
-      child: PageView.builder(
-        controller: _pageController,
-        onPageChanged: (index) {
-          context.read<PlayerBlocBloc>().add(PlayTrackAtIndexEvent(index));
-        },
-        itemCount: widget.playlist.length,
-        physics: const BouncingScrollPhysics(),
-        itemBuilder: (context, index) {
-          final track = widget.playlist[index];
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.only(right: 12),
-              child: PlayerArtworkWidget(
-                thumbnail: track.highResThumbnail,
-                videoId: track.videoId,
-                isLoading: false,
-              ),
-            ),
-          );
-        },
       ),
     );
   }
