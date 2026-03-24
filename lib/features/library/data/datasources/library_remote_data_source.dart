@@ -115,4 +115,65 @@ class LibraryRemoteDataSource {
       return false;
     }
   }
+
+  /// Create user playlist
+  Future<Map<String, dynamic>> createUserPlaylist({
+    required String name,
+    String? description,
+    String? thumbnail,
+    bool isPublic = false,
+  }) async {
+    try {
+      final response = await _api.post(
+        '/library/user-playlists',
+        data: {
+          'name': name,
+          'description': description,
+          'thumbnail': thumbnail,
+          'isPublic': isPublic,
+        },
+      );
+      return response is Response ? response.data : response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Add song to user playlist
+  Future<Map<String, dynamic>> addSongToUserPlaylist(
+    String playlistId, {
+    required String videoId,
+    String? title,
+    String? artist,
+    String? thumbnail,
+    int? duration,
+  }) async {
+    try {
+      final response = await _api.post(
+        '/library/user-playlists/$playlistId/songs',
+        data: {
+          'videoId': videoId,
+          'title': title,
+          'artist': artist,
+          'thumbnail': thumbnail,
+          'duration': duration,
+        },
+      );
+      return response is Response ? response.data : response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Remove song from user playlist
+  Future<void> removeSongFromUserPlaylist(
+    String playlistId,
+    String songId,
+  ) async {
+    try {
+      await _api.delete('/library/user-playlists/$playlistId/songs/$songId');
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

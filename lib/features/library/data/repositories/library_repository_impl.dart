@@ -41,9 +41,7 @@ class LibraryRepositoryImpl implements LibraryRepository {
         limit: limit,
       );
       final response = FavoriteSongsResponse.fromJson(data);
-      final songs = response.data
-          .map(SongMapper.fromFavoriteSong)
-          .toList();
+      final songs = response.data.map(SongMapper.fromFavoriteSong).toList();
       return Right(songs);
     } catch (e) {
       return Left(UnknownException(e.toString()));
@@ -133,6 +131,65 @@ class LibraryRepositoryImpl implements LibraryRepository {
     try {
       final result = await _remoteDataSource.isSongFavorite(videoId);
       return Right(result);
+    } catch (e) {
+      return Left(UnknownException(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<AppException, UserPlaylist>> createUserPlaylist({
+    required String name,
+    String? description,
+    String? thumbnail,
+    bool isPublic = false,
+  }) async {
+    try {
+      final data = await _remoteDataSource.createUserPlaylist(
+        name: name,
+        description: description,
+        thumbnail: thumbnail,
+        isPublic: isPublic,
+      );
+      final userPlaylist = UserPlaylist.fromJson(data);
+      return Right(userPlaylist);
+    } catch (e) {
+      return Left(UnknownException(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<AppException, UserPlaylist>> addSongToUserPlaylist(
+    String playlistId, {
+    required String videoId,
+    String? title,
+    String? artist,
+    String? thumbnail,
+    int? duration,
+  }) async {
+    try {
+      final data = await _remoteDataSource.addSongToUserPlaylist(
+        playlistId,
+        videoId: videoId,
+        title: title,
+        artist: artist,
+        thumbnail: thumbnail,
+        duration: duration,
+      );
+      final userPlaylist = UserPlaylist.fromJson(data);
+      return Right(userPlaylist);
+    } catch (e) {
+      return Left(UnknownException(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<AppException, void>> removeSongFromUserPlaylist(
+    String playlistId,
+    String songId,
+  ) async {
+    try {
+      await _remoteDataSource.removeSongFromUserPlaylist(playlistId, songId);
+      return const Right(null);
     } catch (e) {
       return Left(UnknownException(e.toString()));
     }

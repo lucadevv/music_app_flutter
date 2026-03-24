@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:music_app/core/domain/entities/song.dart';
 import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
 import 'package:music_app/features/library/domain/entities/library_entities.dart';
+import 'package:music_app/features/library/library_service.dart';
 
 /// Repository interface for Library feature.
 /// Follows Clean Architecture principles - defines contract without dependencies.
@@ -33,4 +34,28 @@ abstract class LibraryRepository {
 
   /// Check if song is favorite
   Future<Either<AppException, bool>> isFavorite(String videoId);
+
+  /// Create user playlist
+  Future<Either<AppException, UserPlaylist>> createUserPlaylist({
+    required String name,
+    String? description,
+    String? thumbnail,
+    bool isPublic = false,
+  });
+
+  /// Add song to user playlist
+  Future<Either<AppException, UserPlaylist>> addSongToUserPlaylist(
+    String playlistId, {
+    required String videoId,
+    String? title,
+    String? artist,
+    String? thumbnail,
+    int? duration,
+  });
+
+  /// Remove song from user playlist
+  Future<Either<AppException, void>> removeSongFromUserPlaylist(
+    String playlistId,
+    String songId,
+  );
 }
