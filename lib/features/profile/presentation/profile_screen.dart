@@ -1,13 +1,15 @@
 // ignore_for_file: unnecessary_underscores
 import 'package:auto_route/auto_route.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
-import 'package:music_app/core/theme/app_colors_dark.dart';
-import 'package:music_app/core/widgets/shimmer_widgets.dart';
 import 'package:music_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:music_app/l10n/app_localizations.dart';
+
+import 'widgets/atoms/profile_avatar_atom.dart';
+import 'widgets/atoms/settings_item_atom.dart';
+import 'widgets/molecules/settings_section_molecule.dart';
+import 'widgets/organisms/profile_loading_organism.dart';
 
 @RoutePage()
 class ProfileScreen extends StatelessWidget {
@@ -55,60 +57,25 @@ class _ProfileView extends StatelessWidget {
       body: BlocBuilder<ProfileCubit, ProfileState>(
         builder: (context, state) {
           if (state.isLoading) {
-            return const _ProfileLoadingView();
+            return const ProfileLoadingOrganism();
           }
 
           return ListView(
             padding: const EdgeInsets.symmetric(vertical: 16),
             children: [
               // Profile header - clickeable para ir a My Profile
-              InkWell(
-                onTap: () {
-                  context.router.push(const MyProfileRoute());
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Row(
-                    children: [
-                      _buildAvatar(state),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              state.displayName,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              state.email,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Icon(
-                        Icons.chevron_right,
-                        color: Colors.white.withValues(alpha: 0.6),
-                      ),
-                    ],
-                  ),
-                ),
+              _ProfileHeader(
+                displayName: state.displayName,
+                email: state.email,
+                avatarUrl: state.avatarUrl,
+                initials: state.initials,
               ),
 
               // Settings section
-              _SettingsSection(
+              SettingsSectionMolecule(
                 title: l10n.settings,
                 items: [
-                  _SettingsItem(
+                  SettingsItemAtom(
                     icon: Icons.settings,
                     title: l10n.settings,
                     onTap: () {
@@ -123,180 +90,65 @@ class _ProfileView extends StatelessWidget {
       ),
     );
   }
-
-  Widget _buildAvatar(ProfileState state) {
-    if (state.avatarUrl != null && state.avatarUrl!.isNotEmpty) {
-      return Container(
-        width: 80,
-        height: 80,
-        decoration: const BoxDecoration(
-          shape: BoxShape.circle,
-          color: AppColorsDark.primaryContainer,
-        ),
-        child: ClipOval(
-          child: CachedNetworkImage(
-            imageUrl: state.avatarUrl!,
-            fit: BoxFit.cover,
-            placeholder: (_, __) => _buildInitials(state),
-            errorWidget: (_, __, ___) => _buildInitials(state),
-          ),
-        ),
-      );
-    }
-    return _buildInitials(state);
-  }
-
-  Widget _buildInitials(ProfileState state) {
-    return Container(
-      width: 80,
-      height: 80,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppColorsDark.primary,
-            AppColorsDark.primary.withValues(alpha: 0.7),
-          ],
-        ),
-        shape: BoxShape.circle,
-      ),
-      child: Center(
-        child: Text(
-          state.initials,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 32,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-    );
-  }
 }
 
-class _SettingsSection extends StatelessWidget {
-  final String title;
-  final List<Widget> items;
+/// Organismo que muestra el header del perfil con avatar, nombre y email.
+class _ProfileHeader extends StatelessWidget {
+  final String displayName;
+  final String email;
+  final String? avatarUrl;
+  final String initials;
 
-  const _SettingsSection({required this.title, required this.items});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
-          child: Text(
-            title,
-            style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.6),
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 1.2,
-            ),
-          ),
-        ),
-        ...items,
-      ],
-    );
-  }
-}
-
-class _SettingsItem extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final VoidCallback onTap;
-
-  const _SettingsItem({
-    required this.icon,
-    required this.title,
-    required this.onTap,
+  const _ProfileHeader({
+    required this.displayName,
+    required this.email,
+    required this.avatarUrl,
+    required this.initials,
   });
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
-      leading: Icon(icon, color: Colors.white),
-      title: Text(
-        title,
-        style: const TextStyle(color: Colors.white, fontSize: 16),
+    return InkWell(
+      onTap: () {
+        context.router.push(const MyProfileRoute());
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Row(
+          children: [
+            ProfileAvatarAtom(
+              avatarUrl: avatarUrl,
+              initials: initials,
+              size: 80,
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    displayName,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    email,
+                    style: const TextStyle(color: Colors.white, fontSize: 14),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.chevron_right,
+              color: Colors.white.withValues(alpha: 0.6),
+            ),
+          ],
+        ),
       ),
-      trailing: Icon(
-        Icons.chevron_right,
-        color: Colors.white.withValues(alpha: 0.6),
-      ),
-      onTap: onTap,
-    );
-  }
-}
-
-class _ProfileLoadingView extends StatelessWidget {
-  const _ProfileLoadingView();
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      children: const [
-        // Fake Profile Header
-        Padding(
-          padding: EdgeInsets.all(24.0),
-          child: Row(
-            children: [
-              ShimmerContainer(
-                width: 60,
-                height: 60,
-                borderRadius: 30,
-              ),
-              SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TextShimmer(width: 150, height: 24),
-                    SizedBox(height: 8),
-                    TextShimmer(width: 200, height: 14),
-                  ],
-                ),
-              ),
-              Icon(
-                Icons.chevron_right,
-                color: Colors.white54,
-              ),
-            ],
-          ),
-        ),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24),
-          child: Divider(color: Colors.white12),
-        ),
-        SizedBox(height: 16),
-        // Fake Option
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          child: Row(
-            children: [
-              ShimmerContainer(width: 24, height: 24, borderRadius: 12),
-              SizedBox(width: 16),
-              TextShimmer(width: 120, height: 16),
-            ],
-          ),
-        ),
-        // Fake Option 2
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          child: Row(
-            children: [
-              ShimmerContainer(width: 24, height: 24, borderRadius: 12),
-              SizedBox(width: 16),
-              TextShimmer(width: 160, height: 16),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }

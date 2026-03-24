@@ -7,6 +7,8 @@ import 'package:music_app/features/profile/presentation/cubit/profile_cubit.dart
 import 'package:music_app/l10n/app_localizations.dart';
 
 import 'widgets/molecules/profile_avatar_widget.dart';
+import 'widgets/molecules/profile_app_bar_molecule.dart';
+import 'widgets/organisms/profile_error_organism.dart';
 import 'widgets/organisms/profile_info_section_widget.dart';
 import 'widgets/organisms/profile_quick_actions_widget.dart';
 import 'widgets/organisms/profile_stats_row_widget.dart';
@@ -78,7 +80,7 @@ class _MyProfileScreenState extends State<MyProfileScreen>
   ) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (ctx) => AlertDialog(
         backgroundColor: AppColorsDark.surfaceContainerHigh,
         title: Text(
           l10n.logoutConfirmation,
@@ -90,20 +92,18 @@ class _MyProfileScreenState extends State<MyProfileScreen>
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context, false),
+            onPressed: () => Navigator.pop(ctx, false),
             child: Text(l10n.cancel),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(context, true),
+            onPressed: () => Navigator.pop(ctx, true),
             child: Text(l10n.logout, style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),
     );
-
-    if (confirmed == true && mounted) {
+    if (confirmed == true && mounted)
       await context.read<ProfileCubit>().logout();
-    }
   }
 
   Future<void> _refreshAll() async {
@@ -117,7 +117,12 @@ class _MyProfileScreenState extends State<MyProfileScreen>
 
     return Scaffold(
       backgroundColor: const Color(0xFF0D0D0D),
-      appBar: _buildAppBar(context, l10n),
+      appBar: ProfileAppBarMolecule(
+        title: l10n.myProfile,
+        onBack: () => context.router.pop(),
+        onLogout: () => _handleLogout(context, l10n),
+        logoutText: l10n.exit,
+      ),
       body: BlocBuilder<ProfileCubit, ProfileState>(
         builder: (context, state) {
           if (state.isLoading) {
@@ -127,64 +132,14 @@ class _MyProfileScreenState extends State<MyProfileScreen>
           }
 
           if (state.error != null) {
-            return _buildErrorState(context, l10n, state);
+            return ProfileErrorOrganism(
+              error: state.error,
+              onRetry: () => context.read<ProfileCubit>().loadProfile(),
+            );
           }
 
           return _buildContent(context, l10n, state);
         },
-      ),
-    );
-  }
-
-  AppBar _buildAppBar(BuildContext context, AppLocalizations l10n) {
-    return AppBar(
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      title: Text(
-        l10n.myProfile,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
-        onPressed: () => context.router.pop(),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => _handleLogout(context, l10n),
-          child: Text(
-            l10n.exit,
-            style: const TextStyle(color: Colors.red, fontSize: 16),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildErrorState(
-    BuildContext context,
-    AppLocalizations l10n,
-    ProfileState state,
-  ) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.error_outline, color: Colors.red, size: 48),
-          const SizedBox(height: 16),
-          Text(
-            l10n.errorLoadingProfile,
-            style: const TextStyle(color: Colors.white70),
-          ),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: () => context.read<ProfileCubit>().loadProfile(),
-            child: Text(l10n.retry),
-          ),
-        ],
       ),
     );
   }
@@ -210,63 +165,37 @@ class _MyProfileScreenState extends State<MyProfileScreen>
           padding: const EdgeInsets.all(24.0),
           child: Column(
             children: [
-              _buildAvatarSection(state),
+              // Avatar with scale animation
+              ScaleTransition(
+                scale: _scaleAnimation,
+                child: ProfileAvatarWidget(
+                  avatarUrl: state.avatarUrl,
+                  initials: state.initials,
+                ),
+              ),
               const SizedBox(height: 24),
-              _buildNameSection(state),
+              // Name with fade animation
+              FadeTransition(
+                opacity: _fadeAnimation,
+                child: Text(
+                  state.displayName,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
               const SizedBox(height: 32),
-              _buildInfoSection(context, l10n, state),
+              ProfileInfoSectionWidget(state: state),
               const SizedBox(height: 32),
-              _buildStatsSection(context, l10n, state),
+              ProfileStatsRowWidget(state: state, entryDelay: 0.4),
               const SizedBox(height: 32),
-              _buildQuickActions(context, l10n),
+              const ProfileQuickActionsWidget(),
             ],
           ),
         ),
       ),
     );
-  }
-
-  Widget _buildAvatarSection(ProfileState state) {
-    return ScaleTransition(
-      scale: _scaleAnimation,
-      child: ProfileAvatarWidget(
-        avatarUrl: state.avatarUrl,
-        initials: state.initials,
-      ),
-    );
-  }
-
-  Widget _buildNameSection(ProfileState state) {
-    return FadeTransition(
-      opacity: _fadeAnimation,
-      child: Text(
-        state.displayName,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 24,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInfoSection(
-    BuildContext context,
-    AppLocalizations l10n,
-    ProfileState state,
-  ) {
-    return ProfileInfoSectionWidget(state: state);
-  }
-
-  Widget _buildStatsSection(
-    BuildContext context,
-    AppLocalizations l10n,
-    ProfileState state,
-  ) {
-    return ProfileStatsRowWidget(state: state, entryDelay: 0.4);
-  }
-
-  Widget _buildQuickActions(BuildContext context, AppLocalizations l10n) {
-    return const ProfileQuickActionsWidget();
   }
 }
