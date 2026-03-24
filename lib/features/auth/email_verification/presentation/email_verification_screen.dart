@@ -1,16 +1,17 @@
 // ignore_for_file: unawaited_futures
-import 'dart:ui';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/services/auth/auth_service.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/core/widgets/language_selector.dart';
 import 'package:music_app/l10n/app_localizations.dart';
+import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/main.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
+
+import 'widgets/widgets.dart';
 
 @RoutePage()
 class EmailVerificationScreen extends StatefulWidget {
@@ -26,14 +27,12 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
   String? _userEmail;
   bool _isLoadingEmail = true;
   VideoPlayerController? _videoController;
-//   bool _videoInitialized = false;
   final bool _enableVideo = true;
 
   @override
   void initState() {
     super.initState();
     _loadUserEmail();
-    // Delay video init to avoid platform connection issues
     Future.delayed(const Duration(milliseconds: 500), () {
       if (mounted) _initializeVideo();
     });
@@ -42,13 +41,14 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
   Future<void> _initializeVideo() async {
     if (!mounted) return;
     try {
-      _videoController = VideoPlayerController.asset('assets/video/video_login.mp4');
+      _videoController = VideoPlayerController.asset(
+        'assets/video/video_login.mp4',
+      );
       await _videoController!.initialize();
       if (!mounted) return;
       _videoController!.setLooping(true);
       _videoController!.setVolume(0);
       await _videoController!.play();
-//       _videoInitialized = true;
       if (mounted) setState(() {});
     } catch (e) {
       // Video failed to load
@@ -83,25 +83,19 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
         if (await canLaunchUrl(gmailUri)) {
           await launchUrl(gmailUri, mode: LaunchMode.externalApplication);
         } else {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(l10n.couldNotOpenEmailApp),
-                backgroundColor: AppColorsDark.error,
-              ),
-            );
-          }
+          _showError(l10n.couldNotOpenEmailApp);
         }
       }
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: ${e.toString()}'),
-            backgroundColor: AppColorsDark.error,
-          ),
-        );
-      }
+      _showError('Error: ${e.toString()}');
+    }
+  }
+
+  void _showError(String message) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message), backgroundColor: AppColorsDark.error),
+      );
     }
   }
 
@@ -155,24 +149,9 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
         fit: StackFit.expand,
         children: [
           // Video Background
-          if (_enableVideo && _videoController != null && _videoController!.value.isInitialized)
-            SizedBox.expand(
-              child: FittedBox(
-                fit: BoxFit.cover,
-                child: SizedBox(
-                  width: _videoController!.value.size.width,
-                  height: _videoController!.value.size.height,
-                  child: VideoPlayer(_videoController!),
-                ),
-              ),
-            ),
-          
-          // Blur overlay
-          BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-            child: Container(
-              color: AppColorsDark.surface.withValues(alpha: 0.7),
-            ),
+          VideoBackground(
+            controller: _videoController,
+            enableVideo: _enableVideo,
           ),
 
           // Language Selector
@@ -186,100 +165,16 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
 
           // Content
           SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Icono de verificación
-                  const Icon(
-                    Icons.mark_email_unread,
-                    size: 80,
-                    color: AppColorsDark.primary,
-                  ),
-                  const SizedBox(height: 32),
-
-                  // Título
-                  Text(
-                    l10n.verifyYourEmail,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: AppColorsDark.onSurface,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Descripción
-                  Text(
-                    l10n.verificationEmailSent,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: AppColorsDark.onSurfaceVariant,
-                    ),
-                  ),
-                  if (_userEmail != null && !_isLoadingEmail) ...[
-                    const SizedBox(height: 8),
-                    Text(
-                      _userEmail!,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: AppColorsDark.primary,
-                      ),
-                    ),
-                  ],
-                  const SizedBox(height: 32),
-
-                  // Botón para abrir correo
-                  FilledButton.icon(
-                    onPressed: () => _openEmailApp(l10n),
-                    icon: const Icon(Icons.email),
-                    label: Text(l10n.openMyEmail),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: AppColorsDark.primary,
-                      foregroundColor: AppColorsDark.onPrimary,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Botón de salir
-                  OutlinedButton.icon(
-                    onPressed: () => _logout(l10n),
-                    icon: const Icon(Icons.logout, color: AppColorsDark.error),
-                    label: Text(
-                      l10n.logout,
-                      style: const TextStyle(color: AppColorsDark.error),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: AppColorsDark.error),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Mensaje adicional
-                  Text(
-                    l10n.onceVerifiedAccess,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: AppColorsDark.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
+            child: VerificationContent(
+              title: l10n.verifyYourEmail,
+              description: l10n.verificationEmailSent,
+              email: _userEmail,
+              isLoadingEmail: _isLoadingEmail,
+              onOpenEmail: () => _openEmailApp(l10n),
+              onLogout: () => _logout(l10n),
+              openEmailLabel: l10n.openMyEmail,
+              logoutLabel: l10n.logout,
+              additionalInfo: l10n.onceVerifiedAccess,
             ),
           ),
         ],
