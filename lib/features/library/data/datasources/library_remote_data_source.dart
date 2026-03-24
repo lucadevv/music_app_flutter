@@ -22,7 +22,7 @@ class LibraryRemoteDataSource {
   /// Get favorite songs with pagination
   Future<Map<String, dynamic>> getFavoriteSongs({
     int page = 1,
-    int limit = 20,
+    int limit = 10,
   }) async {
     try {
       final response = await _api.get(
@@ -42,7 +42,7 @@ class LibraryRemoteDataSource {
   /// Get favorite playlists
   Future<Map<String, dynamic>> getFavoritePlaylists({
     int page = 1,
-    int limit = 20,
+    int limit = 10,
   }) async {
     try {
       final response = await _api.get(
@@ -58,7 +58,7 @@ class LibraryRemoteDataSource {
   /// Get favorite genres
   Future<Map<String, dynamic>> getFavoriteGenres({
     int page = 1,
-    int limit = 20,
+    int limit = 10,
   }) async {
     try {
       final response = await _api.get(

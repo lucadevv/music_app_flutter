@@ -57,7 +57,7 @@ class LibraryService {
 
   Future<FavoriteSongsResponse> getFavoriteSongs({
     int page = 1,
-    int limit = 20,
+    int limit = 10,
   }) async {
     try {
       final response = await _apiServices.get(
@@ -73,7 +73,7 @@ class LibraryService {
 
   Future<FavoritePlaylistsResponse> getFavoritePlaylists({
     int page = 1,
-    int limit = 20,
+    int limit = 10,
   }) async {
     try {
       final response = await _apiServices.get(
@@ -89,7 +89,7 @@ class LibraryService {
 
   Future<FavoriteGenresResponse> getFavoriteGenres({
     int page = 1,
-    int limit = 20,
+    int limit = 10,
   }) async {
     try {
       final response = await _apiServices.get(
@@ -260,7 +260,7 @@ class LibraryService {
 
   Future<UserPlaylistsResponse> getUserPlaylists({
     int page = 1,
-    int limit = 20,
+    int limit = 10,
   }) async {
     try {
       final response = await _apiServices.get(

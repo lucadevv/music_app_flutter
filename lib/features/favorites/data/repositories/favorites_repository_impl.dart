@@ -15,7 +15,7 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
   @override
   Future<Either<AppException, List<Song>>> getFavorites({
     int page = 1,
-    int limit = 20,
+    int limit = 10,
   }) async {
     try {
       final data = await _remoteDataSource.getFavorites(

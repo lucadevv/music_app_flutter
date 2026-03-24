@@ -7,7 +7,7 @@ abstract class FavoritesRepository {
   /// Get all favorite songs with pagination
   Future<Either<AppException, List<Song>>> getFavorites({
     int page = 1,
-    int limit = 20,
+    int limit = 10,
   });
 
   /// Add a song to favorites

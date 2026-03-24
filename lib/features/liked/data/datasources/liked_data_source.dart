@@ -13,7 +13,7 @@ class LikedDataSource {
   /// Get all liked songs from API
   Future<List<LikedSongEntity>> getLikedSongs({
     int page = 1,
-    int limit = 20,
+    int limit = 10,
   }) async {
     final response = await _libraryService.getFavoriteSongs(
       page: page,

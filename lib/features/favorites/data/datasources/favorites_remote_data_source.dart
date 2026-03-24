@@ -11,7 +11,7 @@ class FavoritesRemoteDataSource {
   /// Get favorite songs with pagination
   Future<Map<String, dynamic>> getFavorites({
     int page = 1,
-    int limit = 20,
+    int limit = 10,
   }) async {
     try {
       final response = await _api.get(

@@ -16,7 +16,7 @@ abstract class SongRepository {
   Future<Either<AppException, List<Song>>> searchSongs(String query);
 
   /// Obtiene las canciones más populares
-  Future<Either<AppException, List<Song>>> getTrendingSongs({int limit = 20});
+  Future<Either<AppException, List<Song>>> getTrendingSongs({int limit = 10});
 
   /// Obtiene las canciones de un álbum
   Future<Either<AppException, List<Song>>> getAlbumSongs(String albumId);
@@ -48,7 +48,7 @@ abstract class SongRepository {
   /// Obtiene songs relacionados/Recomendadas
   Future<Either<AppException, List<Song>>> getRelatedSongs(
     String videoId, {
-    int limit = 20,
+    int limit = 10,
   });
 }
 

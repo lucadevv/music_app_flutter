@@ -23,7 +23,7 @@ class GetFavoriteSongsUseCase {
 
   Future<Either<AppException, List<Song>>> call({
     int page = 1,
-    int limit = 20,
+    int limit = 10,
   }) {
     return repository.getFavoriteSongs(page: page, limit: limit);
   }
@@ -37,7 +37,7 @@ class GetFavoritePlaylistsUseCase {
 
   Future<Either<AppException, List<FavoritePlaylistEntity>>> call({
     int page = 1,
-    int limit = 20,
+    int limit = 10,
   }) {
     return repository.getFavoritePlaylists(page: page, limit: limit);
   }
@@ -51,7 +51,7 @@ class GetFavoriteGenresUseCase {
 
   Future<Either<AppException, List<FavoriteGenreEntity>>> call({
     int page = 1,
-    int limit = 20,
+    int limit = 10,
   }) {
     return repository.getFavoriteGenres(page: page, limit: limit);
   }

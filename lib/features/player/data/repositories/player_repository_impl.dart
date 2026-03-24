@@ -51,7 +51,7 @@ class PlayerRepositoryImpl implements PlayerRepository {
   }
 
   @override
-  Future<List<Song>> getSimilarSongs(String videoId, {int limit = 20}) async {
+  Future<List<Song>> getSimilarSongs(String videoId, {int limit = 10}) async {
     return [];
   }
 

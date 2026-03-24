@@ -13,17 +13,17 @@ abstract class LibraryRepository {
   /// Get favorite songs with pagination
   Future<Either<AppException, List<Song>>> getFavoriteSongs({
     int page = 1,
-    int limit = 20,
+    int limit = 10,
   });
 
   /// Get favorite playlists
   Future<Either<AppException, List<FavoritePlaylistEntity>>>
-  getFavoritePlaylists({int page = 1, int limit = 20});
+  getFavoritePlaylists({int page = 1, int limit = 10});
 
   /// Get favorite genres
   Future<Either<AppException, List<FavoriteGenreEntity>>> getFavoriteGenres({
     int page = 1,
-    int limit = 20,
+    int limit = 10,
   });
 
   /// Add song to favorites

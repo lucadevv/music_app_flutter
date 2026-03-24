@@ -7,7 +7,7 @@ abstract class LikedRepository {
   /// Get all liked songs
   Future<Either<AppException, List<LikedSongEntity>>> getLikedSongs({
     int page = 1,
-    int limit = 20,
+    int limit = 10,
   });
 
   /// Add song to liked

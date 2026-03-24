@@ -11,7 +11,7 @@ class GetFavoritesUseCase {
 
   Future<Either<AppException, List<Song>>> call({
     int page = 1,
-    int limit = 20,
+    int limit = 10,
   }) {
     return repository.getFavorites(page: page, limit: limit);
   }

@@ -10,7 +10,7 @@ class GetSimilarSongsUseCase {
 
   Future<Either<AppException, List<Song>>> call(
     String videoId, {
-    int limit = 20,
+    int limit = 10,
   }) async {
     try {
       final songs = await _repository.getSimilarSongs(videoId, limit: limit);

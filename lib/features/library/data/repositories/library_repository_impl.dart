@@ -33,7 +33,7 @@ class LibraryRepositoryImpl implements LibraryRepository {
   @override
   Future<Either<AppException, List<Song>>> getFavoriteSongs({
     int page = 1,
-    int limit = 20,
+    int limit = 10,
   }) async {
     try {
       final data = await _remoteDataSource.getFavoriteSongs(
@@ -50,7 +50,7 @@ class LibraryRepositoryImpl implements LibraryRepository {
 
   @override
   Future<Either<AppException, List<FavoritePlaylistEntity>>>
-  getFavoritePlaylists({int page = 1, int limit = 20}) async {
+  getFavoritePlaylists({int page = 1, int limit = 10}) async {
     try {
       final data = await _remoteDataSource.getFavoritePlaylists(
         page: page,
@@ -77,7 +77,7 @@ class LibraryRepositoryImpl implements LibraryRepository {
   @override
   Future<Either<AppException, List<FavoriteGenreEntity>>> getFavoriteGenres({
     int page = 1,
-    int limit = 20,
+    int limit = 10,
   }) async {
     try {
       final data = await _remoteDataSource.getFavoriteGenres(

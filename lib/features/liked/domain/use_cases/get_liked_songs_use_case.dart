@@ -11,7 +11,7 @@ class GetLikedSongsUseCase {
 
   Future<Either<AppException, List<LikedSongEntity>>> call({
     int page = 1,
-    int limit = 20,
+    int limit = 10,
   }) {
     return _repository.getLikedSongs(page: page, limit: limit);
   }

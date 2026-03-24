@@ -42,7 +42,7 @@ abstract class PlayerRepository {
   /// Returns a list of similar songs based on the given videoId
   /// [videoId] - The video ID to get similar songs for
   /// [limit] - Maximum number of items to return (default 20)
-  Future<List<Song>> getSimilarSongs(String videoId, {int limit = 20});
+  Future<List<Song>> getSimilarSongs(String videoId, {int limit = 10});
 
   /// Record listen to server
   ///

@@ -13,7 +13,7 @@ class LikedRepositoryImpl implements LikedRepository {
   @override
   Future<Either<AppException, List<LikedSongEntity>>> getLikedSongs({
     int page = 1,
-    int limit = 20,
+    int limit = 10,
   }) async {
     try {
       final songs = await _dataSource.getLikedSongs(page: page, limit: limit);
