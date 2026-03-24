@@ -29,7 +29,7 @@ class AddToPlaylistUseCase {
     int? duration,
   }) async {
     try {
-      final response = await _repository.addSongToUserPlaylist(
+      await _repository.addSongToUserPlaylist(
         playlistId,
         videoId: videoId,
         title: title,
@@ -37,10 +37,9 @@ class AddToPlaylistUseCase {
         thumbnail: thumbnail,
         duration: duration,
       );
-      // Convert UserPlaylist to void as we don't need the detailed response
       return const Right(null);
     } catch (e) {
-      return Left(AppException('Failed to add song to playlist: $e'));
+      return Left(UnknownException('Failed to add song to playlist: $e'));
     }
   }
 }

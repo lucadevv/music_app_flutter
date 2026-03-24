@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
 import 'package:music_app/features/library/domain/repositories/library_repository.dart';
+import 'package:music_app/features/library/library_service.dart';
 
 /// Use case for creating a playlist.
 class CreatePlaylistUseCase {
@@ -24,16 +25,11 @@ class CreatePlaylistUseCase {
     String? thumbnail,
     bool isPublic = false,
   }) async {
-    try {
-      final response = await _repository.createUserPlaylist(
-        name: name,
-        description: description,
-        thumbnail: thumbnail,
-        isPublic: isPublic,
-      );
-      return Right(response);
-    } catch (e) {
-      return Left(AppException('Failed to create playlist: $e'));
-    }
+    return await _repository.createUserPlaylist(
+      name: name,
+      description: description,
+      thumbnail: thumbnail,
+      isPublic: isPublic,
+    );
   }
 }
