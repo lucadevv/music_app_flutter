@@ -1,19 +1,21 @@
 // ignore_for_file: deprecated_member_use_from_same_package
 import 'package:auto_route/auto_route.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
-import 'package:music_app/core/presentation/widgets/song_list_item.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
-import 'package:music_app/core/widgets/shimmer_widgets.dart';
 import 'package:music_app/features/artist/domain/entities/artist.dart';
 import 'package:music_app/features/artist/domain/repositories/artist_repository.dart';
 import 'package:music_app/features/artist/presentation/cubit/artist_cubit.dart';
+import 'package:music_app/features/artist/presentation/widgets/atoms/artist_error_widget.dart';
+import 'package:music_app/features/artist/presentation/widgets/atoms/artist_not_found_widget.dart';
+import 'package:music_app/features/artist/presentation/widgets/molecules/artist_loading_molecule.dart';
+import 'package:music_app/features/artist/presentation/widgets/molecules/artist_action_buttons.dart';
+import 'package:music_app/features/artist/presentation/widgets/organisms/artist_albums_organism.dart';
+import 'package:music_app/features/artist/presentation/widgets/organisms/artist_header_organism.dart';
+import 'package:music_app/features/artist/presentation/widgets/organisms/artist_top_songs_organism.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
-import 'package:music_app/features/song_options/presentation/widgets/song_options_bottom_sheet.dart';
-import 'package:music_app/l10n/app_localizations.dart';
 
 @RoutePage()
 class ArtistScreen extends StatelessWidget implements AutoRouteWrapper {
@@ -45,46 +47,24 @@ class _ArtistView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-
     return Scaffold(
       backgroundColor: const Color(0xFF0D0D0D),
       body: BlocBuilder<ArtistCubit, ArtistState>(
         builder: (context, state) {
           if (state.status == ArtistStatus.loading) {
-            return const _ArtistLoadingView();
+            return const ArtistLoadingMolecule();
           }
 
           if (state.status == ArtistStatus.failure) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline, color: Colors.red, size: 48),
-                  const SizedBox(height: 16),
-                  Text(
-                    state.errorMessage ?? l10n.errorLoadingPlaylist,
-                    style: const TextStyle(color: Colors.white70),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () =>
-                        context.read<ArtistCubit>().loadArtist(artistId),
-                    child: Text(l10n.retry),
-                  ),
-                ],
-              ),
+            return ArtistErrorWidget(
+              errorMessage: state.errorMessage,
+              onRetry: () => context.read<ArtistCubit>().loadArtist(artistId),
             );
           }
 
           final artist = state.artist;
           if (artist == null) {
-            return Center(
-              child: Text(
-                'Artista no encontrado',
-                style: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
-              ),
-            );
+            return const ArtistNotFoundWidget();
           }
 
           return RefreshIndicator(
@@ -94,86 +74,22 @@ class _ArtistView extends StatelessWidget {
             },
             child: CustomScrollView(
               slivers: [
-                // App Bar con imagen de fondo
-                _buildSliverAppBar(context, artist),
-
-                // Content
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Action buttons
-                        _buildActionButtons(context, artist, state, l10n),
-                        const SizedBox(height: 32),
-
-                        // Top Songs
-                        if (state.topSongs.isNotEmpty) ...[
-                          Text(
-                            l10n.popular,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                        ],
-                      ],
-                    ),
-                  ),
+                ArtistHeaderOrganism(
+                  artist: artist,
+                  state: state,
+                  onBackPressed: () => context.router.pop(),
                 ),
-
-                // Songs list
+                SliverToBoxAdapter(child: _buildPopularSection(context, state)),
                 if (state.topSongs.isNotEmpty)
-                  SliverList(
-                    delegate: SliverChildBuilderDelegate((context, index) {
-                      final song = state.topSongs[index];
-                      return _ArtistSongItem(
-                        song: song,
-                        index: index + 1,
-                        onTap: () => _playSong(context, song, state.topSongs),
-                      );
-                    }, childCount: state.topSongs.length),
+                  ArtistTopSongsOrganism(
+                    songs: state.topSongs,
+                    onSongTap: (song, allSongs) =>
+                        _playSong(context, song, allSongs),
                   ),
-
-                // Albums
-                if (state.albums.isNotEmpty) ...[
-                  const SliverToBoxAdapter(
-                    child: Padding(
-                      padding: EdgeInsets.all(24.0),
-                      child: Text(
-                        'Albums',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                  SliverToBoxAdapter(
-                    child: SizedBox(
-                      height: 180,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        itemCount: state.albums.length,
-                        itemBuilder: (context, index) {
-                          final album = state.albums[index];
-                          return _ArtistAlbumCard(
-                            album: album,
-                            onTap: () => context.router.push(
-                              AlbumRoute(albumId: album.id),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                ],
-
+                ArtistAlbumsOrganism(
+                  albums: state.albums,
+                  router: context.router,
+                ),
                 const SliverToBoxAdapter(child: SizedBox(height: 100)),
               ],
             ),
@@ -183,93 +99,25 @@ class _ArtistView extends StatelessWidget {
     );
   }
 
-  SliverAppBar _buildSliverAppBar(BuildContext context, Artist artist) {
-    return SliverAppBar(
-      expandedHeight: 300,
-      pinned: true,
-      backgroundColor: Colors.transparent,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
-        onPressed: () => context.router.pop(),
-      ),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.more_vert, color: Colors.white),
-          onPressed: () {},
-        ),
-      ],
-      flexibleSpace: FlexibleSpaceBar(
-        background: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [AppColorsDark.primaryContainer, Color(0xFF0D0D0D)],
-            ),
-          ),
-          child: artist.thumbnail != null
-              ? CachedNetworkImage(
-                  imageUrl: artist.thumbnail!,
-                  fit: BoxFit.cover,
-                  errorWidget: (_, _, _) => _buildDefaultArtistImage(),
-                )
-              : _buildDefaultArtistImage(),
-        ),
-      ),
-    );
-  }
+  Widget _buildPopularSection(BuildContext context, ArtistState state) {
+    if (state.topSongs.isEmpty) {
+      return const SizedBox.shrink();
+    }
 
-  Widget _buildDefaultArtistImage() {
-    return Center(
-      child: Container(
-        width: 150,
-        height: 150,
-        decoration: const BoxDecoration(
-          color: AppColorsDark.primary,
-          shape: BoxShape.circle,
-        ),
-        child: const Icon(Icons.person, size: 80, color: Colors.white),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 0, 24, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ArtistActionButtons(
+            artist: state.artist!,
+            state: state,
+            onPlayPressed: () => _playAllTopSongs(context, state.topSongs),
+            onFollowPressed: () => context.read<ArtistCubit>().toggleFollow(),
+          ),
+          const SizedBox(height: 32),
+        ],
       ),
-    );
-  }
-
-  Widget _buildActionButtons(
-    BuildContext context,
-    Artist artist,
-    ArtistState state,
-    AppLocalizations l10n,
-  ) {
-    return Row(
-      children: [
-        Expanded(
-          child: FilledButton.icon(
-            onPressed: () {
-              if (state.topSongs.isNotEmpty) {
-                _playAllTopSongs(context, state.topSongs);
-              }
-            },
-            icon: const Icon(Icons.play_arrow),
-            label: Text(l10n.play),
-            style: FilledButton.styleFrom(
-              backgroundColor: AppColorsDark.primary,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-            ),
-          ),
-        ),
-        const SizedBox(width: 16),
-        IconButton(
-          icon: Icon(
-            state.isFollowing ? Icons.favorite : Icons.favorite_border,
-            color: state.isFollowing ? AppColorsDark.primary : Colors.white,
-          ),
-          onPressed: () => context.read<ArtistCubit>().toggleFollow(),
-        ),
-        IconButton(
-          icon: const Icon(Icons.share, color: Colors.white),
-          onPressed: () {},
-        ),
-      ],
     );
   }
 
@@ -279,11 +127,8 @@ class _ArtistView extends StatelessWidget {
     List<ArtistSong> allSongs,
   ) {
     final cubit = context.read<ArtistCubit>();
-
-    // Usar el método del Cubit para reproducir (con validación de streamUrl)
     final success = cubit.playSong(song, allSongs);
 
-    // Navegar al player solo si la reproducción fue exitosa
     if (success) {
       final nowPlayingData = cubit.mapArtistSongToNowPlaying(song);
       context.router.push(
@@ -295,225 +140,12 @@ class _ArtistView extends StatelessWidget {
   void _playAllTopSongs(BuildContext context, List<ArtistSong> songs) {
     if (songs.isEmpty) return;
 
-    // Usar el método del Cubit para cargar la playlist
     final nowPlayingData = context.read<ArtistCubit>().playAllTopSongs(songs);
 
     if (nowPlayingData != null) {
-      // Navegar al player
       context.router.push(
         PlayerRoute(nowPlayingData: nowPlayingData, playAsSingle: false),
       );
     }
-  }
-}
-
-class _ArtistSongItem extends StatelessWidget {
-  final ArtistSong song;
-  final int index;
-  final VoidCallback onTap;
-
-  const _ArtistSongItem({
-    required this.song,
-    required this.index,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: SongListItemWithTrailing(
-        title: song.title,
-        artist: '',
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              song.formattedDuration,
-              style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.6),
-                fontSize: 14,
-              ),
-            ),
-            const SizedBox(width: 8),
-            IconButton(
-              icon: Icon(
-                Icons.more_vert,
-                color: Colors.white.withValues(alpha: 0.6),
-              ),
-              onPressed: () {
-                SongOptionsBottomSheet.show(
-                  context: context,
-                  song: SongOptionsData(
-                    videoId: song.videoId,
-                    title: song.title,
-                    artist: '',
-                    thumbnail: song.thumbnail,
-                    durationSeconds: song.durationSeconds,
-                    isFavorite: false,
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ArtistAlbumCard extends StatelessWidget {
-  final ArtistAlbum album;
-  final VoidCallback onTap;
-
-  const _ArtistAlbumCard({required this.album, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: SizedBox(
-        width: 140,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Container(
-                height: 130,
-                width: 140,
-                color: AppColorsDark.primaryContainer,
-                child: album.thumbnail != null
-                    ? CachedNetworkImage(
-                        imageUrl: album.thumbnail!,
-                        fit: BoxFit.cover,
-                        errorWidget: (_, _, _) => const Icon(
-                          Icons.album,
-                          size: 48,
-                          color: AppColorsDark.primary,
-                        ),
-                      )
-                    : const Icon(
-                        Icons.album,
-                        size: 48,
-                        color: AppColorsDark.primary,
-                      ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              album.title,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            Text(
-              '${album.year} • ${album.songCount} songs',
-              style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.6),
-                fontSize: 11,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Widget de loading con shimmer para ArtistScreen
-class _ArtistLoadingView extends StatelessWidget {
-  const _ArtistLoadingView();
-
-  @override
-  Widget build(BuildContext context) {
-    return CustomScrollView(
-      slivers: [
-        SliverAppBar(
-          expandedHeight: 300,
-          pinned: true,
-          backgroundColor: Colors.transparent,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
-            onPressed: () => context.router.pop(),
-          ),
-          flexibleSpace: FlexibleSpaceBar(
-            background: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [AppColorsDark.primaryContainer, Color(0xFF0D0D0D)],
-                ),
-              ),
-              child: const Center(child: AvatarShimmer(size: 150)),
-            ),
-          ),
-        ),
-        const SliverToBoxAdapter(
-          child: Padding(
-            padding: EdgeInsets.all(24),
-            child: Row(
-              children: [
-                Expanded(child: ButtonShimmer(height: 48)),
-                SizedBox(width: 16),
-                ShimmerContainer(width: 48, height: 48, borderRadius: 24),
-                SizedBox(width: 8),
-                ShimmerContainer(width: 48, height: 48, borderRadius: 24),
-              ],
-            ),
-          ),
-        ),
-        const SliverToBoxAdapter(
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(24, 0, 24, 16),
-            child: TextShimmer(width: 100, height: 20),
-          ),
-        ),
-        SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (context, index) => const SongListItemShimmer(),
-            childCount: 5,
-          ),
-        ),
-        const SliverToBoxAdapter(
-          child: Padding(
-            padding: EdgeInsets.all(24),
-            child: TextShimmer(width: 80, height: 20),
-          ),
-        ),
-        SliverToBoxAdapter(
-          child: SizedBox(
-            height: 180,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: 4,
-              itemBuilder: (context, index) {
-                return Container(
-                  width: 140,
-                  margin: const EdgeInsets.only(right: 12),
-                  child: const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ThumbnailShimmer(width: 140, height: 130),
-                      SizedBox(height: 8),
-                      TextShimmer(height: 14),
-                      SizedBox(height: 4),
-                      TextShimmer(width: 80, height: 12),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ),
-        ),
-        const SliverToBoxAdapter(child: SizedBox(height: 100)),
-      ],
-    );
   }
 }
