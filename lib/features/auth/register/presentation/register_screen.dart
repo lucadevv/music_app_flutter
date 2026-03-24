@@ -1,23 +1,17 @@
 // ignore_for_file: unawaited_futures
-import 'dart:ui';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
-import 'package:music_app/core/utils/extension/sizedbox_extension.dart';
-import 'package:music_app/core/widgets/language_selector.dart';
 import 'package:music_app/features/auth/presentation/cubit/orquestador_auth_cubit.dart';
 import 'package:music_app/features/auth/register/domain/entities/register_request.dart';
 import 'package:music_app/features/auth/register/domain/use_cases/register_use_case.dart';
 import 'package:music_app/features/auth/register/presentation/cubit/register_cubit.dart';
-
 import 'package:music_app/features/auth/register/presentation/notifiers/register_form_notifier.dart';
-import 'package:music_app/features/auth/register/presentation/widgets/login_link.dart';
-import 'package:music_app/features/auth/register/presentation/widgets/register_button.dart';
-import 'package:music_app/features/auth/register/presentation/widgets/register_form_fields.dart';
-import 'package:music_app/features/auth/register/presentation/widgets/register_header.dart';
+import 'package:music_app/features/auth/register/presentation/widgets/register_body_content.dart';
 import 'package:music_app/features/auth/register/presentation/widgets/register_listeners.dart';
-import 'package:music_app/features/auth/register/presentation/widgets/social_buttons.dart';
+import 'package:music_app/features/auth/register/presentation/widgets/register_top_bar.dart';
+import 'package:music_app/features/auth/register/presentation/widgets/video_background.dart';
 import 'package:music_app/main.dart';
 import 'package:video_player/video_player.dart';
 
@@ -30,9 +24,8 @@ class RegisterScreen extends StatefulWidget implements AutoRouteWrapper {
     return MultiBlocProvider(
       providers: [
         BlocProvider<RegisterCubit>(
-          create: (_) => RegisterCubit(
-            registerUseCase: getIt<RegisterUseCase>(),
-          ),
+          create: (_) =>
+              RegisterCubit(registerUseCase: getIt<RegisterUseCase>()),
         ),
         BlocProvider<OrquestadorAuthCubit>(
           create: (_) => OrquestadorAuthCubit(),
@@ -58,13 +51,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _obscureConfirmPassword = ValueNotifier<bool>(true);
   final _formNotifier = RegisterFormNotifier();
   VideoPlayerController? _videoController;
-//   bool _videoInitialized = false;
   final bool _enableVideo = true;
 
   @override
   void initState() {
     super.initState();
-    // Delay video init to avoid platform connection issues
     Future.delayed(const Duration(milliseconds: 500), () {
       if (mounted) _initializeVideo();
     });
@@ -74,13 +65,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Future<void> _initializeVideo() async {
     if (!mounted) return;
     try {
-      _videoController = VideoPlayerController.asset('assets/video/video_login.mp4');
+      _videoController = VideoPlayerController.asset(
+        'assets/video/video_login.mp4',
+      );
       await _videoController!.initialize();
       if (!mounted) return;
       _videoController!.setLooping(true);
       _videoController!.setVolume(0);
       await _videoController!.play();
-//       _videoInitialized = true;
       if (mounted) setState(() {});
     } catch (e) {
       // Video failed to load
@@ -112,7 +104,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     if (!isValid) return;
 
-    // Crear la entidad y pasarla al cubit
     final entity = RegisterRequest(
       email: _emailController.text.trim(),
       password: _passwordController.text,
@@ -125,96 +116,31 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
-//     final l10n = AppLocalizations.of(context)!;
-    
     return RegisterListeners(
       child: Scaffold(
         backgroundColor: AppColorsDark.surface,
         body: Stack(
           fit: StackFit.expand,
           children: [
-            // Video Background
-            if (_enableVideo && _videoController != null && _videoController!.value.isInitialized)
-              SizedBox.expand(
-                child: FittedBox(
-                  fit: BoxFit.cover,
-                  child: SizedBox(
-                    width: _videoController!.value.size.width,
-                    height: _videoController!.value.size.height,
-                    child: VideoPlayer(_videoController!),
-                  ),
-                ),
-              ),
-            
-            // Blur overlay
-            BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-              child: Container(
-                color: AppColorsDark.surface.withValues(alpha: 0.7),
-              ),
+            VideoBackground(
+              videoController: _videoController,
+              enableVideo: _enableVideo,
             ),
-
-          
-
-            // Body
             SafeArea(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24.0),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      32.spaceh,
-                      const RegisterHeader(),
-                      
-                      RegisterFormFields(
-                        firstNameController: _firstNameController,
-                        lastNameController: _lastNameController,
-                        emailController: _emailController,
-                        passwordController: _passwordController,
-                        confirmPasswordController: _confirmPasswordController,
-                        formNotifier: _formNotifier,
-                        obscurePassword: _obscurePassword,
-                        obscureConfirmPassword: _obscureConfirmPassword,
-                      ),
-                      const SizedBox(height: 32),
-                      RegisterButton(onPressed: _handleRegister),
-                      const SizedBox(height: 24),
-                      const SocialButtons(),
-                      const SizedBox(height: 24),
-                      const LoginLink(),
-                    ],
-                  ),
-                ),
+              child: RegisterBodyContent(
+                formKey: _formKey,
+                firstNameController: _firstNameController,
+                lastNameController: _lastNameController,
+                emailController: _emailController,
+                passwordController: _passwordController,
+                confirmPasswordController: _confirmPasswordController,
+                obscurePassword: _obscurePassword,
+                obscureConfirmPassword: _obscureConfirmPassword,
+                formNotifier: _formNotifier,
+                onRegister: _handleRegister,
               ),
             ),
-              // AppBar transparente
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back_ios_new, color: AppColorsDark.onSurface),
-                        onPressed: () {
-                          context.router.pop();
-                       
-                        },
-                      ),
-                      LanguageSelector(
-                        backgroundColor: Colors.white.withValues(alpha: 0.1),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+            const RegisterTopBar(),
           ],
         ),
       ),
