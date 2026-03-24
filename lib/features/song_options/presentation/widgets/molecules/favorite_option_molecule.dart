@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/features/favorites/presentation/cubit/favorite_cubit.dart';
-import 'package:music_app/features/favorites/domain/entities/favorite_type.dart';
-import 'package:music_app/features/favorites/domain/entities/song_metadata.dart';
+import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/song_options/presentation/widgets/atoms/option_tile_atom.dart';
 
 /// Molecule: Favorite option tile with toggle logic
