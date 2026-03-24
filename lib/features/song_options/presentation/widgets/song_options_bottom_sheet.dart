@@ -1,11 +1,12 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:music_app/features/song_options/presentation/widgets/atoms/option_tile_atom.dart';
+import 'package:music_app/features/song_options/presentation/widgets/molecules/song_header_molecule.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/core/utils/bottom_sheet_transition.dart';
 import 'package:music_app/core/utils/bottom_sheet_visibility.dart';
 import 'package:music_app/features/downloads/presentation/widgets/download_option_tile.dart';
-import 'package:music_app/features/favorites/presentation/cubit/favorite_cubit.dart';
+import 'package:music_app/features/song_options/presentation/widgets/molecules/favorite_option_molecule.dart';
+import 'package:music_app/features/song_options/presentation/widgets/molecules/playlist_tile_molecule.dart';
 import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/l10n/app_localizations.dart';
 import 'package:music_app/main.dart';
@@ -95,7 +96,7 @@ class SongOptionsBottomSheet extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             // Header de la canción
-            _SongHeader(
+            SongHeaderMolecule(
               title: song.title,
               artist: song.artist,
               thumbnail: song.thumbnail,
@@ -103,7 +104,7 @@ class SongOptionsBottomSheet extends StatelessWidget {
             const Divider(color: Colors.white24),
 
             // Opción: Like/Unlike
-            _FavoriteOptionTile(
+            FavoriteOptionMolecule(
               videoId: song.videoId,
               title: song.title,
               artist: song.artist,
@@ -114,7 +115,7 @@ class SongOptionsBottomSheet extends StatelessWidget {
             ),
 
             // Opción: Agregar a playlist
-            _OptionTile(
+            OptionTileAtom(
               icon: Icons.playlist_add,
               label: l10n.addToPlaylist,
               onTap: () {
@@ -137,7 +138,7 @@ class SongOptionsBottomSheet extends StatelessWidget {
             ),
 
             // Opción: Compartir
-            _OptionTile(
+            OptionTileAtom(
               icon: Icons.share,
               label: l10n.share,
               onTap: () {
@@ -152,180 +153,7 @@ class SongOptionsBottomSheet extends StatelessWidget {
   }
 }
 
-/// Widget para el header de la canción en el bottom sheet
-class _SongHeader extends StatelessWidget {
-  final String title;
-  final String artist;
-  final String? thumbnail;
-
-  const _SongHeader({
-    required this.title,
-    required this.artist,
-    this.thumbnail,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      leading: ClipRRect(
-        borderRadius: BorderRadius.circular(4),
-        child: Container(
-          width: 48,
-          height: 48,
-          color: AppColorsDark.primaryContainer,
-          child: thumbnail != null
-              ? CachedNetworkImage(
-                  imageUrl: thumbnail!,
-                  fit: BoxFit.cover,
-                  errorWidget: (_, _, _) => const Icon(
-                    Icons.music_note,
-                    color: AppColorsDark.primary,
-                  ),
-                )
-              : const Icon(Icons.music_note, color: AppColorsDark.primary),
-        ),
-      ),
-      title: Text(
-        title,
-        style: const TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.w600,
-        ),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-      subtitle: Text(
-        artist,
-        style: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-    );
-  }
-}
-
-/// Widget para la opción de favorito
-class _FavoriteOptionTile extends StatelessWidget {
-  final String videoId;
-  final String title;
-  final String artist;
-  final String? thumbnail;
-  final int? duration;
-  final bool isFavorite;
-  final String? streamUrl;
-
-  const _FavoriteOptionTile({
-    required this.videoId,
-    required this.title,
-    required this.artist,
-    required this.isFavorite,
-    this.thumbnail,
-    this.duration,
-    this.streamUrl,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final label = isFavorite ? 'Quitar de favoritos' : 'Agregar a favoritos';
-    return _OptionTile(
-      icon: isFavorite ? Icons.heart_broken : Icons.favorite_border,
-      label: label,
-      onTap: () {
-        Navigator.pop(context);
-        // Toggle favorite
-        context.read<FavoriteCubit>().toggleFavorite(
-          videoId: videoId,
-          type: FavoriteType.song,
-          isCurrentlyFavorite: isFavorite,
-          metadata: SongMetadata(
-            title: title,
-            artist: artist,
-            thumbnail: thumbnail,
-            duration: duration,
-            streamUrl: streamUrl,
-          ),
-        );
-      },
-    );
-  }
-}
-
-/// Widget básico para una opción del bottom sheet
-class _OptionTile extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  const _OptionTile({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      leading: Icon(icon, color: Colors.white70),
-      title: Text(label, style: const TextStyle(color: Colors.white)),
-      onTap: onTap,
-    );
-  }
-}
-
-class _PlaylistTile extends StatelessWidget {
-  final UserPlaylist playlist;
-  final AppLocalizations l10n;
-  final VoidCallback onTap;
-
-  const _PlaylistTile({
-    required this.playlist,
-    required this.l10n,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      leading: Container(
-        width: 48,
-        height: 48,
-        decoration: BoxDecoration(
-          color: AppColorsDark.primaryContainer,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: playlist.thumbnail != null
-            ? ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: CachedNetworkImage(
-                  imageUrl: playlist.thumbnail!,
-                  fit: BoxFit.cover,
-                  errorWidget: (_, _, _) => const Icon(
-                    Icons.playlist_play,
-                    color: AppColorsDark.primary,
-                  ),
-                ),
-              )
-            : const Icon(Icons.playlist_play, color: AppColorsDark.primary),
-      ),
-      title: Text(
-        playlist.name,
-        style: const TextStyle(color: Colors.white),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-      subtitle: Text(
-        '${playlist.songCount} ${l10n.songs}',
-        style: TextStyle(
-          color: Colors.white.withValues(alpha: 0.6),
-          fontSize: 12,
-        ),
-      ),
-      trailing: const Icon(Icons.add, color: AppColorsDark.primary),
-      onTap: onTap,
-    );
-  }
-}
-
+/// Widget para crear nueva playlist
 class _CreatePlaylistButton extends StatelessWidget {
   final Function(UserPlaylist) onCreated;
 
@@ -726,9 +554,8 @@ class _AddToPlaylistDialogContentState
                   itemCount: _filteredPlaylists.length,
                   itemBuilder: (context, index) {
                     final playlist = _filteredPlaylists[index];
-                    return _PlaylistTile(
+                    return PlaylistTileMolecule(
                       playlist: playlist,
-                      l10n: l10n,
                       onTap: () => _addSongToPlaylist(playlist),
                     );
                   },
