@@ -1,14 +1,15 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:music_app/core/app_router/app_routes.gr.dart';
-import 'package:music_app/core/widgets/shimmer_widgets.dart';
 import 'package:music_app/features/downloads/presentation/cubit/downloads_cubit.dart';
-import 'package:music_app/features/downloads/presentation/widgets/download_progress_widget.dart';
-import 'package:music_app/features/downloads/presentation/widgets/downloaded_song_item_widget.dart';
+import 'package:music_app/features/downloads/domain/entities/downloaded_song.dart';
+import 'package:music_app/features/downloads/presentation/widgets/molecules/empty_downloads_view.dart';
+import 'package:music_app/features/downloads/presentation/widgets/molecules/error_downloads_view.dart';
+import 'package:music_app/features/downloads/presentation/widgets/molecules/downloads_loading_view.dart';
+import 'package:music_app/features/downloads/presentation/widgets/organisms/downloads_app_bar.dart';
+import 'package:music_app/features/downloads/presentation/widgets/organisms/active_downloads_section.dart';
+import 'package:music_app/features/downloads/presentation/widgets/organisms/downloads_list.dart';
 import 'package:music_app/l10n/app_localizations.dart';
-
-import '../../domain/entities/downloaded_song.dart';
 
 /// Pantalla de descargas
 ///
@@ -26,7 +27,6 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
   @override
   void initState() {
     super.initState();
-    // Usar el provider global de DownloadsCubit
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<DownloadsCubit>().loadDownloads();
     });
@@ -42,42 +42,15 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
             state.status == DownloadsStatus.loading) {
           return Scaffold(
             appBar: AppBar(title: Text(l10n.downloads)),
-            body: const _DownloadsLoadingView(),
+            body: const DownloadsLoadingView(),
           );
         }
 
         return Scaffold(
-          appBar: AppBar(
-            title: Text(l10n.downloads),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.settings_outlined),
-                onPressed: () {
-                  // Abre un diálogo simple para indicar que la funcionalidad aún no está implementada
-                  showDialog<void>(
-                    context: context,
-                    builder: (dialogContext) {
-                      return AlertDialog(
-                        title: const Text('Settings'),
-                        content: const Text(
-                          'Downloading settings screen is not implemented yet.',
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.of(dialogContext).pop(),
-                            child: const Text('OK'),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                },
-              ),
-            ],
-          ),
+          appBar: DownloadsAppBar(title: l10n.downloads),
           body: _DownloadsBody(l10n: l10n),
         );
-      }, // end of builder
+      },
     );
   }
 }
@@ -92,140 +65,45 @@ class _DownloadsBody extends StatelessWidget {
     return BlocBuilder<DownloadsCubit, DownloadsState>(
       builder: (context, state) {
         if (state.isLoading && !state.hasActiveDownloads) {
-          return const _DownloadsLoadingView();
+          return const DownloadsLoadingView();
         }
 
         if (state.isFailure && !state.hasDownloads) {
-          return _buildErrorState(context, state);
+          return ErrorDownloadsViewWithRetry(
+            errorMessage: state.errorMessage,
+            onRetry: () => context.read<DownloadsCubit>().loadDownloads(),
+          );
         }
 
         if (!state.hasDownloads && !state.hasActiveDownloads) {
-          return _buildEmptyState(context);
+          return const EmptyDownloadsView();
         }
 
-        return _buildDownloadsList(context, state);
+        return _buildDownloadsContent(context, state);
       },
     );
   }
 
-  Widget _buildEmptyState(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+  Widget _buildDownloadsContent(BuildContext context, DownloadsState state) {
+    final cubit = context.read<DownloadsCubit>();
 
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.download_done, size: 80, color: colorScheme.outline),
-          const SizedBox(height: 16),
-          Text(
-            l10n.noDownloadsYet,
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            l10n.downloadsWillAppearHere,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildErrorState(BuildContext context, DownloadsState state) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.error_outline, size: 80, color: colorScheme.error),
-          const SizedBox(height: 16),
-          Text(
-            l10n.errorOccurred,
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            state.errorMessage ?? l10n.errorUnknown,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-          FilledButton(
-            onPressed: () {
-              context.read<DownloadsCubit>().loadDownloads();
-            },
-            child: Text(l10n.retry),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDownloadsList(BuildContext context, DownloadsState state) {
     return Column(
       children: [
         // Descargas activas
-        if (state.hasActiveDownloads) ...[
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.downloadingTitle,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 8),
-                ...state.downloadingIds.map(
-                  (videoId) => Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: DownloadProgressWidget(
-                      progress: state.downloadProgress[videoId] ?? 0,
-                      title: '${l10n.song} $videoId',
-                    ),
-                  ),
-                ),
-              ],
-            ),
+        if (state.hasActiveDownloads)
+          ActiveDownloadsSection(
+            downloadingIds: state.downloadingIds,
+            downloadProgress: state.downloadProgress,
+            l10n: l10n,
           ),
-          const Divider(),
-        ],
 
-        // Lista de descargadas
-        Expanded(
-          child: ListView.builder(
-            itemCount: state.downloadedSongs.length,
-            itemBuilder: (context, index) {
-              final song = state.downloadedSongs[index];
-              final isDownloading = state.downloadingIds.contains(song.videoId);
-              final progress = state.downloadProgress[song.videoId] ?? 0.0;
-
-              return DownloadedSongItemWidget(
-                song: song,
-                isDownloading: isDownloading,
-                progress: progress,
-                onTap: () {
-                  // Usar el método del Cubit para reproducir
-                  final nowPlayingData = context
-                      .read<DownloadsCubit>()
-                      .playDownloadedSong(song);
-                  // Canción individual
-                  context.router.push(
-                    PlayerRoute(nowPlayingData: nowPlayingData, playAsSingle: true),
-                  );
-                },
-                onDelete: () {
-                  _showDeleteConfirmationDialog(context, song);
-                },
-              );
-            },
-          ),
+        // Lista de descargas
+        DownloadsListWithNavigation(
+          downloadedSongs: state.downloadedSongs,
+          downloadingIds: state.downloadingIds,
+          downloadProgress: state.downloadProgress,
+          playDownloadedSong: cubit.playDownloadedSong,
+          onDelete: (song) => _showDeleteConfirmationDialog(context, song),
         ),
       ],
     );
@@ -243,9 +121,7 @@ class _DownloadsBody extends StatelessWidget {
           content: Text(l10n.deleteDownloadMessage(song.title)),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(dialogContext).pop();
-              },
+              onPressed: () => Navigator.of(dialogContext).pop(),
               child: Text(l10n.cancel),
             ),
             FilledButton(
@@ -259,43 +135,6 @@ class _DownloadsBody extends StatelessWidget {
               child: Text(l10n.deleteDownload),
             ),
           ],
-        );
-      },
-    );
-  }
-}
-
-class _DownloadsLoadingView extends StatelessWidget {
-  const _DownloadsLoadingView();
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: 10,
-      itemBuilder: (context, index) {
-        return const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-          child: Row(
-            children: [
-              // Avatar
-              ShimmerContainer(width: 48, height: 48, borderRadius: 8),
-              SizedBox(width: 16),
-              // Titles
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TextShimmer(width: double.infinity, height: 14),
-                    SizedBox(height: 4),
-                    TextShimmer(width: 100, height: 12),
-                  ],
-                ),
-              ),
-              SizedBox(width: 16),
-              // Options / Remove button
-              ShimmerContainer(width: 24, height: 24, borderRadius: 12),
-            ],
-          ),
         );
       },
     );
