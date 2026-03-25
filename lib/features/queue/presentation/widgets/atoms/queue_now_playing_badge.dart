@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class QueueNowPlayingBadge extends StatelessWidget {
   final String text;
 
-  const QueueNowPlayingBadge({super.key, required this.text});
+  const QueueNowPlayingBadge({required this.text, super.key});
 
   @override
   Widget build(BuildContext context) {

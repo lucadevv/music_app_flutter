@@ -1,3 +1,4 @@
+// ignore_for_file: deprecated_member_use_from_same_package
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
@@ -9,7 +10,7 @@ class AlbumAppBar extends StatelessWidget {
   final Album album;
   final VoidCallback? onBackPressed;
 
-  const AlbumAppBar({super.key, required this.album, this.onBackPressed});
+  const AlbumAppBar({required this.album, super.key, this.onBackPressed});
 
   @override
   Widget build(BuildContext context) {

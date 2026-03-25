@@ -1,18 +1,32 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
-import 'package:music_app/core/services/local/onboarding_service.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/core/widgets/language_selector.dart';
+import 'package:music_app/features/onboarding/domain/use_cases/check_onboarding_completed_use_case.dart';
+import 'package:music_app/features/onboarding/domain/use_cases/complete_onboarding_use_case.dart';
 import 'package:music_app/l10n/app_localizations.dart';
-import 'package:music_app/main.dart';
 
+import 'cubit/onboarding_cubit.dart';
 import 'organisms/background_layer.dart';
 import 'organisms/onboarding_content.dart';
 
 @RoutePage()
-class OnboardingScreen extends StatefulWidget {
+class OnboardingScreen extends StatefulWidget implements AutoRouteWrapper {
   const OnboardingScreen({super.key});
+
+  @override
+  Widget wrappedRoute(BuildContext context) {
+    return BlocProvider<OnboardingCubit>(
+      create: (_) => OnboardingCubit(
+        GetIt.I<CheckOnboardingCompletedUseCase>(),
+        GetIt.I<CompleteOnboardingUseCase>(),
+      ),
+      child: this,
+    );
+  }
 
   @override
   State<OnboardingScreen> createState() => _OnboardingScreenState();
@@ -20,7 +34,6 @@ class OnboardingScreen extends StatefulWidget {
 
 class _OnboardingScreenState extends State<OnboardingScreen>
     with TickerProviderStateMixin {
-  bool _isCompleting = false;
   late AnimationController _fadeController;
   late AnimationController _slideController;
   late Animation<double> _fadeAnimation;
@@ -58,21 +71,20 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   }
 
   Future<void> _completeOnboardingAndNavigate() async {
-    if (_isCompleting) return;
+    final cubit = context.read<OnboardingCubit>();
 
-    setState(() => _isCompleting = true);
+    if (cubit.state.status == OnboardingStatus.loading) {
+      return;
+    }
 
-    try {
-      final onboardingService = getIt<OnboardingService>();
-      await onboardingService.setOnboardingCompleted(true);
+    await cubit.completeOnboarding();
 
-      if (mounted) {
-        await context.router.push(const SocialLoginRoute());
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() => _isCompleting = false);
-      }
+    if (!mounted) return;
+
+    // Listen to state changes
+    final state = cubit.state;
+    if (state.status == OnboardingStatus.success && state.isCompleted) {
+      await context.router.push(const SocialLoginRoute());
     }
   }
 
@@ -80,37 +92,43 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return Scaffold(
-      backgroundColor: AppColorsDark.surface,
-      body: Stack(
-        children: [
-          BackgroundLayer(fadeAnimation: _fadeAnimation),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: SlideTransition(
-              position: _slideAnimation,
-              child: OnboardingContent(
-                titleFirstPart: '${l10n.diveIntoYour}\n',
-                titleHighlightedPart: l10n.vibeat,
-                subtitle: l10n.onboardingSubtitle,
-                buttonText: l10n.startExplore,
-                isButtonLoading: _isCompleting,
-                onButtonPressed: _isCompleting
-                    ? null
-                    : _completeOnboardingAndNavigate,
+    return BlocBuilder<OnboardingCubit, OnboardingState>(
+      builder: (context, state) {
+        final isLoading = state.status == OnboardingStatus.loading;
+
+        return Scaffold(
+          backgroundColor: AppColorsDark.surface,
+          body: Stack(
+            children: [
+              BackgroundLayer(fadeAnimation: _fadeAnimation),
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: SlideTransition(
+                  position: _slideAnimation,
+                  child: OnboardingContent(
+                    titleFirstPart: '${l10n.diveIntoYour}\n',
+                    titleHighlightedPart: l10n.vibeat,
+                    subtitle: l10n.onboardingSubtitle,
+                    buttonText: l10n.startExplore,
+                    isButtonLoading: isLoading,
+                    onButtonPressed: isLoading
+                        ? null
+                        : _completeOnboardingAndNavigate,
+                  ),
+                ),
               ),
-            ),
+              Positioned(
+                top: MediaQuery.of(context).padding.top + 16,
+                right: 16,
+                child: FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: const LanguageSelector(),
+                ),
+              ),
+            ],
           ),
-          Positioned(
-            top: MediaQuery.of(context).padding.top + 16,
-            right: 16,
-            child: FadeTransition(
-              opacity: _fadeAnimation,
-              child: const LanguageSelector(),
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

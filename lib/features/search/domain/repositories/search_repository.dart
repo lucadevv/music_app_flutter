@@ -2,6 +2,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:music_app/core/domain/entities/song.dart';
 import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
+import 'package:music_app/features/home/domain/entities/mood_genre.dart';
 import 'package:music_app/features/search/domain/entities/recent_search.dart';
 
 import '../entities/search_request.dart';
@@ -24,4 +25,7 @@ abstract class SearchRepository {
     required String videoId,
     required Song song,
   });
+
+  /// Obtiene las categorías (moods/géneros)
+  Future<Either<AppException, List<MoodGenre>>> getCategories();
 }

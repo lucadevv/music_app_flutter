@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:music_app/core/utils/extension/sizedbox_extension.dart';
-import 'package:music_app/features/library/library_service.dart';
+import 'package:music_app/features/library/data/models/library_models.dart';
 import 'package:music_app/features/library/presentation/cubit/library_cubit.dart';
 import 'package:music_app/features/library/presentation/widgets/organisms/playlists_section.dart';
 import 'package:music_app/features/library/presentation/widgets/organisms/search_no_results.dart';
@@ -54,6 +54,7 @@ class LibraryFilteredContent extends StatelessWidget {
               playlists: filteredPlaylists,
               totalPlaylists: filteredPlaylists.length,
               showViewAll: false,
+              useSliver: false,
             ),
           if (filteredSongs.isNotEmpty)
             SongsSection(

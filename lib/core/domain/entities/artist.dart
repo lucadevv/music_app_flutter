@@ -133,12 +133,15 @@ class ArtistSong extends Equatable {
   final String? thumbnail;
   final int durationSeconds;
   final int views;
+  final String? streamUrl;
 
   const ArtistSong({
     required this.videoId,
     required this.title,
-    required this.durationSeconds, this.thumbnail,
+    required this.durationSeconds,
+    this.thumbnail,
     this.views = 0,
+    this.streamUrl,
   });
 
   /// Duración formateada
@@ -165,6 +168,7 @@ class ArtistSong extends Equatable {
     thumbnail,
     durationSeconds,
     views,
+    streamUrl,
   ];
 }
 
@@ -180,7 +184,9 @@ class ArtistAlbum extends Equatable {
   const ArtistAlbum({
     required this.id,
     required this.title,
-    required this.year, required this.songCount, this.thumbnail,
+    required this.year,
+    required this.songCount,
+    this.thumbnail,
     this.type,
   });
 

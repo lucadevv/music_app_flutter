@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class SearchButtonAtom extends StatelessWidget {
   final VoidCallback onPressed;
 
-  const SearchButtonAtom({super.key, required this.onPressed});
+  const SearchButtonAtom({required this.onPressed, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +17,7 @@ class SearchButtonAtom extends StatelessWidget {
 class MoreButtonAtom extends StatelessWidget {
   final VoidCallback onPressed;
 
-  const MoreButtonAtom({super.key, required this.onPressed});
+  const MoreButtonAtom({required this.onPressed, super.key});
 
   @override
   Widget build(BuildContext context) {

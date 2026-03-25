@@ -7,9 +7,7 @@ class SettingsItemAtom extends StatelessWidget {
   final VoidCallback? onTap;
 
   const SettingsItemAtom({
-    super.key,
-    required this.icon,
-    required this.title,
+    required this.icon, required this.title, super.key,
     this.trailing,
     this.onTap,
   });

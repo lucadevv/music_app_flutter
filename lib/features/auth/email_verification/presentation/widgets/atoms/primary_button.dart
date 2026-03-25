@@ -8,10 +8,7 @@ class PrimaryButton extends StatelessWidget {
   final String label;
 
   const PrimaryButton({
-    super.key,
-    required this.onPressed,
-    required this.icon,
-    required this.label,
+    required this.onPressed, required this.icon, required this.label, super.key,
   });
 
   @override

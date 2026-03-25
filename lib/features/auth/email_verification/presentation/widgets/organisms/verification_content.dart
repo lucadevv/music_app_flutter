@@ -15,16 +15,9 @@ class VerificationContent extends StatelessWidget {
   final String additionalInfo;
 
   const VerificationContent({
-    super.key,
-    required this.title,
-    required this.description,
+    required this.title, required this.description, required this.onOpenEmail, required this.onLogout, required this.openEmailLabel, required this.logoutLabel, required this.additionalInfo, super.key,
     this.email,
     this.isLoadingEmail = false,
-    required this.onOpenEmail,
-    required this.onLogout,
-    required this.openEmailLabel,
-    required this.logoutLabel,
-    required this.additionalInfo,
   });
 
   @override

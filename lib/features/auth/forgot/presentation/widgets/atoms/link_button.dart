@@ -5,7 +5,7 @@ class LinkButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
 
-  const LinkButton({super.key, required this.label, this.onPressed});
+  const LinkButton({required this.label, super.key, this.onPressed});
 
   @override
   Widget build(BuildContext context) {

@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:music_app/features/library/library_service.dart';
+import 'package:music_app/features/library/data/models/library_models.dart';
 
 /// Estados del UserPlaylistDetailCubit
 enum UserPlaylistDetailStatus { initial, loading, success, failure }

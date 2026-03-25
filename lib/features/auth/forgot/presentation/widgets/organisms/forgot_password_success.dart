@@ -9,11 +9,7 @@ class ForgotPasswordSuccess extends StatelessWidget {
   final VoidCallback onLinkPressed;
 
   const ForgotPasswordSuccess({
-    super.key,
-    required this.buttonLabel,
-    required this.linkLabel,
-    required this.onButtonPressed,
-    required this.onLinkPressed,
+    required this.buttonLabel, required this.linkLabel, required this.onButtonPressed, required this.onLinkPressed, super.key,
   });
 
   @override

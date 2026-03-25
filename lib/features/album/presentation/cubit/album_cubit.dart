@@ -2,18 +2,39 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/bloc/base_bloc_mixin.dart';
 import 'package:music_app/features/album/domain/entities/album.dart';
-import 'package:music_app/features/album/domain/repositories/album_repository.dart';
+import 'package:music_app/features/album/domain/use_cases/get_album_songs_use_case.dart';
+import 'package:music_app/features/album/domain/use_cases/get_album_use_case.dart';
+import 'package:music_app/features/album/domain/use_cases/is_liked_album_use_case.dart';
+import 'package:music_app/features/album/domain/use_cases/like_album_use_case.dart';
+import 'package:music_app/features/album/domain/use_cases/unlike_album_use_case.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 
 part 'album_state.dart';
 
 class AlbumCubit extends Cubit<AlbumState> with BaseBlocMixin {
-  final AlbumRepository _repository;
+  final GetAlbumUseCase _getAlbumUseCase;
+  final GetAlbumSongsUseCase _getAlbumSongsUseCase;
+  final LikeAlbumUseCase _likeAlbumUseCase;
+  final UnlikeAlbumUseCase _unlikeAlbumUseCase;
+  final IsLikedAlbumUseCase _isLikedAlbumUseCase;
   final PlayerBlocBloc _playerBloc;
   String? _currentAlbumId;
 
-  AlbumCubit(this._repository, this._playerBloc) : super(const AlbumState());
+  AlbumCubit({
+    required GetAlbumUseCase getAlbumUseCase,
+    required GetAlbumSongsUseCase getAlbumSongsUseCase,
+    required LikeAlbumUseCase likeAlbumUseCase,
+    required UnlikeAlbumUseCase unlikeAlbumUseCase,
+    required IsLikedAlbumUseCase isLikedAlbumUseCase,
+    required PlayerBlocBloc playerBloc,
+  }) : _getAlbumUseCase = getAlbumUseCase,
+       _getAlbumSongsUseCase = getAlbumSongsUseCase,
+       _likeAlbumUseCase = likeAlbumUseCase,
+       _unlikeAlbumUseCase = unlikeAlbumUseCase,
+       _isLikedAlbumUseCase = isLikedAlbumUseCase,
+       _playerBloc = playerBloc,
+       super(const AlbumState());
 
   Future<void> loadAlbum(String albumId) async {
     if (state.status == AlbumStatus.loading) return;
@@ -24,9 +45,9 @@ class AlbumCubit extends Cubit<AlbumState> with BaseBlocMixin {
     try {
       // Load album details and songs in parallel
       final results = await Future.wait([
-        _repository.getAlbum(albumId),
-        _repository.getAlbumSongs(albumId),
-        _repository.isLiked(albumId),
+        _getAlbumUseCase(albumId),
+        _getAlbumSongsUseCase(albumId),
+        _isLikedAlbumUseCase(albumId),
       ]);
 
       if (isClosed) return;
@@ -53,9 +74,9 @@ class AlbumCubit extends Cubit<AlbumState> with BaseBlocMixin {
 
     try {
       if (state.isLiked) {
-        await _repository.unlikeAlbum(albumId);
+        await _unlikeAlbumUseCase(albumId);
       } else {
-        await _repository.likeAlbum(albumId);
+        await _likeAlbumUseCase(albumId);
       }
 
       if (isClosed) return;
@@ -77,7 +98,10 @@ class AlbumCubit extends Cubit<AlbumState> with BaseBlocMixin {
     return true;
   }
 
-  NowPlayingData? playAllAlbumSongs(List<AlbumSong> songs, {int startIndex = 0}) {
+  NowPlayingData? playAllAlbumSongs(
+    List<AlbumSong> songs, {
+    int startIndex = 0,
+  }) {
     if (songs.isEmpty) return null;
 
     final validSongs = songs

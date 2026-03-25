@@ -8,11 +8,7 @@ class QueueAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback onBack;
 
   const QueueAppBar({
-    super.key,
-    required this.title,
-    required this.clearLabel,
-    required this.onClear,
-    required this.onBack,
+    required this.title, required this.clearLabel, required this.onClear, required this.onBack, super.key,
   });
 
   @override

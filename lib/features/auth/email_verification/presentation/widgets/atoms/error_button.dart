@@ -8,10 +8,7 @@ class ErrorButton extends StatelessWidget {
   final String label;
 
   const ErrorButton({
-    super.key,
-    required this.onPressed,
-    required this.icon,
-    required this.label,
+    required this.onPressed, required this.icon, required this.label, super.key,
   });
 
   @override

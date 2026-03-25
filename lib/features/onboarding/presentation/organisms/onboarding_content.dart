@@ -13,13 +13,7 @@ class OnboardingContent extends StatelessWidget {
   final VoidCallback? onButtonPressed;
 
   const OnboardingContent({
-    super.key,
-    required this.titleFirstPart,
-    required this.titleHighlightedPart,
-    required this.subtitle,
-    required this.buttonText,
-    required this.isButtonLoading,
-    required this.onButtonPressed,
+    required this.titleFirstPart, required this.titleHighlightedPart, required this.subtitle, required this.buttonText, required this.isButtonLoading, required this.onButtonPressed, super.key,
   });
 
   @override

@@ -9,11 +9,6 @@ class GetHistoryUseCase {
   GetHistoryUseCase(this._repository);
 
   Future<Either<AppException, List<Song>>> call({int limit = 50}) async {
-    try {
-      final songs = await _repository.getHistory(limit: limit);
-      return Right(songs);
-    } catch (e) {
-      return Left(UnknownException('Failed to get history: $e'));
-    }
+    return _repository.getHistory(limit: limit);
   }
 }

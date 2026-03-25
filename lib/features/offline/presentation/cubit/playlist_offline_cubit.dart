@@ -2,10 +2,13 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/bloc/base_bloc_mixin.dart';
-import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
 import 'package:music_app/core/data/offline/models/offline_playlist.dart';
 import 'package:music_app/core/data/offline/services/offline_service.dart';
-import 'package:music_app/features/library/library_service.dart';
+import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
+import 'package:music_app/features/library/data/models/library_models.dart';
+import 'package:music_app/features/offline/domain/use_cases/delete_offline_playlist_use_case.dart';
+import 'package:music_app/features/offline/domain/use_cases/get_offline_playlists_use_case.dart';
+import 'package:music_app/features/offline/domain/use_cases/save_offline_playlist_use_case.dart';
 
 part 'playlist_offline_state.dart';
 
@@ -18,11 +21,22 @@ part 'playlist_offline_state.dart';
 /// y usa BaseBlocMixin para el manejo centralizado de errores.
 class PlaylistOfflineCubit extends Cubit<PlaylistOfflineState>
     with BaseBlocMixin {
-  final OfflineService _offlineService;
+  final GetOfflinePlaylistsUseCase _getOfflinePlaylistsUseCase;
+  final SaveOfflinePlaylistUseCase _saveOfflinePlaylistUseCase;
+  final DeleteOfflinePlaylistUseCase _deleteOfflinePlaylistUseCase;
+  final OfflineService _offlineService; // Still needed for getPlaylistById
 
   /// Constructor con inyección de dependencias
-  PlaylistOfflineCubit(this._offlineService)
-    : super(const PlaylistOfflineState());
+  PlaylistOfflineCubit({
+    required GetOfflinePlaylistsUseCase getOfflinePlaylistsUseCase,
+    required SaveOfflinePlaylistUseCase saveOfflinePlaylistUseCase,
+    required DeleteOfflinePlaylistUseCase deleteOfflinePlaylistUseCase,
+    required OfflineService offlineService,
+  }) : _getOfflinePlaylistsUseCase = getOfflinePlaylistsUseCase,
+       _saveOfflinePlaylistUseCase = saveOfflinePlaylistUseCase,
+       _deleteOfflinePlaylistUseCase = deleteOfflinePlaylistUseCase,
+       _offlineService = offlineService,
+       super(const PlaylistOfflineState());
 
   /// Carga todas las playlists offline desde Hive
   ///
@@ -36,7 +50,7 @@ class PlaylistOfflineCubit extends Cubit<PlaylistOfflineState>
     );
 
     try {
-      final playlists = await _offlineService.getOfflinePlaylists();
+      final playlists = await _getOfflinePlaylistsUseCase();
 
       if (isClosed) return;
 
@@ -96,7 +110,7 @@ class PlaylistOfflineCubit extends Cubit<PlaylistOfflineState>
       }
 
       // Guardar en Hive
-      await _offlineService.saveOfflinePlaylist(offlinePlaylist);
+      await _saveOfflinePlaylistUseCase(offlinePlaylist);
 
       if (isClosed) return;
 
@@ -147,7 +161,7 @@ class PlaylistOfflineCubit extends Cubit<PlaylistOfflineState>
     );
 
     try {
-      await _offlineService.deleteOfflinePlaylist(playlistId);
+      await _deleteOfflinePlaylistUseCase(playlistId);
 
       if (isClosed) return;
 
@@ -223,21 +237,21 @@ class PlaylistOfflineCubit extends Cubit<PlaylistOfflineState>
               existingPlaylist!.localThumbnailPath;
         }
 
-        await _offlineService.saveOfflinePlaylist(offlinePlaylist);
+        await _saveOfflinePlaylistUseCase(offlinePlaylist);
       }
 
       // Eliminar playlists que ya no están en favoritos
-      final currentPlaylists = await _offlineService.getOfflinePlaylists();
+      final currentPlaylists = await _getOfflinePlaylistsUseCase();
       for (final cached in currentPlaylists) {
         if (!syncedIds.contains(cached.playlistId)) {
-          await _offlineService.deleteOfflinePlaylist(cached.playlistId);
+          await _deleteOfflinePlaylistUseCase(cached.playlistId);
         }
       }
 
       if (isClosed) return;
 
       // Recargar lista actualizada
-      final updatedPlaylists = await _offlineService.getOfflinePlaylists();
+      final updatedPlaylists = await _getOfflinePlaylistsUseCase();
 
       if (isClosed) return;
 

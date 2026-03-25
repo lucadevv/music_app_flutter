@@ -6,10 +6,7 @@ class OnboardingButton extends StatelessWidget {
   final String text;
 
   const OnboardingButton({
-    super.key,
-    required this.onPressed,
-    required this.isLoading,
-    required this.text,
+    required this.onPressed, required this.isLoading, required this.text, super.key,
   });
 
   @override

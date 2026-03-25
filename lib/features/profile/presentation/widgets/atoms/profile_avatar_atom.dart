@@ -8,9 +8,8 @@ class ProfileAvatarAtom extends StatelessWidget {
   final double size;
 
   const ProfileAvatarAtom({
-    super.key,
+    required this.initials, super.key,
     this.avatarUrl,
-    required this.initials,
     this.size = 56,
   });
 
@@ -25,8 +24,8 @@ class ProfileAvatarAtom extends StatelessWidget {
           child: CachedNetworkImage(
             imageUrl: avatarUrl!,
             fit: BoxFit.cover,
-            placeholder: (_, __) => _buildInitials(),
-            errorWidget: (_, __, ___) => _buildInitials(),
+            placeholder: (context, url) => _buildInitials(),
+            errorWidget: (context, url, error) => _buildInitials(),
           ),
         ),
       );

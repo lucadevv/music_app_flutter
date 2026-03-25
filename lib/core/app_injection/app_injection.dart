@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:music_app/core/app_router/app_routes.dart';
+import 'package:music_app/core/data/offline/services/offline_service.dart';
 import 'package:music_app/core/managers/auth/auth_manager.dart';
 import 'package:music_app/core/managers/auth/auth_manager_impl.dart';
 import 'package:music_app/core/managers/auth/storage/token_manager.dart';
@@ -12,7 +13,6 @@ import 'package:music_app/core/services/local/onboarding_service.dart';
 import 'package:music_app/core/services/local/shared_preferences_service_impl.dart';
 import 'package:music_app/core/services/network/api_services.dart';
 import 'package:music_app/core/services/network/dio_services_impl.dart';
-import 'package:music_app/core/data/offline/services/offline_service.dart';
 import 'package:music_app/features/album/data/repositories/album_repository_impl.dart';
 import 'package:music_app/features/album/domain/repositories/album_repository.dart';
 import 'package:music_app/features/artist/data/repositories/artist_repository_impl.dart';
@@ -36,11 +36,47 @@ import 'package:music_app/features/home/data/data_sources/home_remote_data_sourc
 import 'package:music_app/features/home/data/repositories/home_repository_impl.dart';
 import 'package:music_app/features/home/domain/repositories/home_repository.dart';
 import 'package:music_app/features/home/domain/use_cases/get_home_use_case.dart';
-import 'package:music_app/features/library/library_service.dart';
+import 'package:music_app/features/library/data/datasources/library_remote_data_source.dart';
+import 'package:music_app/features/library/data/repositories/library_repository_impl.dart';
+import 'package:music_app/features/library/domain/repositories/library_repository.dart';
+import 'package:music_app/features/library/domain/use_cases/add_favorite_genre_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/add_favorite_playlist_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/add_favorite_song_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/add_song_to_user_playlist_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/create_user_playlist_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/delete_user_playlist_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/get_favorite_genres_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/get_favorite_genres_with_mapping_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/get_favorite_playlists_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/get_favorite_playlists_with_mapping_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/get_favorite_songs_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/get_favorite_songs_with_mapping_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/get_library_summary_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/get_user_playlist_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/get_user_playlists_use_case.dart'
+    as lib_usecase;
+import 'package:music_app/features/library/domain/use_cases/remove_favorite_genre_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/remove_favorite_playlist_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/remove_favorite_song_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/remove_song_from_user_playlist_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/update_user_playlist_use_case.dart';
+import 'package:music_app/features/liked/data/datasources/liked_data_source.dart';
+import 'package:music_app/features/liked/data/datasources/liked_local_data_source.dart';
+import 'package:music_app/features/liked/data/repositories/liked_repository_impl.dart';
+import 'package:music_app/features/liked/domain/repositories/liked_repository.dart';
+import 'package:music_app/features/liked/domain/use_cases/add_liked_song_use_case.dart';
+import 'package:music_app/features/liked/domain/use_cases/get_liked_songs_use_case.dart';
+import 'package:music_app/features/liked/domain/use_cases/is_song_liked_use_case.dart';
+import 'package:music_app/features/liked/domain/use_cases/remove_liked_song_use_case.dart';
 import 'package:music_app/features/mood_genre/data/data_sources/mood_genre_remote_data_source.dart';
 import 'package:music_app/features/mood_genre/data/repositories/mood_genre_repository_impl.dart';
 import 'package:music_app/features/mood_genre/domain/repositories/mood_genre_repository.dart';
 import 'package:music_app/features/mood_genre/domain/use_cases/get_mood_playlists_use_case.dart';
+import 'package:music_app/features/onboarding/data/datasources/onboarding_data_source.dart';
+import 'package:music_app/features/onboarding/data/repositories/onboarding_repository_impl.dart';
+import 'package:music_app/features/onboarding/domain/repositories/onboarding_repository.dart';
+import 'package:music_app/features/onboarding/domain/use_cases/check_onboarding_completed_use_case.dart';
+import 'package:music_app/features/onboarding/domain/use_cases/complete_onboarding_use_case.dart';
 import 'package:music_app/features/player/data/datasources/radio_remote_data_source.dart';
 import 'package:music_app/features/player/data/repositories/player_repository_impl.dart';
 import 'package:music_app/features/player/data/repositories/radio_repository_impl.dart';
@@ -48,8 +84,8 @@ import 'package:music_app/features/player/domain/repositories/player_repository.
 import 'package:music_app/features/player/domain/repositories/radio_repository.dart';
 import 'package:music_app/features/player/domain/services/history_state_service.dart';
 import 'package:music_app/features/player/domain/usecases/get_history_use_case.dart';
-import 'package:music_app/features/player/domain/usecases/get_similar_songs_use_case.dart';
 import 'package:music_app/features/player/domain/usecases/get_radio_playlist_usecase.dart';
+import 'package:music_app/features/player/domain/usecases/get_similar_songs_use_case.dart';
 import 'package:music_app/features/player/domain/usecases/manage_history_use_case.dart';
 import 'package:music_app/features/playlist/data/data_sources/playlist_remote_data_source.dart';
 import 'package:music_app/features/playlist/data/repositories/playlist_repository_impl.dart';
@@ -75,6 +111,13 @@ import 'package:music_app/features/search/domain/use_cases/get_categories_usecas
 import 'package:music_app/features/search/domain/use_cases/get_recent_searches_use_case.dart';
 import 'package:music_app/features/search/domain/use_cases/search_use_case.dart';
 import 'package:music_app/features/search/domain/use_cases/update_selected_song_use_case.dart';
+import 'package:music_app/features/song_options/domain/use_cases/add_to_playlist_use_case.dart';
+import 'package:music_app/features/song_options/domain/use_cases/create_playlist_use_case.dart';
+import 'package:music_app/features/song_options/domain/use_cases/get_user_playlists_use_case.dart';
+import 'package:music_app/features/user_playlists/data/datasources/user_playlists_data_source.dart';
+import 'package:music_app/features/user_playlists/data/repositories/user_playlists_repository_impl.dart';
+import 'package:music_app/features/user_playlists/domain/repositories/user_playlists_repository.dart';
+import 'package:music_app/features/user_playlists/domain/use_cases/get_all_playlists_use_case.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppInjection {
@@ -172,13 +215,6 @@ class AppInjection {
             OnboardingService(await _getIt.getAsync<SharedPreferences>()),
       );
     }
-
-    // LibraryService - singleton para manejar la biblioteca del usuario
-    if (!_getIt.isRegistered<LibraryService>()) {
-      _getIt.registerLazySingleton<LibraryService>(
-        () => LibraryService(_getIt<ApiServices>()),
-      );
-    }
   }
 
   /// Register all feature dependencies
@@ -189,16 +225,20 @@ class AppInjection {
     _registerPlayerFeature();
     _registerHomeFeature();
     _registerMoodGenreFeature();
+    _registerOnboardingFeature();
     _registerPlaylistFeature();
     // CRITICAL: OfflineFeature must be registered BEFORE DownloadsFeature
     // because DownloadsLocalDataSource depends on OfflineService
     _registerOfflineFeature();
     _registerDownloadsFeature();
     _registerLibraryFeature();
+    _registerLikedFeature();
     _registerArtistFeature();
     _registerAlbumFeature();
     _registerFavoritesFeature();
     _registerRecentlyPlayedFeature();
+    _registerUserPlaylistsFeature();
+    _registerSongOptionsFeature();
     // CRITICAL: This must be awaited - ProfileCubit depends on AuthManager being ready
     await _registerProfileFeature();
   }
@@ -294,7 +334,7 @@ class AppInjection {
 
     if (!_getIt.isRegistered<GetCategoriesUseCase>()) {
       _getIt.registerLazySingleton<GetCategoriesUseCase>(
-        () => GetCategoriesUseCase(_getIt<SearchRemoteDataSource>()),
+        () => GetCategoriesUseCase(_getIt<SearchRepository>()),
       );
     }
 
@@ -421,6 +461,37 @@ class AppInjection {
     // NOTA: MoodGenreCubit se crea ahora vía BlocProvider en MoodGenreScreen.wrappedRoute
   }
 
+  void _registerOnboardingFeature() {
+    // Data Source - depends on OnboardingService (already registered)
+    if (!_getIt.isRegistered<OnboardingDataSource>()) {
+      _getIt.registerLazySingleton<OnboardingDataSource>(
+        () => OnboardingDataSource(_getIt<OnboardingService>()),
+      );
+    }
+
+    // Repository
+    if (!_getIt.isRegistered<OnboardingRepository>()) {
+      _getIt.registerLazySingleton<OnboardingRepository>(
+        () => OnboardingRepositoryImpl(_getIt<OnboardingDataSource>()),
+      );
+    }
+
+    // Use Cases
+    if (!_getIt.isRegistered<CheckOnboardingCompletedUseCase>()) {
+      _getIt.registerLazySingleton<CheckOnboardingCompletedUseCase>(
+        () => CheckOnboardingCompletedUseCase(_getIt<OnboardingRepository>()),
+      );
+    }
+
+    if (!_getIt.isRegistered<CompleteOnboardingUseCase>()) {
+      _getIt.registerLazySingleton<CompleteOnboardingUseCase>(
+        () => CompleteOnboardingUseCase(_getIt<OnboardingRepository>()),
+      );
+    }
+
+    // OnboardingCubit is created via BlocProvider in OnboardingScreen.wrappedRoute
+  }
+
   void _registerPlaylistFeature() {
     // Data Sources
     if (!_getIt.isRegistered<PlaylistRemoteDataSource>()) {
@@ -503,8 +574,199 @@ class AppInjection {
   }
 
   void _registerLibraryFeature() {
+    // Data Source
+    if (!_getIt.isRegistered<LibraryRemoteDataSource>()) {
+      _getIt.registerLazySingleton<LibraryRemoteDataSource>(
+        () => LibraryRemoteDataSource(_getIt<ApiServices>()),
+      );
+    }
+
+    // Repository
+    if (!_getIt.isRegistered<LibraryRepository>()) {
+      _getIt.registerLazySingleton<LibraryRepository>(
+        () => LibraryRepositoryImpl(_getIt<LibraryRemoteDataSource>()),
+      );
+    }
+
+    // Use Cases
+    if (!_getIt.isRegistered<GetLibrarySummaryUseCase>()) {
+      _getIt.registerLazySingleton<GetLibrarySummaryUseCase>(
+        () => GetLibrarySummaryUseCase(_getIt<LibraryRepository>()),
+      );
+    }
+
+    if (!_getIt.isRegistered<GetFavoriteSongsUseCase>()) {
+      _getIt.registerLazySingleton<GetFavoriteSongsUseCase>(
+        () => GetFavoriteSongsUseCase(_getIt<LibraryRepository>()),
+      );
+    }
+
+    if (!_getIt.isRegistered<GetFavoritePlaylistsUseCase>()) {
+      _getIt.registerLazySingleton<GetFavoritePlaylistsUseCase>(
+        () => GetFavoritePlaylistsUseCase(_getIt<LibraryRepository>()),
+      );
+    }
+
+    if (!_getIt.isRegistered<GetFavoriteGenresUseCase>()) {
+      _getIt.registerLazySingleton<GetFavoriteGenresUseCase>(
+        () => GetFavoriteGenresUseCase(_getIt<LibraryRepository>()),
+      );
+    }
+
+    if (!_getIt.isRegistered<lib_usecase.GetUserPlaylistsUseCase>()) {
+      _getIt.registerLazySingleton<lib_usecase.GetUserPlaylistsUseCase>(
+        () => lib_usecase.GetUserPlaylistsUseCase(_getIt<LibraryRepository>()),
+      );
+    }
+
+    if (!_getIt.isRegistered<AddFavoriteSongUseCase>()) {
+      _getIt.registerLazySingleton<AddFavoriteSongUseCase>(
+        () => AddFavoriteSongUseCase(_getIt<LibraryRepository>()),
+      );
+    }
+
+    if (!_getIt.isRegistered<RemoveFavoriteSongUseCase>()) {
+      _getIt.registerLazySingleton<RemoveFavoriteSongUseCase>(
+        () => RemoveFavoriteSongUseCase(_getIt<LibraryRepository>()),
+      );
+    }
+
+    if (!_getIt.isRegistered<CreateUserPlaylistUseCase>()) {
+      _getIt.registerLazySingleton<CreateUserPlaylistUseCase>(
+        () => CreateUserPlaylistUseCase(_getIt<LibraryRepository>()),
+      );
+    }
+
+    if (!_getIt.isRegistered<GetUserPlaylistUseCase>()) {
+      _getIt.registerLazySingleton<GetUserPlaylistUseCase>(
+        () => GetUserPlaylistUseCase(_getIt<LibraryRepository>()),
+      );
+    }
+
+    if (!_getIt.isRegistered<UpdateUserPlaylistUseCase>()) {
+      _getIt.registerLazySingleton<UpdateUserPlaylistUseCase>(
+        () => UpdateUserPlaylistUseCase(_getIt<LibraryRepository>()),
+      );
+    }
+
+    if (!_getIt.isRegistered<DeleteUserPlaylistUseCase>()) {
+      _getIt.registerLazySingleton<DeleteUserPlaylistUseCase>(
+        () => DeleteUserPlaylistUseCase(_getIt<LibraryRepository>()),
+      );
+    }
+
+    if (!_getIt.isRegistered<AddSongToUserPlaylistUseCase>()) {
+      _getIt.registerLazySingleton<AddSongToUserPlaylistUseCase>(
+        () => AddSongToUserPlaylistUseCase(_getIt<LibraryRepository>()),
+      );
+    }
+
+    if (!_getIt.isRegistered<RemoveSongFromUserPlaylistUseCase>()) {
+      _getIt.registerLazySingleton<RemoveSongFromUserPlaylistUseCase>(
+        () => RemoveSongFromUserPlaylistUseCase(_getIt<LibraryRepository>()),
+      );
+    }
+
+    // Use Cases with Mapping (for FavoriteCubit)
+    if (!_getIt.isRegistered<GetFavoriteSongsWithMappingUseCase>()) {
+      _getIt.registerLazySingleton<GetFavoriteSongsWithMappingUseCase>(
+        () => GetFavoriteSongsWithMappingUseCase(_getIt<LibraryRepository>()),
+      );
+    }
+
+    if (!_getIt.isRegistered<GetFavoriteGenresWithMappingUseCase>()) {
+      _getIt.registerLazySingleton<GetFavoriteGenresWithMappingUseCase>(
+        () => GetFavoriteGenresWithMappingUseCase(_getIt<LibraryRepository>()),
+      );
+    }
+
+    if (!_getIt.isRegistered<GetFavoritePlaylistsWithMappingUseCase>()) {
+      _getIt.registerLazySingleton<GetFavoritePlaylistsWithMappingUseCase>(
+        () =>
+            GetFavoritePlaylistsWithMappingUseCase(_getIt<LibraryRepository>()),
+      );
+    }
+
+    // Additional favorite UseCases (for FavoriteCubit)
+    if (!_getIt.isRegistered<AddFavoriteGenreUseCase>()) {
+      _getIt.registerLazySingleton<AddFavoriteGenreUseCase>(
+        () => AddFavoriteGenreUseCase(_getIt<LibraryRepository>()),
+      );
+    }
+
+    if (!_getIt.isRegistered<RemoveFavoriteGenreUseCase>()) {
+      _getIt.registerLazySingleton<RemoveFavoriteGenreUseCase>(
+        () => RemoveFavoriteGenreUseCase(_getIt<LibraryRepository>()),
+      );
+    }
+
+    if (!_getIt.isRegistered<AddFavoritePlaylistUseCase>()) {
+      _getIt.registerLazySingleton<AddFavoritePlaylistUseCase>(
+        () => AddFavoritePlaylistUseCase(_getIt<LibraryRepository>()),
+      );
+    }
+
+    if (!_getIt.isRegistered<RemoveFavoritePlaylistUseCase>()) {
+      _getIt.registerLazySingleton<RemoveFavoritePlaylistUseCase>(
+        () => RemoveFavoritePlaylistUseCase(_getIt<LibraryRepository>()),
+      );
+    }
+
     // NOTA: LibraryCubit se crea ahora vía BlocProvider en LibraryScreen
     // Se elimina el registro de GetIt para mantener consistencia
+  }
+
+  void _registerLikedFeature() {
+    // Data Source
+    if (!_getIt.isRegistered<LikedDataSource>()) {
+      _getIt.registerLazySingleton<LikedDataSource>(
+        () => LikedDataSource(
+          _getIt<LibraryRemoteDataSource>(),
+          _getIt<LikedLocalDataSource>(),
+        ),
+      );
+    }
+
+    // Local Data Source
+    if (!_getIt.isRegistered<LikedLocalDataSource>()) {
+      _getIt.registerLazySingleton<LikedLocalDataSource>(
+        LikedLocalDataSource.new,
+      );
+    }
+
+    // Repository
+    if (!_getIt.isRegistered<LikedRepository>()) {
+      _getIt.registerLazySingleton<LikedRepository>(
+        () => LikedRepositoryImpl(_getIt<LikedDataSource>()),
+      );
+    }
+
+    // Use Cases
+    if (!_getIt.isRegistered<GetLikedSongsUseCase>()) {
+      _getIt.registerLazySingleton<GetLikedSongsUseCase>(
+        () => GetLikedSongsUseCase(_getIt<LikedRepository>()),
+      );
+    }
+
+    if (!_getIt.isRegistered<AddLikedSongUseCase>()) {
+      _getIt.registerLazySingleton<AddLikedSongUseCase>(
+        () => AddLikedSongUseCase(_getIt<LikedRepository>()),
+      );
+    }
+
+    if (!_getIt.isRegistered<RemoveLikedSongUseCase>()) {
+      _getIt.registerLazySingleton<RemoveLikedSongUseCase>(
+        () => RemoveLikedSongUseCase(_getIt<LikedRepository>()),
+      );
+    }
+
+    if (!_getIt.isRegistered<IsSongLikedUseCase>()) {
+      _getIt.registerLazySingleton<IsSongLikedUseCase>(
+        () => IsSongLikedUseCase(_getIt<LikedRepository>()),
+      );
+    }
+
+    // LikedSongsCubit se crea vía BlocProvider en LikedSongsScreen
   }
 
   void _registerArtistFeature() {
@@ -635,5 +897,51 @@ class AppInjection {
 
     // PlaylistOfflineCubit now created directly in app.dart, NO longer registered here
     // HistoryCubit now created directly in app.dart, NO longer registered here
+  }
+
+  void _registerUserPlaylistsFeature() {
+    // Data Source
+    if (!_getIt.isRegistered<UserPlaylistsDataSource>()) {
+      _getIt.registerLazySingleton<UserPlaylistsDataSource>(
+        () => UserPlaylistsDataSource(_getIt<LibraryRemoteDataSource>()),
+      );
+    }
+
+    // Repository
+    if (!_getIt.isRegistered<UserPlaylistsRepository>()) {
+      _getIt.registerLazySingleton<UserPlaylistsRepository>(
+        () => UserPlaylistsRepositoryImpl(_getIt<UserPlaylistsDataSource>()),
+      );
+    }
+
+    // Use Cases
+    if (!_getIt.isRegistered<GetAllPlaylistsUseCase>()) {
+      _getIt.registerLazySingleton<GetAllPlaylistsUseCase>(
+        () => GetAllPlaylistsUseCase(_getIt<UserPlaylistsRepository>()),
+      );
+    }
+  }
+
+  void _registerSongOptionsFeature() {
+    // Use Cases - depend on UserPlaylistsRepository and LibraryRepository
+    if (!_getIt.isRegistered<GetUserPlaylistsUseCase>()) {
+      _getIt.registerLazySingleton<GetUserPlaylistsUseCase>(
+        () => GetUserPlaylistsUseCase(_getIt<UserPlaylistsRepository>()),
+      );
+    }
+
+    if (!_getIt.isRegistered<CreatePlaylistUseCase>()) {
+      _getIt.registerLazySingleton<CreatePlaylistUseCase>(
+        () => CreatePlaylistUseCase(_getIt<UserPlaylistsRepository>()),
+      );
+    }
+
+    // AddToPlaylistUseCase depends on LibraryRepository
+    if (!_getIt.isRegistered<AddToPlaylistUseCase>()) {
+      // Import LibraryRepository dynamically to avoid circular dependencies
+      _getIt.registerLazySingleton<AddToPlaylistUseCase>(
+        () => AddToPlaylistUseCase(_getIt<LibraryRepository>()),
+      );
+    }
   }
 }

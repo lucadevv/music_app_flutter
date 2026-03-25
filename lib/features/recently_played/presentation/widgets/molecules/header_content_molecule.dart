@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:music_app/l10n/app_localizations.dart';
 import 'package:music_app/features/recently_played/presentation/widgets/atoms/header_icon_atom.dart';
+import 'package:music_app/l10n/app_localizations.dart';
 
 class HeaderContentMolecule extends StatelessWidget {
   final int songCount;
 
-  const HeaderContentMolecule({super.key, required this.songCount});
+  const HeaderContentMolecule({required this.songCount, super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -8,7 +8,7 @@ import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/favorites/presentation/cubit/favorite_cubit.dart';
 import 'package:music_app/features/favorites/presentation/widgets/favorite_button.dart';
-import 'package:music_app/features/library/library_service.dart';
+import 'package:music_app/features/library/data/models/library_models.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 import 'package:music_app/features/playlist/domain/entities/playlist_track.dart';
 import 'package:music_app/features/song_options/presentation/widgets/song_options_bottom_sheet.dart';

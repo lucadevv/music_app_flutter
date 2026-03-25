@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/favorites/presentation/widgets/favorite_button.dart';
 import 'package:music_app/features/home/domain/entities/home_content_item.dart';
-import 'package:music_app/features/library/library_service.dart';
+import 'package:music_app/features/library/data/models/library_models.dart';
 import 'package:music_app/features/song_options/presentation/widgets/song_options_bottom_sheet.dart';
 
 /// Widget para mostrar una canción en formato card horizontal

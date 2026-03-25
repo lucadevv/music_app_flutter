@@ -5,7 +5,7 @@ import 'package:music_app/core/theme/app_colors_dark.dart';
 class TitleText extends StatelessWidget {
   final String text;
 
-  const TitleText({super.key, required this.text});
+  const TitleText({required this.text, super.key});
 
   @override
   Widget build(BuildContext context) {

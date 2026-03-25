@@ -9,7 +9,7 @@ class AlbumSongItem extends StatelessWidget {
   final AlbumSong song;
   final VoidCallback? onTap;
 
-  const AlbumSongItem({super.key, required this.song, this.onTap});
+  const AlbumSongItem({required this.song, super.key, this.onTap});
 
   @override
   Widget build(BuildContext context) {

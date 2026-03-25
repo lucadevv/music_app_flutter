@@ -8,8 +8,7 @@ class DownloadsAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? onSettingsPressed;
 
   const DownloadsAppBar({
-    super.key,
-    required this.title,
+    required this.title, super.key,
     this.onSettingsPressed,
   });
 

@@ -5,9 +5,7 @@ class PlaylistSearchBar extends StatelessWidget {
   final ValueChanged<String> onChanged;
 
   const PlaylistSearchBar({
-    super.key,
-    required this.controller,
-    required this.onChanged,
+    required this.controller, required this.onChanged, super.key,
   });
 
   @override

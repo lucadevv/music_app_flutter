@@ -4,7 +4,7 @@ import 'package:music_app/core/domain/mappers/song_mapper.dart';
 import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
 import 'package:music_app/features/favorites/data/datasources/favorites_remote_data_source.dart';
 import 'package:music_app/features/favorites/domain/repositories/favorites_repository.dart';
-import 'package:music_app/features/library/library_service.dart';
+import 'package:music_app/features/library/data/models/library_models.dart';
 
 /// Implementation of FavoritesRepository.
 class FavoritesRepositoryImpl implements FavoritesRepository {

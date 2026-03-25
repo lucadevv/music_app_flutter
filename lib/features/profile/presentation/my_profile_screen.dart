@@ -6,8 +6,8 @@ import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:music_app/l10n/app_localizations.dart';
 
-import 'widgets/molecules/profile_avatar_widget.dart';
 import 'widgets/molecules/profile_app_bar_molecule.dart';
+import 'widgets/molecules/profile_avatar_widget.dart';
 import 'widgets/organisms/profile_error_organism.dart';
 import 'widgets/organisms/profile_info_section_widget.dart';
 import 'widgets/organisms/profile_quick_actions_widget.dart';
@@ -102,8 +102,9 @@ class _MyProfileScreenState extends State<MyProfileScreen>
         ],
       ),
     );
-    if (confirmed == true && mounted)
+    if (confirmed == true && mounted) {
       await context.read<ProfileCubit>().logout();
+    }
   }
 
   Future<void> _refreshAll() async {

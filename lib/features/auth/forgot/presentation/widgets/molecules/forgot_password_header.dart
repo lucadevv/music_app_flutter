@@ -7,10 +7,7 @@ class ForgotPasswordHeader extends StatelessWidget {
   final String description;
 
   const ForgotPasswordHeader({
-    super.key,
-    required this.emailSent,
-    required this.title,
-    required this.description,
+    required this.emailSent, required this.title, required this.description, super.key,
   });
 
   @override
@@ -18,7 +15,7 @@ class ForgotPasswordHeader extends StatelessWidget {
     return Column(
       children: [
         // Icon
-        emailSent ? const SuccessIcon() : const ForgotPasswordIcon(),
+        if (emailSent) const SuccessIcon() else const ForgotPasswordIcon(),
         const SizedBox(height: 32),
 
         // Title

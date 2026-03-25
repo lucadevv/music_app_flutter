@@ -6,10 +6,7 @@ class PlaylistAppBarActions extends StatelessWidget {
   final VoidCallback onMorePressed;
 
   const PlaylistAppBarActions({
-    super.key,
-    required this.showSearch,
-    required this.onSearchPressed,
-    required this.onMorePressed,
+    required this.showSearch, required this.onSearchPressed, required this.onMorePressed, super.key,
   });
 
   @override

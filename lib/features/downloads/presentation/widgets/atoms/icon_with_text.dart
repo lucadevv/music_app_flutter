@@ -11,9 +11,7 @@ class IconWithText extends StatelessWidget {
   final Color? iconColor;
 
   const IconWithText({
-    super.key,
-    required this.icon,
-    required this.title,
+    required this.icon, required this.title, super.key,
     this.subtitle,
     this.iconColor,
   });

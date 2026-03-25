@@ -18,8 +18,8 @@ import 'package:music_app/features/auth/login/presentation/widgets/login_form_wi
 import 'package:music_app/features/auth/login/presentation/widgets/login_listeners.dart';
 import 'package:music_app/features/auth/presentation/cubit/orquestador_auth_cubit.dart';
 import 'package:music_app/features/auth/presentation/widgets/auth_blur_overlay.dart';
-import 'package:music_app/features/auth/presentation/widgets/auth_video_background.dart';
 import 'package:music_app/features/auth/presentation/widgets/auth_divider.dart';
+import 'package:music_app/features/auth/presentation/widgets/auth_video_background.dart';
 import 'package:music_app/features/auth/presentation/widgets/social_auth_buttons.dart';
 import 'package:music_app/main.dart';
 

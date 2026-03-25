@@ -12,11 +12,6 @@ class GetSimilarSongsUseCase {
     String videoId, {
     int limit = 10,
   }) async {
-    try {
-      final songs = await _repository.getSimilarSongs(videoId, limit: limit);
-      return Right(songs);
-    } catch (e) {
-      return Left(UnknownException('Failed to get similar songs: $e'));
-    }
+    return _repository.getSimilarSongs(videoId, limit: limit);
   }
 }

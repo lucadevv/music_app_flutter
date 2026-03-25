@@ -1,8 +1,10 @@
 import 'package:dartz/dartz.dart';
 import 'package:music_app/core/domain/entities/song.dart';
 import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
+import 'package:music_app/features/library/data/models/library_models.dart';
 import 'package:music_app/features/library/domain/entities/library_entities.dart';
-import 'package:music_app/features/library/library_service.dart';
+
+export 'package:music_app/features/library/domain/entities/library_entities.dart';
 
 /// Repository interface for Library feature.
 /// Follows Clean Architecture principles - defines contract without dependencies.
@@ -44,7 +46,8 @@ abstract class LibraryRepository {
   });
 
   /// Add song to user playlist
-  Future<Either<AppException, UserPlaylist>> addSongToUserPlaylist(
+  /// Returns the updated playlist with the new song
+  Future<Either<AppException, UserPlaylistDetail>> addSongToUserPlaylist(
     String playlistId, {
     required String videoId,
     String? title,
@@ -58,4 +61,61 @@ abstract class LibraryRepository {
     String playlistId,
     String songId,
   );
+
+  /// Get user playlists (playlists created by the user)
+  Future<Either<AppException, List<UserPlaylist>>> getUserPlaylists({
+    int page = 1,
+    int limit = 10,
+  });
+
+  /// Add playlist to favorites
+  Future<Either<AppException, void>> addFavoritePlaylist(
+    String externalPlaylistId, {
+    String? name,
+    String? thumbnail,
+    String? description,
+    int? trackCount,
+  });
+
+  /// Remove playlist from favorites
+  Future<Either<AppException, void>> removeFavoritePlaylist(String playlistId);
+
+  /// Add genre to favorites
+  Future<Either<AppException, void>> addFavoriteGenre(
+    String externalParams, {
+    String? name,
+  });
+
+  /// Remove genre from favorites
+  Future<Either<AppException, void>> removeFavoriteGenre(String genreId);
+
+  /// Get favorite songs with mapping (videoId -> songId) for proper removal
+  /// This method is used by FavoriteCubit to maintain the mapping needed
+  Future<Either<AppException, FavoriteSongsWithMapping>>
+  getFavoriteSongsWithMapping({int page = 1, int limit = 10});
+
+  /// Get favorite playlists with external IDs for proper removal
+  Future<Either<AppException, List<FavoritePlaylistEntity>>>
+  getFavoritePlaylistsWithMapping({int page = 1, int limit = 10});
+
+  /// Get favorite genres with external params for proper removal
+  Future<Either<AppException, List<FavoriteGenreEntity>>>
+  getFavoriteGenresWithMapping({int page = 1, int limit = 10});
+
+  /// Get user playlist by ID
+  Future<Either<AppException, UserPlaylistDetail>> getUserPlaylist(
+    String playlistId,
+  );
+
+  /// Update user playlist
+  Future<Either<AppException, UserPlaylistDetail>> updateUserPlaylist(
+    String playlistId, {
+    String? name,
+    String? description,
+    String? thumbnail,
+    bool? isPublic,
+  });
+
+  /// Delete user playlist
+  Future<Either<AppException, void>> deleteUserPlaylist(String playlistId);
 }

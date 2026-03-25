@@ -1,6 +1,8 @@
 // ignore_for_file: deprecated_member_use_from_same_package, avoid_dynamic_calls
+import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:music_app/core/services/network/api_services.dart';
+import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
 import 'package:music_app/features/album/domain/entities/album.dart';
 import 'package:music_app/features/album/domain/repositories/album_repository.dart';
 
@@ -10,26 +12,32 @@ class AlbumRepositoryImpl implements AlbumRepository {
   AlbumRepositoryImpl(this._apiServices);
 
   @override
-  Future<Album> getAlbum(String albumId) async {
+  Future<Either<AppException, Album>> getAlbum(String albumId) async {
     try {
       final response = await _apiServices.get('/albums/$albumId');
       final data = response is Response ? response.data : response;
 
-      return Album(
-        id: data['id'] ?? albumId,
-        title: data['title'] ?? 'Unknown Album',
-        thumbnail: data['thumbnail'],
-        artistName: data['artistName'],
-        artistId: data['artistId'],
-        year: data['year'] ?? 2024,
+      return Right(
+        Album(
+          id: data['id'] ?? albumId,
+          title: data['title'] ?? 'Unknown Album',
+          thumbnail: data['thumbnail'],
+          artistName: data['artistName'],
+          artistId: data['artistId'],
+          year: data['year'] ?? 2024,
+        ),
       );
+    } on DioException catch (e) {
+      return Left(_handleDioError(e));
     } catch (e) {
-      return Album(id: albumId, title: 'Unknown Album');
+      return Left(UnknownException(e.toString()));
     }
   }
 
   @override
-  Future<List<AlbumSong>> getAlbumSongs(String albumId) async {
+  Future<Either<AppException, List<AlbumSong>>> getAlbumSongs(
+    String albumId,
+  ) async {
     try {
       final response = await _apiServices.get(
         '/albums/$albumId/songs',
@@ -38,7 +46,7 @@ class AlbumRepositoryImpl implements AlbumRepository {
       final data = response is Response ? response.data : response;
       final List<dynamic> songs = data['songs'] ?? [];
 
-      return songs
+      final result = songs
           .map(
             (song) => AlbumSong(
               videoId: song['videoId'] ?? '',
@@ -50,29 +58,69 @@ class AlbumRepositoryImpl implements AlbumRepository {
             ),
           )
           .toList();
+      return Right(result);
+    } on DioException catch (e) {
+      return Left(_handleDioError(e));
     } catch (e) {
-      return [];
+      return Left(UnknownException(e.toString()));
     }
   }
 
   @override
-  Future<void> likeAlbum(String albumId) async {
-    await _apiServices.post('/albums/$albumId/like');
+  Future<Either<AppException, void>> likeAlbum(String albumId) async {
+    try {
+      await _apiServices.post('/albums/$albumId/like');
+      return const Right(null);
+    } on DioException catch (e) {
+      return Left(_handleDioError(e));
+    } catch (e) {
+      return Left(UnknownException(e.toString()));
+    }
   }
 
   @override
-  Future<void> unlikeAlbum(String albumId) async {
-    await _apiServices.delete('/albums/$albumId/like');
+  Future<Either<AppException, void>> unlikeAlbum(String albumId) async {
+    try {
+      await _apiServices.delete('/albums/$albumId/like');
+      return const Right(null);
+    } on DioException catch (e) {
+      return Left(_handleDioError(e));
+    } catch (e) {
+      return Left(UnknownException(e.toString()));
+    }
   }
 
   @override
-  Future<bool> isLiked(String albumId) async {
+  Future<Either<AppException, bool>> isLiked(String albumId) async {
     try {
       final response = await _apiServices.get('/albums/$albumId/liked');
       final data = response is Response ? response.data : response;
-      return data['liked'] ?? false;
+      return Right(data['liked'] ?? false);
+    } on DioException catch (e) {
+      return Left(_handleDioError(e));
     } catch (e) {
-      return false;
+      return Left(UnknownException(e.toString()));
+    }
+  }
+
+  AppException _handleDioError(DioException e) {
+    switch (e.type) {
+      case DioExceptionType.connectionTimeout:
+      case DioExceptionType.sendTimeout:
+      case DioExceptionType.receiveTimeout:
+        return NetworkException('Connection timeout');
+      case DioExceptionType.connectionError:
+        return NetworkException('No internet connection');
+      case DioExceptionType.badResponse:
+        final statusCode = e.response?.statusCode;
+        if (statusCode == 401) {
+          return AuthenticationException('Unauthorized');
+        } else if (statusCode == 404) {
+          return ServerException('Album not found', code: 404);
+        }
+        return ServerException('Server error: $statusCode');
+      default:
+        return UnknownException(e.message ?? 'Unknown error');
     }
   }
 }

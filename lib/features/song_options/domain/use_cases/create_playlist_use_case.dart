@@ -1,11 +1,11 @@
 import 'package:dartz/dartz.dart';
 import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
-import 'package:music_app/features/library/domain/repositories/library_repository.dart';
-import 'package:music_app/features/library/library_service.dart';
+import 'package:music_app/features/user_playlists/domain/entities/user_playlist_entity.dart';
+import 'package:music_app/features/user_playlists/domain/repositories/user_playlists_repository.dart';
 
 /// Use case for creating a playlist.
 class CreatePlaylistUseCase {
-  final LibraryRepository _repository;
+  final UserPlaylistsRepository _repository;
 
   CreatePlaylistUseCase(this._repository);
 
@@ -13,23 +13,12 @@ class CreatePlaylistUseCase {
   ///
   /// Parameters:
   ///   - name: The name of the playlist to create
-  ///   - description: Optional description for the playlist
-  ///   - thumbnail: Optional thumbnail URL for the playlist
-  ///   - isPublic: Whether the playlist should be public
   ///
   /// Returns:
-  ///   A Future containing Either<AppException, UserPlaylist> representing the result
-  Future<Either<AppException, UserPlaylist>> call({
+  ///   A Future containing Either of AppException or UserPlaylistEntity representing the result
+  Future<Either<AppException, UserPlaylistEntity>> call({
     required String name,
-    String? description,
-    String? thumbnail,
-    bool isPublic = false,
   }) async {
-    return await _repository.createUserPlaylist(
-      name: name,
-      description: description,
-      thumbnail: thumbnail,
-      isPublic: isPublic,
-    );
+    return _repository.createPlaylist(name);
   }
 }

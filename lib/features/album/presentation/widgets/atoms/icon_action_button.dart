@@ -8,8 +8,7 @@ class IconActionButton extends StatelessWidget {
   final double iconSize;
 
   const IconActionButton({
-    super.key,
-    required this.icon,
+    required this.icon, super.key,
     this.iconColor,
     this.iconSize = 24,
     this.onPressed,

@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
-import 'package:music_app/features/library/library_service.dart';
+import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
+import 'package:music_app/features/library/data/models/library_models.dart';
+import 'package:music_app/features/library/domain/use_cases/add_song_to_user_playlist_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/create_user_playlist_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/get_user_playlists_use_case.dart'
+    as lib_usecase;
 import 'package:music_app/features/song_options/presentation/widgets/atoms/error_widget_atom.dart';
 import 'package:music_app/features/song_options/presentation/widgets/molecules/playlist_tile_molecule.dart';
-import 'package:music_app/l10n/app_localizations.dart';
-import 'package:music_app/main.dart';
 import 'package:music_app/features/song_options/presentation/widgets/song_options_bottom_sheet.dart'
     show SongOptionsData;
+import 'package:music_app/l10n/app_localizations.dart';
+import 'package:music_app/main.dart';
 
 /// Organism: Add to playlist dialog content
 class AddToPlaylistDialogOrganism extends StatefulWidget {
@@ -15,8 +20,7 @@ class AddToPlaylistDialogOrganism extends StatefulWidget {
   final VoidCallback? onPlaylistCreated;
 
   const AddToPlaylistDialogOrganism({
-    super.key,
-    required this.song,
+    required this.song, super.key,
     this.onSongAdded,
     this.onPlaylistCreated,
   });
@@ -28,7 +32,8 @@ class AddToPlaylistDialogOrganism extends StatefulWidget {
 
 class _AddToPlaylistDialogOrganismState
     extends State<AddToPlaylistDialogOrganism> {
-  final _libraryService = getIt<LibraryService>();
+  final _getUserPlaylistsUseCase = getIt<lib_usecase.GetUserPlaylistsUseCase>();
+  final _addSongToPlaylistUseCase = getIt<AddSongToUserPlaylistUseCase>();
   List<UserPlaylist> _playlists = [];
   bool _isLoading = true;
   String? _error;
@@ -41,27 +46,28 @@ class _AddToPlaylistDialogOrganismState
   }
 
   Future<void> _loadPlaylists() async {
-    try {
-      final response = await _libraryService.getUserPlaylists();
-      if (mounted) {
-        setState(() {
-          _playlists = response.data;
-          _error = null;
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _error = _getErrorMessage(e);
-          _isLoading = false;
-        });
-      }
+    final result = await _getUserPlaylistsUseCase(limit: 50);
+    if (mounted) {
+      result.fold(
+        (error) {
+          setState(() {
+            _error = _getErrorMessageFromAppException(error);
+            _isLoading = false;
+          });
+        },
+        (playlists) {
+          setState(() {
+            _playlists = playlists;
+            _error = null;
+            _isLoading = false;
+          });
+        },
+      );
     }
   }
 
-  String _getErrorMessage(dynamic error) {
-    final errorStr = error.toString();
+  String _getErrorMessageFromAppException(AppException error) {
+    final errorStr = error.message;
     if (errorStr.contains('SocketException') ||
         errorStr.contains('Connection')) {
       return 'Sin conexión a internet';
@@ -76,38 +82,44 @@ class _AddToPlaylistDialogOrganismState
     } else if (errorStr.contains('409')) {
       return 'La canción ya está en esta playlist';
     }
-    return 'Error al cargar las playlists';
+    return errorStr.isNotEmpty ? errorStr : 'Error al cargar las playlists';
   }
 
+
+
   Future<void> _addSongToPlaylist(UserPlaylist playlist) async {
-    try {
-      await _libraryService.addSongToUserPlaylist(
-        playlist.id,
-        videoId: widget.song.videoId,
-        title: widget.song.title,
-        artist: widget.song.artist,
-        thumbnail: widget.song.thumbnail,
-        duration: widget.song.durationSeconds,
+    final result = await _addSongToPlaylistUseCase(
+      playlist.id,
+      videoId: widget.song.videoId,
+      title: widget.song.title,
+      artist: widget.song.artist,
+      thumbnail: widget.song.thumbnail,
+      duration: widget.song.durationSeconds,
+    );
+
+    if (mounted) {
+      result.fold(
+        (error) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Error: ${_getErrorMessageFromAppException(error)}',
+              ),
+              backgroundColor: Colors.red,
+            ),
+          );
+        },
+        (_) {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('${widget.song.title} agregada a ${playlist.name}'),
+              backgroundColor: AppColorsDark.primary,
+            ),
+          );
+          widget.onSongAdded?.call();
+        },
       );
-      if (mounted) {
-        Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${widget.song.title} agregada a ${playlist.name}'),
-            backgroundColor: AppColorsDark.primary,
-          ),
-        );
-        widget.onSongAdded?.call();
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: ${_getErrorMessage(e)}'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
     }
   }
 
@@ -323,10 +335,26 @@ class _CreatePlaylistButton extends StatelessWidget {
     );
 
     if (result == true && context.mounted) {
-      final newPlaylist = await getIt<LibraryService>().createUserPlaylist(
+      final createPlaylistUseCase = getIt<CreateUserPlaylistUseCase>();
+      final createResult = await createPlaylistUseCase(
         name: textController.text.trim(),
       );
-      onCreated(newPlaylist);
+
+      createResult.fold(
+        (error) {
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Error al crear playlist: ${error.message}',
+                ),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        },
+        onCreated,
+      );
     }
   }
 }

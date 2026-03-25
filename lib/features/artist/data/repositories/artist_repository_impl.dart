@@ -1,7 +1,9 @@
 // ignore_for_file: deprecated_member_use_from_same_package, avoid_dynamic_calls
+import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
+import 'package:music_app/core/domain/entities/artist.dart';
 import 'package:music_app/core/services/network/api_services.dart';
-import 'package:music_app/features/artist/domain/entities/artist.dart';
+import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
 import 'package:music_app/features/artist/domain/repositories/artist_repository.dart';
 
 class ArtistRepositoryImpl implements ArtistRepository {
@@ -10,25 +12,31 @@ class ArtistRepositoryImpl implements ArtistRepository {
   ArtistRepositoryImpl(this._apiServices);
 
   @override
-  Future<Artist> getArtist(String artistId) async {
+  Future<Either<AppException, Artist>> getArtist(String artistId) async {
     try {
       final response = await _apiServices.get('/artists/$artistId');
       final data = response is Response ? response.data : response;
 
-      return Artist(
-        id: data['id'] ?? artistId,
-        name: data['name'] ?? 'Unknown Artist',
-        thumbnail: data['thumbnail'],
-        monthlyListeners: data['monthlyListeners'],
-        description: data['description'],
+      return Right(
+        Artist(
+          id: data['id'] ?? artistId,
+          name: data['name'] ?? 'Unknown Artist',
+          thumbnail: data['thumbnail'],
+          monthlyListeners: data['monthlyListeners'],
+          description: data['description'],
+        ),
       );
+    } on DioException catch (e) {
+      return Left(_handleDioError(e));
     } catch (e) {
-      return Artist(id: artistId, name: 'Unknown Artist');
+      return Left(UnknownException(e.toString()));
     }
   }
 
   @override
-  Future<List<ArtistSong>> getArtistTopSongs(String artistId) async {
+  Future<Either<AppException, List<ArtistSong>>> getArtistTopSongs(
+    String artistId,
+  ) async {
     try {
       final response = await _apiServices.get(
         '/artists/$artistId/top-songs',
@@ -37,7 +45,7 @@ class ArtistRepositoryImpl implements ArtistRepository {
       final data = response is Response ? response.data : response;
       final List<dynamic> songs = data['songs'] ?? [];
 
-      return songs
+      final result = songs
           .map(
             (song) => ArtistSong(
               videoId: song['videoId'] ?? '',
@@ -49,19 +57,24 @@ class ArtistRepositoryImpl implements ArtistRepository {
             ),
           )
           .toList();
+      return Right(result);
+    } on DioException catch (e) {
+      return Left(_handleDioError(e));
     } catch (e) {
-      return [];
+      return Left(UnknownException(e.toString()));
     }
   }
 
   @override
-  Future<List<ArtistAlbum>> getArtistAlbums(String artistId) async {
+  Future<Either<AppException, List<ArtistAlbum>>> getArtistAlbums(
+    String artistId,
+  ) async {
     try {
       final response = await _apiServices.get('/artists/$artistId/albums');
       final data = response is Response ? response.data : response;
       final List<dynamic> albums = data['albums'] ?? [];
 
-      return albums
+      final result = albums
           .map(
             (album) => ArtistAlbum(
               id: album['id'] ?? '',
@@ -72,29 +85,69 @@ class ArtistRepositoryImpl implements ArtistRepository {
             ),
           )
           .toList();
+      return Right(result);
+    } on DioException catch (e) {
+      return Left(_handleDioError(e));
     } catch (e) {
-      return [];
+      return Left(UnknownException(e.toString()));
     }
   }
 
   @override
-  Future<void> followArtist(String artistId) async {
-    await _apiServices.post('/artists/$artistId/follow');
+  Future<Either<AppException, void>> followArtist(String artistId) async {
+    try {
+      await _apiServices.post('/artists/$artistId/follow');
+      return const Right(null);
+    } on DioException catch (e) {
+      return Left(_handleDioError(e));
+    } catch (e) {
+      return Left(UnknownException(e.toString()));
+    }
   }
 
   @override
-  Future<void> unfollowArtist(String artistId) async {
-    await _apiServices.delete('/artists/$artistId/follow');
+  Future<Either<AppException, void>> unfollowArtist(String artistId) async {
+    try {
+      await _apiServices.delete('/artists/$artistId/follow');
+      return const Right(null);
+    } on DioException catch (e) {
+      return Left(_handleDioError(e));
+    } catch (e) {
+      return Left(UnknownException(e.toString()));
+    }
   }
 
   @override
-  Future<bool> isFollowing(String artistId) async {
+  Future<Either<AppException, bool>> isFollowing(String artistId) async {
     try {
       final response = await _apiServices.get('/artists/$artistId/following');
       final data = response is Response ? response.data : response;
-      return data['following'] ?? false;
+      return Right(data['following'] ?? false);
+    } on DioException catch (e) {
+      return Left(_handleDioError(e));
     } catch (e) {
-      return false;
+      return Left(UnknownException(e.toString()));
+    }
+  }
+
+  AppException _handleDioError(DioException e) {
+    switch (e.type) {
+      case DioExceptionType.connectionTimeout:
+      case DioExceptionType.sendTimeout:
+      case DioExceptionType.receiveTimeout:
+        return NetworkException('Connection timeout');
+      case DioExceptionType.connectionError:
+        return NetworkException('No internet connection');
+      case DioExceptionType.badResponse:
+        final statusCode = e.response?.statusCode;
+        if (statusCode == 401) {
+          return AuthenticationException('Unauthorized');
+        } else if (statusCode == 404) {
+          return ServerException('Artist not found', code: 404);
+        }
+        return ServerException('Server error: $statusCode');
+      default:
+        return UnknownException(e.message ?? 'Unknown error');
     }
   }
 }

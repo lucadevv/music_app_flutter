@@ -10,10 +10,7 @@ class ProfileHeaderMolecule extends StatelessWidget {
   final double avatarSize;
 
   const ProfileHeaderMolecule({
-    super.key,
-    required this.displayName,
-    required this.avatarUrl,
-    required this.initials,
+    required this.displayName, required this.avatarUrl, required this.initials, super.key,
     this.avatarSize = 120,
   });
 

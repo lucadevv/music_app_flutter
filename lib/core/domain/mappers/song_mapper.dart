@@ -1,17 +1,17 @@
 // ignore_for_file: deprecated_member_use_from_same_package
+import 'package:music_app/core/data/offline/models/offline_history.dart' as offline;
+import 'package:music_app/core/data/offline/models/offline_song.dart' as offline;
+import 'package:music_app/core/domain/entities/artist.dart'
+    as artist;
 import 'package:music_app/core/domain/entities/song.dart' as core;
 import 'package:music_app/features/album/domain/entities/album.dart' as album;
-import 'package:music_app/features/artist/domain/entities/artist.dart'
-    as artist;
 import 'package:music_app/features/downloads/domain/entities/downloaded_song.dart';
 import 'package:music_app/features/home/domain/entities/chart_song.dart';
+import 'package:music_app/features/library/data/models/library_models.dart';
 import 'package:music_app/features/library/domain/entities/library_entities.dart';
-import 'package:music_app/features/library/library_service.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 import 'package:music_app/features/playlist/domain/entities/playlist_track.dart';
 import 'package:music_app/features/search/domain/entities/song.dart' as search;
-import 'package:music_app/core/data/offline/models/offline_song.dart' as offline;
-import 'package:music_app/core/data/offline/models/offline_history.dart' as offline;
 
 /// Entidad para canciones reproducidas recientemente (usada en recently_played)
 class RecentSong {
@@ -291,7 +291,7 @@ class SongMapper {
       title: json['title'] as String? ?? '',
       artist: _extractArtistName(json),
       artistNames: _extractArtistNames(json),
-      album: json['album']?['name'] as String?,
+      album: (json['album'] as Map<String, dynamic>?)?['name'] as String?,
       thumbnail: thumbnails.isNotEmpty ? thumbnails.first.url : null,
       highThumbnail: thumbnails.isNotEmpty ? thumbnails.last.url : null,
       thumbnails: thumbnails,

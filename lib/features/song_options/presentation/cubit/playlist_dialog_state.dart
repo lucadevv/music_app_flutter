@@ -13,13 +13,13 @@ class PlaylistDialogLoading extends PlaylistDialogState {}
 
 /// Playlists loaded successfully
 class PlaylistDialogLoaded extends PlaylistDialogState {
-  final List<UserPlaylist> playlists;
+  final List<UserPlaylistEntity> playlists;
   final String searchQuery;
 
   const PlaylistDialogLoaded({required this.playlists, this.searchQuery = ''});
 
   PlaylistDialogLoaded copyWith({
-    List<UserPlaylist>? playlists,
+    List<UserPlaylistEntity>? playlists,
     String? searchQuery,
   }) {
     return PlaylistDialogLoaded(
@@ -41,14 +41,14 @@ class PlaylistDialogSongAdded extends PlaylistDialogState {}
 
 /// Playlist created successfully
 class PlaylistDialogPlaylistCreated extends PlaylistDialogState {
-  final UserPlaylist playlist;
+  final UserPlaylistEntity playlist;
 
   const PlaylistDialogPlaylistCreated(this.playlist);
 }
 
 /// Adding song to playlist in progress
 class PlaylistDialogAddingSong extends PlaylistDialogState {
-  final List<UserPlaylist> playlists;
+  final List<UserPlaylistEntity> playlists;
   final String searchQuery;
 
   const PlaylistDialogAddingSong({
@@ -59,7 +59,7 @@ class PlaylistDialogAddingSong extends PlaylistDialogState {
 
 /// Creating playlist in progress
 class PlaylistDialogCreatingPlaylist extends PlaylistDialogState {
-  final List<UserPlaylist> playlists;
+  final List<UserPlaylistEntity> playlists;
   final String searchQuery;
 
   const PlaylistDialogCreatingPlaylist({

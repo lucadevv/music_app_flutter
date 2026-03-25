@@ -1,21 +1,29 @@
 // ignore_for_file: deprecated_member_use_from_same_package
-import 'package:music_app/features/artist/domain/entities/artist.dart';
+import 'package:dartz/dartz.dart';
+import 'package:music_app/core/domain/entities/artist.dart';
+import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
 
 /// Repository contract for artist data
 abstract class ArtistRepository {
   /// Get artist details by ID
-  Future<Artist> getArtist(String artistId);
+  Future<Either<AppException, Artist>> getArtist(String artistId);
 
   /// Get artist's top songs
-  Future<List<ArtistSong>> getArtistTopSongs(String artistId);
+  Future<Either<AppException, List<ArtistSong>>> getArtistTopSongs(
+    String artistId,
+  );
 
   /// Get artist's albums
-  Future<List<ArtistAlbum>> getArtistAlbums(String artistId);
+  Future<Either<AppException, List<ArtistAlbum>>> getArtistAlbums(
+    String artistId,
+  );
 
-  /// Follow/unfollow an artist
-  Future<void> followArtist(String artistId);
-  Future<void> unfollowArtist(String artistId);
+  /// Follow an artist
+  Future<Either<AppException, void>> followArtist(String artistId);
+
+  /// Unfollow an artist
+  Future<Either<AppException, void>> unfollowArtist(String artistId);
 
   /// Check if user follows an artist
-  Future<bool> isFollowing(String artistId);
+  Future<Either<AppException, bool>> isFollowing(String artistId);
 }

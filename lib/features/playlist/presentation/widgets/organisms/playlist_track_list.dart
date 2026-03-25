@@ -10,10 +10,7 @@ class PlaylistTrackList extends StatelessWidget {
   final String playlistId;
 
   const PlaylistTrackList({
-    super.key,
-    required this.tracks,
-    required this.searchQuery,
-    required this.playlistId,
+    required this.tracks, required this.searchQuery, required this.playlistId, super.key,
   });
 
   @override

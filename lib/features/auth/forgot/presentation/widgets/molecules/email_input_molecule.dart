@@ -6,8 +6,7 @@ class EmailInputMolecule extends StatelessWidget {
   final String? Function(String?)? validator;
 
   const EmailInputMolecule({
-    super.key,
-    required this.controller,
+    required this.controller, super.key,
     this.validator,
   });
 

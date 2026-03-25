@@ -12,11 +12,7 @@ class PlaylistSliverAppBar extends StatelessWidget {
   final VoidCallback onMorePressed;
 
   const PlaylistSliverAppBar({
-    super.key,
-    required this.playlist,
-    required this.showSearch,
-    required this.onSearchPressed,
-    required this.onMorePressed,
+    required this.playlist, required this.showSearch, required this.onSearchPressed, required this.onMorePressed, super.key,
   });
 
   @override

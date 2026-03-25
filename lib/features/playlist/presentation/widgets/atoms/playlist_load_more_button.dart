@@ -6,10 +6,8 @@ class PlaylistLoadMoreButton extends StatelessWidget {
   final VoidCallback onPressed;
 
   const PlaylistLoadMoreButton({
-    super.key,
-    required this.currentCount,
+    required this.currentCount, required this.onPressed, super.key,
     this.totalCount,
-    required this.onPressed,
   });
 
   @override

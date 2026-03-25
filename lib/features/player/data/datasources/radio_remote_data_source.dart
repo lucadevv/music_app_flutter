@@ -1,10 +1,14 @@
 import 'package:dio/dio.dart';
 import 'package:music_app/core/services/network/api_services.dart';
+import '../models/radio_track_model.dart';
 
 /// Data source para obtener playlists de radio (canciones similares)
 abstract class RadioRemoteDataSource {
   /// Obtiene canciones similares/radio para un videoId
-  Future<List<Map<String, dynamic>>> getRadioPlaylist(String videoId, {int limit = 10});
+  Future<List<RadioTrackModel>> getRadioPlaylist(
+    String videoId, {
+    int limit = 10,
+  });
 }
 
 class RadioRemoteDataSourceImpl implements RadioRemoteDataSource {
@@ -13,7 +17,10 @@ class RadioRemoteDataSourceImpl implements RadioRemoteDataSource {
   RadioRemoteDataSourceImpl(this._apiServices);
 
   @override
-  Future<List<Map<String, dynamic>>> getRadioPlaylist(String videoId, {int limit = 10}) async {
+  Future<List<RadioTrackModel>> getRadioPlaylist(
+    String videoId, {
+    int limit = 10,
+  }) async {
     try {
       final response = await _apiServices.get(
         '/music/watch/',
@@ -24,11 +31,18 @@ class RadioRemoteDataSourceImpl implements RadioRemoteDataSource {
           'include_stream_urls': true,
         },
       );
-      
+
       final data = response is Response ? response.data : response;
       if (data is Map<String, dynamic>) {
         final tracks = data['tracks'] as List<dynamic>?;
-        return tracks?.cast<Map<String, dynamic>>() ?? [];
+        if (tracks == null) return [];
+
+        return tracks
+            .map(
+              (track) =>
+                  RadioTrackModel.fromJson(track as Map<String, dynamic>),
+            )
+            .toList();
       }
       return [];
     } on DioException catch (e) {

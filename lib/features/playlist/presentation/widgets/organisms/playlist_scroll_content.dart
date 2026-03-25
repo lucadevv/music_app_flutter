@@ -20,17 +20,7 @@ class PlaylistScrollContent extends StatelessWidget {
   final Function(BuildContext, dynamic) onShowMenu;
 
   const PlaylistScrollContent({
-    super.key,
-    required this.playlist,
-    required this.playlistState,
-    required this.scrollController,
-    required this.searchController,
-    required this.showSearch,
-    required this.onToggleSearch,
-    required this.onSearchChanged,
-    required this.onLoadMore,
-    required this.onRefresh,
-    required this.onShowMenu,
+    required this.playlist, required this.playlistState, required this.scrollController, required this.searchController, required this.showSearch, required this.onToggleSearch, required this.onSearchChanged, required this.onLoadMore, required this.onRefresh, required this.onShowMenu, super.key,
   });
 
   @override
@@ -56,7 +46,7 @@ class PlaylistScrollContent extends StatelessWidget {
                 onChanged: (_) => onSearchChanged(),
               ),
             ),
-          PlaylistActionsWidget(playlist: playlist),
+          SliverToBoxAdapter(child: PlaylistActionsWidget(playlist: playlist)),
           PlaylistTrackList(
             tracks: playlistState.filteredResponseTracks,
             searchQuery: searchController.text,

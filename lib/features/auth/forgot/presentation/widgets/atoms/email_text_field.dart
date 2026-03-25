@@ -6,7 +6,7 @@ class EmailTextField extends StatelessWidget {
   final TextEditingController controller;
   final String? Function(String?)? validator;
 
-  const EmailTextField({super.key, required this.controller, this.validator});
+  const EmailTextField({required this.controller, super.key, this.validator});
 
   @override
   Widget build(BuildContext context) {

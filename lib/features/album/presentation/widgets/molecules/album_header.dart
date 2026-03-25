@@ -1,3 +1,4 @@
+// ignore_for_file: deprecated_member_use_from_same_package
 import 'package:flutter/material.dart';
 import 'package:music_app/features/album/domain/entities/album.dart';
 import 'package:music_app/features/album/presentation/widgets/atoms/atoms.dart';
@@ -6,7 +7,7 @@ import 'package:music_app/features/album/presentation/widgets/atoms/atoms.dart';
 class AlbumHeader extends StatelessWidget {
   final Album album;
 
-  const AlbumHeader({super.key, required this.album});
+  const AlbumHeader({required this.album, super.key});
 
   @override
   Widget build(BuildContext context) {

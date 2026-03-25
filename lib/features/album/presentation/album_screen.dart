@@ -7,6 +7,11 @@ import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/album/domain/entities/album.dart';
 import 'package:music_app/features/album/domain/repositories/album_repository.dart';
+import 'package:music_app/features/album/domain/use_cases/get_album_songs_use_case.dart';
+import 'package:music_app/features/album/domain/use_cases/get_album_use_case.dart';
+import 'package:music_app/features/album/domain/use_cases/is_liked_album_use_case.dart';
+import 'package:music_app/features/album/domain/use_cases/like_album_use_case.dart';
+import 'package:music_app/features/album/domain/use_cases/unlike_album_use_case.dart';
 import 'package:music_app/features/album/presentation/cubit/album_cubit.dart';
 import 'package:music_app/features/album/presentation/widgets/molecules/molecules.dart';
 import 'package:music_app/features/album/presentation/widgets/organisms/organisms.dart';
@@ -20,10 +25,16 @@ class AlbumScreen extends StatelessWidget implements AutoRouteWrapper {
 
   @override
   Widget wrappedRoute(BuildContext context) {
+    final albumRepository = GetIt.I<AlbumRepository>();
     return BlocProvider(
-      create: (_) =>
-          AlbumCubit(GetIt.I<AlbumRepository>(), context.read<PlayerBlocBloc>())
-            ..loadAlbum(albumId),
+      create: (_) => AlbumCubit(
+        getAlbumUseCase: GetAlbumUseCase(albumRepository),
+        getAlbumSongsUseCase: GetAlbumSongsUseCase(albumRepository),
+        likeAlbumUseCase: LikeAlbumUseCase(albumRepository),
+        unlikeAlbumUseCase: UnlikeAlbumUseCase(albumRepository),
+        isLikedAlbumUseCase: IsLikedAlbumUseCase(albumRepository),
+        playerBloc: context.read<PlayerBlocBloc>(),
+      )..loadAlbum(albumId),
       child: this,
     );
   }

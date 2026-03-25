@@ -79,8 +79,12 @@ void main() {
     final repo = MockPlayerRepository();
     final historyUseCase = MockManageHistoryUseCase();
 
-    when(() => repo.getLocalAudioPath(any())).thenAnswer((_) async => null);
-    when(() => repo.recordListen(any())).thenAnswer((_) async {});
+    when(
+      () => repo.getLocalAudioPath(any()),
+    ).thenAnswer((_) async => const Right(null));
+    when(
+      () => repo.recordListen(any()),
+    ).thenAnswer((_) async => const Right(null));
     when(
       () => historyUseCase.startNewEntry(any()),
     ).thenAnswer((_) async => const Right('test_id'));
@@ -88,7 +92,7 @@ void main() {
       () => historyUseCase.updatePlayedDuration(any()),
     ).thenAnswer((_) async => const Right(null));
     when(
-      () => historyUseCase.finalizeCurrent(),
+      historyUseCase.finalizeCurrent,
     ).thenAnswer((_) async => const Right(null));
 
     final bloc = PlayerBlocBloc(

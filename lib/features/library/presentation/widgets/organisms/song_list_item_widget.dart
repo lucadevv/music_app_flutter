@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:music_app/core/domain/entities/song.dart';
 import 'package:music_app/core/presentation/widgets/song_list_item.dart';
-import 'package:music_app/features/library/library_service.dart';
+import 'package:music_app/features/library/data/models/library_models.dart';
 
 /// Widget para mostrar una canción en formato lista.
 /// Acepta FavoriteSong que es el tipo usado en library.

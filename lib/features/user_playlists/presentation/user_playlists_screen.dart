@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
-import 'package:music_app/features/library/library_service.dart';
+import 'package:music_app/features/library/domain/repositories/library_repository.dart';
+import 'package:music_app/features/library/domain/use_cases/create_user_playlist_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/get_favorite_playlists_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/get_user_playlists_use_case.dart';
 import 'package:music_app/features/user_playlists/presentation/cubit/user_playlists_cubit.dart';
 import 'package:music_app/features/user_playlists/presentation/cubit/user_playlists_state.dart';
 import 'package:music_app/features/user_playlists/presentation/widgets/atoms/playlist_card_atom.dart';
@@ -18,10 +21,15 @@ class UserPlaylistsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final libraryRepository = GetIt.I<LibraryRepository>();
     return BlocProvider(
-      create: (context) =>
-          UserPlaylistsCubit(libraryService: GetIt.I<LibraryService>())
-            ..loadAllPlaylists(),
+      create: (context) => UserPlaylistsCubit(
+        getUserPlaylistsUseCase: GetUserPlaylistsUseCase(libraryRepository),
+        getFavoritePlaylistsUseCase: GetFavoritePlaylistsUseCase(
+          libraryRepository,
+        ),
+        createUserPlaylistUseCase: CreateUserPlaylistUseCase(libraryRepository),
+      )..loadAllPlaylists(),
       child: const _UserPlaylistsView(),
     );
   }

@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/bloc/base_bloc_mixin.dart';
-import 'package:music_app/core/managers/auth/auth_manager.dart';
 import 'package:music_app/core/data/offline/services/offline_service.dart';
+import 'package:music_app/core/managers/auth/auth_manager.dart';
 import 'package:music_app/features/favorites/presentation/cubit/favorite_cubit.dart';
 import 'package:music_app/features/profile/domain/entities/entities.dart';
 import 'package:music_app/features/profile/domain/use_cases/use_cases.dart';

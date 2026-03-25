@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:music_app/features/favorites/presentation/widgets/favorite_button.dart';
-import 'package:music_app/features/library/library_service.dart';
+import 'package:music_app/features/library/data/models/library_models.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 import '../organisms/player_shimmer_widgets.dart';
 

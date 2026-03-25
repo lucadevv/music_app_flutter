@@ -3,18 +3,26 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/core/data/offline/services/offline_service.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
-import 'package:music_app/features/library/library_service.dart';
+import 'package:music_app/features/library/data/models/library_models.dart';
+import 'package:music_app/features/library/domain/use_cases/add_favorite_song_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/create_user_playlist_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/get_favorite_genres_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/get_favorite_playlists_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/get_favorite_songs_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/get_library_summary_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/get_user_playlists_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/remove_favorite_song_use_case.dart';
 import 'package:music_app/features/library/presentation/cubit/library_cubit.dart';
-import 'package:music_app/features/library/presentation/widgets/templates/library_empty_state.dart';
 import 'package:music_app/features/library/presentation/widgets/molecules/library_error_view.dart';
-import 'package:music_app/features/library/presentation/widgets/organisms/library_header.dart';
-import 'package:music_app/features/library/presentation/widgets/organisms/quick_access_section.dart';
-import 'package:music_app/features/library/presentation/widgets/organisms/library_loading_view.dart';
 import 'package:music_app/features/library/presentation/widgets/organisms/create_playlist_dialog.dart';
 import 'package:music_app/features/library/presentation/widgets/organisms/library_filtered_content.dart';
+import 'package:music_app/features/library/presentation/widgets/organisms/library_header.dart';
+import 'package:music_app/features/library/presentation/widgets/organisms/library_loading_view.dart';
+import 'package:music_app/features/library/presentation/widgets/organisms/quick_access_section.dart';
+import 'package:music_app/features/library/presentation/widgets/templates/library_empty_state.dart';
 import 'package:music_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:music_app/features/song_options/presentation/widgets/song_options_bottom_sheet.dart';
 import 'package:music_app/l10n/app_localizations.dart';
@@ -26,7 +34,7 @@ class LibraryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // ProfileCubit es singleton proveído en app.dart
-    // LibraryCubit se crea aquí con LibraryService como dependencia
+    // LibraryCubit se crea aquí con UseCases como dependencias
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final profileCubit = context.read<ProfileCubit>();
       if (!profileCubit.state.isLoading && profileCubit.state.profile == null) {
@@ -37,9 +45,16 @@ class LibraryScreen extends StatelessWidget {
       providers: [
         BlocProvider(
           create: (ctx) => LibraryCubit(
-            GetIt.I<LibraryService>(),
-            GetIt.I<OfflineService>(),
-            ctx.read<PlayerBlocBloc>(),
+            getLibrarySummaryUseCase: GetIt.I<GetLibrarySummaryUseCase>(),
+            getFavoriteSongsUseCase: GetIt.I<GetFavoriteSongsUseCase>(),
+            getFavoritePlaylistsUseCase: GetIt.I<GetFavoritePlaylistsUseCase>(),
+            getFavoriteGenresUseCase: GetIt.I<GetFavoriteGenresUseCase>(),
+            getUserPlaylistsUseCase: GetIt.I<GetUserPlaylistsUseCase>(),
+            addFavoriteSongUseCase: GetIt.I<AddFavoriteSongUseCase>(),
+            removeFavoriteSongUseCase: GetIt.I<RemoveFavoriteSongUseCase>(),
+            createUserPlaylistUseCase: GetIt.I<CreateUserPlaylistUseCase>(),
+            offlineService: GetIt.I<OfflineService>(),
+            playerBloc: ctx.read<PlayerBlocBloc>(),
           )..loadLibrary(),
         ),
       ],
@@ -164,7 +179,7 @@ class _LibraryViewState extends State<_LibraryView> {
         title: song.title,
         artist: song.artist,
         thumbnail: song.thumbnail,
-        durationSeconds: song.duration,
+        durationSeconds: song.duration ?? 0,
         isFavorite: true,
       ),
     );

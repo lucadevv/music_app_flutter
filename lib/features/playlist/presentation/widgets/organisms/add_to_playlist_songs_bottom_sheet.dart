@@ -6,7 +6,7 @@ import 'package:music_app/features/song_options/presentation/widgets/song_option
 class AddToPlaylistSongsBottomSheet extends StatelessWidget {
   final List<PlaylistTrack> tracks;
 
-  const AddToPlaylistSongsBottomSheet({super.key, required this.tracks});
+  const AddToPlaylistSongsBottomSheet({required this.tracks, super.key});
 
   static void show({
     required BuildContext context,
@@ -30,9 +30,9 @@ class AddToPlaylistSongsBottomSheet extends StatelessWidget {
         top: 16,
         bottom: MediaQuery.of(context).padding.bottom + 16,
       ),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: AppColorsDark.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,

@@ -1,16 +1,14 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:music_app/core/domain/entities/artist.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
-import 'package:music_app/features/artist/domain/entities/artist.dart';
 
 class ArtistAlbumCardMolecule extends StatelessWidget {
   final ArtistAlbum album;
   final VoidCallback onTap;
 
   const ArtistAlbumCardMolecule({
-    super.key,
-    required this.album,
-    required this.onTap,
+    required this.album, required this.onTap, super.key,
   });
 
   @override
@@ -44,7 +42,7 @@ class ArtistAlbumCardMolecule extends StatelessWidget {
             ? CachedNetworkImage(
                 imageUrl: album.thumbnail!,
                 fit: BoxFit.cover,
-                errorWidget: (_, __, ___) => _buildDefaultIcon(),
+                errorWidget: (context, url, error) => _buildDefaultIcon(),
               )
             : _buildDefaultIcon(),
       ),

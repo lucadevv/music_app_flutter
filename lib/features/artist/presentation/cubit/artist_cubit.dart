@@ -1,19 +1,44 @@
 // ignore_for_file: deprecated_member_use_from_same_package
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/bloc/base_bloc_mixin.dart';
-import 'package:music_app/features/artist/domain/entities/artist.dart';
-import 'package:music_app/features/artist/domain/repositories/artist_repository.dart';
+import 'package:music_app/core/domain/entities/artist.dart';
+import 'package:music_app/features/artist/domain/use_cases/follow_artist_use_case.dart';
+import 'package:music_app/features/artist/domain/use_cases/get_artist_albums_use_case.dart';
+import 'package:music_app/features/artist/domain/use_cases/get_artist_top_songs_use_case.dart';
+import 'package:music_app/features/artist/domain/use_cases/get_artist_use_case.dart';
+import 'package:music_app/features/artist/domain/use_cases/is_following_artist_use_case.dart';
+import 'package:music_app/features/artist/domain/use_cases/unfollow_artist_use_case.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 
 part 'artist_state.dart';
 
 class ArtistCubit extends Cubit<ArtistState> with BaseBlocMixin {
-  final ArtistRepository _repository;
+  final GetArtistUseCase _getArtistUseCase;
+  final GetArtistTopSongsUseCase _getArtistTopSongsUseCase;
+  final GetArtistAlbumsUseCase _getArtistAlbumsUseCase;
+  final FollowArtistUseCase _followArtistUseCase;
+  final UnfollowArtistUseCase _unfollowArtistUseCase;
+  final IsFollowingArtistUseCase _isFollowingArtistUseCase;
   final PlayerBlocBloc _playerBloc;
   String? _currentArtistId;
 
-  ArtistCubit(this._repository, this._playerBloc) : super(const ArtistState());
+  ArtistCubit({
+    required GetArtistUseCase getArtistUseCase,
+    required GetArtistTopSongsUseCase getArtistTopSongsUseCase,
+    required GetArtistAlbumsUseCase getArtistAlbumsUseCase,
+    required FollowArtistUseCase followArtistUseCase,
+    required UnfollowArtistUseCase unfollowArtistUseCase,
+    required IsFollowingArtistUseCase isFollowingArtistUseCase,
+    required PlayerBlocBloc playerBloc,
+  }) : _getArtistUseCase = getArtistUseCase,
+       _getArtistTopSongsUseCase = getArtistTopSongsUseCase,
+       _getArtistAlbumsUseCase = getArtistAlbumsUseCase,
+       _followArtistUseCase = followArtistUseCase,
+       _unfollowArtistUseCase = unfollowArtistUseCase,
+       _isFollowingArtistUseCase = isFollowingArtistUseCase,
+       _playerBloc = playerBloc,
+       super(const ArtistState());
 
   Future<void> loadArtist(String artistId) async {
     if (state.status == ArtistStatus.loading) return;
@@ -24,10 +49,10 @@ class ArtistCubit extends Cubit<ArtistState> with BaseBlocMixin {
     try {
       // Load artist details, top songs, and albums in parallel
       final results = await Future.wait([
-        _repository.getArtist(artistId),
-        _repository.getArtistTopSongs(artistId),
-        _repository.getArtistAlbums(artistId),
-        _repository.isFollowing(artistId),
+        _getArtistUseCase(artistId),
+        _getArtistTopSongsUseCase(artistId),
+        _getArtistAlbumsUseCase(artistId),
+        _isFollowingArtistUseCase(artistId),
       ]);
 
       if (isClosed) return;
@@ -58,9 +83,9 @@ class ArtistCubit extends Cubit<ArtistState> with BaseBlocMixin {
 
     try {
       if (state.isFollowing) {
-        await _repository.unfollowArtist(artistId);
+        await _unfollowArtistUseCase(artistId);
       } else {
-        await _repository.followArtist(artistId);
+        await _followArtistUseCase(artistId);
       }
 
       if (isClosed) return;
@@ -82,7 +107,10 @@ class ArtistCubit extends Cubit<ArtistState> with BaseBlocMixin {
     return true;
   }
 
-  NowPlayingData? playAllTopSongs(List<ArtistSong> songs, {int startIndex = 0}) {
+  NowPlayingData? playAllTopSongs(
+    List<ArtistSong> songs, {
+    int startIndex = 0,
+  }) {
     if (songs.isEmpty) return null;
 
     final validSongs = songs

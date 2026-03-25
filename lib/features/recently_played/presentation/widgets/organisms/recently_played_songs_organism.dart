@@ -10,9 +10,7 @@ class RecentlyPlayedSongsOrganism extends StatelessWidget {
   final NowPlayingData Function(RecentlyPlayedSong) onPlaySong;
 
   const RecentlyPlayedSongsOrganism({
-    super.key,
-    required this.songs,
-    required this.onPlaySong,
+    required this.songs, required this.onPlaySong, super.key,
   });
 
   @override

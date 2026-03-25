@@ -8,7 +8,7 @@ import 'package:music_app/features/recently_played/presentation/widgets/molecule
 class RecentlyPlayedHeaderOrganism extends StatelessWidget {
   final int songCount;
 
-  const RecentlyPlayedHeaderOrganism({super.key, required this.songCount});
+  const RecentlyPlayedHeaderOrganism({required this.songCount, super.key});
 
   @override
   Widget build(BuildContext context) {

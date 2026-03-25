@@ -3,8 +3,8 @@ import 'package:get_it/get_it.dart';
 import 'package:music_app/app.dart';
 import 'package:music_app/core/app_injection/app_injection.dart';
 import 'package:music_app/core/config/app_config.dart';
-import 'package:music_app/core/services/audio_initialization_service.dart';
 import 'package:music_app/core/data/offline/services/offline_service.dart';
+import 'package:music_app/core/services/audio_initialization_service.dart';
 
 final GetIt getIt = GetIt.instance;
 

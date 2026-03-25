@@ -12,8 +12,7 @@ class AlbumActionButtons extends StatelessWidget {
   final VoidCallback? onShufflePressed;
 
   const AlbumActionButtons({
-    super.key,
-    required this.isLiked,
+    required this.isLiked, super.key,
     this.onDownloadPressed,
     this.onLikePressed,
     this.onPlayPressed,

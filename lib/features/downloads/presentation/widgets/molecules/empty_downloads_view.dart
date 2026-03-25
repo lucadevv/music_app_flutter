@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:music_app/l10n/app_localizations.dart';
 import 'package:music_app/features/downloads/presentation/widgets/atoms/icon_with_text.dart';
+import 'package:music_app/l10n/app_localizations.dart';
 
 /// Molécula: EmptyDownloadsView
 ///

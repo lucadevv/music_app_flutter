@@ -15,15 +15,7 @@ class ForgotPasswordContent extends StatelessWidget {
   final VoidCallback onSendPressed;
 
   const ForgotPasswordContent({
-    super.key,
-    required this.emailSent,
-    required this.title,
-    required this.description,
-    required this.sendButtonLabel,
-    required this.backToLoginLabel,
-    required this.formKey,
-    required this.emailController,
-    required this.onSendPressed,
+    required this.emailSent, required this.title, required this.description, required this.sendButtonLabel, required this.backToLoginLabel, required this.formKey, required this.emailController, required this.onSendPressed, super.key,
   });
 
   @override

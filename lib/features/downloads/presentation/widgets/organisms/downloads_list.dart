@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:flutter/material.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/features/downloads/domain/entities/downloaded_song.dart';
-import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 import 'package:music_app/features/downloads/presentation/widgets/downloaded_song_item_widget.dart';
+import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 
 /// Organismo: DownloadsList
 ///
@@ -16,12 +16,7 @@ class DownloadsList extends StatelessWidget {
   final void Function(DownloadedSong) onSongDelete;
 
   const DownloadsList({
-    super.key,
-    required this.downloadedSongs,
-    required this.downloadingIds,
-    required this.downloadProgress,
-    required this.onSongTap,
-    required this.onSongDelete,
+    required this.downloadedSongs, required this.downloadingIds, required this.downloadProgress, required this.onSongTap, required this.onSongDelete, super.key,
   });
 
   @override
@@ -56,12 +51,7 @@ class DownloadsListWithNavigation extends StatelessWidget {
   final void Function(DownloadedSong) onDelete;
 
   const DownloadsListWithNavigation({
-    super.key,
-    required this.downloadedSongs,
-    required this.downloadingIds,
-    required this.downloadProgress,
-    required this.playDownloadedSong,
-    required this.onDelete,
+    required this.downloadedSongs, required this.downloadingIds, required this.downloadProgress, required this.playDownloadedSong, required this.onDelete, super.key,
   });
 
   @override

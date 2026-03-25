@@ -4,7 +4,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/bloc/base_bloc_mixin.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
-import 'package:music_app/features/library/library_service.dart';
+import 'package:music_app/features/library/domain/use_cases/add_song_to_user_playlist_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/delete_user_playlist_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/get_user_playlist_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/remove_song_from_user_playlist_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/update_user_playlist_use_case.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 import 'package:music_app/features/user_playlists/presentation/cubit/user_playlist_detail_state.dart';
 
@@ -18,16 +22,29 @@ import 'package:music_app/features/user_playlists/presentation/cubit/user_playli
 /// - Eliminar canción de playlist
 class UserPlaylistDetailCubit extends Cubit<UserPlaylistDetailState>
     with BaseBlocMixin {
-  final LibraryService _libraryService;
+  final GetUserPlaylistUseCase _getUserPlaylistUseCase;
+  final UpdateUserPlaylistUseCase _updateUserPlaylistUseCase;
+  final DeleteUserPlaylistUseCase _deleteUserPlaylistUseCase;
+  final AddSongToUserPlaylistUseCase _addSongToUserPlaylistUseCase;
+  final RemoveSongFromUserPlaylistUseCase _removeSongFromUserPlaylistUseCase;
   final PlayerBlocBloc _playerBloc;
 
   bool _isLoadingPlayback = false;
   StreamSubscription? _playbackStartedSubscription;
 
   UserPlaylistDetailCubit({
-    required LibraryService libraryService,
+    required GetUserPlaylistUseCase getUserPlaylistUseCase,
+    required UpdateUserPlaylistUseCase updateUserPlaylistUseCase,
+    required DeleteUserPlaylistUseCase deleteUserPlaylistUseCase,
+    required AddSongToUserPlaylistUseCase addSongToUserPlaylistUseCase,
+    required RemoveSongFromUserPlaylistUseCase
+    removeSongFromUserPlaylistUseCase,
     required PlayerBlocBloc playerBloc,
-  }) : _libraryService = libraryService,
+  }) : _getUserPlaylistUseCase = getUserPlaylistUseCase,
+       _updateUserPlaylistUseCase = updateUserPlaylistUseCase,
+       _deleteUserPlaylistUseCase = deleteUserPlaylistUseCase,
+       _addSongToUserPlaylistUseCase = addSongToUserPlaylistUseCase,
+       _removeSongFromUserPlaylistUseCase = removeSongFromUserPlaylistUseCase,
        _playerBloc = playerBloc,
        super(const UserPlaylistDetailState()) {
     _listenToPlaybackStarted();
@@ -50,11 +67,20 @@ class UserPlaylistDetailCubit extends Cubit<UserPlaylistDetailState>
     emit(state.copyWith(status: UserPlaylistDetailStatus.loading));
 
     try {
-      final response = await _libraryService.getUserPlaylist(playlistId);
-      emit(
-        state.copyWith(
-          status: UserPlaylistDetailStatus.success,
-          playlist: response,
+      final result = await _getUserPlaylistUseCase(playlistId);
+
+      result.fold(
+        (error) => emit(
+          state.copyWith(
+            status: UserPlaylistDetailStatus.failure,
+            errorMessage: error.message,
+          ),
+        ),
+        (playlist) => emit(
+          state.copyWith(
+            status: UserPlaylistDetailStatus.success,
+            playlist: playlist,
+          ),
         ),
       );
     } catch (e) {
@@ -186,7 +212,13 @@ class UserPlaylistDetailCubit extends Cubit<UserPlaylistDetailState>
   /// Actualiza el nombre de la playlist
   Future<void> updatePlaylist(String playlistId, String name) async {
     try {
-      await _libraryService.updateUserPlaylist(playlistId, name: name);
+      final result = await _updateUserPlaylistUseCase(playlistId, name: name);
+
+      result.fold(
+        (error) => emit(state.copyWith(errorMessage: error.message)),
+        (playlist) => emit(state.copyWith(playlist: playlist)),
+      );
+
       await loadPlaylist(playlistId);
     } catch (e) {
       emit(state.copyWith(errorMessage: e.toString()));
@@ -196,7 +228,12 @@ class UserPlaylistDetailCubit extends Cubit<UserPlaylistDetailState>
   /// Elimina la playlist
   Future<void> deletePlaylist(String playlistId) async {
     try {
-      await _libraryService.deleteUserPlaylist(playlistId);
+      final result = await _deleteUserPlaylistUseCase(playlistId);
+
+      result.fold(
+        (error) => emit(state.copyWith(errorMessage: error.message)),
+        (_) => null, // Success - the caller should handle navigation
+      );
     } catch (e) {
       emit(state.copyWith(errorMessage: e.toString()));
     }
@@ -205,8 +242,15 @@ class UserPlaylistDetailCubit extends Cubit<UserPlaylistDetailState>
   /// Elimina una canción de la playlist
   Future<void> removeSong(String playlistId, String songId) async {
     try {
-      await _libraryService.removeSongFromUserPlaylist(playlistId, songId);
-      await loadPlaylist(playlistId);
+      final result = await _removeSongFromUserPlaylistUseCase(
+        playlistId,
+        songId,
+      );
+
+      result.fold(
+        (error) => emit(state.copyWith(errorMessage: error.message)),
+        (_) => loadPlaylist(playlistId),
+      );
     } catch (e) {
       emit(state.copyWith(errorMessage: e.toString()));
     }
@@ -222,7 +266,7 @@ class UserPlaylistDetailCubit extends Cubit<UserPlaylistDetailState>
     int? duration,
   }) async {
     try {
-      await _libraryService.addSongToUserPlaylist(
+      final result = await _addSongToUserPlaylistUseCase(
         playlistId,
         videoId: videoId,
         title: title,
@@ -230,8 +274,17 @@ class UserPlaylistDetailCubit extends Cubit<UserPlaylistDetailState>
         thumbnail: thumbnail,
         duration: duration,
       );
-      await loadPlaylist(playlistId);
-      return true;
+
+      return result.fold(
+        (error) {
+          emit(state.copyWith(errorMessage: error.message));
+          return false;
+        },
+        (playlist) {
+          emit(state.copyWith(playlist: playlist));
+          return true;
+        },
+      );
     } catch (e) {
       emit(state.copyWith(errorMessage: e.toString()));
       return false;

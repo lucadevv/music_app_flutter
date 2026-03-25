@@ -8,10 +8,7 @@ class OptionTileAtom extends StatelessWidget {
   final Color? iconColor;
 
   const OptionTileAtom({
-    super.key,
-    required this.icon,
-    required this.label,
-    required this.onTap,
+    required this.icon, required this.label, required this.onTap, super.key,
     this.iconColor,
   });
 

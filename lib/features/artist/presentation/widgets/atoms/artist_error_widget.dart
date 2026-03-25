@@ -6,9 +6,7 @@ class ArtistErrorWidget extends StatelessWidget {
   final VoidCallback onRetry;
 
   const ArtistErrorWidget({
-    super.key,
-    required this.errorMessage,
-    required this.onRetry,
+    required this.errorMessage, required this.onRetry, super.key,
   });
 
   @override

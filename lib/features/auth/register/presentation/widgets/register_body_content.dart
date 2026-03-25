@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:music_app/core/utils/extension/sizedbox_extension.dart';
+import 'package:music_app/features/auth/register/presentation/notifiers/register_form_notifier.dart';
 import 'package:music_app/features/auth/register/presentation/widgets/login_link.dart';
 import 'package:music_app/features/auth/register/presentation/widgets/register_button.dart';
 import 'package:music_app/features/auth/register/presentation/widgets/register_form_fields.dart';
 import 'package:music_app/features/auth/register/presentation/widgets/register_header.dart';
 import 'package:music_app/features/auth/register/presentation/widgets/social_buttons.dart';
-import 'package:music_app/features/auth/register/presentation/notifiers/register_form_notifier.dart';
 
 class RegisterBodyContent extends StatelessWidget {
   final GlobalKey<FormState> formKey;
@@ -20,17 +20,7 @@ class RegisterBodyContent extends StatelessWidget {
   final VoidCallback onRegister;
 
   const RegisterBodyContent({
-    super.key,
-    required this.formKey,
-    required this.firstNameController,
-    required this.lastNameController,
-    required this.emailController,
-    required this.passwordController,
-    required this.confirmPasswordController,
-    required this.obscurePassword,
-    required this.obscureConfirmPassword,
-    required this.formNotifier,
-    required this.onRegister,
+    required this.formKey, required this.firstNameController, required this.lastNameController, required this.emailController, required this.passwordController, required this.confirmPasswordController, required this.obscurePassword, required this.obscureConfirmPassword, required this.formNotifier, required this.onRegister, super.key,
   });
 
   @override

@@ -7,7 +7,7 @@ class SongItemMolecule extends StatelessWidget {
   final RecentlyPlayedSong song;
   final VoidCallback onTap;
 
-  const SongItemMolecule({super.key, required this.song, required this.onTap});
+  const SongItemMolecule({required this.song, required this.onTap, super.key});
 
   @override
   Widget build(BuildContext context) {

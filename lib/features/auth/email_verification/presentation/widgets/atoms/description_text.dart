@@ -8,8 +8,7 @@ class DescriptionText extends StatelessWidget {
   final Color color;
 
   const DescriptionText({
-    super.key,
-    required this.text,
+    required this.text, super.key,
     this.fontSize = 16,
     this.color = AppColorsDark.onSurfaceVariant,
   });

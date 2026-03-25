@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
-import 'package:music_app/features/library/library_service.dart';
+import 'package:music_app/features/library/data/datasources/library_remote_data_source.dart';
 import 'package:music_app/features/player/domain/entities/lyric_line.dart';
 import 'package:music_app/main.dart';
 
@@ -72,8 +72,8 @@ class _LyricsWidgetState extends State<LyricsWidget> {
     });
 
     try {
-      final libraryService = getIt<LibraryService>();
-      final response = await libraryService.getLyrics(widget.videoId);
+      final remoteDataSource = getIt<LibraryRemoteDataSource>();
+      final response = await remoteDataSource.getLyrics(widget.videoId);
 
       if (mounted) {
         // Parsear lyrics
@@ -108,7 +108,7 @@ class _LyricsWidgetState extends State<LyricsWidget> {
       buildWhen: (previous, current) {
         // Solo reconstruir cuando cambie la posición
         return previous.position != current.position;
-              return true;
+        return true;
       },
       builder: (context, playerState) {
         // Calcular índice de línea actual
@@ -125,7 +125,7 @@ class _LyricsWidgetState extends State<LyricsWidget> {
             _scrollToCurrentLine();
           });
         }
-      
+
         return _buildContent();
       },
     );

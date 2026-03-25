@@ -4,7 +4,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
-import 'package:music_app/features/library/library_service.dart';
+import 'package:music_app/features/library/domain/use_cases/add_song_to_user_playlist_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/delete_user_playlist_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/get_user_playlist_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/remove_song_from_user_playlist_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/update_user_playlist_use_case.dart';
 import 'package:music_app/features/user_playlists/presentation/cubit/user_playlist_detail_cubit.dart';
 import 'package:music_app/features/user_playlists/presentation/cubit/user_playlist_detail_state.dart';
 import 'package:music_app/features/user_playlists/presentation/widgets/molecules/delete_playlist_dialog_molecule.dart';
@@ -30,7 +34,12 @@ class UserPlaylistDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => UserPlaylistDetailCubit(
-        libraryService: GetIt.I<LibraryService>(),
+        getUserPlaylistUseCase: GetIt.I<GetUserPlaylistUseCase>(),
+        updateUserPlaylistUseCase: GetIt.I<UpdateUserPlaylistUseCase>(),
+        deleteUserPlaylistUseCase: GetIt.I<DeleteUserPlaylistUseCase>(),
+        addSongToUserPlaylistUseCase: GetIt.I<AddSongToUserPlaylistUseCase>(),
+        removeSongFromUserPlaylistUseCase:
+            GetIt.I<RemoveSongFromUserPlaylistUseCase>(),
         playerBloc: context.read<PlayerBlocBloc>(),
       )..loadPlaylist(playlistId),
       child: _UserPlaylistDetailView(playlistId: playlistId),

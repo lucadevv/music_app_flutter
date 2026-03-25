@@ -53,10 +53,10 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
   StreamSubscription? _currentIndexSubscription;
 
   PlayerBlocBloc({
-    AudioPlayerHandler? playerHandler,
-    PlayerEngine? engine,
     required PlayerRepository repository,
     required ManageHistoryUseCase manageHistoryUseCase,
+    AudioPlayerHandler? playerHandler,
+    PlayerEngine? engine,
   }) : _playerHandler = playerHandler,
        _engineOverride = engine,
        _repository = repository,
@@ -215,8 +215,9 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
   ) async {
     if (_isLoadingTrack &&
         _lastLoadedVideoId == track.videoId &&
-        _lastLoadedSourceId == sourceId)
+        _lastLoadedSourceId == sourceId) {
       return;
+    }
 
     _isLoadingTrack = true;
     _lastLoadedVideoId = track.videoId;
@@ -224,12 +225,22 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
 
     try {
       String? streamUrl = track.streamUrl;
-      final localPath = await _repository.getLocalAudioPath(track.videoId);
-      if (localPath != null && localPath.isNotEmpty) {
-        streamUrl = 'file://$localPath';
-      }
+      final localPathResult = await _repository.getLocalAudioPath(
+        track.videoId,
+      );
+      localPathResult.fold(
+        (exception) {
+          // Error getting local path, emit(state.copyWith(isLoading: false, error: exception.message));
+          return;
+        },
+        (localPath) {
+          if (localPath != null && localPath.isNotEmpty) {
+            streamUrl = 'file://$localPath';
+          }
+        },
+      );
 
-      if (streamUrl == null || streamUrl.isEmpty) {
+      if (streamUrl == null || streamUrl!.isEmpty) {
         emit(state.copyWith(isLoading: false, error: 'No se pudo obtener URL'));
         return;
       }
@@ -247,7 +258,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
 
       final audioConfig = AudioSourceConfig(
         id: track.videoId,
-        url: streamUrl,
+        url: streamUrl!,
         title: track.title,
         artist: track.artistsNames,
         duration: Duration(seconds: track.durationSeconds),

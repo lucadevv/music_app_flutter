@@ -9,11 +9,7 @@ class ActionButtons extends StatelessWidget {
   final String logoutLabel;
 
   const ActionButtons({
-    super.key,
-    required this.onOpenEmail,
-    required this.onLogout,
-    required this.openEmailLabel,
-    required this.logoutLabel,
+    required this.onOpenEmail, required this.onLogout, required this.openEmailLabel, required this.logoutLabel, super.key,
   });
 
   @override

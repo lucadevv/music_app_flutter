@@ -8,8 +8,7 @@ class AlbumInfoText extends StatelessWidget {
   final double subtitleFontSize;
 
   const AlbumInfoText({
-    super.key,
-    required this.title,
+    required this.title, super.key,
     this.titleFontSize = 24,
     this.subtitle,
     this.subtitleFontSize = 14,

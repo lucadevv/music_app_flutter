@@ -9,10 +9,7 @@ class ActionButtonsMolecule extends StatelessWidget {
   final VoidCallback? onLinkPressed;
 
   const ActionButtonsMolecule({
-    super.key,
-    required this.showSendButton,
-    required this.sendButtonLabel,
-    required this.linkButtonLabel,
+    required this.showSendButton, required this.sendButtonLabel, required this.linkButtonLabel, super.key,
     this.onSendPressed,
     this.onLinkPressed,
   });

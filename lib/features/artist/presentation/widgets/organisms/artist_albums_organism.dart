@@ -1,7 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
-import 'package:music_app/features/artist/domain/entities/artist.dart';
+import 'package:music_app/core/domain/entities/artist.dart';
 import 'package:music_app/features/artist/presentation/widgets/molecules/artist_album_card_molecule.dart';
 
 class ArtistAlbumsOrganism extends StatelessWidget {
@@ -9,9 +9,7 @@ class ArtistAlbumsOrganism extends StatelessWidget {
   final StackRouter router;
 
   const ArtistAlbumsOrganism({
-    super.key,
-    required this.albums,
-    required this.router,
+    required this.albums, required this.router, super.key,
   });
 
   @override

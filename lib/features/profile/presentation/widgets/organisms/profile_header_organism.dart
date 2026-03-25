@@ -10,10 +10,7 @@ class ProfileHeaderOrganism extends StatelessWidget {
   final String? avatarUrl;
 
   const ProfileHeaderOrganism({
-    super.key,
-    required this.displayName,
-    required this.email,
-    required this.initials,
+    required this.displayName, required this.email, required this.initials, super.key,
     this.avatarUrl,
   });
 

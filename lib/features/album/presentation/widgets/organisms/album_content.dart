@@ -1,3 +1,4 @@
+// ignore_for_file: deprecated_member_use_from_same_package
 import 'package:flutter/material.dart';
 import 'package:music_app/features/album/domain/entities/album.dart';
 import 'package:music_app/features/album/presentation/cubit/album_cubit.dart';
@@ -12,9 +13,7 @@ class AlbumContent extends StatelessWidget {
   final VoidCallback? onLikePressed;
 
   const AlbumContent({
-    super.key,
-    required this.album,
-    required this.state,
+    required this.album, required this.state, super.key,
     this.onSongTap,
     this.onPlayAllPressed,
     this.onLikePressed,

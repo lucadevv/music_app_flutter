@@ -4,7 +4,7 @@ import 'package:music_app/core/theme/app_colors_dark.dart';
 class ForgotPasswordDescription extends StatelessWidget {
   final String description;
 
-  const ForgotPasswordDescription({super.key, required this.description});
+  const ForgotPasswordDescription({required this.description, super.key});
 
   @override
   Widget build(BuildContext context) {

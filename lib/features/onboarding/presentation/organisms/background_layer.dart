@@ -4,7 +4,7 @@ import 'image_grid.dart';
 class BackgroundLayer extends StatelessWidget {
   final Animation<double> fadeAnimation;
 
-  const BackgroundLayer({super.key, required this.fadeAnimation});
+  const BackgroundLayer({required this.fadeAnimation, super.key});
 
   @override
   Widget build(BuildContext context) {

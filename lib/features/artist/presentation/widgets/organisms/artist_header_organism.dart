@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:music_app/features/artist/domain/entities/artist.dart';
+import 'package:music_app/core/domain/entities/artist.dart';
 import 'package:music_app/features/artist/presentation/cubit/artist_cubit.dart';
 import 'package:music_app/features/artist/presentation/widgets/atoms/artist_backdrop_widget.dart';
 import 'package:music_app/features/artist/presentation/widgets/molecules/artist_action_buttons.dart';
@@ -10,10 +10,7 @@ class ArtistHeaderOrganism extends StatelessWidget {
   final VoidCallback onBackPressed;
 
   const ArtistHeaderOrganism({
-    super.key,
-    required this.artist,
-    required this.state,
-    required this.onBackPressed,
+    required this.artist, required this.state, required this.onBackPressed, super.key,
   });
 
   @override
@@ -105,12 +102,7 @@ class ArtistContentWithActions extends StatelessWidget {
   final List<Widget> children;
 
   const ArtistContentWithActions({
-    super.key,
-    required this.artist,
-    required this.state,
-    required this.onPlayPressed,
-    required this.onFollowPressed,
-    required this.children,
+    required this.artist, required this.state, required this.onPlayPressed, required this.onFollowPressed, required this.children, super.key,
   });
 
   @override

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:music_app/core/presentation/widgets/song_list_item.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
-import 'package:music_app/features/library/library_service.dart';
+import 'package:music_app/features/library/data/models/library_models.dart';
 
 class LikedSongsList extends StatelessWidget {
   final List<FavoriteSong> songs;

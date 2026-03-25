@@ -10,12 +10,7 @@ class PlaylistLoadingMoreSection extends StatelessWidget {
   final VoidCallback onLoadMore;
 
   const PlaylistLoadingMoreSection({
-    super.key,
-    required this.status,
-    required this.hasMore,
-    required this.loadedCount,
-    required this.totalCount,
-    required this.onLoadMore,
+    required this.status, required this.hasMore, required this.loadedCount, required this.totalCount, required this.onLoadMore, super.key,
   });
 
   @override

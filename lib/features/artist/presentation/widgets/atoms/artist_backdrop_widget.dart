@@ -5,7 +5,7 @@ import 'package:music_app/core/theme/app_colors_dark.dart';
 class ArtistBackdropWidget extends StatelessWidget {
   final String? thumbnail;
 
-  const ArtistBackdropWidget({super.key, required this.thumbnail});
+  const ArtistBackdropWidget({required this.thumbnail, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +21,7 @@ class ArtistBackdropWidget extends StatelessWidget {
           ? CachedNetworkImage(
               imageUrl: thumbnail!,
               fit: BoxFit.cover,
-              errorWidget: (_, __, ___) => _buildDefaultImage(),
+              errorWidget: (context, url, error) => _buildDefaultImage(),
             )
           : _buildDefaultImage(),
     );

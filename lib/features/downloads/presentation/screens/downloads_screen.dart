@@ -1,13 +1,13 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:music_app/features/downloads/presentation/cubit/downloads_cubit.dart';
 import 'package:music_app/features/downloads/domain/entities/downloaded_song.dart';
+import 'package:music_app/features/downloads/presentation/cubit/downloads_cubit.dart';
+import 'package:music_app/features/downloads/presentation/widgets/molecules/downloads_loading_view.dart';
 import 'package:music_app/features/downloads/presentation/widgets/molecules/empty_downloads_view.dart';
 import 'package:music_app/features/downloads/presentation/widgets/molecules/error_downloads_view.dart';
-import 'package:music_app/features/downloads/presentation/widgets/molecules/downloads_loading_view.dart';
-import 'package:music_app/features/downloads/presentation/widgets/organisms/downloads_app_bar.dart';
 import 'package:music_app/features/downloads/presentation/widgets/organisms/active_downloads_section.dart';
+import 'package:music_app/features/downloads/presentation/widgets/organisms/downloads_app_bar.dart';
 import 'package:music_app/features/downloads/presentation/widgets/organisms/downloads_list.dart';
 import 'package:music_app/l10n/app_localizations.dart';
 

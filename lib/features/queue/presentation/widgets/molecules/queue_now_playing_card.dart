@@ -11,10 +11,7 @@ class QueueNowPlayingCard extends StatelessWidget {
   final String nowPlayingLabel;
 
   const QueueNowPlayingCard({
-    super.key,
-    required this.track,
-    required this.isPlaying,
-    required this.nowPlayingLabel,
+    required this.track, required this.isPlaying, required this.nowPlayingLabel, super.key,
   });
 
   @override

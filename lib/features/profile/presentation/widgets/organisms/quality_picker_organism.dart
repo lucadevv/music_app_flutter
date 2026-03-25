@@ -1,3 +1,4 @@
+// ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
@@ -8,9 +9,7 @@ class QualityPickerOrganism extends StatelessWidget {
   final String currentQuality;
 
   const QualityPickerOrganism({
-    super.key,
-    required this.type,
-    required this.currentQuality,
+    required this.type, required this.currentQuality, super.key,
   });
 
   static const List<String> _qualities = ['low', 'medium', 'high', 'hd', 'uhd'];

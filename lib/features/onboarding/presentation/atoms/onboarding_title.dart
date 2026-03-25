@@ -6,9 +6,7 @@ class OnboardingTitle extends StatelessWidget {
   final String highlightedPart;
 
   const OnboardingTitle({
-    super.key,
-    required this.firstPart,
-    required this.highlightedPart,
+    required this.firstPart, required this.highlightedPart, super.key,
   });
 
   @override

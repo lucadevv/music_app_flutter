@@ -19,7 +19,7 @@ class AddToPlaylistUseCase {
   ///   - duration: Optional duration in seconds of the song
   ///
   /// Returns:
-  ///   A Future containing Either<AppException, void> representing the result
+  ///   A Future containing Either of AppException or void representing the result
   Future<Either<AppException, void>> call({
     required String playlistId,
     required String videoId,

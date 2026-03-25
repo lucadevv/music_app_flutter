@@ -5,9 +5,7 @@ class SettingsSectionMolecule extends StatelessWidget {
   final List<Widget> items;
 
   const SettingsSectionMolecule({
-    super.key,
-    required this.title,
-    required this.items,
+    required this.title, required this.items, super.key,
   });
 
   @override

@@ -6,9 +6,7 @@ class QueueItemTrailing extends StatelessWidget {
   final VoidCallback onRemove;
 
   const QueueItemTrailing({
-    super.key,
-    required this.duration,
-    required this.onRemove,
+    required this.duration, required this.onRemove, super.key,
   });
 
   @override

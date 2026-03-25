@@ -2,6 +2,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:music_app/core/domain/entities/song.dart';
 import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
+import 'package:music_app/features/home/domain/entities/mood_genre.dart';
 import 'package:music_app/features/search/domain/entities/recent_search.dart';
 
 import '../../domain/entities/search_request.dart';
@@ -40,5 +41,10 @@ class SearchRepositoryImpl implements SearchRepository {
       videoId: videoId,
       song: song,
     );
+  }
+
+  @override
+  Future<Either<AppException, List<MoodGenre>>> getCategories() async {
+    return _remoteDataSource.getCategories();
   }
 }

@@ -1,0 +1,39 @@
+Analyzing music_app_flutter...                                  
+
+   info • Sort directive sections alphabetically • lib/core/domain/mappers/song_mapper.dart:6:1 • directives_ordering
+   info • Method invocation or property access on a 'dynamic' target • lib/core/domain/mappers/song_mapper.dart:294:14 • avoid_dynamic_calls
+   info • 'Album' is deprecated and shouldn't be used. Usar Album desde core/domain/entities/album.dart • lib/features/album/domain/use_cases/get_album_use_case.dart:9:10 • deprecated_member_use_from_same_package
+   info • 'Album' is deprecated and shouldn't be used. Usar Album desde core/domain/entities/album.dart • lib/features/album/presentation/widgets/molecules/album_header.dart:7:9 • deprecated_member_use_from_same_package
+   info • 'Album' is deprecated and shouldn't be used. Usar Album desde core/domain/entities/album.dart • lib/features/album/presentation/widgets/organisms/album_app_bar.dart:9:9 • deprecated_member_use_from_same_package
+   info • 'Album' is deprecated and shouldn't be used. Usar Album desde core/domain/entities/album.dart • lib/features/album/presentation/widgets/organisms/album_content.dart:8:9 • deprecated_member_use_from_same_package
+   info • Sort directive sections alphabetically • lib/features/artist/data/repositories/artist_repository_impl.dart:4:1 • directives_ordering
+   info • Sort directive sections alphabetically • lib/features/artist/presentation/artist_screen.dart:8:1 • directives_ordering
+   info • Unnecessary use of multiple underscores • lib/features/artist/presentation/widgets/atoms/artist_backdrop_widget.dart:24:32 • unnecessary_underscores
+   info • Unnecessary use of multiple underscores • lib/features/artist/presentation/widgets/atoms/artist_backdrop_widget.dart:24:36 • unnecessary_underscores
+   info • Sort directive sections alphabetically • lib/features/artist/presentation/widgets/molecules/artist_action_buttons.dart:3:1 • directives_ordering
+   info • Sort directive sections alphabetically • lib/features/artist/presentation/widgets/molecules/artist_album_card_molecule.dart:4:1 • directives_ordering
+   info • Unnecessary use of multiple underscores • lib/features/artist/presentation/widgets/molecules/artist_album_card_molecule.dart:45:34 • unnecessary_underscores
+   info • Unnecessary use of multiple underscores • lib/features/artist/presentation/widgets/molecules/artist_album_card_molecule.dart:45:38 • unnecessary_underscores
+   info • Sort directive sections alphabetically • lib/features/artist/presentation/widgets/molecules/artist_song_item_molecule.dart:3:1 • directives_ordering
+   info • Method invocation or property access on a 'dynamic' target • lib/features/library/data/models/library_models.dart:198:19 • avoid_dynamic_calls
+warning • Dead code • lib/features/library/presentation/cubit/library_cubit.dart:286:45 • dead_code
+warning • The left operand can't be null, so the right operand is never executed • lib/features/library/presentation/cubit/library_cubit.dart:286:48 • dead_null_aware_expression
+   info • 'ConcatenatingAudioSource' is deprecated and shouldn't be used. Use AudioPlayer.setAudioSources instead • lib/features/player/infrastructure/just_audio_player_engine.dart:66:27 • deprecated_member_use
+   info • 'ConcatenatingAudioSource' is deprecated and shouldn't be used. Use AudioPlayer.setAudioSources instead • lib/features/player/infrastructure/just_audio_player_engine.dart:79:27 • deprecated_member_use
+   info • Unnecessary use of multiple underscores • lib/features/profile/presentation/widgets/atoms/profile_avatar_atom.dart:27:30 • unnecessary_underscores
+   info • Unnecessary use of multiple underscores • lib/features/profile/presentation/widgets/atoms/profile_avatar_atom.dart:28:30 • unnecessary_underscores
+   info • Unnecessary use of multiple underscores • lib/features/profile/presentation/widgets/atoms/profile_avatar_atom.dart:28:34 • unnecessary_underscores
+   info • 'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre • lib/features/profile/presentation/widgets/organisms/quality_picker_organism.dart:78:11 • deprecated_member_use
+   info • 'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre • lib/features/profile/presentation/widgets/organisms/quality_picker_organism.dart:79:11 • deprecated_member_use
+   info • Angle brackets will be interpreted as HTML • lib/features/song_options/domain/use_cases/add_to_playlist_use_case.dart:22:35 • unintended_html_in_doc_comment
+   info • Angle brackets will be interpreted as HTML • lib/features/song_options/domain/use_cases/create_playlist_use_case.dart:18:35 • unintended_html_in_doc_comment
+   info • Angle brackets will be interpreted as HTML • lib/features/song_options/domain/use_cases/get_user_playlists_use_case.dart:15:35 • unintended_html_in_doc_comment
+   info • Unnecessary use of multiple underscores • lib/features/song_options/presentation/widgets/atoms/thumbnail_atom.dart:32:37 • unnecessary_underscores
+   info • Unnecessary use of multiple underscores • lib/features/song_options/presentation/widgets/molecules/playlist_tile_molecule.dart:31:36 • unnecessary_underscores
+   info • Unnecessary use of multiple underscores • lib/features/song_options/presentation/widgets/molecules/playlist_tile_molecule.dart:31:40 • unnecessary_underscores
+warning • Dead code • lib/features/song_options/presentation/widgets/organisms/add_to_playlist_dialog_organism.dart:70:36 • dead_code
+warning • The left operand can't be null, so the right operand is never executed • lib/features/song_options/presentation/widgets/organisms/add_to_playlist_dialog_organism.dart:70:39 • dead_null_aware_expression
+warning • The declaration '_getErrorMessage' isn't referenced • lib/features/song_options/presentation/widgets/organisms/add_to_playlist_dialog_organism.dart:88:10 • unused_element
+warning • Dead code • lib/features/song_options/presentation/widgets/organisms/add_to_playlist_dialog_organism.dart:366:61 • dead_code
+warning • The left operand can't be null, so the right operand is never executed • lib/features/song_options/presentation/widgets/organisms/add_to_playlist_dialog_organism.dart:366:64 • dead_null_aware_expression
+

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class SongDurationText extends StatelessWidget {
   final String duration;
 
-  const SongDurationText({super.key, required this.duration});
+  const SongDurationText({required this.duration, super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -5,7 +5,7 @@ import 'package:music_app/core/theme/app_colors_dark.dart';
 class EmailDisplayText extends StatelessWidget {
   final String email;
 
-  const EmailDisplayText({super.key, required this.email});
+  const EmailDisplayText({required this.email, super.key});
 
   @override
   Widget build(BuildContext context) {

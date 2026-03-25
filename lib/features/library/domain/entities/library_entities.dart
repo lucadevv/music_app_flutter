@@ -26,6 +26,7 @@ class LibrarySummaryEntity extends Equatable {
 /// Domain entity for a favorite song in library
 class FavoriteSongEntity extends Equatable {
   final String videoId;
+  final String songId;
   final String? title;
   final String? artist;
   final String? thumbnail;
@@ -34,6 +35,7 @@ class FavoriteSongEntity extends Equatable {
 
   const FavoriteSongEntity({
     required this.videoId,
+    required this.songId,
     this.title,
     this.artist,
     this.thumbnail,
@@ -44,6 +46,7 @@ class FavoriteSongEntity extends Equatable {
   @override
   List<Object?> get props => [
     videoId,
+    songId,
     title,
     artist,
     thumbnail,
@@ -55,6 +58,7 @@ class FavoriteSongEntity extends Equatable {
 /// Domain entity for a favorite playlist
 class FavoritePlaylistEntity extends Equatable {
   final String id;
+  final String externalPlaylistId;
   final String? name;
   final String? thumbnail;
   final String? description;
@@ -62,6 +66,7 @@ class FavoritePlaylistEntity extends Equatable {
 
   const FavoritePlaylistEntity({
     required this.id,
+    required this.externalPlaylistId,
     this.name,
     this.thumbnail,
     this.description,
@@ -69,17 +74,43 @@ class FavoritePlaylistEntity extends Equatable {
   });
 
   @override
-  List<Object?> get props => [id, name, thumbnail, description, trackCount];
+  List<Object?> get props => [
+    id,
+    externalPlaylistId,
+    name,
+    thumbnail,
+    description,
+    trackCount,
+  ];
 }
 
 /// Domain entity for a favorite genre
 class FavoriteGenreEntity extends Equatable {
   final String id;
+  final String externalParams;
   final String? name;
-  final String? params;
 
-  const FavoriteGenreEntity({required this.id, this.name, this.params});
+  const FavoriteGenreEntity({
+    required this.id,
+    required this.externalParams,
+    this.name,
+  });
 
   @override
-  List<Object?> get props => [id, name, params];
+  List<Object?> get props => [id, externalParams, name];
+}
+
+/// Response entity containing songs with their ID mapping
+/// Used by FavoriteCubit to maintain videoId -> songId mapping for removal
+class FavoriteSongsWithMapping extends Equatable {
+  final List<FavoriteSongEntity> songs;
+  final Map<String, String> songIdByVideoId;
+
+  const FavoriteSongsWithMapping({
+    required this.songs,
+    required this.songIdByVideoId,
+  });
+
+  @override
+  List<Object?> get props => [songs, songIdByVideoId];
 }

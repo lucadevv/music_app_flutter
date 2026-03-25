@@ -4,14 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
+import 'package:music_app/core/domain/entities/artist.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
-import 'package:music_app/features/artist/domain/entities/artist.dart';
 import 'package:music_app/features/artist/domain/repositories/artist_repository.dart';
+import 'package:music_app/features/artist/domain/use_cases/follow_artist_use_case.dart';
+import 'package:music_app/features/artist/domain/use_cases/get_artist_albums_use_case.dart';
+import 'package:music_app/features/artist/domain/use_cases/get_artist_top_songs_use_case.dart';
+import 'package:music_app/features/artist/domain/use_cases/get_artist_use_case.dart';
+import 'package:music_app/features/artist/domain/use_cases/is_following_artist_use_case.dart';
+import 'package:music_app/features/artist/domain/use_cases/unfollow_artist_use_case.dart';
 import 'package:music_app/features/artist/presentation/cubit/artist_cubit.dart';
 import 'package:music_app/features/artist/presentation/widgets/atoms/artist_error_widget.dart';
 import 'package:music_app/features/artist/presentation/widgets/atoms/artist_not_found_widget.dart';
-import 'package:music_app/features/artist/presentation/widgets/molecules/artist_loading_molecule.dart';
 import 'package:music_app/features/artist/presentation/widgets/molecules/artist_action_buttons.dart';
+import 'package:music_app/features/artist/presentation/widgets/molecules/artist_loading_molecule.dart';
 import 'package:music_app/features/artist/presentation/widgets/organisms/artist_albums_organism.dart';
 import 'package:music_app/features/artist/presentation/widgets/organisms/artist_header_organism.dart';
 import 'package:music_app/features/artist/presentation/widgets/organisms/artist_top_songs_organism.dart';
@@ -25,10 +31,16 @@ class ArtistScreen extends StatelessWidget implements AutoRouteWrapper {
 
   @override
   Widget wrappedRoute(BuildContext context) {
+    final artistRepository = GetIt.I<ArtistRepository>();
     return BlocProvider(
       create: (_) => ArtistCubit(
-        GetIt.I<ArtistRepository>(),
-        context.read<PlayerBlocBloc>(),
+        getArtistUseCase: GetArtistUseCase(artistRepository),
+        getArtistTopSongsUseCase: GetArtistTopSongsUseCase(artistRepository),
+        getArtistAlbumsUseCase: GetArtistAlbumsUseCase(artistRepository),
+        followArtistUseCase: FollowArtistUseCase(artistRepository),
+        unfollowArtistUseCase: UnfollowArtistUseCase(artistRepository),
+        isFollowingArtistUseCase: IsFollowingArtistUseCase(artistRepository),
+        playerBloc: context.read<PlayerBlocBloc>(),
       )..loadArtist(artistId),
       child: this,
     );

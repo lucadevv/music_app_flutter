@@ -1,22 +1,34 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:music_app/features/library/library_service.dart';
+import 'package:music_app/features/song_options/domain/use_cases/add_to_playlist_use_case.dart';
+import 'package:music_app/features/song_options/domain/use_cases/create_playlist_use_case.dart';
+import 'package:music_app/features/song_options/domain/use_cases/get_user_playlists_use_case.dart';
+import 'package:music_app/features/user_playlists/domain/entities/user_playlist_entity.dart';
 
 part 'playlist_dialog_state.dart';
 
 class PlaylistDialogCubit extends Cubit<PlaylistDialogState> {
-  final LibraryService _libraryService;
+  final GetUserPlaylistsUseCase _getUserPlaylistsUseCase;
+  final AddToPlaylistUseCase _addToPlaylistUseCase;
+  final CreatePlaylistUseCase _createPlaylistUseCase;
 
-  PlaylistDialogCubit(this._libraryService) : super(PlaylistDialogInitial());
+  PlaylistDialogCubit({
+    required GetUserPlaylistsUseCase getUserPlaylistsUseCase,
+    required AddToPlaylistUseCase addToPlaylistUseCase,
+    required CreatePlaylistUseCase createPlaylistUseCase,
+  }) : _getUserPlaylistsUseCase = getUserPlaylistsUseCase,
+       _addToPlaylistUseCase = addToPlaylistUseCase,
+       _createPlaylistUseCase = createPlaylistUseCase,
+       super(PlaylistDialogInitial());
 
   Future<void> loadPlaylists() async {
     emit(PlaylistDialogLoading());
 
-    try {
-      final response = await _libraryService.getUserPlaylists();
-      emit(PlaylistDialogLoaded(playlists: response.data));
-    } catch (e) {
-      emit(PlaylistDialogError(_getErrorMessage(e)));
-    }
+    final result = await _getUserPlaylistsUseCase();
+
+    result.fold(
+      (error) => emit(PlaylistDialogError(_getErrorMessage(error))),
+      (playlists) => emit(PlaylistDialogLoaded(playlists: playlists)),
+    );
   }
 
   void searchPlaylists(String query) {
@@ -37,23 +49,23 @@ class PlaylistDialogCubit extends Cubit<PlaylistDialogState> {
     final currentState = state;
     final playlists = currentState is PlaylistDialogLoaded
         ? currentState.playlists
-        : <UserPlaylist>[];
+        : <UserPlaylistEntity>[];
 
     emit(PlaylistDialogAddingSong(playlists: playlists));
 
-    try {
-      await _libraryService.addSongToUserPlaylist(
-        playlistId,
-        videoId: videoId,
-        title: title,
-        artist: artist,
-        thumbnail: thumbnail,
-        duration: duration,
-      );
-      emit(PlaylistDialogSongAdded());
-    } catch (e) {
-      emit(PlaylistDialogError(_getErrorMessage(e)));
-    }
+    final result = await _addToPlaylistUseCase(
+      playlistId: playlistId,
+      videoId: videoId,
+      title: title,
+      artist: artist,
+      thumbnail: thumbnail,
+      duration: duration,
+    );
+
+    result.fold(
+      (error) => emit(PlaylistDialogError(_getErrorMessage(error))),
+      (_) => emit(PlaylistDialogSongAdded()),
+    );
   }
 
   Future<void> createPlaylist({
@@ -64,20 +76,16 @@ class PlaylistDialogCubit extends Cubit<PlaylistDialogState> {
     final currentState = state;
     final playlists = currentState is PlaylistDialogLoaded
         ? currentState.playlists
-        : <UserPlaylist>[];
+        : <UserPlaylistEntity>[];
 
     emit(PlaylistDialogCreatingPlaylist(playlists: playlists));
 
-    try {
-      final playlist = await _libraryService.createUserPlaylist(
-        name: name,
-        description: description,
-        thumbnail: thumbnail,
-      );
-      emit(PlaylistDialogPlaylistCreated(playlist));
-    } catch (e) {
-      emit(PlaylistDialogError(_getErrorMessage(e)));
-    }
+    final result = await _createPlaylistUseCase(name: name);
+
+    result.fold(
+      (error) => emit(PlaylistDialogError(_getErrorMessage(error))),
+      (playlist) => emit(PlaylistDialogPlaylistCreated(playlist)),
+    );
   }
 
   String _getErrorMessage(dynamic error) {

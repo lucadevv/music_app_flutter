@@ -8,9 +8,7 @@ class QueueUpNextHeader extends StatelessWidget {
   final VoidCallback? onAutoRecommendationsTap;
 
   const QueueUpNextHeader({
-    super.key,
-    required this.upNextLabel,
-    required this.autoRecommendationsLabel,
+    required this.upNextLabel, required this.autoRecommendationsLabel, super.key,
     this.onAutoRecommendationsTap,
   });
 

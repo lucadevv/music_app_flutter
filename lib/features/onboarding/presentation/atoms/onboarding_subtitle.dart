@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class OnboardingSubtitle extends StatelessWidget {
   final String text;
 
-  const OnboardingSubtitle({super.key, required this.text});
+  const OnboardingSubtitle({required this.text, super.key});
 
   @override
   Widget build(BuildContext context) {

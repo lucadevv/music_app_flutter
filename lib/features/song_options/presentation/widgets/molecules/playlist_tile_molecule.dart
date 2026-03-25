@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
-import 'package:music_app/features/library/library_service.dart';
+import 'package:music_app/features/library/data/models/library_models.dart';
 
 /// Molecule: Playlist tile for playlist selection
 class PlaylistTileMolecule extends StatelessWidget {
@@ -9,9 +9,7 @@ class PlaylistTileMolecule extends StatelessWidget {
   final VoidCallback onTap;
 
   const PlaylistTileMolecule({
-    super.key,
-    required this.playlist,
-    required this.onTap,
+    required this.playlist, required this.onTap, super.key,
   });
 
   @override
@@ -30,7 +28,7 @@ class PlaylistTileMolecule extends StatelessWidget {
                 child: CachedNetworkImage(
                   imageUrl: playlist.thumbnail!,
                   fit: BoxFit.cover,
-                  errorWidget: (_, __, ___) => const Icon(
+                  errorWidget: (context, url, error) => const Icon(
                     Icons.queue_music,
                     color: AppColorsDark.primary,
                   ),

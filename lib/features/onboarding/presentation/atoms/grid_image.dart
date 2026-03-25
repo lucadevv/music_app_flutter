@@ -8,9 +8,7 @@ class GridImage extends StatelessWidget {
   final double width;
 
   const GridImage({
-    super.key,
-    required this.url,
-    required this.height,
+    required this.url, required this.height, super.key,
     this.width = 110,
   });
 

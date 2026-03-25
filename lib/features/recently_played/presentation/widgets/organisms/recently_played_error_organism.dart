@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
-import 'package:music_app/l10n/app_localizations.dart';
 import 'package:music_app/features/recently_played/presentation/cubit/recently_played_cubit.dart';
+import 'package:music_app/l10n/app_localizations.dart';
 
 class RecentlyPlayedErrorOrganism extends StatelessWidget {
   final String? errorMessage;

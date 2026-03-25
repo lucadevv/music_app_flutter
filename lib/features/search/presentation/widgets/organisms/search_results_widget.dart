@@ -10,7 +10,7 @@ import 'package:music_app/core/domain/mappers/song_mapper.dart';
 import 'package:music_app/core/services/network/api_services.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/favorites/presentation/widgets/favorite_button.dart';
-import 'package:music_app/features/library/library_service.dart';
+import 'package:music_app/features/library/data/models/library_models.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 import 'package:music_app/features/search/domain/entities/song.dart';
 import 'package:music_app/features/search/presentation/cubit/orquestador_search_cubit.dart';

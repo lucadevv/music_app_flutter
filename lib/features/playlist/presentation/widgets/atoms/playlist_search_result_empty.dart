@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class PlaylistSearchResultEmpty extends StatelessWidget {
   final String searchQuery;
 
-  const PlaylistSearchResultEmpty({super.key, required this.searchQuery});
+  const PlaylistSearchResultEmpty({required this.searchQuery, super.key});
 
   @override
   Widget build(BuildContext context) {

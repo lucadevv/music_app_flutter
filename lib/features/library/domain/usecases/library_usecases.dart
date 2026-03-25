@@ -1,7 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:music_app/core/domain/entities/song.dart';
 import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
-import 'package:music_app/features/library/domain/entities/library_entities.dart';
 import 'package:music_app/features/library/domain/repositories/library_repository.dart';
 
 /// Use case for getting library summary

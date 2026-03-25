@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:music_app/l10n/app_localizations.dart';
 import 'package:music_app/features/downloads/presentation/widgets/download_progress_widget.dart';
+import 'package:music_app/l10n/app_localizations.dart';
 
 /// Organismo: ActiveDownloadsSection
 ///
@@ -11,10 +11,7 @@ class ActiveDownloadsSection extends StatelessWidget {
   final AppLocalizations l10n;
 
   const ActiveDownloadsSection({
-    super.key,
-    required this.downloadingIds,
-    required this.downloadProgress,
-    required this.l10n,
+    required this.downloadingIds, required this.downloadProgress, required this.l10n, super.key,
   });
 
   @override

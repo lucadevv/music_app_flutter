@@ -29,7 +29,7 @@ class ThumbnailAtom extends StatelessWidget {
             ? CachedNetworkImage(
                 imageUrl: thumbnailUrl!,
                 fit: BoxFit.cover,
-                errorWidget: (_, _, __) =>
+                errorWidget: (context, url, error) =>
                     Icon(placeholderIcon, color: AppColorsDark.primary),
               )
             : Icon(placeholderIcon, color: AppColorsDark.primary),

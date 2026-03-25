@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:music_app/features/artist/domain/entities/artist.dart';
+import 'package:music_app/core/domain/entities/artist.dart';
 import 'package:music_app/features/artist/presentation/widgets/molecules/artist_song_item_molecule.dart';
 import 'package:music_app/l10n/app_localizations.dart';
 
@@ -8,9 +8,7 @@ class ArtistTopSongsOrganism extends StatelessWidget {
   final void Function(ArtistSong song, List<ArtistSong> allSongs) onSongTap;
 
   const ArtistTopSongsOrganism({
-    super.key,
-    required this.songs,
-    required this.onSongTap,
+    required this.songs, required this.onSongTap, super.key,
   });
 
   @override

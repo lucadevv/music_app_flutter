@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class QueueUpNextLabel extends StatelessWidget {
   final String text;
 
-  const QueueUpNextLabel({super.key, required this.text});
+  const QueueUpNextLabel({required this.text, super.key});
 
   @override
   Widget build(BuildContext context) {

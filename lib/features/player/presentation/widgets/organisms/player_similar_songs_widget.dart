@@ -1,4 +1,4 @@
-// ignore_for_file: use_late_for_private_fields_and_variables, avoid_dynamic_calls
+// ignore_for_file: use_late_for_private_fields_and_variables
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +9,7 @@ import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/home/presentation/widgets/organisms/home_shimmer.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
+import 'package:music_app/features/player/domain/entities/radio_track_entity.dart';
 import 'package:music_app/features/player/domain/usecases/get_radio_playlist_usecase.dart';
 import 'package:music_app/l10n/app_localizations.dart';
 
@@ -28,17 +29,17 @@ class PlayerSimilarSongsWidget extends StatefulWidget {
 
 class _PlayerSimilarSongsWidgetState extends State<PlayerSimilarSongsWidget> {
   late final GetRadioPlaylistUseCase _getRadioPlaylistUseCase;
-  List<dynamic> _radioTracks = [];
+  List<RadioTrackEntity> _radioTracks = [];
   bool _isLoading = true;
   String? _error;
   bool _isDisposed = false;
-//   String? _currentLoadingVideoId; // Track which videoId is being loaded
+  //   String? _currentLoadingVideoId; // Track which videoId is being loaded
 
   @override
   void initState() {
     super.initState();
     _getRadioPlaylistUseCase = GetIt.I<GetRadioPlaylistUseCase>();
-//     _currentLoadingVideoId = widget.videoId;
+    //     _currentLoadingVideoId = widget.videoId;
     _loadRadioPlaylist();
   }
 
@@ -53,7 +54,7 @@ class _PlayerSimilarSongsWidgetState extends State<PlayerSimilarSongsWidget> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.videoId != widget.videoId) {
       // Reset state immediately for new videoId
-//       _currentLoadingVideoId = widget.videoId;
+      //       _currentLoadingVideoId = widget.videoId;
       _radioTracks = [];
       _error = null;
       _isLoading = true;
@@ -63,10 +64,10 @@ class _PlayerSimilarSongsWidgetState extends State<PlayerSimilarSongsWidget> {
 
   Future<void> _loadRadioPlaylist() async {
     if (_isDisposed) return;
-    
+
     // Guardar el videoId actual que se va a cargar
     final loadingVideoId = widget.videoId;
-    
+
     // No cargar si el videoId está vacío
     if (loadingVideoId.isEmpty) {
       if (mounted) {
@@ -86,25 +87,38 @@ class _PlayerSimilarSongsWidgetState extends State<PlayerSimilarSongsWidget> {
     }
 
     try {
-      final tracks = await _getRadioPlaylistUseCase(loadingVideoId, limit: 10);
+      final result = await _getRadioPlaylistUseCase(loadingVideoId, limit: 10);
 
       if (_isDisposed) return;
-      
+
       // Verificar que el videoId sigue siendo el mismo antes de actualizar
       if (widget.videoId != loadingVideoId) {
         // El videoId cambió mientras cargábamos, ignorar esta respuesta
         return;
       }
 
-      if (mounted) {
-        setState(() {
-          _radioTracks = tracks;
-          _isLoading = false;
-        });
-      }
+      result.fold(
+        (error) {
+          if (mounted) {
+            setState(() {
+              _error = error.message;
+              _isLoading = false;
+              _radioTracks = [];
+            });
+          }
+        },
+        (tracks) {
+          if (mounted) {
+            setState(() {
+              _radioTracks = tracks;
+              _isLoading = false;
+            });
+          }
+        },
+      );
     } catch (e) {
       if (_isDisposed) return;
-      
+
       // Verificar que el videoId sigue siendo el mismo
       if (widget.videoId != loadingVideoId) {
         return;
@@ -112,11 +126,12 @@ class _PlayerSimilarSongsWidgetState extends State<PlayerSimilarSongsWidget> {
 
       // Ignorar errores de cancelación/interrupción de conexión
       final errorString = e.toString().toLowerCase();
-      final isIgnorableError = 
+      final isIgnorableError =
           errorString.contains('cancelled') ||
           errorString.contains('interrupted') ||
           errorString.contains('loading interrupted') ||
-          errorString.contains('connection') && errorString.contains('closed') ||
+          errorString.contains('connection') &&
+              errorString.contains('closed') ||
           errorString.contains('socketexception') ||
           errorString.contains('timeout') ||
           errorString.contains('resetear player') ||
@@ -125,7 +140,7 @@ class _PlayerSimilarSongsWidgetState extends State<PlayerSimilarSongsWidget> {
           errorString.contains('502') ||
           errorString.contains('503') ||
           errorString.contains('dioexception');
-      
+
       if (isIgnorableError) {
         // No mostrar error al usuario, simplemente cargar en silencio
         if (mounted) {
@@ -221,26 +236,13 @@ class _PlayerSimilarSongsWidgetState extends State<PlayerSimilarSongsWidget> {
   Widget _buildTracksList() {
     return Column(
       children: _radioTracks.map((track) {
-        final title = track['title'] ?? 'Unknown';
-        final videoId = track['videoId'] ?? '';
-        final artist =
-            track['artists'] != null && (track['artists'] as List).isNotEmpty
-            ? (track['artists'] as List)
-                  .map((a) => a['name'] ?? 'Unknown')
-                  .join(', ')
-            : track['artist'] ?? 'Unknown Artist';
-        final thumbnailUrl = track['thumbnail'];
-        final streamUrl = track['stream_url'];
-        final duration = track['length'] ?? '0:00';
-
-        // Convert duration string to seconds for metadata
-        int durationSeconds = 0;
-        try {
-          final parts = duration.split(':');
-          if (parts.length == 2) {
-            durationSeconds = int.parse(parts[0]) * 60 + int.parse(parts[1]);
-          }
-        } catch (_) {}
+        final title = track.title;
+        final videoId = track.videoId;
+        final artist = track.displayArtist;
+        final thumbnailUrl = track.thumbnail;
+        final streamUrl = track.streamUrl;
+        final duration = track.length ?? '0:00';
+        final durationSeconds = track.durationSeconds;
 
         return _SimilarSongItem(
           title: title,
@@ -276,7 +278,10 @@ class _PlayerSimilarSongsWidgetState extends State<PlayerSimilarSongsWidget> {
       if (parts.length == 2) {
         durationSeconds = int.parse(parts[0]) * 60 + int.parse(parts[1]);
       } else if (parts.length == 3) {
-        durationSeconds = int.parse(parts[0]) * 3600 + int.parse(parts[1]) * 60 + int.parse(parts[2]);
+        durationSeconds =
+            int.parse(parts[0]) * 3600 +
+            int.parse(parts[1]) * 60 +
+            int.parse(parts[2]);
       }
     } catch (_) {}
 
@@ -298,7 +303,9 @@ class _PlayerSimilarSongsWidgetState extends State<PlayerSimilarSongsWidget> {
     );
 
     if (mounted) {
-      context.read<PlayerBlocBloc>().add(LoadTrackEvent(nowPlayingData, sourceId: 'radio'));
+      context.read<PlayerBlocBloc>().add(
+        LoadTrackEvent(nowPlayingData, sourceId: 'radio'),
+      );
     }
   }
 
@@ -339,7 +346,6 @@ class _SimilarSongItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     final durationText = _formatDuration(durationSeconds);
 
     return ListTile(
@@ -354,8 +360,10 @@ class _SimilarSongItem extends StatelessWidget {
               ? CachedNetworkImage(
                   imageUrl: thumbnail!,
                   fit: BoxFit.cover,
-                  errorWidget: (context, url, error) =>
-                      const Icon(Icons.music_note, color: AppColorsDark.primary),
+                  errorWidget: (context, url, error) => const Icon(
+                    Icons.music_note,
+                    color: AppColorsDark.primary,
+                  ),
                 )
               : const Icon(Icons.music_note, color: AppColorsDark.primary),
         ),

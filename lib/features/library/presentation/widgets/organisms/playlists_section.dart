@@ -10,11 +10,13 @@ class PlaylistsSection extends StatelessWidget {
   final List<PlaylistItem> playlists;
   final int totalPlaylists;
   final bool showViewAll;
+  final bool useSliver;
 
   const PlaylistsSection({
     required this.playlists,
     required this.totalPlaylists,
     this.showViewAll = true,
+    this.useSliver = true,
     super.key,
   });
 
@@ -22,62 +24,65 @@ class PlaylistsSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return SliverToBoxAdapter(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  l10n.playlists,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Poppins',
-                  ),
+    final content = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                l10n.playlists,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Poppins',
                 ),
-                if (showViewAll && totalPlaylists > 5)
-                  Icon(
-                    Icons.chevron_right,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-              ],
-            ),
+              ),
+              if (showViewAll && totalPlaylists > 5)
+                Icon(
+                  Icons.chevron_right,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+            ],
           ),
-          SizedBox(
-            height: 200,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              itemCount: playlists.length,
-              itemBuilder: (context, index) {
-                final playlist = playlists[index];
-                return Padding(
-                  padding: const EdgeInsets.only(right: 12),
-                  child: PlaylistCard(
-                    playlist: playlist,
-                    onTap: () {
-                      if (playlist.isUserCreated) {
-                        context.router.push(
-                          UserPlaylistDetailRoute(playlistId: playlist.id),
-                        );
-                      } else if (playlist.externalPlaylistId != null) {
-                        context.router.push(
-                          PlaylistRoute(id: playlist.externalPlaylistId!),
-                        );
-                      }
-                    },
-                  ),
-                );
-              },
-            ),
+        ),
+        SizedBox(
+          height: 200,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            itemCount: playlists.length,
+            itemBuilder: (context, index) {
+              final playlist = playlists[index];
+              return Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: PlaylistCard(
+                  playlist: playlist,
+                  onTap: () {
+                    if (playlist.isUserCreated) {
+                      context.router.push(
+                        UserPlaylistDetailRoute(playlistId: playlist.id),
+                      );
+                    } else if (playlist.externalPlaylistId != null) {
+                      context.router.push(
+                        PlaylistRoute(id: playlist.externalPlaylistId!),
+                      );
+                    }
+                  },
+                ),
+              );
+            },
           ),
-        ],
-      ),
+        ),
+      ],
     );
+
+    if (useSliver) {
+      return SliverToBoxAdapter(child: content);
+    }
+    return content;
   }
 }

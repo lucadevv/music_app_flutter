@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/domain/entities/artist.dart';
 import 'package:music_app/core/presentation/widgets/song_list_item.dart';
-import 'package:music_app/features/artist/domain/entities/artist.dart';
 import 'package:music_app/features/song_options/presentation/widgets/song_options_bottom_sheet.dart';
 
 class ArtistSongItemMolecule extends StatelessWidget {
@@ -9,10 +9,7 @@ class ArtistSongItemMolecule extends StatelessWidget {
   final VoidCallback onTap;
 
   const ArtistSongItemMolecule({
-    super.key,
-    required this.song,
-    required this.index,
-    required this.onTap,
+    required this.song, required this.index, required this.onTap, super.key,
   });
 
   @override

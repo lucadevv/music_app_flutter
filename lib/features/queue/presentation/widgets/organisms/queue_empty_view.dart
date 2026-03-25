@@ -6,7 +6,7 @@ class QueueEmptyView extends StatelessWidget {
   final String title;
   final String? subtitle;
 
-  const QueueEmptyView({super.key, required this.title, this.subtitle});
+  const QueueEmptyView({required this.title, super.key, this.subtitle});
 
   @override
   Widget build(BuildContext context) {

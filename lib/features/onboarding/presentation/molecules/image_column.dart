@@ -5,7 +5,7 @@ class ImageColumn extends StatelessWidget {
   final List<ImageColumnItem> items;
   final double? topSpacing;
 
-  const ImageColumn({super.key, required this.items, this.topSpacing});
+  const ImageColumn({required this.items, super.key, this.topSpacing});
 
   @override
   Widget build(BuildContext context) {

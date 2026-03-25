@@ -10,9 +10,7 @@ class ProfileAppBarMolecule extends StatelessWidget
   final String? logoutText;
 
   const ProfileAppBarMolecule({
-    super.key,
-    required this.title,
-    required this.onBack,
+    required this.title, required this.onBack, super.key,
     this.onLogout,
     this.logoutText,
   });

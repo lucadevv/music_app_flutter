@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:music_app/features/library/library_service.dart';
+import 'package:music_app/features/library/data/models/library_models.dart';
 import 'package:music_app/features/user_playlists/presentation/widgets/atoms/playlist_song_item_atom.dart';
 
 class PlaylistSongsListOrganism extends StatelessWidget {

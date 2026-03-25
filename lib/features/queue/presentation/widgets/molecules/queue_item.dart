@@ -10,10 +10,7 @@ class QueueItem extends StatelessWidget {
   final VoidCallback onRemove;
 
   const QueueItem({
-    super.key,
-    required this.track,
-    required this.onTap,
-    required this.onRemove,
+    required this.track, required this.onTap, required this.onRemove, super.key,
   });
 
   @override

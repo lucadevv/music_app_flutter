@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/app_router/app_routes.dart';
 import 'package:music_app/core/bloc/locale_cubit.dart';
+import 'package:music_app/core/data/offline/services/offline_service.dart';
 import 'package:music_app/core/managers/auth/auth_manager.dart';
 import 'package:music_app/core/services/audio_handler_service.dart';
 import 'package:music_app/core/services/logger/app_logger.dart';
 import 'package:music_app/core/theme/app_theme.dart';
 import 'package:music_app/core/theme/theme_cubit.dart';
-import 'package:music_app/core/data/offline/services/offline_service.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/downloads/domain/use_cases/check_download_status_use_case.dart';
 import 'package:music_app/features/downloads/domain/use_cases/download_song_use_case.dart';
@@ -16,7 +16,18 @@ import 'package:music_app/features/downloads/domain/use_cases/get_downloaded_son
 import 'package:music_app/features/downloads/domain/use_cases/remove_download_use_case.dart';
 import 'package:music_app/features/downloads/presentation/cubit/downloads_cubit.dart';
 import 'package:music_app/features/favorites/presentation/cubit/favorite_cubit.dart';
-import 'package:music_app/features/library/library_service.dart';
+import 'package:music_app/features/library/domain/use_cases/add_favorite_genre_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/add_favorite_playlist_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/add_favorite_song_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/get_favorite_genres_with_mapping_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/get_favorite_playlists_with_mapping_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/get_favorite_songs_with_mapping_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/remove_favorite_genre_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/remove_favorite_playlist_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/remove_favorite_song_use_case.dart';
+import 'package:music_app/features/offline/domain/use_cases/delete_offline_playlist_use_case.dart';
+import 'package:music_app/features/offline/domain/use_cases/get_offline_playlists_use_case.dart';
+import 'package:music_app/features/offline/domain/use_cases/save_offline_playlist_use_case.dart';
 import 'package:music_app/features/offline/presentation/cubit/playlist_offline_cubit.dart';
 import 'package:music_app/features/player/domain/player_facade.dart';
 import 'package:music_app/features/player/domain/repositories/player_repository.dart';
@@ -97,15 +108,33 @@ class _AppState extends State<App> {
         );
       }
 
-      // Crear PlaylistOfflineCubit (depende de OfflineService)
-      _playlistOfflineCubit = PlaylistOfflineCubit(offlineService);
+      // Crear PlaylistOfflineCubit (depende de OfflineService y UseCases)
+      _playlistOfflineCubit = PlaylistOfflineCubit(
+        getOfflinePlaylistsUseCase: GetOfflinePlaylistsUseCase(offlineService),
+        saveOfflinePlaylistUseCase: SaveOfflinePlaylistUseCase(offlineService),
+        deleteOfflinePlaylistUseCase: DeleteOfflinePlaylistUseCase(
+          offlineService,
+        ),
+        offlineService: offlineService,
+      );
 
-      // Crear FavoriteCubit (depende de LibraryService, PlaylistOfflineCubit, OfflineService, PlayerBlocBloc)
+      // Crear FavoriteCubit (depende de UseCases, PlaylistOfflineCubit, OfflineService, PlayerBlocBloc)
       _favoriteCubit = FavoriteCubit(
-        getIt<LibraryService>(),
-        _playlistOfflineCubit!,
-        offlineService,
-        _playerBlocBloc!,
+        getFavoriteSongsWithMappingUseCase:
+            getIt<GetFavoriteSongsWithMappingUseCase>(),
+        getFavoritePlaylistsWithMappingUseCase:
+            getIt<GetFavoritePlaylistsWithMappingUseCase>(),
+        getFavoriteGenresWithMappingUseCase:
+            getIt<GetFavoriteGenresWithMappingUseCase>(),
+        addFavoriteSongUseCase: getIt<AddFavoriteSongUseCase>(),
+        removeFavoriteSongUseCase: getIt<RemoveFavoriteSongUseCase>(),
+        addFavoritePlaylistUseCase: getIt<AddFavoritePlaylistUseCase>(),
+        removeFavoritePlaylistUseCase: getIt<RemoveFavoritePlaylistUseCase>(),
+        addFavoriteGenreUseCase: getIt<AddFavoriteGenreUseCase>(),
+        removeFavoriteGenreUseCase: getIt<RemoveFavoriteGenreUseCase>(),
+        playlistOfflineCubit: _playlistOfflineCubit!,
+        offlineService: offlineService,
+        playerBloc: _playerBlocBloc!,
       );
 
       // Crear DownloadsCubit (depende de use cases async + PlayerFacade)

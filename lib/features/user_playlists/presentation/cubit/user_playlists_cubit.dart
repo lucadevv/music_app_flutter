@@ -1,6 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/bloc/base_bloc_mixin.dart';
-import 'package:music_app/features/library/library_service.dart';
+import 'package:music_app/features/library/data/models/library_models.dart';
+import 'package:music_app/features/library/domain/entities/library_entities.dart';
+import 'package:music_app/features/library/domain/use_cases/create_user_playlist_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/get_favorite_playlists_use_case.dart';
+import 'package:music_app/features/library/domain/use_cases/get_user_playlists_use_case.dart';
 import 'package:music_app/features/user_playlists/presentation/cubit/user_playlists_state.dart';
 
 /// Cubit para manejar playlists de usuario
@@ -10,11 +14,18 @@ import 'package:music_app/features/user_playlists/presentation/cubit/user_playli
 /// - Crear nueva playlist
 /// - Sincronizar con offline
 class UserPlaylistsCubit extends Cubit<UserPlaylistsState> with BaseBlocMixin {
-  final LibraryService _libraryService;
+  final GetUserPlaylistsUseCase _getUserPlaylistsUseCase;
+  final GetFavoritePlaylistsUseCase _getFavoritePlaylistsUseCase;
+  final CreateUserPlaylistUseCase _createUserPlaylistUseCase;
 
-  UserPlaylistsCubit({required LibraryService libraryService})
-    : _libraryService = libraryService,
-      super(const UserPlaylistsState());
+  UserPlaylistsCubit({
+    required GetUserPlaylistsUseCase getUserPlaylistsUseCase,
+    required GetFavoritePlaylistsUseCase getFavoritePlaylistsUseCase,
+    required CreateUserPlaylistUseCase createUserPlaylistUseCase,
+  }) : _getUserPlaylistsUseCase = getUserPlaylistsUseCase,
+       _getFavoritePlaylistsUseCase = getFavoritePlaylistsUseCase,
+       _createUserPlaylistUseCase = createUserPlaylistUseCase,
+       super(const UserPlaylistsState());
 
   /// Carga todas las playlists (user + favorites)
   Future<void> loadAllPlaylists() async {
@@ -22,20 +33,32 @@ class UserPlaylistsCubit extends Cubit<UserPlaylistsState> with BaseBlocMixin {
 
     try {
       // Cargar playlists del usuario Y playlists favoritas
-      final userPlaylists = await _libraryService.getUserPlaylists();
-      final favoritePlaylists = await _libraryService.getFavoritePlaylists();
+      final userPlaylistsResult = await _getUserPlaylistsUseCase();
+      final favoritePlaylistsResult = await _getFavoritePlaylistsUseCase();
+
+      final userPlaylists = userPlaylistsResult.fold<List<UserPlaylist>>(
+        (error) => <UserPlaylist>[],
+        (data) => data,
+      );
+
+      final favoritePlaylists = favoritePlaylistsResult
+          .fold<List<FavoritePlaylistEntity>>(
+            (error) => <FavoritePlaylistEntity>[],
+            (data) => data,
+          );
 
       // Recopilar IDs de playlists del usuario
-      final userPlaylistIds = userPlaylists.data.map((p) => p.id).toSet();
+      final userPlaylistIds = userPlaylists.map((p) => p.id).toSet();
 
       // Filtrar favorites para evitar duplicados
-      final uniqueFavorites = favoritePlaylists.data
-          .where((p) => !userPlaylistIds.contains(p.playlistId))
-          .where((p) => (p.cachedTrackCount ?? p.trackCount ?? 0) > 0)
+      // Note: FavoritePlaylistEntity uses 'id' instead of 'playlistId'
+      final uniqueFavorites = favoritePlaylists
+          .where((p) => !userPlaylistIds.contains(p.id))
+          .where((p) => (p.trackCount ?? 0) > 0)
           .toList();
 
       final playlists = <PlaylistItem>[
-        ...userPlaylists.data.map(
+        ...userPlaylists.map(
           (p) => PlaylistItem(
             id: p.id,
             name: p.name,
@@ -48,11 +71,12 @@ class UserPlaylistsCubit extends Cubit<UserPlaylistsState> with BaseBlocMixin {
         ...uniqueFavorites.map(
           (p) => PlaylistItem(
             id: p.id,
-            name: p.name,
+            name: p.name ?? 'Favorite Playlist',
             thumbnail: p.thumbnail,
-            songCount: p.cachedTrackCount ?? p.trackCount ?? 0,
+            songCount: p.trackCount ?? 0,
             type: PlaylistType.favorite,
-            externalId: p.externalPlaylistId,
+            externalId:
+                null, // FavoritePlaylistEntity doesn't have externalPlaylistId
           ),
         ),
       ];
@@ -77,7 +101,7 @@ class UserPlaylistsCubit extends Cubit<UserPlaylistsState> with BaseBlocMixin {
   /// Crea una nueva playlist
   Future<void> createPlaylist(String name) async {
     try {
-      await _libraryService.createUserPlaylist(name: name);
+      await _createUserPlaylistUseCase(name: name);
       await loadAllPlaylists();
     } catch (e) {
       // Use a safe string representation for errors to avoid type issues

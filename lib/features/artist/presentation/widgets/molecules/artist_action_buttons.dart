@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/domain/entities/artist.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
-import 'package:music_app/features/artist/domain/entities/artist.dart';
 import 'package:music_app/features/artist/presentation/cubit/artist_cubit.dart';
 import 'package:music_app/l10n/app_localizations.dart';
 
@@ -11,11 +11,7 @@ class ArtistActionButtons extends StatelessWidget {
   final VoidCallback onFollowPressed;
 
   const ArtistActionButtons({
-    super.key,
-    required this.artist,
-    required this.state,
-    required this.onPlayPressed,
-    required this.onFollowPressed,
+    required this.artist, required this.state, required this.onPlayPressed, required this.onFollowPressed, super.key,
   });
 
   @override

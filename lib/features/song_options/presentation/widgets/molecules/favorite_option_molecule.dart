@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/features/favorites/presentation/cubit/favorite_cubit.dart';
-import 'package:music_app/features/library/library_service.dart';
+import 'package:music_app/features/library/data/models/library_models.dart';
 import 'package:music_app/features/song_options/presentation/widgets/atoms/option_tile_atom.dart';
 
 /// Molecule: Favorite option tile with toggle logic
@@ -15,11 +15,7 @@ class FavoriteOptionMolecule extends StatelessWidget {
   final bool isFavorite;
 
   const FavoriteOptionMolecule({
-    super.key,
-    required this.videoId,
-    required this.title,
-    required this.artist,
-    required this.isFavorite,
+    required this.videoId, required this.title, required this.artist, required this.isFavorite, super.key,
     this.thumbnail,
     this.duration,
     this.streamUrl,

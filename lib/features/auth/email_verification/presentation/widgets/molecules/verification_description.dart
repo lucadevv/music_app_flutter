@@ -8,8 +8,7 @@ class VerificationDescription extends StatelessWidget {
   final bool isLoadingEmail;
 
   const VerificationDescription({
-    super.key,
-    required this.description,
+    required this.description, super.key,
     this.email,
     this.isLoadingEmail = false,
   });

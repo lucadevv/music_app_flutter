@@ -9,11 +9,7 @@ class PlaylistMenuBottomSheet extends StatelessWidget {
   final VoidCallback onShufflePlay;
 
   const PlaylistMenuBottomSheet({
-    super.key,
-    required this.playlistTitle,
-    required this.onShare,
-    required this.onAddToPlaylist,
-    required this.onShufflePlay,
+    required this.playlistTitle, required this.onShare, required this.onAddToPlaylist, required this.onShufflePlay, super.key,
   });
 
   static void show({

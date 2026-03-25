@@ -7,9 +7,7 @@ class ProfileErrorOrganism extends StatelessWidget {
   final VoidCallback onRetry;
 
   const ProfileErrorOrganism({
-    super.key,
-    required this.error,
-    required this.onRetry,
+    required this.error, required this.onRetry, super.key,
   });
 
   @override

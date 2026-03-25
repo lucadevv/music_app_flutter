@@ -5,7 +5,7 @@ class SongTitleAtom extends StatelessWidget {
   final String title;
   final int maxLines;
 
-  const SongTitleAtom({super.key, required this.title, this.maxLines = 1});
+  const SongTitleAtom({required this.title, super.key, this.maxLines = 1});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +22,7 @@ class SongTitleAtom extends StatelessWidget {
 class ArtistTextAtom extends StatelessWidget {
   final String artist;
 
-  const ArtistTextAtom({super.key, required this.artist});
+  const ArtistTextAtom({required this.artist, super.key});
 
   @override
   Widget build(BuildContext context) {

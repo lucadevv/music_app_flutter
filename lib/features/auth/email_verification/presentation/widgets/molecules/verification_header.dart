@@ -5,7 +5,7 @@ import 'package:music_app/features/auth/email_verification/presentation/widgets/
 class VerificationHeader extends StatelessWidget {
   final String title;
 
-  const VerificationHeader({super.key, required this.title});
+  const VerificationHeader({required this.title, super.key});
 
   @override
   Widget build(BuildContext context) {
