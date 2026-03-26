@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/search/domain/entities/thumbnail.dart';
 
 /// Widget para el backdrop difuminado de la imagen de la canción
@@ -28,7 +29,7 @@ class PlayerBackdropWidget extends StatelessWidget {
               image: CachedNetworkImageProvider(thumbnail!.url),
               fit: BoxFit.cover,
               colorFilter: ColorFilter.mode(
-                Colors.black.withValues(alpha: 0.7),
+                AppColorsDark.surfaceDim.withValues(alpha: 0.7),
                 BlendMode.darken,
               ),
             ),

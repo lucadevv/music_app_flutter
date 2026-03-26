@@ -15,5 +15,10 @@ class SplashEntity extends Equatable {
   });
 
   @override
-  List<Object?> get props => [isOnboardingCompleted, isAuthenticated, isEmailVerified, redirectRoute];
+  List<Object?> get props => [
+    isOnboardingCompleted,
+    isAuthenticated,
+    isEmailVerified,
+    redirectRoute,
+  ];
 }

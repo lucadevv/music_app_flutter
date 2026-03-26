@@ -4,7 +4,6 @@ import 'package:music_app/features/splash/data/datasources/splash_data_source.da
 import 'package:music_app/features/splash/domain/entities/splash_entity.dart';
 import 'package:music_app/features/splash/domain/repositories/splash_repository.dart';
 
-
 /// Implementation of SplashRepository.
 class SplashRepositoryImpl implements SplashRepository {
   final SplashDataSource _dataSource;

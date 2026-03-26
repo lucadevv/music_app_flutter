@@ -14,8 +14,8 @@ class LibraryStatsEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        favoriteSongsCount,
-        favoritePlaylistsCount,
-        favoriteGenresCount,
-      ];
+    favoriteSongsCount,
+    favoritePlaylistsCount,
+    favoriteGenresCount,
+  ];
 }

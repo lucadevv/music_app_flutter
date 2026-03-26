@@ -23,8 +23,10 @@ class HomeResponseModel extends HomeResponse {
   factory HomeResponseModel.fromJson(Map<String, dynamic> json) {
     // La API retorna 'moods_genres' como array combinado
     final dynamic moodsGenresListRaw = json['moods_genres'] ?? [];
-    final moodsGenresList = moodsGenresListRaw is List ? moodsGenresListRaw : [];
-    
+    final moodsGenresList = moodsGenresListRaw is List
+        ? moodsGenresListRaw
+        : [];
+
     // Parse models cleanly without traditional loops, dropping invalid items
     final parsedMoodsGenres = moodsGenresList
         .whereType<Map<String, dynamic>>()
@@ -35,7 +37,9 @@ class HomeResponseModel extends HomeResponse {
             return null; // Ignore errors, resilience
           }
         })
-        .where((model) => model != null && model.params.isNotEmpty) // Drop empty params
+        .where(
+          (model) => model != null && model.params.isNotEmpty,
+        ) // Drop empty params
         .cast<MoodGenreModel>()
         .toList();
 
@@ -47,11 +51,15 @@ class HomeResponseModel extends HomeResponse {
     final chartsData = json['charts'] as Map<String, dynamic>? ?? {};
     final topSongsData = chartsData['top_songs'] as List<dynamic>? ?? [];
     final trendingData = chartsData['trending'] as List<dynamic>? ?? [];
-    
+
     final topSongs = topSongsData
         .whereType<Map<String, dynamic>>()
         .map((item) {
-          try { return ChartSongModel.fromJson(item); } catch (_) { return null; }
+          try {
+            return ChartSongModel.fromJson(item);
+          } catch (_) {
+            return null;
+          }
         })
         .whereType<ChartSongModel>()
         .toList();
@@ -59,7 +67,11 @@ class HomeResponseModel extends HomeResponse {
     final trending = trendingData
         .whereType<Map<String, dynamic>>()
         .map((item) {
-          try { return ChartSongModel.fromJson(item); } catch (_) { return null; }
+          try {
+            return ChartSongModel.fromJson(item);
+          } catch (_) {
+            return null;
+          }
         })
         .whereType<ChartSongModel>()
         .toList();
@@ -67,11 +79,15 @@ class HomeResponseModel extends HomeResponse {
     // Sections
     final dynamic sectionsListRaw = json['home'] ?? [];
     final sectionsList = sectionsListRaw is List ? sectionsListRaw : [];
-    
+
     final sections = sectionsList
         .whereType<Map<String, dynamic>>()
         .map((item) {
-          try { return HomeSectionModel.fromJson(item); } catch (_) { return null; }
+          try {
+            return HomeSectionModel.fromJson(item);
+          } catch (_) {
+            return null;
+          }
         })
         .whereType<HomeSectionModel>()
         .toList();

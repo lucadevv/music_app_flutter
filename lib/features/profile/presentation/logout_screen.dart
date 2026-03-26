@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/managers/auth/auth_manager.dart';
 import 'package:music_app/core/services/auth/auth_service.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/l10n/app_localizations.dart';
 import 'package:music_app/main.dart';
 
@@ -29,8 +30,10 @@ class LogoutScreen extends StatelessWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: ${e.toString()}'),
-            backgroundColor: Colors.red,
+            content: Text(
+              '${AppLocalizations.of(context)!.errorOccurred}: ${e.toString()}',
+            ),
+            backgroundColor: AppColorsDark.error,
           ),
         );
       }
@@ -49,12 +52,12 @@ class LogoutScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.logout, size: 80, color: Colors.red),
+              const Icon(Icons.logout, size: 80, color: AppColorsDark.error),
               const SizedBox(height: 24),
               Text(
                 l10n.logout,
                 style: const TextStyle(
-                  color: Colors.white,
+                  color: AppColorsDark.onSurface,
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
                 ),
@@ -63,7 +66,7 @@ class LogoutScreen extends StatelessWidget {
               Text(
                 l10n.areYouSureYouWantToLogout,
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.6),
+                  color: AppColorsDark.onSurface.withValues(alpha: 0.6),
                   fontSize: 16,
                 ),
                 textAlign: TextAlign.center,
@@ -74,8 +77,8 @@ class LogoutScreen extends StatelessWidget {
                 child: FilledButton(
                   onPressed: () => _handleLogout(context, l10n),
                   style: FilledButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    foregroundColor: Colors.white,
+                    backgroundColor: AppColorsDark.error,
+                    foregroundColor: AppColorsDark.onSurface,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
                   child: Text(
@@ -93,8 +96,8 @@ class LogoutScreen extends StatelessWidget {
                 child: OutlinedButton(
                   onPressed: () => context.router.pop(),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    side: const BorderSide(color: Colors.white),
+                    foregroundColor: AppColorsDark.onSurface,
+                    side: const BorderSide(color: AppColorsDark.onSurface),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
                   child: Text(

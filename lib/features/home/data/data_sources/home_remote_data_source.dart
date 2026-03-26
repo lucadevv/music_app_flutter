@@ -30,7 +30,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       if (kDebugMode) {
         debugPrint('HomeRemoteDataSource: Calling /music/explore');
       }
-      
+
       const endpoint = '/music/explore?include_stream_urls=true';
       final response = await _apiServices.get(endpoint);
 
@@ -42,13 +42,17 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       final responseData = response is Response ? response.data : response;
 
       if (kDebugMode) {
-        debugPrint('HomeRemoteDataSource: responseData type = ${responseData.runtimeType}');
+        debugPrint(
+          'HomeRemoteDataSource: responseData type = ${responseData.runtimeType}',
+        );
       }
 
       if (responseData is Map<String, dynamic>) {
         // Off-loading JSON parsing a un Isolate Secundario (Performance)
-        final homeResponse = await HomeResponseParsingIsolate.parseResponse(responseData);
-        
+        final homeResponse = await HomeResponseParsingIsolate.parseResponse(
+          responseData,
+        );
+
         if (kDebugMode) {
           debugPrint(
             'getHome: HomeResponse parseado - moods: ${homeResponse.moods.length}, genres: ${homeResponse.genres.length}, sections: ${homeResponse.sections.length}',

@@ -46,9 +46,11 @@ class PlaylistTrack {
   bool matchesQuery(String query) {
     if (query.trim().isEmpty) return true;
     final lowerQuery = query.toLowerCase();
-    
+
     final matchesTitle = title.toLowerCase().contains(lowerQuery);
-    final matchesArtist = artists.any((a) => a.name.toLowerCase().contains(lowerQuery));
+    final matchesArtist = artists.any(
+      (a) => a.name.toLowerCase().contains(lowerQuery),
+    );
 
     return matchesTitle || matchesArtist;
   }

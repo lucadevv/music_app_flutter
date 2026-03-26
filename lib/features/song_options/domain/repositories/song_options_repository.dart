@@ -8,10 +8,15 @@ abstract class SongOptionsRepository {
   Future<Either<AppException, SongOptionEntity>> getSongOptions(String videoId);
 
   /// Toggle favorite status
-  Future<Either<AppException, SongOptionEntity>> toggleFavorite(SongOptionEntity song);
+  Future<Either<AppException, SongOptionEntity>> toggleFavorite(
+    SongOptionEntity song,
+  );
 
   /// Download song (requires streamUrl)
-  Future<Either<AppException, void>> downloadSong(SongOptionEntity song, String streamUrl);
+  Future<Either<AppException, void>> downloadSong(
+    SongOptionEntity song,
+    String streamUrl,
+  );
 
   /// Remove download
   Future<Either<AppException, void>> removeDownload(String videoId);

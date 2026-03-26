@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
+import 'package:music_app/l10n/app_localizations.dart';
 
 class LibraryEmptyState extends StatelessWidget {
   final String message;
@@ -16,14 +18,24 @@ class LibraryEmptyState extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.library_music_outlined, size: 64, color: Colors.grey[600]),
+          const Icon(
+            Icons.library_music_outlined,
+            size: 64,
+            color: AppColorsDark.onSurfaceVariant,
+          ),
           const SizedBox(height: 16),
           Text(
             message,
-            style: TextStyle(fontSize: 18, color: Colors.grey[400]),
+            style: const TextStyle(
+              fontSize: 18,
+              color: AppColorsDark.onSurfaceVariant,
+            ),
           ),
           const SizedBox(height: 24),
-          ElevatedButton(onPressed: onExplore, child: const Text('Explore')),
+          ElevatedButton(
+            onPressed: onExplore,
+            child: Text(AppLocalizations.of(context)!.exploreMusic),
+          ),
         ],
       ),
     );

@@ -1,4 +1,6 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/core/utils/bottom_sheet_transition.dart';
 import 'package:music_app/core/utils/bottom_sheet_visibility.dart';
 import 'package:music_app/features/downloads/presentation/widgets/download_option_tile.dart';
@@ -72,9 +74,11 @@ class SongOptionsBottomSheet extends StatelessWidget {
 
     // For now, show a snackbar as fallback
     if (context.mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Share: $shareText')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${AppLocalizations.of(context)!.share}: $shareText'),
+        ),
+      );
     }
   }
 
@@ -97,7 +101,7 @@ class SongOptionsBottomSheet extends StatelessWidget {
               artist: song.artist,
               thumbnail: song.thumbnail,
             ),
-            const Divider(color: Colors.white24),
+            const Divider(color: AppColorsDark.onSurface24),
 
             // Opción: Like/Unlike
             FavoriteOptionMolecule(
@@ -138,7 +142,7 @@ class SongOptionsBottomSheet extends StatelessWidget {
               icon: Icons.share,
               label: l10n.share,
               onTap: () {
-                Navigator.pop(context);
+                context.router.maybePop();
                 _shareSong(context, song);
               },
             ),

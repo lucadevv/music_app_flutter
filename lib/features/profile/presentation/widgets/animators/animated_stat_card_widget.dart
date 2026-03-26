@@ -6,7 +6,9 @@ class AnimatedStatCardWidget extends StatefulWidget {
   final Widget child;
 
   const AnimatedStatCardWidget({
-    required this.delay, required this.child, super.key,
+    required this.delay,
+    required this.child,
+    super.key,
   });
 
   @override

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/favorites/presentation/widgets/favorite_button.dart';
 import 'package:music_app/features/library/data/models/library_models.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
+
 import '../organisms/player_shimmer_widgets.dart';
 
 /// Widget para mostrar la información de la canción (título, artista, álbum)
@@ -36,7 +37,7 @@ class PlayerInfoWidget extends StatelessWidget {
                 child: Text(
                   track.title,
                   style: const TextStyle(
-                    color: Colors.white,
+                    color: AppColorsDark.onSurface,
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
@@ -68,7 +69,7 @@ class PlayerInfoWidget extends StatelessWidget {
           Text(
             track.artistsNames,
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.6),
+              color: AppColorsDark.onSurface.withValues(alpha: 0.6),
               fontSize: 16,
             ),
             textAlign: TextAlign.center,
@@ -84,7 +85,7 @@ class PlayerInfoWidget extends StatelessWidget {
           Text(
             track.album.name,
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.5),
+              color: AppColorsDark.onSurface.withValues(alpha: 0.5),
               fontSize: 14,
             ),
             textAlign: TextAlign.center,

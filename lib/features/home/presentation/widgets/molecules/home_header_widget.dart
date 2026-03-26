@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/core/widgets/custom_search_bar.dart';
 import 'package:music_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:music_app/l10n/app_localizations.dart';
@@ -20,7 +21,7 @@ class HomeHeaderWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
       child: Column(
@@ -32,13 +33,13 @@ class HomeHeaderWidget extends StatelessWidget {
             children: [
               BlocBuilder<ProfileCubit, ProfileState>(
                 builder: (context, state) {
-                  final userName = state.firstName?.isNotEmpty == true 
-                      ? state.firstName! 
+                  final userName = state.firstName?.isNotEmpty == true
+                      ? state.firstName!
                       : 'User';
                   return Text(
                     l10n.hello(userName),
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: AppColorsDark.onSurface,
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
                       fontFamily: 'Poppins',
@@ -57,7 +58,7 @@ class HomeHeaderWidget extends StatelessWidget {
                         color: const Color(0xFF1E1E26),
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.1),
+                          color: AppColorsDark.onSurface.withValues(alpha: 0.1),
                           width: 1,
                         ),
                       ),
@@ -68,7 +69,7 @@ class HomeHeaderWidget extends StatelessWidget {
                                 height: 20,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  color: Colors.white54,
+                                  color: AppColorsDark.onSurface54,
                                 ),
                               ),
                             )
@@ -112,7 +113,7 @@ class HomeHeaderWidget extends StatelessWidget {
       child: Text(
         initials,
         style: const TextStyle(
-          color: Colors.white,
+          color: AppColorsDark.onSurface,
           fontSize: 14,
           fontWeight: FontWeight.w600,
         ),

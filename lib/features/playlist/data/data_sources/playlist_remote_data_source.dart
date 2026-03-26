@@ -43,7 +43,8 @@ class PlaylistRemoteDataSourceImpl implements PlaylistRemoteDataSource {
         return const Left(exception);
       }
 
-      final endpoint = '/music/playlists/$id?include_stream_urls=true&start_index=$startIndex&limit=$limit';
+      final endpoint =
+          '/music/playlists/$id?include_stream_urls=true&start_index=$startIndex&limit=$limit';
       final response = await _apiServices.get(endpoint);
 
       // Dio devuelve Response, necesitamos acceder a response.data
@@ -51,9 +52,8 @@ class PlaylistRemoteDataSourceImpl implements PlaylistRemoteDataSource {
 
       if (responseData is Map<String, dynamic>) {
         // Usar isolate para playlists grandes
-        final playlistModel = await PlaylistResponseParsingIsolate.parseInIsolate(
-          responseData,
-        );
+        final playlistModel =
+            await PlaylistResponseParsingIsolate.parseInIsolate(responseData);
         // Convertir PlaylistResponseModel a PlaylistResponse (casting seguro porque PlaylistResponseModel extiende PlaylistResponse)
         final playlist = playlistModel as PlaylistResponse;
         return Right(playlist);

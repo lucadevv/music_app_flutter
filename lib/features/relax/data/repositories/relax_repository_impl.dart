@@ -11,7 +11,8 @@ class RelaxRepositoryImpl implements RelaxRepository {
   RelaxRepositoryImpl(this._dataSource);
 
   @override
-  Future<Either<AppException, List<RelaxPlaylistEntity>>> getRelaxPlaylists() async {
+  Future<Either<AppException, List<RelaxPlaylistEntity>>>
+  getRelaxPlaylists() async {
     try {
       final playlists = await _dataSource.getRelaxPlaylists();
       return Right(playlists);

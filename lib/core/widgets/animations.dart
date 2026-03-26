@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 
 /// Widget animado con desvanecimiento (fade in)
 class AnimatedFadeIn extends StatefulWidget {
@@ -8,7 +9,8 @@ class AnimatedFadeIn extends StatefulWidget {
   final Curve curve;
 
   const AnimatedFadeIn({
-    required this.child, super.key,
+    required this.child,
+    super.key,
     this.duration = const Duration(milliseconds: 400),
     this.delay = Duration.zero,
     this.curve = Curves.easeOut,
@@ -60,7 +62,8 @@ class AnimatedSlideUp extends StatefulWidget {
   final double slideFrom;
 
   const AnimatedSlideUp({
-    required this.child, super.key,
+    required this.child,
+    super.key,
     this.duration = const Duration(milliseconds: 400),
     this.delay = Duration.zero,
     this.curve = Curves.easeOutCubic,
@@ -121,7 +124,8 @@ class AnimatedScaleIn extends StatefulWidget {
   final double scaleFrom;
 
   const AnimatedScaleIn({
-    required this.child, super.key,
+    required this.child,
+    super.key,
     this.duration = const Duration(milliseconds: 400),
     this.delay = Duration.zero,
     this.curve = Curves.easeOutBack,
@@ -182,7 +186,9 @@ class AnimatedListItem extends StatefulWidget {
   final Curve curve;
 
   const AnimatedListItem({
-    required this.child, required this.index, super.key,
+    required this.child,
+    required this.index,
+    super.key,
     this.duration = const Duration(milliseconds: 350),
     this.baseDelay = const Duration(milliseconds: 50),
     this.curve = Curves.easeOutCubic,
@@ -245,7 +251,8 @@ class AnimatedPress extends StatefulWidget {
   final double scaleDown;
 
   const AnimatedPress({
-    required this.child, super.key,
+    required this.child,
+    super.key,
     this.onTap,
     this.scaleDown = 0.95,
   });
@@ -298,7 +305,8 @@ class AnimatedShimmer extends StatefulWidget {
   final bool isLoading;
 
   const AnimatedShimmer({
-    required this.child, super.key,
+    required this.child,
+    super.key,
     this.isLoading = true,
   });
 
@@ -344,7 +352,11 @@ class _AnimatedShimmerState extends State<AnimatedShimmer>
             return LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: const [Colors.grey, Colors.white, Colors.grey],
+              colors: const [
+                AppColorsDark.onSurfaceVariant,
+                AppColorsDark.onSurface,
+                AppColorsDark.onSurfaceVariant,
+              ],
               stops: [
                 _animation.value - 0.3,
                 _animation.value,
@@ -367,7 +379,8 @@ class AnimatedPage extends StatefulWidget {
   final Curve curve;
 
   const AnimatedPage({
-    required this.child, super.key,
+    required this.child,
+    super.key,
     this.duration = const Duration(milliseconds: 400),
     this.curve = Curves.easeOutCubic,
   });

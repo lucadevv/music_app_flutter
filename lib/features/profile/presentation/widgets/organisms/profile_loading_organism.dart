@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/core/widgets/shimmer_widgets.dart';
 
 /// Organismo que muestra el estado de carga del perfil.
@@ -27,13 +28,13 @@ class ProfileLoadingOrganism extends StatelessWidget {
                   ],
                 ),
               ),
-              Icon(Icons.chevron_right, color: Colors.white54),
+              Icon(Icons.chevron_right, color: AppColorsDark.onSurface54),
             ],
           ),
         ),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 24),
-          child: Divider(color: Colors.white12),
+          child: Divider(color: AppColorsDark.onSurface12),
         ),
         SizedBox(height: 16),
         // Fake Option

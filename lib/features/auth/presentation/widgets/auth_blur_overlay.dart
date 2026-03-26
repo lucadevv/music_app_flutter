@@ -9,9 +9,7 @@ class AuthBlurOverlay extends StatelessWidget {
   Widget build(BuildContext context) {
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-      child: Container(
-        color: AppColorsDark.surface.withValues(alpha: 0.7),
-      ),
+      child: Container(color: AppColorsDark.surface.withValues(alpha: 0.7)),
     );
   }
 }

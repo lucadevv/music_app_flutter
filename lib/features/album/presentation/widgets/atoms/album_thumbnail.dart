@@ -35,6 +35,6 @@ class AlbumThumbnail extends StatelessWidget {
   }
 
   Widget _buildPlaceholder() {
-    return Icon(Icons.album, size: size * 0.44, color: Colors.white);
+    return Icon(Icons.album, size: size * 0.44, color: AppColorsDark.onSurface);
   }
 }

@@ -4,10 +4,10 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:music_app/core/managers/auth/auth_manager.dart';
-import 'package:music_app/features/auth/register/domain/entities/register_request.dart';
-import 'package:music_app/features/auth/register/domain/repositories/auth_repository.dart';
-import 'package:music_app/features/auth/register/domain/use_cases/register_use_case.dart';
-import 'package:music_app/features/auth/register/presentation/cubit/register_cubit.dart';
+import 'package:music_app/features/auth/domain/entities/register_request.dart';
+import 'package:music_app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:music_app/features/auth/domain/use_cases/register_use_case.dart';
+import 'package:music_app/features/auth/presentation/blocs/register_cubit.dart';
 
 import '../../../../helpers/test_helpers.dart';
 

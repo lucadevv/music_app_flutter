@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/features/favorites/presentation/cubit/favorite_cubit.dart';
@@ -15,7 +16,11 @@ class FavoriteOptionMolecule extends StatelessWidget {
   final bool isFavorite;
 
   const FavoriteOptionMolecule({
-    required this.videoId, required this.title, required this.artist, required this.isFavorite, super.key,
+    required this.videoId,
+    required this.title,
+    required this.artist,
+    required this.isFavorite,
+    super.key,
     this.thumbnail,
     this.duration,
     this.streamUrl,
@@ -28,7 +33,7 @@ class FavoriteOptionMolecule extends StatelessWidget {
       icon: isFavorite ? Icons.heart_broken : Icons.favorite_border,
       label: label,
       onTap: () {
-        Navigator.pop(context);
+        context.router.maybePop();
         context.read<FavoriteCubit>().toggleFavorite(
           videoId: videoId,
           type: FavoriteType.song,

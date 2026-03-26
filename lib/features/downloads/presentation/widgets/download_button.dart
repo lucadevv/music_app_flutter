@@ -152,7 +152,7 @@ class _DownloadButtonState extends State<DownloadButton> {
                 valueColor: AlwaysStoppedAnimation<Color>(
                   widget.activeColor ?? AppColorsDark.primary,
                 ),
-                backgroundColor: Colors.white.withValues(alpha: 0.2),
+                backgroundColor: AppColorsDark.onSurface.withValues(alpha: 0.2),
               ),
 
             // Icon
@@ -163,7 +163,7 @@ class _DownloadButtonState extends State<DownloadButton> {
               color: _isDownloaded
                   ? (widget.activeColor ?? AppColorsDark.primary)
                   : (widget.inactiveColor ??
-                        Colors.white.withValues(alpha: 0.6)),
+                        AppColorsDark.onSurface.withValues(alpha: 0.6)),
               size: widget.size,
             ),
           ],

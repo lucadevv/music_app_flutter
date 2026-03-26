@@ -8,7 +8,9 @@ class ArtistAlbumCardMolecule extends StatelessWidget {
   final VoidCallback onTap;
 
   const ArtistAlbumCardMolecule({
-    required this.album, required this.onTap, super.key,
+    required this.album,
+    required this.onTap,
+    super.key,
   });
 
   @override
@@ -57,7 +59,7 @@ class ArtistAlbumCardMolecule extends StatelessWidget {
     return Text(
       album.title,
       style: const TextStyle(
-        color: Colors.white,
+        color: AppColorsDark.onSurface,
         fontSize: 13,
         fontWeight: FontWeight.w500,
       ),
@@ -70,7 +72,7 @@ class ArtistAlbumCardMolecule extends StatelessWidget {
     return Text(
       '${album.year} • ${album.songCount} songs',
       style: TextStyle(
-        color: Colors.white.withValues(alpha: 0.6),
+        color: AppColorsDark.onSurface.withValues(alpha: 0.6),
         fontSize: 11,
       ),
     );

@@ -48,7 +48,6 @@
   "language": "Language",
   "english": "English",
   "spanish": "Spanish",
-
   "yourLibrary": "Your Library",
   "likedSongs": "Liked Songs",
   "genres": "Genres",
@@ -65,7 +64,6 @@
   "createPlaylistToOrganize": "Create playlists to organize your music",
   "share": "Share",
   "errorLoadingLibrary": "Error loading library",
-
   "musicLanguages": "Music Language(s)",
   "streamingQuality": "Streaming Quality",
   "downloadQuality": "Download Quality",
@@ -78,7 +76,6 @@
   "others": "Others",
   "helpAndSupport": "Help & Support",
   "hd": "HD",
-
   "myProfile": "My Profile",
   "exit": "Exit",
   "errorLoadingProfile": "Error loading profile",
@@ -94,7 +91,6 @@
   "save": "Save",
   "edit": "Edit",
   "delete": "Delete",
-
   "errorUnknown": "Unknown error",
   "song": "Song",
   "deleteDownloadConfirmation": "Delete download",
@@ -107,7 +103,6 @@
     }
   },
   "downloadingTitle": "Downloading",
-
   "skip": "Skip",
   "discoverNewMusic": "Discover New Music",
   "discoverNewMusicDesc": "Explore millions of songs and find your next musical obsession",
@@ -116,7 +111,6 @@
   "listenWithoutLimits": "Listen Without Limits",
   "listenWithoutLimitsDesc": "Enjoy high-quality music without interruptions, wherever you are",
   "getStarted": "Get Started",
-
   "loginTitle": "Login",
   "enterYourCredentials": "Enter your credentials",
   "emailAddress": "Email address",
@@ -128,12 +122,10 @@
   "or": "or",
   "noAccount": "Don't have an account?",
   "register": "Register",
-
   "welcome": "Welcome Vibeat",
   "signInToContinue": "Sign in to continue",
   "continueWithGoogle": "Continue with Google",
   "continueWithApple": "Continue with Apple",
-
   "verifyYourEmail": "Verify your email",
   "verificationEmailSent": "We have sent a verification link to your email address.",
   "openMyEmail": "Open my email",
@@ -141,16 +133,13 @@
   "errorClosingSession": "Error closing session. Please try again.",
   "onceVerifiedAccess": "Once you verify your email, you will be able to access all app features.",
   "logoutTokensWarning": "Are you sure you want to logout? All your tokens will be deleted.",
-
   "likedSongsCount": "liked songs",
   "noLikedSongsYet": "No liked songs yet",
   "songsYouLikeWillAppearHere": "Songs you like will appear here",
   "errorLoadingSongs": "Error loading songs",
-
   "errorLoadingPlaylist": "Error loading playlist",
   "errorLoadingHome": "Error loading home",
   "errorLoadingPlaylists": "Error loading playlists",
-
   "monthsJan": "Jan",
   "monthsFeb": "Feb",
   "monthsMar": "Mar",
@@ -163,14 +152,11 @@
   "monthsOct": "Oct",
   "monthsNov": "Nov",
   "monthsDec": "Dec",
-
   "hi": "Hi",
   "goodMorning": "Good Morning",
   "goodAfternoon": "Good Afternoon",
   "goodEvening": "Good Evening",
-
   "artistName": "Artist Name",
-  "song": "Song",
   "monthlyListeners": "monthly listeners",
   "popular": "Popular",
   "relax": "Relax",
@@ -178,7 +164,6 @@
   "travel": "Travel",
   "focus": "Focus",
   "energize": "Energize",
-
   "profileAndSettings": "Profile & Settings",
   "areYouSureYouWantToLogout": "Are you sure you want to logout?",
   "clear": "Clear",
@@ -205,17 +190,14 @@
   "selectCategories": "Select Categories",
   "searchFor": "Search for a song, artist or album...",
   "all": "All",
-  
   "diveIntoYour": "Dive Into Your",
   "vibeat": "Vibeat.",
   "onboardingSubtitle": "Experience seamless music enjoyment,\ncrafted for every moment.",
   "startExplore": "Start Explore",
-  
   "recoverPassword": "Recover password",
   "emailSent": "Email sent",
   "checkInbox": "Check your inbox for instructions to reset your password",
   "enterEmailInstructions": "Enter your email and we will send you instructions to reset your password",
-
   "createAccount": "Create account",
   "signUpToStart": "Sign up to get started",
   "firstName": "First name",
@@ -223,15 +205,18 @@
   "confirmPassword": "Confirm password",
   "minimum8Characters": "Minimum 8 characters",
   "repeatYourPassword": "Repeat your password",
-  "register": "Register",
   "alreadyHaveAccount": "Already have an account?",
   "signIn": "Sign in",
-
   "emailLabel": "Email",
   "emailPlaceholder": "your@email.com",
   "pleaseEnterEmail": "Please enter your email",
   "enterValidEmail": "Enter a valid email",
   "sendInstructions": "Send instructions",
   "backToLogin": "Back to login",
-  "successfullyLoggedIn": "Successfully logged in"
+  "successfullyLoggedIn": "Successfully logged in",
+  "ok": "OK",
+  "errorDownloadUrl": "Could not get download URL",
+  "playlistNotFound": "Playlist not found",
+  "noSongsInPlaylist": "No songs in this playlist",
+  "linkCopied": "Link copied to clipboard"
 }

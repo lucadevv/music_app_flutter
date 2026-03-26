@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
+
 import '../cubit/mood_genre_cubit.dart';
 
 /// Widget para escuchar cambios de estado y efectos
@@ -29,7 +31,7 @@ class _MoodGenreListenersState extends State<MoodGenreListeners> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.errorMessage!),
-              backgroundColor: Colors.red,
+              backgroundColor: AppColorsDark.error,
             ),
           );
         }

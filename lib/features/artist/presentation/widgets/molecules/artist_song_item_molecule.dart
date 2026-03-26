@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:music_app/core/domain/entities/artist.dart';
 import 'package:music_app/core/presentation/widgets/song_list_item.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/song_options/presentation/widgets/song_options_bottom_sheet.dart';
 
 class ArtistSongItemMolecule extends StatelessWidget {
@@ -9,7 +10,10 @@ class ArtistSongItemMolecule extends StatelessWidget {
   final VoidCallback onTap;
 
   const ArtistSongItemMolecule({
-    required this.song, required this.index, required this.onTap, super.key,
+    required this.song,
+    required this.index,
+    required this.onTap,
+    super.key,
   });
 
   @override
@@ -25,7 +29,7 @@ class ArtistSongItemMolecule extends StatelessWidget {
             Text(
               song.formattedDuration,
               style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.6),
+                color: AppColorsDark.onSurface.withValues(alpha: 0.6),
                 fontSize: 14,
               ),
             ),
@@ -33,7 +37,7 @@ class ArtistSongItemMolecule extends StatelessWidget {
             IconButton(
               icon: Icon(
                 Icons.more_vert,
-                color: Colors.white.withValues(alpha: 0.6),
+                color: AppColorsDark.onSurface.withValues(alpha: 0.6),
               ),
               onPressed: () => _showSongOptions(context),
             ),

@@ -23,12 +23,12 @@ class ErrorWidgetAtom extends StatelessWidget {
             Icon(
               Icons.error_outline,
               size: 48,
-              color: Colors.red.withValues(alpha: 0.8),
+              color: AppColorsDark.error.withValues(alpha: 0.8),
             ),
             const SizedBox(height: 16),
             Text(
               message,
-              style: const TextStyle(color: Colors.white70),
+              style: const TextStyle(color: AppColorsDark.onSurface70),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
@@ -37,10 +37,10 @@ class ErrorWidgetAtom extends StatelessWidget {
                 backgroundColor: AppColorsDark.primary,
               ),
               onPressed: onRetry,
-              icon: const Icon(Icons.refresh, color: Colors.white),
+              icon: const Icon(Icons.refresh, color: AppColorsDark.onSurface),
               label: const Text(
                 'Reintentar',
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: AppColorsDark.onSurface),
               ),
             ),
           ],

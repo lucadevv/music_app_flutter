@@ -1297,6 +1297,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Successfully logged in'**
   String get successfullyLoggedIn;
+
+  /// No description provided for @ok.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get ok;
+
+  /// No description provided for @errorDownloadUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not get download URL'**
+  String get errorDownloadUrl;
+
+  /// No description provided for @playlistNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Playlist not found'**
+  String get playlistNotFound;
+
+  /// No description provided for @noSongsInPlaylist.
+  ///
+  /// In en, this message translates to:
+  /// **'No songs in this playlist'**
+  String get noSongsInPlaylist;
+
+  /// No description provided for @linkCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Link copied to clipboard'**
+  String get linkCopied;
 }
 
 class _AppLocalizationsDelegate

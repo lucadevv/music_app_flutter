@@ -47,5 +47,12 @@ class SearchState extends Equatable {
   );
 
   @override
-  List<Object?> get props => [status, errorMessage, responseEntity, query, hasMore, currentPage];
+  List<Object?> get props => [
+    status,
+    errorMessage,
+    responseEntity,
+    query,
+    hasMore,
+    currentPage,
+  ];
 }

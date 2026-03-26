@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 
 class PlaylistAppBarActions extends StatelessWidget {
   final bool showSearch;
@@ -6,7 +7,10 @@ class PlaylistAppBarActions extends StatelessWidget {
   final VoidCallback onMorePressed;
 
   const PlaylistAppBarActions({
-    required this.showSearch, required this.onSearchPressed, required this.onMorePressed, super.key,
+    required this.showSearch,
+    required this.onSearchPressed,
+    required this.onMorePressed,
+    super.key,
   });
 
   @override
@@ -35,11 +39,11 @@ class _ActionButton extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.3),
+        color: AppColorsDark.surfaceDim.withValues(alpha: 0.3),
         shape: BoxShape.circle,
       ),
       child: IconButton(
-        icon: Icon(icon, color: Colors.white, size: 20),
+        icon: Icon(icon, color: AppColorsDark.onSurface, size: 20),
         onPressed: onPressed,
       ),
     );

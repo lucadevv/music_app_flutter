@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/song_options/presentation/widgets/song_options_bottom_sheet.dart';
 
 /// Widget para el header del reproductor
@@ -43,7 +44,7 @@ class PlayerHeaderWidget extends StatelessWidget {
           IconButton(
             icon: const Icon(
               Icons.arrow_back_ios_new,
-              color: Colors.white,
+              color: AppColorsDark.onSurface,
               size: 20,
             ),
             onPressed: () => context.router.pop(),
@@ -55,7 +56,7 @@ class PlayerHeaderWidget extends StatelessWidget {
                 Text(
                   'Music Player',
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.7),
+                    color: AppColorsDark.onSurface.withValues(alpha: 0.7),
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),
@@ -65,7 +66,7 @@ class PlayerHeaderWidget extends StatelessWidget {
                   Text(
                     playlistName!,
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: AppColorsDark.onSurface,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),
@@ -77,7 +78,7 @@ class PlayerHeaderWidget extends StatelessWidget {
                   Text(
                     '${currentIndex + 1}/$totalTracks',
                     style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.5),
+                      color: AppColorsDark.onSurface.withValues(alpha: 0.5),
                       fontSize: 11,
                     ),
                     textAlign: TextAlign.center,
@@ -90,11 +91,17 @@ class PlayerHeaderWidget extends StatelessWidget {
             children: [
               if (currentVideoId != null)
                 IconButton(
-                  icon: const Icon(Icons.playlist_add, color: Colors.white),
+                  icon: const Icon(
+                    Icons.playlist_add,
+                    color: AppColorsDark.onSurface,
+                  ),
                   onPressed: () => _showAddToPlaylistSheet(context),
                 ),
               IconButton(
-                icon: const Icon(Icons.queue_music, color: Colors.white),
+                icon: const Icon(
+                  Icons.queue_music,
+                  color: AppColorsDark.onSurface,
+                ),
                 onPressed: () => context.router.push(const QueueRoute()),
               ),
             ],

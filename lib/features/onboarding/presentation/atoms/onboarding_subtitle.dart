@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 
 class OnboardingSubtitle extends StatelessWidget {
   final String text;
@@ -11,7 +12,7 @@ class OnboardingSubtitle extends StatelessWidget {
       text,
       style: TextStyle(
         fontSize: 15,
-        color: Colors.white.withValues(alpha: 0.7),
+        color: AppColorsDark.onSurface.withValues(alpha: 0.7),
         fontFamily: 'Poppins',
         height: 1.4,
       ),

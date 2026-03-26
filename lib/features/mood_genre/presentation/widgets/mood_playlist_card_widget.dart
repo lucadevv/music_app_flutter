@@ -29,7 +29,7 @@ class MoodPlaylistCardWidget extends StatelessWidget {
         width: 160,
         margin: const EdgeInsets.only(right: 16),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.05),
+          color: AppColorsDark.onSurface.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
@@ -82,7 +82,7 @@ class MoodPlaylistCardWidget extends StatelessWidget {
                   Text(
                     playlist.title,
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: AppColorsDark.onSurface,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),
@@ -94,7 +94,7 @@ class MoodPlaylistCardWidget extends StatelessWidget {
                     Text(
                       playlist.author,
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.6),
+                        color: AppColorsDark.onSurface.withValues(alpha: 0.6),
                         fontSize: 12,
                       ),
                       maxLines: 1,
@@ -106,7 +106,7 @@ class MoodPlaylistCardWidget extends StatelessWidget {
                     Text(
                       '${playlist.itemCount} canciones',
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.5),
+                        color: AppColorsDark.onSurface.withValues(alpha: 0.5),
                         fontSize: 11,
                       ),
                     ),

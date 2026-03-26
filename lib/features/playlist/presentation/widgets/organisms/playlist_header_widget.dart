@@ -39,8 +39,8 @@ class PlaylistHeaderWidget extends StatelessWidget {
               end: Alignment.bottomCenter,
               colors: [
                 Colors.transparent,
-                Colors.black.withValues(alpha: 0.3),
-                Colors.black.withValues(alpha: 0.7),
+                AppColorsDark.surfaceDim.withValues(alpha: 0.3),
+                AppColorsDark.surfaceDim.withValues(alpha: 0.7),
               ],
               stops: const [0.0, 0.5, 1.0],
             ),
@@ -64,7 +64,9 @@ class PlaylistHeaderWidget extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.4),
+                          color: AppColorsDark.surfaceDim.withValues(
+                            alpha: 0.4,
+                          ),
                           blurRadius: 30,
                           offset: const Offset(0, 15),
                           spreadRadius: 5,
@@ -81,7 +83,7 @@ class PlaylistHeaderWidget extends StatelessWidget {
                           child: const Center(
                             child: CircularProgressIndicator(
                               valueColor: AlwaysStoppedAnimation<Color>(
-                                Colors.white,
+                                AppColorsDark.onSurface,
                               ),
                             ),
                           ),
@@ -91,7 +93,7 @@ class PlaylistHeaderWidget extends StatelessWidget {
                           child: const Icon(
                             Icons.playlist_play,
                             size: 80,
-                            color: Colors.white,
+                            color: AppColorsDark.onSurface,
                           ),
                         ),
                       ),
@@ -107,7 +109,7 @@ class PlaylistHeaderWidget extends StatelessWidget {
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.4),
+                        color: AppColorsDark.surfaceDim.withValues(alpha: 0.4),
                         blurRadius: 30,
                         offset: const Offset(0, 15),
                         spreadRadius: 5,
@@ -117,7 +119,7 @@ class PlaylistHeaderWidget extends StatelessWidget {
                   child: const Icon(
                     Icons.playlist_play,
                     size: 80,
-                    color: Colors.white,
+                    color: AppColorsDark.onSurface,
                   ),
                 ),
               const SizedBox(height: 24),
@@ -127,7 +129,7 @@ class PlaylistHeaderWidget extends StatelessWidget {
                 child: Text(
                   playlist.title,
                   style: const TextStyle(
-                    color: Colors.white,
+                    color: AppColorsDark.onSurface,
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                     letterSpacing: -0.5,
@@ -142,7 +144,7 @@ class PlaylistHeaderWidget extends StatelessWidget {
               Text(
                 '${playlist.author.name} • ${playlist.trackCount} songs',
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.8),
+                  color: AppColorsDark.onSurface.withValues(alpha: 0.8),
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                 ),

@@ -61,11 +61,11 @@ class UserSettingsEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        language,
-        streamingQuality,
-        downloadQuality,
-        autoPlay,
-        showLyrics,
-        equalizerPreset,
-      ];
+    language,
+    streamingQuality,
+    downloadQuality,
+    autoPlay,
+    showLyrics,
+    equalizerPreset,
+  ];
 }

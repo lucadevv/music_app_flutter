@@ -8,7 +8,6 @@ import 'package:music_app/features/downloads/domain/use_cases/get_downloaded_son
 import 'package:music_app/features/downloads/domain/use_cases/remove_download_use_case.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
 import 'package:music_app/features/player/domain/player_facade.dart';
-// Removed unused import: thumbnail
 
 part 'downloads_state.dart';
 
@@ -31,8 +30,8 @@ class DownloadsCubit extends Cubit<DownloadsState> with BaseBlocMixin {
     this._getDownloadedSongsUseCase,
     this._removeDownloadUseCase,
     this._checkDownloadStatusUseCase,
-    this._player,
-    {bool autoLoad = true,
+    this._player, {
+    bool autoLoad = true,
   }) : super(const DownloadsState()) {
     if (autoLoad) {
       // Cargar descargas automáticamente al iniciar
@@ -46,25 +45,27 @@ class DownloadsCubit extends Cubit<DownloadsState> with BaseBlocMixin {
 
     emit(state.copyWith(status: DownloadsStatus.loading, clearError: true));
 
-    final (error, songs) = await _getDownloadedSongsUseCase();
+    final result = await _getDownloadedSongsUseCase();
 
     if (isClosed) return;
 
-    if (error != null) {
-      emit(
-        state.copyWith(
-          status: DownloadsStatus.failure,
-          errorMessage: getErrorMessage(error),
-        ),
-      );
-      return;
-    }
-
-    emit(
-      state.copyWith(
-        status: DownloadsStatus.success,
-        downloadedSongs: songs ?? [],
-      ),
+    result.fold(
+      (error) {
+        emit(
+          state.copyWith(
+            status: DownloadsStatus.failure,
+            errorMessage: getErrorMessage(error),
+          ),
+        );
+      },
+      (songs) {
+        emit(
+          state.copyWith(
+            status: DownloadsStatus.success,
+            downloadedSongs: songs,
+          ),
+        );
+      },
     );
   }
 
@@ -86,7 +87,7 @@ class DownloadsCubit extends Cubit<DownloadsState> with BaseBlocMixin {
       ),
     );
 
-    final (error, downloadedSong) = await _downloadSongUseCase(
+    final result = await _downloadSongUseCase(
       DownloadParams(
         videoId: videoId,
         title: title,
@@ -118,50 +119,52 @@ class DownloadsCubit extends Cubit<DownloadsState> with BaseBlocMixin {
     final newProgress = Map<String, double>.from(state.downloadProgress)
       ..remove(videoId);
 
-    if (error != null) {
-      emit(
-        state.copyWith(
-          downloadingIds: newDownloadingIds,
-          downloadProgress: newProgress,
-          errorMessage: getErrorMessage(error),
-        ),
-      );
-      return;
-    }
-
-    if (downloadedSong != null) {
-      emit(
-        state.copyWith(
-          downloadingIds: newDownloadingIds,
-          downloadProgress: newProgress,
-          downloadedSongs: [...state.downloadedSongs, downloadedSong],
-        ),
-      );
-    }
+    result.fold(
+      (error) {
+        emit(
+          state.copyWith(
+            downloadingIds: newDownloadingIds,
+            downloadProgress: newProgress,
+            errorMessage: getErrorMessage(error),
+          ),
+        );
+      },
+      (downloadedSong) {
+        emit(
+          state.copyWith(
+            downloadingIds: newDownloadingIds,
+            downloadProgress: newProgress,
+            downloadedSongs: [...state.downloadedSongs, downloadedSong],
+          ),
+        );
+      },
+    );
   }
 
   /// Elimina una descarga
   Future<void> removeDownload(String videoId) async {
-    final (error, _) = await _removeDownloadUseCase(videoId);
+    final result = await _removeDownloadUseCase(videoId);
 
-    if (error != null) {
-      emit(state.copyWith(errorMessage: getErrorMessage(error)));
-      return;
-    }
-
-    emit(
-      state.copyWith(
-        downloadedSongs: state.downloadedSongs
-            .where((song) => song.videoId != videoId)
-            .toList(),
-      ),
+    result.fold(
+      (error) {
+        emit(state.copyWith(errorMessage: getErrorMessage(error)));
+      },
+      (_) {
+        emit(
+          state.copyWith(
+            downloadedSongs: state.downloadedSongs
+                .where((song) => song.videoId != videoId)
+                .toList(),
+          ),
+        );
+      },
     );
   }
 
   /// Verifica si una canción está descargada
   Future<bool> isDownloaded(String videoId) async {
-    final (error, isDownloaded) = await _checkDownloadStatusUseCase(videoId);
-    return error == null && isDownloaded;
+    final result = await _checkDownloadStatusUseCase(videoId);
+    return result.fold((_) => false, (isDownloaded) => isDownloaded);
   }
 
   /// Obtiene el progreso de descarga de una canción
@@ -169,32 +172,29 @@ class DownloadsCubit extends Cubit<DownloadsState> with BaseBlocMixin {
     return state.downloadProgress[videoId] ?? 0.0;
   }
 
-  /// Verifica si una canción se está descargando
-  bool isDownloading(String videoId) {
-    return state.downloadingIds.contains(videoId);
-  }
-
-  /// Limpia el mensaje de error
-  void clearError() {
-    emit(state.copyWith(clearError: true));
+  /// Obtiene una canción descargada por su ID de video
+  DownloadedSong? getDownloadedSong(String videoId) {
+    try {
+      return state.downloadedSongs.firstWhere(
+        (song) => song.videoId == videoId,
+      );
+    } catch (_) {
+      return null;
+    }
   }
 
   /// Reproduce una canción descargada
-  /// Retorna el NowPlayingData para navegación
   NowPlayingData playDownloadedSong(DownloadedSong song) {
-    final durationSeconds = song.duration.inSeconds;
-    final durationStr = _formatDuration(song.duration.inSeconds);
     final nowPlayingData = NowPlayingData.fromBasic(
       videoId: song.videoId,
       title: song.title,
       artistNames: [song.artist],
-      albumName: '',
-      duration: durationStr,
-      durationSeconds: durationSeconds,
+      albumName: song.album ?? '',
+      duration: _formatDuration(song.duration.inSeconds),
+      durationSeconds: song.duration.inSeconds,
       thumbnailUrl: song.thumbnail,
       streamUrl: 'file://${song.localPath}',
     );
-
     _player.playSingle(nowPlayingData);
     return nowPlayingData;
   }

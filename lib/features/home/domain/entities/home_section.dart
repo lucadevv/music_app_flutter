@@ -7,10 +7,7 @@ class HomeSection {
 
   const HomeSection({required this.title, required this.contents});
 
-  HomeSection copyWith({
-    String? title,
-    List<HomeContentItem>? contents,
-  }) {
+  HomeSection copyWith({String? title, List<HomeContentItem>? contents}) {
     return HomeSection(
       title: title ?? this.title,
       contents: contents ?? this.contents,

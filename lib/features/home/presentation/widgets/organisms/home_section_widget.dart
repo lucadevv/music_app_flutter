@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/core/widgets/song_card.dart';
 import 'package:music_app/features/home/domain/entities/home_content_item.dart';
 import 'package:music_app/features/home/domain/entities/home_section.dart';
+
 import 'home_content_widgets.dart';
 
 class HomeSectionWidget extends StatelessWidget {
@@ -11,7 +13,9 @@ class HomeSectionWidget extends StatelessWidget {
   final Function(HomeContentItem)? onAlbumTap;
 
   const HomeSectionWidget({
-    required this.section, required this.onSongTap, super.key,
+    required this.section,
+    required this.onSongTap,
+    super.key,
     this.onPlaylistTap,
     this.onAlbumTap,
   });
@@ -34,7 +38,7 @@ class HomeSectionWidget extends StatelessWidget {
               Text(
                 section.title,
                 style: const TextStyle(
-                  color: Colors.white,
+                  color: AppColorsDark.onSurface,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   fontFamily: 'Poppins',
@@ -55,9 +59,15 @@ class HomeSectionWidget extends StatelessWidget {
   }
 
   Widget _buildContent() {
-    final songs = section.contents.where((item) => item.contentType == HomeContentType.song).toList();
-    final albums = section.contents.where((item) => item.contentType == HomeContentType.album).toList();
-    final playlists = section.contents.where((item) => item.contentType == HomeContentType.playlist).toList();
+    final songs = section.contents
+        .where((item) => item.contentType == HomeContentType.song)
+        .toList();
+    final albums = section.contents
+        .where((item) => item.contentType == HomeContentType.album)
+        .toList();
+    final playlists = section.contents
+        .where((item) => item.contentType == HomeContentType.playlist)
+        .toList();
 
     // Use our beautiful new SongCard for songs
     if (songs.length == section.contents.length) {
@@ -135,13 +145,10 @@ class HomeSectionWidget extends StatelessWidget {
       itemCount: section.contents.length,
       itemBuilder: (context, index) {
         final item = section.contents[index];
-        
+
         switch (item.contentType) {
           case HomeContentType.song:
-            return SongListItemWidget(
-              item: item,
-              onTap: () => onSongTap(item),
-            );
+            return SongListItemWidget(item: item, onTap: () => onSongTap(item));
           case HomeContentType.album:
             return AlbumListItemWidget(
               item: item,

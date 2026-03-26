@@ -6,13 +6,16 @@ class CategoryChip extends StatelessWidget {
   final VoidCallback onTap;
 
   const CategoryChip({
-    required this.label, required this.isSelected, required this.onTap, super.key,
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+    super.key,
   });
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return GestureDetector(
       onTap: onTap,
       child: Container(

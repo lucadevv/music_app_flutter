@@ -46,13 +46,13 @@ class SongOptionEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        videoId,
-        title,
-        artist,
-        thumbnail,
-        streamUrl,
-        durationSeconds,
-        isFavorite,
-        isDownloaded,
-      ];
+    videoId,
+    title,
+    artist,
+    thumbnail,
+    streamUrl,
+    durationSeconds,
+    isFavorite,
+    isDownloaded,
+  ];
 }

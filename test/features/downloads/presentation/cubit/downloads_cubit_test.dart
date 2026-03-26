@@ -170,22 +170,7 @@ void main() {
       ],
     );
 
-    blocTest<DownloadsCubit, DownloadsState>(
-      'should clear error when clearError is called',
-      build: () => downloadsCubit,
-      seed: () => const DownloadsState(
-        status: DownloadsStatus.failure,
-        errorMessage: 'Some error',
-      ),
-      act: (cubit) => cubit.clearError(),
-      expect: () => [
-        isA<DownloadsState>().having(
-          (s) => s.errorMessage,
-          'errorMessage',
-          isNull,
-        ),
-      ],
-    );
+
 
     test('isDownloaded should return true when song is downloaded', () async {
       // Arrange
@@ -237,13 +222,7 @@ void main() {
       expect(progress, equals(0.0));
     });
 
-    test('isDownloading should return false for unknown videoId', () {
-      // Act
-      final isDownloading = downloadsCubit.isDownloading('unknown');
 
-      // Assert
-      expect(isDownloading, isFalse);
-    });
 
     test('state should have correct computed properties', () {
       // Arrange

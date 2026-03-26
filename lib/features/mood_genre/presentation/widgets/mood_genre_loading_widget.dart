@@ -19,11 +19,15 @@ class MoodGenreLoadingWidget extends StatelessWidget {
             backgroundColor: Colors.transparent,
             elevation: 0,
             leading: SizedBox(
-               width: 48, 
-               height: 48,
-               child: Center(
-                 child: ShimmerContainer(width: 24, height: 24, borderRadius: 12),
-               ),
+              width: 48,
+              height: 48,
+              child: Center(
+                child: ShimmerContainer(
+                  width: 24,
+                  height: 24,
+                  borderRadius: 12,
+                ),
+              ),
             ),
             flexibleSpace: FlexibleSpaceBar(
               title: Align(
@@ -52,29 +56,26 @@ class MoodGenreLoadingWidget extends StatelessWidget {
                 mainAxisSpacing: 16,
                 childAspectRatio: 0.75,
               ),
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  return const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Usar Expanded para que el Thumbnail ocupe todo el espacio sobrante posible
-                      Expanded(
-                        child: ShimmerContainer(
-                          width: double.infinity,
-                          height: double.infinity,
-                          borderRadius: 12,
-                        ),
+              delegate: SliverChildBuilderDelegate((context, index) {
+                return const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Usar Expanded para que el Thumbnail ocupe todo el espacio sobrante posible
+                    Expanded(
+                      child: ShimmerContainer(
+                        width: double.infinity,
+                        height: double.infinity,
+                        borderRadius: 12,
                       ),
-                      SizedBox(height: 8),
-                      // Título
-                      TextShimmer(width: double.infinity, height: 14),
-                      SizedBox(height: 4),
-                      TextShimmer(width: 80, height: 14),
-                    ],
-                  );
-                },
-                childCount: 16,
-              ),
+                    ),
+                    SizedBox(height: 8),
+                    // Título
+                    TextShimmer(width: double.infinity, height: 14),
+                    SizedBox(height: 4),
+                    TextShimmer(width: 80, height: 14),
+                  ],
+                );
+              }, childCount: 16),
             ),
           ),
           const SliverToBoxAdapter(child: SizedBox(height: 100)),

@@ -625,4 +625,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get successfullyLoggedIn => 'Successfully logged in';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String get errorDownloadUrl => 'Could not get download URL';
+
+  @override
+  String get playlistNotFound => 'Playlist not found';
+
+  @override
+  String get noSongsInPlaylist => 'No songs in this playlist';
+
+  @override
+  String get linkCopied => 'Link copied to clipboard';
 }

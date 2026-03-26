@@ -26,12 +26,15 @@ class UserPlaylistHeaderMolecule extends StatelessWidget {
       pinned: true,
       backgroundColor: const Color(0xFF0D0D0D),
       flexibleSpace: FlexibleSpaceBar(
-        title: Text(playlistName, style: const TextStyle(color: Colors.white)),
+        title: Text(
+          playlistName,
+          style: const TextStyle(color: AppColorsDark.onSurface),
+        ),
         background: thumbnail != null
             ? CachedNetworkImage(
                 imageUrl: thumbnail!,
                 fit: BoxFit.cover,
-                color: Colors.black54,
+                color: AppColorsDark.surfaceDim54,
                 colorBlendMode: BlendMode.darken,
               )
             : Container(
@@ -39,7 +42,7 @@ class UserPlaylistHeaderMolecule extends StatelessWidget {
                 child: const Icon(
                   Icons.playlist_play,
                   size: 100,
-                  color: Colors.white24,
+                  color: AppColorsDark.onSurface24,
                 ),
               ),
       ),
@@ -61,7 +64,7 @@ class UserPlaylistHeaderMolecule extends StatelessWidget {
               value: 'edit',
               child: Row(
                 children: [
-                  const Icon(Icons.edit, color: Colors.white),
+                  const Icon(Icons.edit, color: AppColorsDark.onSurface),
                   const SizedBox(width: 8),
                   Text(l10n.edit),
                 ],
@@ -71,9 +74,12 @@ class UserPlaylistHeaderMolecule extends StatelessWidget {
               value: 'delete',
               child: Row(
                 children: [
-                  const Icon(Icons.delete, color: Colors.red),
+                  const Icon(Icons.delete, color: AppColorsDark.error),
                   const SizedBox(width: 8),
-                  Text(l10n.delete, style: const TextStyle(color: Colors.red)),
+                  Text(
+                    l10n.delete,
+                    style: const TextStyle(color: AppColorsDark.error),
+                  ),
                 ],
               ),
             ),

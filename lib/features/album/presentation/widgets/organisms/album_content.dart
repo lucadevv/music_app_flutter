@@ -13,7 +13,9 @@ class AlbumContent extends StatelessWidget {
   final VoidCallback? onLikePressed;
 
   const AlbumContent({
-    required this.album, required this.state, super.key,
+    required this.album,
+    required this.state,
+    super.key,
     this.onSongTap,
     this.onPlayAllPressed,
     this.onLikePressed,

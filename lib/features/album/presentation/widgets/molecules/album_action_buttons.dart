@@ -12,7 +12,8 @@ class AlbumActionButtons extends StatelessWidget {
   final VoidCallback? onShufflePressed;
 
   const AlbumActionButtons({
-    required this.isLiked, super.key,
+    required this.isLiked,
+    super.key,
     this.onDownloadPressed,
     this.onLikePressed,
     this.onPlayPressed,
@@ -35,7 +36,7 @@ class AlbumActionButtons extends StatelessWidget {
               label: Text(l10n.play),
               style: FilledButton.styleFrom(
                 backgroundColor: AppColorsDark.primary,
-                foregroundColor: Colors.white,
+                foregroundColor: AppColorsDark.onSurface,
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
             ),

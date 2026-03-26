@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:shimmer/shimmer.dart';
 
 /// Widget para la barra de progreso del reproductor
@@ -41,13 +42,13 @@ class PlayerProgressBarWidget extends StatelessWidget {
       return Column(
         children: [
           Shimmer.fromColors(
-            baseColor: Colors.white.withValues(alpha: 0.1),
-            highlightColor: Colors.white.withValues(alpha: 0.2),
+            baseColor: AppColorsDark.onSurface.withValues(alpha: 0.1),
+            highlightColor: AppColorsDark.onSurface.withValues(alpha: 0.2),
             child: Container(
               height: 2,
               width: double.infinity,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColorsDark.onSurface,
                 borderRadius: BorderRadius.circular(1),
               ),
             ),
@@ -59,25 +60,29 @@ class PlayerProgressBarWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Shimmer.fromColors(
-                  baseColor: Colors.white.withValues(alpha: 0.1),
-                  highlightColor: Colors.white.withValues(alpha: 0.2),
+                  baseColor: AppColorsDark.onSurface.withValues(alpha: 0.1),
+                  highlightColor: AppColorsDark.onSurface.withValues(
+                    alpha: 0.2,
+                  ),
                   child: Container(
                     height: 12,
                     width: 40,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColorsDark.onSurface,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
                 ),
                 Shimmer.fromColors(
-                  baseColor: Colors.white.withValues(alpha: 0.1),
-                  highlightColor: Colors.white.withValues(alpha: 0.2),
+                  baseColor: AppColorsDark.onSurface.withValues(alpha: 0.1),
+                  highlightColor: AppColorsDark.onSurface.withValues(
+                    alpha: 0.2,
+                  ),
                   child: Container(
                     height: 12,
                     width: 40,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColorsDark.onSurface,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -97,9 +102,9 @@ class PlayerProgressBarWidget extends StatelessWidget {
       children: [
         SliderTheme(
           data: SliderTheme.of(context).copyWith(
-            activeTrackColor: Colors.white,
-            inactiveTrackColor: Colors.white.withValues(alpha: 0.3),
-            thumbColor: Colors.white,
+            activeTrackColor: AppColorsDark.onSurface,
+            inactiveTrackColor: AppColorsDark.onSurface.withValues(alpha: 0.3),
+            thumbColor: AppColorsDark.onSurface,
             thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
             trackHeight: 2,
           ),
@@ -127,14 +132,14 @@ class PlayerProgressBarWidget extends StatelessWidget {
               Text(
                 _formatDuration(position),
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.6),
+                  color: AppColorsDark.onSurface.withValues(alpha: 0.6),
                   fontSize: 12,
                 ),
               ),
               Text(
                 _formatDuration(duration),
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.6),
+                  color: AppColorsDark.onSurface.withValues(alpha: 0.6),
                   fontSize: 12,
                 ),
               ),

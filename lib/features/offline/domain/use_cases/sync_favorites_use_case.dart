@@ -8,7 +8,9 @@ class SyncFavoritesUseCase {
 
   SyncFavoritesUseCase(this._repository);
 
-  Future<Either<AppException, void>> call(List<Map<String, dynamic>> serverSongs) {
+  Future<Either<AppException, void>> call(
+    List<Map<String, dynamic>> serverSongs,
+  ) {
     return _repository.syncFavorites(serverSongs);
   }
 }

@@ -5,6 +5,7 @@ import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/library/data/datasources/library_remote_data_source.dart';
 import 'package:music_app/features/player/domain/entities/lyric_line.dart';
+import 'package:music_app/l10n/app_localizations.dart';
 import 'package:music_app/main.dart';
 
 class LyricsWidget extends StatefulWidget {
@@ -151,20 +152,23 @@ class _LyricsWidgetState extends State<LyricsWidget> {
             children: [
               Icon(
                 Icons.lyrics_outlined,
-                color: Colors.white.withValues(alpha: 0.3),
+                color: AppColorsDark.onSurface.withValues(alpha: 0.3),
                 size: 48,
               ),
               const SizedBox(height: 16),
               Text(
                 'No lyrics available for this song',
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.5),
+                  color: AppColorsDark.onSurface.withValues(alpha: 0.5),
                   fontSize: 14,
                 ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
-              TextButton(onPressed: _loadLyrics, child: const Text('Retry')),
+              TextButton(
+                onPressed: _loadLyrics,
+                child: Text(AppLocalizations.of(context)!.retry),
+              ),
             ],
           ),
         ),
@@ -187,7 +191,10 @@ class _LyricsWidgetState extends State<LyricsWidget> {
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [Colors.black.withValues(alpha: 0.3), Colors.transparent],
+          colors: [
+            AppColorsDark.surfaceDim.withValues(alpha: 0.3),
+            Colors.transparent,
+          ],
         ),
       ),
       child: ListView.builder(
@@ -210,8 +217,8 @@ class _LyricsWidgetState extends State<LyricsWidget> {
                 color: isCurrentLine
                     ? AppColorsDark.primary
                     : (isPastLine
-                          ? Colors.white.withValues(alpha: 0.5)
-                          : Colors.white.withValues(alpha: 0.8)),
+                          ? AppColorsDark.onSurface.withValues(alpha: 0.5)
+                          : AppColorsDark.onSurface.withValues(alpha: 0.8)),
                 height: 1.4,
               ),
               child: Text(
@@ -236,7 +243,7 @@ class _LyricsWidgetState extends State<LyricsWidget> {
             Text(
               'Source: $_source',
               style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.4),
+                color: AppColorsDark.onSurface.withValues(alpha: 0.4),
                 fontSize: 12,
               ),
             ),
@@ -247,7 +254,7 @@ class _LyricsWidgetState extends State<LyricsWidget> {
               child: Text(
                 _lyrics!,
                 style: const TextStyle(
-                  color: Colors.white,
+                  color: AppColorsDark.onSurface,
                   fontSize: 16,
                   height: 1.8,
                 ),

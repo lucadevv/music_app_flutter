@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 
 class ActionIconButton extends StatelessWidget {
   final IconData icon;
@@ -9,7 +10,7 @@ class ActionIconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      icon: Icon(icon, color: Colors.white),
+      icon: Icon(icon, color: AppColorsDark.onSurface),
       onPressed: onTap,
     );
   }

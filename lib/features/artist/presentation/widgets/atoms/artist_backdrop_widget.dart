@@ -36,7 +36,11 @@ class ArtistBackdropWidget extends StatelessWidget {
           color: AppColorsDark.primary,
           shape: BoxShape.circle,
         ),
-        child: const Icon(Icons.person, size: 80, color: Colors.white),
+        child: const Icon(
+          Icons.person,
+          size: 80,
+          color: AppColorsDark.onSurface,
+        ),
       ),
     );
   }

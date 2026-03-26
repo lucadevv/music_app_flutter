@@ -8,11 +8,7 @@ class LanguageSelector extends StatelessWidget {
   final Color? backgroundColor;
   final Color? textColor;
 
-  const LanguageSelector({
-    super.key,
-    this.backgroundColor,
-    this.textColor,
-  });
+  const LanguageSelector({super.key, this.backgroundColor, this.textColor});
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +19,9 @@ class LanguageSelector extends StatelessWidget {
 
         return Container(
           decoration: BoxDecoration(
-            color: backgroundColor ?? Colors.white.withValues(alpha: 0.1),
+            color:
+                backgroundColor ??
+                AppColorsDark.onSurface.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(20),
           ),
           child: Row(
@@ -86,9 +84,9 @@ class _LanguageButton extends StatelessWidget {
         child: Text(
           label,
           style: TextStyle(
-            color: isSelected 
-                ? (textColor ?? Colors.black) 
-                : (textColor ?? Colors.white),
+            color: isSelected
+                ? (textColor ?? AppColorsDark.surfaceDim)
+                : (textColor ?? AppColorsDark.onSurface),
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
             fontSize: 14,
           ),

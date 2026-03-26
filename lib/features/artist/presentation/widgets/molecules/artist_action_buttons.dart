@@ -11,7 +11,11 @@ class ArtistActionButtons extends StatelessWidget {
   final VoidCallback onFollowPressed;
 
   const ArtistActionButtons({
-    required this.artist, required this.state, required this.onPlayPressed, required this.onFollowPressed, super.key,
+    required this.artist,
+    required this.state,
+    required this.onPlayPressed,
+    required this.onFollowPressed,
+    super.key,
   });
 
   @override
@@ -27,7 +31,7 @@ class ArtistActionButtons extends StatelessWidget {
             label: Text(l10n.play),
             style: FilledButton.styleFrom(
               backgroundColor: AppColorsDark.primary,
-              foregroundColor: Colors.white,
+              foregroundColor: AppColorsDark.onSurface,
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),
           ),
@@ -36,12 +40,14 @@ class ArtistActionButtons extends StatelessWidget {
         IconButton(
           icon: Icon(
             state.isFollowing ? Icons.favorite : Icons.favorite_border,
-            color: state.isFollowing ? AppColorsDark.primary : Colors.white,
+            color: state.isFollowing
+                ? AppColorsDark.primary
+                : AppColorsDark.onSurface,
           ),
           onPressed: onFollowPressed,
         ),
         IconButton(
-          icon: const Icon(Icons.share, color: Colors.white),
+          icon: const Icon(Icons.share, color: AppColorsDark.onSurface),
           onPressed: () {},
         ),
       ],

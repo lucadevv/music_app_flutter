@@ -18,7 +18,10 @@ class AlbumLoadingView extends StatelessWidget {
           pinned: true,
           backgroundColor: Colors.transparent,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+            icon: const Icon(
+              Icons.arrow_back_ios_new,
+              color: AppColorsDark.onSurface,
+            ),
             onPressed: () => context.router.pop(),
           ),
           flexibleSpace: FlexibleSpaceBar(

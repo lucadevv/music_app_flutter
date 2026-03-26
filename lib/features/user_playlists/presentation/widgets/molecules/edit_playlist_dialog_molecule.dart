@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/l10n/app_localizations.dart';
@@ -26,23 +27,28 @@ class EditPlaylistDialogMolecule extends StatelessWidget {
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: AppColorsDark.surfaceContainerHigh,
-        title: Text(l10n.edit, style: const TextStyle(color: Colors.white)),
+        title: Text(
+          l10n.edit,
+          style: const TextStyle(color: AppColorsDark.onSurface),
+        ),
         content: TextField(
           controller: nameController,
-          style: const TextStyle(color: Colors.white),
+          style: const TextStyle(color: AppColorsDark.onSurface),
           decoration: InputDecoration(
             labelText: l10n.playlistName,
-            labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
+            labelStyle: TextStyle(
+              color: AppColorsDark.onSurface.withValues(alpha: 0.6),
+            ),
           ),
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
+            onPressed: () => dialogContext.router.maybePop(),
             child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () {
-              Navigator.pop(dialogContext);
+              dialogContext.router.maybePop();
               onSave(nameController.text);
             },
             child: Text(
@@ -61,13 +67,18 @@ class EditPlaylistDialogMolecule extends StatelessWidget {
 
     return AlertDialog(
       backgroundColor: AppColorsDark.surfaceContainerHigh,
-      title: Text(l10n.edit, style: const TextStyle(color: Colors.white)),
+      title: Text(
+        l10n.edit,
+        style: const TextStyle(color: AppColorsDark.onSurface),
+      ),
       content: TextField(
         controller: nameController,
-        style: const TextStyle(color: Colors.white),
+        style: const TextStyle(color: AppColorsDark.onSurface),
         decoration: InputDecoration(
           labelText: l10n.playlistName,
-          labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
+          labelStyle: TextStyle(
+            color: AppColorsDark.onSurface.withValues(alpha: 0.6),
+          ),
         ),
       ),
       actions: [

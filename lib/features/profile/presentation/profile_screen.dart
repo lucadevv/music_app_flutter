@@ -3,6 +3,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:music_app/l10n/app_localizations.dart';
 
@@ -44,13 +45,16 @@ class _ProfileView extends StatelessWidget {
         title: Text(
           l10n.profileAndSettings,
           style: const TextStyle(
-            color: Colors.white,
+            color: AppColorsDark.onSurface,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: AppColorsDark.onSurface,
+          ),
           onPressed: () => context.router.pop(),
         ),
       ),
@@ -129,7 +133,7 @@ class _ProfileHeader extends StatelessWidget {
                   Text(
                     displayName,
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: AppColorsDark.onSurface,
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
@@ -137,14 +141,17 @@ class _ProfileHeader extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     email,
-                    style: const TextStyle(color: Colors.white, fontSize: 14),
+                    style: const TextStyle(
+                      color: AppColorsDark.onSurface,
+                      fontSize: 14,
+                    ),
                   ),
                 ],
               ),
             ),
             Icon(
               Icons.chevron_right,
-              color: Colors.white.withValues(alpha: 0.6),
+              color: AppColorsDark.onSurface.withValues(alpha: 0.6),
             ),
           ],
         ),

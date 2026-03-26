@@ -11,13 +11,13 @@ class PlaylistState extends Equatable {
   final PlaylistStatus status;
   final PlaylistResponse? response;
   final String? errorMessage;
-  
+
   // Estado de carga de playlist para reproducción
   final int loadedCount;
   final int totalCount;
   final bool isLoadingForPlay;
   final String? loadingPlaylistId; // ID de la playlist que está cargando
-  
+
   // Estado de paginación
   final int currentPage;
   final bool hasMore;
@@ -42,7 +42,9 @@ class PlaylistState extends Equatable {
   List<PlaylistTrack> get filteredResponseTracks {
     if (response == null) return [];
     if (_filterQuery.isEmpty) return response!.tracks;
-    return response!.tracks.where((track) => track.matchesQuery(_filterQuery)).toList();
+    return response!.tracks
+        .where((track) => track.matchesQuery(_filterQuery))
+        .toList();
   }
 
   PlaylistState copyWith({
@@ -66,7 +68,9 @@ class PlaylistState extends Equatable {
       loadedCount: loadedCount ?? this.loadedCount,
       totalCount: totalCount ?? this.totalCount,
       isLoadingForPlay: isLoadingForPlay ?? this.isLoadingForPlay,
-      loadingPlaylistId: clearLoadingPlaylistId ? null : (loadingPlaylistId ?? this.loadingPlaylistId),
+      loadingPlaylistId: clearLoadingPlaylistId
+          ? null
+          : (loadingPlaylistId ?? this.loadingPlaylistId),
       currentPage: currentPage ?? this.currentPage,
       hasMore: hasMore ?? this.hasMore,
       allTracks: allTracks ?? this.allTracks,
@@ -88,5 +92,16 @@ class PlaylistState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [status, response, errorMessage, loadedCount, totalCount, isLoadingForPlay, loadingPlaylistId, currentPage, hasMore, allTracks];
+  List<Object?> get props => [
+    status,
+    response,
+    errorMessage,
+    loadedCount,
+    totalCount,
+    isLoadingForPlay,
+    loadingPlaylistId,
+    currentPage,
+    hasMore,
+    allTracks,
+  ];
 }

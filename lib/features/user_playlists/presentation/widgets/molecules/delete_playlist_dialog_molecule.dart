@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/l10n/app_localizations.dart';
@@ -19,19 +20,25 @@ class DeletePlaylistDialogMolecule extends StatelessWidget {
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: AppColorsDark.surfaceContainerHigh,
-        title: Text(l10n.delete, style: const TextStyle(color: Colors.white)),
+        title: Text(
+          l10n.delete,
+          style: const TextStyle(color: AppColorsDark.onSurface),
+        ),
         content: const Text(
           'Are you sure you want to delete this playlist?',
-          style: TextStyle(color: Colors.white70),
+          style: TextStyle(color: AppColorsDark.onSurface70),
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
+            onPressed: () => dialogContext.router.maybePop(false),
             child: Text(l10n.cancel),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            onPressed: () => dialogContext.router.maybePop(true),
+            child: const Text(
+              'Delete',
+              style: TextStyle(color: AppColorsDark.error),
+            ),
           ),
         ],
       ),
@@ -44,16 +51,22 @@ class DeletePlaylistDialogMolecule extends StatelessWidget {
 
     return AlertDialog(
       backgroundColor: AppColorsDark.surfaceContainerHigh,
-      title: Text(l10n.delete, style: const TextStyle(color: Colors.white)),
+      title: Text(
+        l10n.delete,
+        style: const TextStyle(color: AppColorsDark.onSurface),
+      ),
       content: const Text(
         'Are you sure you want to delete this playlist?',
-        style: TextStyle(color: Colors.white70),
+        style: TextStyle(color: AppColorsDark.onSurface70),
       ),
       actions: [
         TextButton(onPressed: onCancel, child: Text(l10n.cancel)),
         TextButton(
           onPressed: onDelete,
-          child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          child: const Text(
+            'Delete',
+            style: TextStyle(color: AppColorsDark.error),
+          ),
         ),
       ],
     );

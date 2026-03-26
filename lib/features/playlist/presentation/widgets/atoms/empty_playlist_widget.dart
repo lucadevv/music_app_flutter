@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 
 class EmptyPlaylistWidget extends StatelessWidget {
   final IconData icon;
@@ -16,12 +17,16 @@ class EmptyPlaylistWidget extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 64, color: Colors.white.withValues(alpha: 0.5)),
+          Icon(
+            icon,
+            size: 64,
+            color: AppColorsDark.onSurface.withValues(alpha: 0.5),
+          ),
           const SizedBox(height: 16),
           Text(
             message,
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.7),
+              color: AppColorsDark.onSurface.withValues(alpha: 0.7),
               fontSize: 16,
             ),
           ),

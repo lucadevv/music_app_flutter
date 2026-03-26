@@ -1,3 +1,4 @@
+import 'package:dartz/dartz.dart';
 import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
 import 'package:music_app/features/downloads/domain/repositories/downloads_repository.dart';
 
@@ -10,9 +11,7 @@ class RemoveDownloadUseCase {
 
   RemoveDownloadUseCase(this._repository);
 
-  Future<(AppException?, bool)> call(String videoId) async {
-    final result = await _repository.removeDownload(videoId);
-
-    return result.fold((error) => (error, false), (_) => (null, true));
+  Future<Either<AppException, void>> call(String videoId) async {
+    return _repository.removeDownload(videoId);
   }
 }

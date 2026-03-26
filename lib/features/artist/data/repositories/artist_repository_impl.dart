@@ -135,15 +135,15 @@ class ArtistRepositoryImpl implements ArtistRepository {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
-        return NetworkException('Connection timeout');
+        return const NetworkException('Connection timeout');
       case DioExceptionType.connectionError:
-        return NetworkException('No internet connection');
+        return const NetworkException('No internet connection');
       case DioExceptionType.badResponse:
         final statusCode = e.response?.statusCode;
         if (statusCode == 401) {
-          return AuthenticationException('Unauthorized');
+          return const AuthenticationException('Unauthorized');
         } else if (statusCode == 404) {
-          return ServerException('Artist not found', code: 404);
+          return const ServerException('Artist not found', code: 404);
         }
         return ServerException('Server error: $statusCode');
       default:

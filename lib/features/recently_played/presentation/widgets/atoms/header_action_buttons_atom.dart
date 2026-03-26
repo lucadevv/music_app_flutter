@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 
 class SearchButtonAtom extends StatelessWidget {
   final VoidCallback onPressed;
@@ -8,7 +9,7 @@ class SearchButtonAtom extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      icon: const Icon(Icons.search, color: Colors.white),
+      icon: const Icon(Icons.search, color: AppColorsDark.onSurface),
       onPressed: onPressed,
     );
   }
@@ -22,7 +23,7 @@ class MoreButtonAtom extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      icon: const Icon(Icons.more_vert, color: Colors.white),
+      icon: const Icon(Icons.more_vert, color: AppColorsDark.onSurface),
       onPressed: onPressed,
     );
   }

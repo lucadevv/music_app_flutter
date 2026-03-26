@@ -1,6 +1,32 @@
+import 'package:dartz/dartz.dart';
 import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
 import 'package:music_app/features/downloads/domain/entities/downloaded_song.dart';
 import 'package:music_app/features/downloads/domain/repositories/downloads_repository.dart';
+
+/// Caso de uso para descargar una canción
+///
+/// SOLID: Single Responsibility Principle (SRP)
+/// Responsable única: Orquestar la descarga de una canción
+class DownloadSongUseCase {
+  final DownloadsRepository _repository;
+
+  DownloadSongUseCase(this._repository);
+
+  Future<Either<AppException, DownloadedSong>> call(
+    DownloadParams params,
+  ) async {
+    return _repository.downloadSong(
+      videoId: params.videoId,
+      title: params.title,
+      artist: params.artist,
+      album: params.album,
+      thumbnail: params.thumbnail,
+      streamUrl: params.streamUrl,
+      duration: params.duration,
+      onProgress: params.onProgress,
+    );
+  }
+}
 
 /// Parámetros para descargar una canción
 class DownloadParams {
@@ -23,29 +49,4 @@ class DownloadParams {
     this.album,
     this.thumbnail,
   });
-}
-
-/// Caso de uso para descargar una canción
-///
-/// SOLID: Single Responsibility Principle (SRP)
-/// Responsable única: Orquestar la descarga de una canción
-class DownloadSongUseCase {
-  final DownloadsRepository _repository;
-
-  DownloadSongUseCase(this._repository);
-
-  Future<(AppException?, DownloadedSong?)> call(DownloadParams params) async {
-    final result = await _repository.downloadSong(
-      videoId: params.videoId,
-      title: params.title,
-      artist: params.artist,
-      album: params.album,
-      thumbnail: params.thumbnail,
-      streamUrl: params.streamUrl,
-      duration: params.duration,
-      onProgress: params.onProgress,
-    );
-
-    return result.fold((error) => (error, null), (song) => (null, song));
-  }
 }

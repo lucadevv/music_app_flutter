@@ -22,7 +22,9 @@ class SongListItem extends StatelessWidget {
   final VoidCallback? onTap;
 
   const SongListItem({
-    required this.title, required this.artist, super.key,
+    required this.title,
+    required this.artist,
+    super.key,
     this.thumbnail,
     this.trailing,
     this.onTap,
@@ -42,8 +44,10 @@ class SongListItem extends StatelessWidget {
               ? CachedNetworkImage(
                   imageUrl: thumbnail!,
                   fit: BoxFit.cover,
-                  errorWidget: (_, _, _) =>
-                      const Icon(Icons.music_note, color: AppColorsDark.primary),
+                  errorWidget: (_, _, _) => const Icon(
+                    Icons.music_note,
+                    color: AppColorsDark.primary,
+                  ),
                 )
               : const Icon(Icons.music_note, color: AppColorsDark.primary),
         ),
@@ -51,7 +55,7 @@ class SongListItem extends StatelessWidget {
       title: Text(
         title,
         style: const TextStyle(
-          color: Colors.white,
+          color: AppColorsDark.onSurface,
           fontSize: 15,
           fontWeight: FontWeight.w500,
         ),
@@ -61,7 +65,7 @@ class SongListItem extends StatelessWidget {
       subtitle: Text(
         artist,
         style: TextStyle(
-          color: Colors.white.withValues(alpha: 0.6),
+          color: AppColorsDark.onSurface.withValues(alpha: 0.6),
           fontSize: 13,
         ),
         maxLines: 1,
@@ -83,7 +87,9 @@ class SongListItemWithFavorite extends StatelessWidget {
   final VoidCallback? onFavoriteToggle;
 
   const SongListItemWithFavorite({
-    required this.title, required this.artist, super.key,
+    required this.title,
+    required this.artist,
+    super.key,
     this.thumbnail,
     this.isFavorite = false,
     this.onTap,
@@ -118,7 +124,9 @@ class SongListItemWithRemove extends StatelessWidget {
   final VoidCallback? onRemove;
 
   const SongListItemWithRemove({
-    required this.title, required this.artist, super.key,
+    required this.title,
+    required this.artist,
+    super.key,
     this.thumbnail,
     this.onTap,
     this.onRemove,
@@ -133,7 +141,7 @@ class SongListItemWithRemove extends StatelessWidget {
       trailing: IconButton(
         icon: Icon(
           Icons.remove_circle_outline,
-          color: Colors.white.withValues(alpha: 0.6),
+          color: AppColorsDark.onSurface.withValues(alpha: 0.6),
           size: 20,
         ),
         onPressed: onRemove,
@@ -152,7 +160,10 @@ class SongListItemWithTrailing extends StatelessWidget {
   final VoidCallback? onTap;
 
   const SongListItemWithTrailing({
-    required this.title, required this.artist, required this.trailing, super.key,
+    required this.title,
+    required this.artist,
+    required this.trailing,
+    super.key,
     this.thumbnail,
     this.onTap,
   });
@@ -181,7 +192,8 @@ class SongListItemFromEntity extends StatelessWidget {
   final VoidCallback? onTap;
 
   const SongListItemFromEntity({
-    required this.song, super.key,
+    required this.song,
+    super.key,
     this.trailing,
     this.onTap,
   });
@@ -208,7 +220,8 @@ class SongListItemWithFavoriteFromEntity extends StatelessWidget {
   final VoidCallback? onFavoriteToggle;
 
   const SongListItemWithFavoriteFromEntity({
-    required this.song, super.key,
+    required this.song,
+    super.key,
     this.isFavorite = false,
     this.onTap,
     this.onFavoriteToggle,
@@ -236,7 +249,8 @@ class SongListItemWithRemoveFromEntity extends StatelessWidget {
   final VoidCallback? onRemove;
 
   const SongListItemWithRemoveFromEntity({
-    required this.song, super.key,
+    required this.song,
+    super.key,
     this.onTap,
     this.onRemove,
   });

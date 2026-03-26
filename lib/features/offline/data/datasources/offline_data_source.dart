@@ -5,9 +5,9 @@ import 'package:music_app/features/offline/domain/entities/offline_song_entity.d
 /// Wraps the existing OfflineService.
 class OfflineDataSource {
   final OfflineService _offlineService;
-//   final Connectivity _connectivity;
+  //   final Connectivity _connectivity;
 
-  OfflineDataSource(this._offlineService,  );
+  OfflineDataSource(this._offlineService);
 
   /// Check if device is online
   Future<bool> isOnline() async {
@@ -19,25 +19,24 @@ class OfflineDataSource {
     final songs = await _offlineService.getOfflineSongs();
     return songs
         .where((song) => song.localAudioPath != null)
-        .map((song) => OfflineSongEntity(
-              videoId: song.videoId,
-              title: song.title,
-              artist: song.artist,
-              thumbnail: song.thumbnail,
-              localPath: song.localAudioPath,
-              duration: song.duration,
-              downloadedAt: song.addedAt,
-            ))
+        .map(
+          (song) => OfflineSongEntity(
+            videoId: song.videoId,
+            title: song.title,
+            artist: song.artist,
+            thumbnail: song.thumbnail,
+            localPath: song.localAudioPath,
+            duration: song.duration,
+            downloadedAt: song.addedAt,
+          ),
+        )
         .toList();
   }
 
   /// Download a song
   /// Note: This requires streamUrl which should be obtained separately
   Future<void> downloadSong(OfflineSongEntity song, String streamUrl) async {
-    await _offlineService.downloadSongAudio(
-      song.videoId,
-      streamUrl,
-    );
+    await _offlineService.downloadSongAudio(song.videoId, streamUrl);
   }
 
   /// Remove downloaded song

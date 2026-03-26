@@ -21,7 +21,9 @@ class OnboardingRepositoryImpl implements OnboardingRepository {
   }
 
   @override
-  Future<Either<AppException, void>> setOnboardingCompleted(bool completed) async {
+  Future<Either<AppException, void>> setOnboardingCompleted(
+    bool completed,
+  ) async {
     try {
       await _dataSource.setOnboardingCompleted(completed);
       return const Right(null);
@@ -31,7 +33,8 @@ class OnboardingRepositoryImpl implements OnboardingRepository {
   }
 
   @override
-  Future<Either<AppException, List<OnboardingPageEntity>>> getOnboardingPages() async {
+  Future<Either<AppException, List<OnboardingPageEntity>>>
+  getOnboardingPages() async {
     try {
       final pages = await _dataSource.getOnboardingPages();
       return Right(pages);

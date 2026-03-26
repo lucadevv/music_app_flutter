@@ -40,7 +40,7 @@ class RecentSearchesWidget extends StatelessWidget {
               child: Text(
                 'Búsquedas recientes',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: AppColorsDark.onSurface,
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
@@ -51,7 +51,9 @@ class RecentSearchesWidget extends StatelessWidget {
                 padding: EdgeInsets.all(24.0),
                 child: Center(
                   child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      AppColorsDark.onSurface,
+                    ),
                   ),
                 ),
               )
@@ -82,7 +84,10 @@ class RecentSearchesWidget extends StatelessWidget {
                 padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                 child: Text(
                   'No hay búsquedas recientes',
-                  style: TextStyle(color: Colors.white54, fontSize: 14),
+                  style: TextStyle(
+                    color: AppColorsDark.onSurface54,
+                    fontSize: 14,
+                  ),
                 ),
               ),
           ],
@@ -214,7 +219,7 @@ class _RecentSearchItem extends StatelessWidget {
                   Text(
                     song.title,
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: AppColorsDark.onSurface,
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                     ),
@@ -225,7 +230,7 @@ class _RecentSearchItem extends StatelessWidget {
                   Text(
                     '$artistsNames • ${song.album ?? ''}',
                     style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.6),
+                      color: AppColorsDark.onSurface.withValues(alpha: 0.6),
                       fontSize: 14,
                     ),
                     maxLines: 1,
@@ -235,7 +240,7 @@ class _RecentSearchItem extends StatelessWidget {
                   Text(
                     '${song.duration} • ${song.views}',
                     style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.5),
+                      color: AppColorsDark.onSurface.withValues(alpha: 0.5),
                       fontSize: 12,
                     ),
                   ),
@@ -259,7 +264,7 @@ class _RecentSearchItem extends StatelessWidget {
                 IconButton(
                   icon: Icon(
                     Icons.more_vert,
-                    color: Colors.white.withValues(alpha: 0.5),
+                    color: AppColorsDark.onSurface.withValues(alpha: 0.5),
                   ),
                   onPressed: () {
                     SongOptionsBottomSheet.show(

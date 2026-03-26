@@ -18,7 +18,11 @@ class PlayIcon extends StatelessWidget {
           color: AppColorsDark.primary,
           shape: BoxShape.circle,
         ),
-        child: const Icon(Icons.play_arrow, color: Colors.white, size: 32),
+        child: const Icon(
+          Icons.play_arrow,
+          color: AppColorsDark.onSurface,
+          size: 32,
+        ),
       ),
     );
   }

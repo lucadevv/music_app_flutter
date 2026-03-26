@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 
 /// Organism: Queue screen app bar
 class QueueAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -8,7 +9,11 @@ class QueueAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback onBack;
 
   const QueueAppBar({
-    required this.title, required this.clearLabel, required this.onClear, required this.onBack, super.key,
+    required this.title,
+    required this.clearLabel,
+    required this.onClear,
+    required this.onBack,
+    super.key,
   });
 
   @override
@@ -20,13 +25,16 @@ class QueueAppBar extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: Colors.transparent,
       elevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white),
+        icon: const Icon(
+          Icons.keyboard_arrow_down,
+          color: AppColorsDark.onSurface,
+        ),
         onPressed: onBack,
       ),
       title: Text(
         title,
         style: const TextStyle(
-          color: Colors.white,
+          color: AppColorsDark.onSurface,
           fontSize: 20,
           fontWeight: FontWeight.bold,
         ),
@@ -34,7 +42,10 @@ class QueueAppBar extends StatelessWidget implements PreferredSizeWidget {
       actions: [
         TextButton(
           onPressed: onClear,
-          child: Text(clearLabel, style: const TextStyle(color: Colors.white)),
+          child: Text(
+            clearLabel,
+            style: const TextStyle(color: AppColorsDark.onSurface),
+          ),
         ),
       ],
     );

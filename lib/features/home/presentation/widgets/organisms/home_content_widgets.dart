@@ -23,7 +23,7 @@ class SongCardWidget extends StatelessWidget {
         width: 160,
         margin: const EdgeInsets.only(right: 16),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.05),
+          color: AppColorsDark.onSurface.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
@@ -76,7 +76,7 @@ class SongCardWidget extends StatelessWidget {
                   Text(
                     item.title,
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: AppColorsDark.onSurface,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),
@@ -88,7 +88,7 @@ class SongCardWidget extends StatelessWidget {
                     Text(
                       item.artists.map((a) => a.name).join(', '),
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.6),
+                        color: AppColorsDark.onSurface.withValues(alpha: 0.6),
                         fontSize: 12,
                       ),
                       maxLines: 1,
@@ -122,7 +122,7 @@ class PlaylistCardWidget extends StatelessWidget {
         width: 160,
         margin: const EdgeInsets.only(right: 16),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.05),
+          color: AppColorsDark.onSurface.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
@@ -175,7 +175,7 @@ class PlaylistCardWidget extends StatelessWidget {
                   Text(
                     item.title,
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: AppColorsDark.onSurface,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),
@@ -187,7 +187,7 @@ class PlaylistCardWidget extends StatelessWidget {
                     Text(
                       item.description!,
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.6),
+                        color: AppColorsDark.onSurface.withValues(alpha: 0.6),
                         fontSize: 12,
                       ),
                       maxLines: 1,
@@ -223,7 +223,7 @@ class AlbumCardWidget extends StatelessWidget {
         width: 160,
         margin: const EdgeInsets.only(right: 16),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.05),
+          color: AppColorsDark.onSurface.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
@@ -276,7 +276,7 @@ class AlbumCardWidget extends StatelessWidget {
                   Text(
                     item.title,
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: AppColorsDark.onSurface,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),
@@ -288,7 +288,7 @@ class AlbumCardWidget extends StatelessWidget {
                     Text(
                       item.artists.map((a) => a.name).join(', '),
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.6),
+                        color: AppColorsDark.onSurface.withValues(alpha: 0.6),
                         fontSize: 12,
                       ),
                       maxLines: 1,
@@ -367,7 +367,7 @@ class AlbumListItemWidget extends StatelessWidget {
         title: Text(
           item.title,
           style: const TextStyle(
-            color: Colors.white,
+            color: AppColorsDark.onSurface,
             fontSize: 16,
             fontWeight: FontWeight.w500,
           ),
@@ -375,14 +375,14 @@ class AlbumListItemWidget extends StatelessWidget {
         subtitle: Text(
           'Álbum • ${artistsNames.isNotEmpty ? artistsNames : "Various Artists"}',
           style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.6),
+            color: AppColorsDark.onSurface.withValues(alpha: 0.6),
             fontSize: 14,
           ),
         ),
         trailing: IconButton(
           icon: Icon(
             Icons.more_vert,
-            color: Colors.white.withValues(alpha: 0.6),
+            color: AppColorsDark.onSurface.withValues(alpha: 0.6),
           ),
           onPressed: () {
             final thumb = item.thumbnails.isNotEmpty
@@ -478,7 +478,7 @@ class SongListItemWidget extends StatelessWidget {
         title: Text(
           item.title,
           style: const TextStyle(
-            color: Colors.white,
+            color: AppColorsDark.onSurface,
             fontSize: 15,
             fontWeight: FontWeight.w500,
           ),
@@ -488,7 +488,7 @@ class SongListItemWidget extends StatelessWidget {
         subtitle: Text(
           item.artists.isNotEmpty ? artistsNames : item.views,
           style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.6),
+            color: AppColorsDark.onSurface.withValues(alpha: 0.6),
             fontSize: 13,
           ),
           maxLines: 1,
@@ -510,7 +510,7 @@ class SongListItemWidget extends StatelessWidget {
             IconButton(
               icon: Icon(
                 Icons.more_vert,
-                color: Colors.white.withValues(alpha: 0.6),
+                color: AppColorsDark.onSurface.withValues(alpha: 0.6),
               ),
               onPressed: () {
                 // Obtener thumbnail para el bottom sheet (usar mejor calidad)
@@ -602,7 +602,7 @@ class PlaylistListItemWidget extends StatelessWidget {
         title: Text(
           item.title,
           style: const TextStyle(
-            color: Colors.white,
+            color: AppColorsDark.onSurface,
             fontSize: 16,
             fontWeight: FontWeight.w500,
           ),
@@ -610,14 +610,14 @@ class PlaylistListItemWidget extends StatelessWidget {
         subtitle: Text(
           item.description ?? '',
           style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.6),
+            color: AppColorsDark.onSurface.withValues(alpha: 0.6),
             fontSize: 14,
           ),
         ),
         trailing: IconButton(
           icon: Icon(
             Icons.more_vert,
-            color: Colors.white.withValues(alpha: 0.6),
+            color: AppColorsDark.onSurface.withValues(alpha: 0.6),
           ),
           onPressed: () {
             final thumb = item.thumbnails.isNotEmpty

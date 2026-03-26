@@ -39,16 +39,16 @@ class OAuthServiceImpl implements OAuthService {
     List<String> googleScopes = const ['email', 'profile'],
     String? serverClientId,
   }) : _googleSignIn = GoogleSignIn(
-      scopes: googleScopes,
-      serverClientId: serverClientId,
-    );
+         scopes: googleScopes,
+         serverClientId: serverClientId,
+       );
 
   @override
   Future<OAuthResult?> signInWithGoogle() async {
     try {
       // Cerrar sesión primero para forzar el selector de cuenta
       await _googleSignIn.signOut();
-      
+
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
       if (googleUser == null) {
@@ -61,7 +61,7 @@ class OAuthServiceImpl implements OAuthService {
 
       final accessToken = googleAuth.accessToken;
       final idToken = googleAuth.idToken;
-      
+
       if (accessToken == null) {
         AppLogger.error('Google Sign In: access token is null');
         // Cerrar sesión para permitir seleccionar otra cuenta
@@ -70,8 +70,6 @@ class OAuthServiceImpl implements OAuthService {
       }
 
       AppLogger.info('Google Sign In successful for ${googleUser.email}');
-      
- 
 
       return OAuthResult(
         accessToken: accessToken,

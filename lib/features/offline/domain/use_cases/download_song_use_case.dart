@@ -9,7 +9,10 @@ class DownloadSongUseCase {
 
   DownloadSongUseCase(this._repository);
 
-  Future<Either<AppException, void>> call(OfflineSongEntity song, String streamUrl) {
+  Future<Either<AppException, void>> call(
+    OfflineSongEntity song,
+    String streamUrl,
+  ) {
     return _repository.downloadSong(song, streamUrl);
   }
 }

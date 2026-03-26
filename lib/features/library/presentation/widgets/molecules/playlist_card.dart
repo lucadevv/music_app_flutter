@@ -20,13 +20,13 @@ class PlaylistCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
-               borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(16),
               child: Container(
                 height: 150,
                 width: 150,
                 color: AppColorsDark.primaryContainer,
                 child: playlist.thumbnail != null
-                   ? CachedNetworkImage(
+                    ? CachedNetworkImage(
                         imageUrl: playlist.thumbnail!,
                         fit: BoxFit.cover,
                         placeholder: (_, _) => _buildPlaceholder(),
@@ -39,7 +39,7 @@ class PlaylistCard extends StatelessWidget {
             Text(
               playlist.name,
               style: const TextStyle(
-                color: Colors.white,
+                color: AppColorsDark.onSurface,
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
                 fontFamily: 'Poppins',
@@ -51,7 +51,7 @@ class PlaylistCard extends StatelessWidget {
               Text(
                 '${playlist.songCount} songs',
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.6),
+                  color: AppColorsDark.onSurface.withValues(alpha: 0.6),
                   fontSize: 12,
                   fontFamily: 'Poppins',
                 ),

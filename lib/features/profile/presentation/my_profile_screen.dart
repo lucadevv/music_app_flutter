@@ -84,20 +84,23 @@ class _MyProfileScreenState extends State<MyProfileScreen>
         backgroundColor: AppColorsDark.surfaceContainerHigh,
         title: Text(
           l10n.logoutConfirmation,
-          style: const TextStyle(color: Colors.white),
+          style: const TextStyle(color: AppColorsDark.onSurface),
         ),
         content: Text(
           l10n.logoutConfirmationMessage,
-          style: const TextStyle(color: Colors.white70),
+          style: const TextStyle(color: AppColorsDark.onSurface70),
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
+            onPressed: () => ctx.router.maybePop(false),
             child: Text(l10n.cancel),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: Text(l10n.logout, style: const TextStyle(color: Colors.red)),
+            onPressed: () => ctx.router.maybePop(true),
+            child: Text(
+              l10n.logout,
+              style: const TextStyle(color: AppColorsDark.error),
+            ),
           ),
         ],
       ),
@@ -181,7 +184,7 @@ class _MyProfileScreenState extends State<MyProfileScreen>
                 child: Text(
                   state.displayName,
                   style: const TextStyle(
-                    color: Colors.white,
+                    color: AppColorsDark.onSurface,
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),

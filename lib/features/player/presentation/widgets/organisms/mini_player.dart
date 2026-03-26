@@ -48,12 +48,12 @@ class MiniPlayer extends StatelessWidget {
                     color: AppColorsDark.surface.withValues(alpha: 0.6),
                     borderRadius: BorderRadius.circular(24),
                     border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.15),
+                      color: AppColorsDark.onSurface.withValues(alpha: 0.15),
                       width: 1,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.2),
+                        color: AppColorsDark.surfaceDim.withValues(alpha: 0.2),
                         blurRadius: 20,
                         offset: const Offset(0, 10),
                       ),
@@ -68,7 +68,9 @@ class MiniPlayer extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: Row(
                             children: [
-                              _TrackThumbnail(thumbnail: track.bestThumbnail?.url),
+                              _TrackThumbnail(
+                                thumbnail: track.bestThumbnail?.url,
+                              ),
                               const SizedBox(width: 12),
                               Expanded(
                                 child: _TrackInfo(
@@ -91,10 +93,12 @@ class MiniPlayer extends StatelessWidget {
                               _PlayerControls(
                                 isPlaying: isPlaying,
                                 canPlayNext: state.canPlayNext,
-                                onPlayPause: () =>
-                                    playerBloc.add(const PlayPauseToggleEvent()),
+                                onPlayPause: () => playerBloc.add(
+                                  const PlayPauseToggleEvent(),
+                                ),
                                 onNext: state.canPlayNext
-                                    ? () => playerBloc.add(const NextTrackEvent())
+                                    ? () =>
+                                          playerBloc.add(const NextTrackEvent())
                                     : null,
                               ),
                             ],
@@ -114,7 +118,9 @@ class MiniPlayer extends StatelessWidget {
 
   void _openPlayer(BuildContext context, NowPlayingData track) {
     // Abrir el player - mantener el estado actual de playlist
-    context.router.push(PlayerRoute(nowPlayingData: track, playAsSingle: false));
+    context.router.push(
+      PlayerRoute(nowPlayingData: track, playAsSingle: false),
+    );
   }
 }
 
@@ -208,7 +214,7 @@ class _TrackInfo extends StatelessWidget {
         Text(
           title,
           style: const TextStyle(
-            color: Colors.white,
+            color: AppColorsDark.onSurface,
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
@@ -219,7 +225,7 @@ class _TrackInfo extends StatelessWidget {
         Text(
           artist,
           style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.7),
+            color: AppColorsDark.onSurface.withValues(alpha: 0.7),
             fontSize: 12,
           ),
           maxLines: 1,
@@ -252,7 +258,7 @@ class _PlayerControls extends StatelessWidget {
           onPressed: onPlayPause,
           icon: Icon(
             isPlaying ? Icons.pause : Icons.play_arrow,
-            color: Colors.white,
+            color: AppColorsDark.onSurface,
             size: 28,
           ),
         ),
@@ -261,8 +267,8 @@ class _PlayerControls extends StatelessWidget {
           icon: Icon(
             Icons.skip_next,
             color: onNext != null
-                ? Colors.white
-                : Colors.white.withValues(alpha: 0.3),
+                ? AppColorsDark.onSurface
+                : AppColorsDark.onSurface.withValues(alpha: 0.3),
             size: 28,
           ),
         ),

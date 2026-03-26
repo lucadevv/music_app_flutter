@@ -7,11 +7,11 @@ import 'package:mocktail/mocktail.dart';
 import 'package:music_app/core/managers/auth/auth_manager.dart';
 import 'package:music_app/features/auth/data/models/oauth_request.dart';
 import 'package:music_app/features/auth/data/services/oauth_service.dart';
-import 'package:music_app/features/auth/login/domain/entities/login_request.dart';
-import 'package:music_app/features/auth/login/domain/use_cases/login_use_case.dart';
-import 'package:music_app/features/auth/login/domain/use_cases/oauth_sign_in_use_case.dart';
-import 'package:music_app/features/auth/login/presentation/cubit/login_cubit.dart';
-import 'package:music_app/features/auth/register/domain/repositories/auth_repository.dart';
+import 'package:music_app/features/auth/domain/entities/login_request.dart';
+import 'package:music_app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:music_app/features/auth/domain/use_cases/login_use_case.dart';
+import 'package:music_app/features/auth/domain/use_cases/oauth_sign_in_use_case.dart';
+import 'package:music_app/features/auth/presentation/blocs/login_cubit.dart';
 
 import '../../../../helpers/test_helpers.dart';
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 
 class EmptyLikedSongs extends StatelessWidget {
   final String title;
@@ -19,13 +20,13 @@ class EmptyLikedSongs extends StatelessWidget {
           Icon(
             Icons.favorite_border,
             size: 64,
-            color: Colors.white.withValues(alpha: 0.3),
+            color: AppColorsDark.onSurface.withValues(alpha: 0.3),
           ),
           const SizedBox(height: 16),
           Text(
             title,
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.7),
+              color: AppColorsDark.onSurface.withValues(alpha: 0.7),
               fontSize: 18,
             ),
           ),
@@ -33,7 +34,7 @@ class EmptyLikedSongs extends StatelessWidget {
           Text(
             subtitle,
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.5),
+              color: AppColorsDark.onSurface.withValues(alpha: 0.5),
               fontSize: 14,
             ),
           ),

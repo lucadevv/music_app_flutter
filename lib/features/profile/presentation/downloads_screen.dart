@@ -22,13 +22,16 @@ class OldDownloadsScreen extends StatelessWidget {
         title: Text(
           l10n.downloads,
           style: const TextStyle(
-            color: Colors.white,
+            color: AppColorsDark.onSurface,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: AppColorsDark.onSurface,
+          ),
           onPressed: () => context.router.pop(),
         ),
         actions: [
@@ -36,7 +39,7 @@ class OldDownloadsScreen extends StatelessWidget {
             onPressed: () {},
             child: Text(
               l10n.clear,
-              style: const TextStyle(color: Colors.white),
+              style: const TextStyle(color: AppColorsDark.onSurface),
             ),
           ),
         ],
@@ -83,7 +86,7 @@ class _DownloadItem extends StatelessWidget {
       title: Text(
         title,
         style: const TextStyle(
-          color: Colors.white,
+          color: AppColorsDark.onSurface,
           fontSize: 16,
           fontWeight: FontWeight.w500,
         ),
@@ -91,7 +94,7 @@ class _DownloadItem extends StatelessWidget {
       subtitle: Text(
         artist,
         style: TextStyle(
-          color: Colors.white.withValues(alpha: 0.6),
+          color: AppColorsDark.onSurface.withValues(alpha: 0.6),
           fontSize: 14,
         ),
       ),
@@ -99,12 +102,16 @@ class _DownloadItem extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (isDownloaded)
-            const Icon(Icons.check_circle, color: AppColorsDark.primary, size: 20),
+            const Icon(
+              Icons.check_circle,
+              color: AppColorsDark.primary,
+              size: 20,
+            ),
           const SizedBox(width: 8),
           IconButton(
             icon: Icon(
               Icons.more_vert,
-              color: Colors.white.withValues(alpha: 0.6),
+              color: AppColorsDark.onSurface.withValues(alpha: 0.6),
             ),
             onPressed: () {},
           ),

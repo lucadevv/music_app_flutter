@@ -36,13 +36,16 @@ class _LanguageView extends StatelessWidget {
         title: Text(
           l10n.language,
           style: const TextStyle(
-            color: Colors.white,
+            color: AppColorsDark.onSurface,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: AppColorsDark.onSurface,
+          ),
           onPressed: () => context.router.pop(),
         ),
       ),
@@ -72,7 +75,7 @@ class _LanguageView extends StatelessWidget {
                     },
                     title: Text(
                       localeName,
-                      style: const TextStyle(color: Colors.white),
+                      style: const TextStyle(color: AppColorsDark.onSurface),
                     ),
                     activeColor: AppColorsDark.primary,
                     selected: isSelected,

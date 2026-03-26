@@ -17,6 +17,7 @@ import 'package:music_app/features/playlist/presentation/widgets/organisms/add_t
 import 'package:music_app/features/playlist/presentation/widgets/organisms/playlist_listeners.dart';
 import 'package:music_app/features/playlist/presentation/widgets/organisms/playlist_menu_bottom_sheet.dart';
 import 'package:music_app/features/playlist/presentation/widgets/organisms/playlist_scroll_content.dart';
+import 'package:music_app/l10n/app_localizations.dart';
 
 @RoutePage()
 class PlaylistScreen extends StatefulWidget implements AutoRouteWrapper {
@@ -143,8 +144,8 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
   void _showAddPlaylistSongsDialog(List<PlaylistTrack> tracks) {
     if (tracks.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No songs in this playlist'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.noSongsInPlaylist),
           backgroundColor: Colors.orange,
         ),
       );

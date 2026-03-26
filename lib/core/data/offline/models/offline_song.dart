@@ -108,7 +108,8 @@ class OfflineSong extends HiveObject {
     required String videoId,
     required String title,
     required String artist,
-    required DateTime addedAt, String? thumbnail,
+    required DateTime addedAt,
+    String? thumbnail,
     int? duration,
   }) {
     return OfflineSong()

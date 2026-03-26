@@ -11,7 +11,9 @@ class SongOptionsRepositoryImpl implements SongOptionsRepository {
   SongOptionsRepositoryImpl(this._dataSource);
 
   @override
-  Future<Either<AppException, SongOptionEntity>> getSongOptions(String videoId) async {
+  Future<Either<AppException, SongOptionEntity>> getSongOptions(
+    String videoId,
+  ) async {
     try {
       final options = await _dataSource.getSongOptions(videoId);
       return Right(options);
@@ -21,7 +23,9 @@ class SongOptionsRepositoryImpl implements SongOptionsRepository {
   }
 
   @override
-  Future<Either<AppException, SongOptionEntity>> toggleFavorite(SongOptionEntity song) async {
+  Future<Either<AppException, SongOptionEntity>> toggleFavorite(
+    SongOptionEntity song,
+  ) async {
     try {
       await _dataSource.toggleFavorite(song);
       return Right(song.copyWith(isFavorite: !song.isFavorite));
@@ -31,9 +35,18 @@ class SongOptionsRepositoryImpl implements SongOptionsRepository {
   }
 
   @override
-  Future<Either<AppException, void>> downloadSong(SongOptionEntity song, String streamUrl) async {
+  Future<Either<AppException, void>> downloadSong(
+    SongOptionEntity song,
+    String streamUrl,
+  ) async {
     try {
-      await _dataSource.downloadSong(song.videoId, song.title, song.artist, song.thumbnail, streamUrl);
+      await _dataSource.downloadSong(
+        song.videoId,
+        song.title,
+        song.artist,
+        song.thumbnail,
+        streamUrl,
+      );
       return const Right(null);
     } catch (e) {
       return Left(UnknownException(e.toString()));

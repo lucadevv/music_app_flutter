@@ -44,7 +44,9 @@ class OrquestadorHomeCubit extends Cubit<OrquestadorHomeState> {
       _moodGenreSubscription?.cancel();
     }
     _moodGenreCubit = moodGenreCubit;
-    _moodGenreSubscription = _moodGenreCubit!.stream.listen(_updateMoodGenreState);
+    _moodGenreSubscription = _moodGenreCubit!.stream.listen(
+      _updateMoodGenreState,
+    );
     // Actualizar el estado inicial
     _updateMoodGenreState(moodGenreCubit.state);
   }

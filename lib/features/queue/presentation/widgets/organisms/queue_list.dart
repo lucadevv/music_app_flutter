@@ -12,7 +12,12 @@ class QueueList extends StatelessWidget {
   final void Function(int index) onTrackRemove;
 
   const QueueList({
-    required this.playlist, required this.currentIndex, required this.emptyLabel, required this.onTrackTap, required this.onTrackRemove, super.key,
+    required this.playlist,
+    required this.currentIndex,
+    required this.emptyLabel,
+    required this.onTrackTap,
+    required this.onTrackRemove,
+    super.key,
   });
 
   @override

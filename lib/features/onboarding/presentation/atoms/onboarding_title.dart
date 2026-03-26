@@ -6,7 +6,9 @@ class OnboardingTitle extends StatelessWidget {
   final String highlightedPart;
 
   const OnboardingTitle({
-    required this.firstPart, required this.highlightedPart, super.key,
+    required this.firstPart,
+    required this.highlightedPart,
+    super.key,
   });
 
   @override
@@ -18,7 +20,7 @@ class OnboardingTitle extends StatelessWidget {
           fontWeight: FontWeight.bold,
           fontFamily: 'Poppins',
           height: 1.1,
-          color: Colors.white,
+          color: AppColorsDark.onSurface,
         ),
         children: [
           TextSpan(text: '$firstPart\n'),

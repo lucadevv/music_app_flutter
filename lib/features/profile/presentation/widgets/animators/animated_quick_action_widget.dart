@@ -6,7 +6,9 @@ class AnimatedQuickActionWidget extends StatefulWidget {
   final Widget child;
 
   const AnimatedQuickActionWidget({
-    required this.delay, required this.child, super.key,
+    required this.delay,
+    required this.child,
+    super.key,
   });
 
   @override

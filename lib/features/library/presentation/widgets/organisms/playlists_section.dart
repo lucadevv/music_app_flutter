@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/library/presentation/cubit/library_cubit.dart';
 import 'package:music_app/features/library/presentation/widgets/molecules/playlist_card.dart';
 import 'package:music_app/l10n/app_localizations.dart';
@@ -35,7 +36,7 @@ class PlaylistsSection extends StatelessWidget {
               Text(
                 l10n.playlists,
                 style: const TextStyle(
-                  color: Colors.white,
+                  color: AppColorsDark.onSurface,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   fontFamily: 'Poppins',

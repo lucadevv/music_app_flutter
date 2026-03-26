@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/song_options/presentation/widgets/song_options_bottom_sheet.dart';
 
 /// Helper centralizado para mostrar el bottom sheet de agregar a playlist
@@ -84,7 +85,7 @@ class AddToPlaylistHelper {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Error al abrir opciones: $e'),
-              backgroundColor: Colors.red,
+              backgroundColor: AppColorsDark.error,
             ),
           );
         }

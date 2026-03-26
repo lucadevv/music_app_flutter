@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:music_app/core/presentation/widgets/song_list_item.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/album/domain/entities/album.dart';
 import 'package:music_app/features/album/presentation/widgets/atoms/atoms.dart';
 import 'package:music_app/features/song_options/presentation/widgets/song_options_bottom_sheet.dart';
@@ -26,7 +27,7 @@ class AlbumSongItem extends StatelessWidget {
             IconButton(
               icon: Icon(
                 Icons.more_vert,
-                color: Colors.white.withValues(alpha: 0.6),
+                color: AppColorsDark.onSurface.withValues(alpha: 0.6),
               ),
               onPressed: () => _showSongOptions(context),
             ),

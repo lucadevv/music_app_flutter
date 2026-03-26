@@ -15,7 +15,11 @@ class HeaderIconAtom extends StatelessWidget {
         ),
         borderRadius: BorderRadius.circular(12),
       ),
-      child: const Icon(Icons.history, size: 60, color: Colors.white),
+      child: const Icon(
+        Icons.history,
+        size: 60,
+        color: AppColorsDark.onSurface,
+      ),
     );
   }
 }

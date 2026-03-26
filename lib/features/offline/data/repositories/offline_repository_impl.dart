@@ -21,7 +21,8 @@ class OfflineRepositoryImpl implements OfflineRepository {
   }
 
   @override
-  Future<Either<AppException, List<OfflineSongEntity>>> getDownloadedSongs() async {
+  Future<Either<AppException, List<OfflineSongEntity>>>
+  getDownloadedSongs() async {
     try {
       final songs = await _dataSource.getDownloadedSongs();
       return Right(songs);
@@ -31,7 +32,10 @@ class OfflineRepositoryImpl implements OfflineRepository {
   }
 
   @override
-  Future<Either<AppException, void>> downloadSong(OfflineSongEntity song, String streamUrl) async {
+  Future<Either<AppException, void>> downloadSong(
+    OfflineSongEntity song,
+    String streamUrl,
+  ) async {
     try {
       await _dataSource.downloadSong(song, streamUrl);
       return const Right(null);
@@ -61,7 +65,9 @@ class OfflineRepositoryImpl implements OfflineRepository {
   }
 
   @override
-  Future<Either<AppException, void>> syncFavorites(List<Map<String, dynamic>> serverSongs) async {
+  Future<Either<AppException, void>> syncFavorites(
+    List<Map<String, dynamic>> serverSongs,
+  ) async {
     try {
       await _dataSource.syncFavorites(serverSongs);
       return const Right(null);

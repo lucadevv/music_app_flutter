@@ -17,7 +17,7 @@ class ProfileAvatar extends StatelessWidget {
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           border: Border.all(
-            color: Colors.white.withValues(alpha: 0.1),
+            color: AppColorsDark.onSurface.withValues(alpha: 0.1),
             width: 1,
           ),
         ),
@@ -49,7 +49,7 @@ class ProfileAvatar extends StatelessWidget {
         ),
         shape: BoxShape.circle,
         border: Border.all(
-          color: Colors.white.withValues(alpha: 0.1),
+          color: AppColorsDark.onSurface.withValues(alpha: 0.1),
           width: 1,
         ),
         boxShadow: [
@@ -64,7 +64,7 @@ class ProfileAvatar extends StatelessWidget {
         child: Text(
           initials.isNotEmpty ? initials : 'U',
           style: TextStyle(
-            color: Colors.white,
+            color: AppColorsDark.onSurface,
             fontSize: size * 0.35,
             fontWeight: FontWeight.bold,
             fontFamily: 'Poppins',

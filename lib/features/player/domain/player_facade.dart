@@ -13,10 +13,7 @@ class PlayerFacade {
 
   void playSingle(NowPlayingData track, {String? sourceId}) {
     _bloc.add(
-      LoadTrackEvent(
-        track,
-        sourceId: sourceId ?? 'single:${track.videoId}',
-      ),
+      LoadTrackEvent(track, sourceId: sourceId ?? 'single:${track.videoId}'),
     );
   }
 
@@ -50,4 +47,3 @@ class PlayerFacade {
     _bloc.add(const PreviousTrackEvent());
   }
 }
-

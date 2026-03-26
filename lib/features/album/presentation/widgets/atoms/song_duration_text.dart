@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 
 /// Átomo: Texto de duración de canción
 class SongDurationText extends StatelessWidget {
@@ -11,7 +12,7 @@ class SongDurationText extends StatelessWidget {
     return Text(
       duration,
       style: TextStyle(
-        color: Colors.white.withValues(alpha: 0.6),
+        color: AppColorsDark.onSurface.withValues(alpha: 0.6),
         fontSize: 14,
       ),
     );

@@ -1,4 +1,6 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:music_app/l10n/app_localizations.dart';
 
 /// Organismo: DownloadsAppBar
 ///
@@ -8,7 +10,8 @@ class DownloadsAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? onSettingsPressed;
 
   const DownloadsAppBar({
-    required this.title, super.key,
+    required this.title,
+    super.key,
     this.onSettingsPressed,
   });
 
@@ -33,14 +36,14 @@ class DownloadsAppBar extends StatelessWidget implements PreferredSizeWidget {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          title: const Text('Settings'),
+          title: Text(AppLocalizations.of(context)!.settings),
           content: const Text(
             'Downloading settings screen is not implemented yet.',
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('OK'),
+              onPressed: () => dialogContext.router.maybePop(),
+              child: Text(AppLocalizations.of(context)!.ok),
             ),
           ],
         );

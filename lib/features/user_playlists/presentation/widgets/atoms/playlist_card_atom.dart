@@ -38,7 +38,7 @@ class PlaylistCardAtom extends StatelessWidget {
                         child: Icon(
                           Icons.playlist_play,
                           size: 48,
-                          color: Colors.white24,
+                          color: AppColorsDark.onSurface24,
                         ),
                       ),
                     ),
@@ -48,7 +48,7 @@ class PlaylistCardAtom extends StatelessWidget {
           Text(
             name,
             style: const TextStyle(
-              color: Colors.white,
+              color: AppColorsDark.onSurface,
               fontSize: 14,
               fontWeight: FontWeight.w500,
             ),
@@ -57,7 +57,10 @@ class PlaylistCardAtom extends StatelessWidget {
           ),
           Text(
             '$songCount songs',
-            style: const TextStyle(color: Colors.white54, fontSize: 12),
+            style: const TextStyle(
+              color: AppColorsDark.onSurface54,
+              fontSize: 12,
+            ),
           ),
         ],
       ),

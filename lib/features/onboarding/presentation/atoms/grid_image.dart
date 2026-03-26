@@ -8,7 +8,9 @@ class GridImage extends StatelessWidget {
   final double width;
 
   const GridImage({
-    required this.url, required this.height, super.key,
+    required this.url,
+    required this.height,
+    super.key,
     this.width = 110,
   });
 
@@ -22,7 +24,7 @@ class GridImage extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
+            color: AppColorsDark.surfaceDim.withValues(alpha: 0.3),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -35,8 +37,10 @@ class GridImage extends StatelessWidget {
           fit: BoxFit.cover,
           placeholder: (context, url) =>
               Container(color: AppColorsDark.surfaceContainerHigh),
-          errorWidget: (context, url, error) =>
-              const Icon(Icons.music_note, color: Colors.grey),
+          errorWidget: (context, url, error) => const Icon(
+            Icons.music_note,
+            color: AppColorsDark.onSurfaceVariant,
+          ),
         ),
       ),
     );

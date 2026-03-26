@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/core/widgets/shimmer_widgets.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -22,25 +23,25 @@ class CategoriesRowShimmer extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Shimmer.fromColors(
-                baseColor: Colors.white.withValues(alpha: 0.1),
-                highlightColor: Colors.white.withValues(alpha: 0.2),
+                baseColor: AppColorsDark.onSurface.withValues(alpha: 0.1),
+                highlightColor: AppColorsDark.onSurface.withValues(alpha: 0.2),
                 child: Container(
                   height: 20,
                   width: 160,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColorsDark.onSurface,
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
               ),
               Shimmer.fromColors(
-                baseColor: Colors.white.withValues(alpha: 0.1),
-                highlightColor: Colors.white.withValues(alpha: 0.2),
+                baseColor: AppColorsDark.onSurface.withValues(alpha: 0.1),
+                highlightColor: AppColorsDark.onSurface.withValues(alpha: 0.2),
                 child: Container(
                   height: 24,
                   width: 24,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColorsDark.onSurface,
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
@@ -57,14 +58,16 @@ class CategoriesRowShimmer extends StatelessWidget {
             separatorBuilder: (context, index) => const SizedBox(width: 8),
             itemBuilder: (context, index) {
               return Shimmer.fromColors(
-                baseColor: Colors.white.withValues(alpha: 0.1),
-                highlightColor: Colors.white.withValues(alpha: 0.2),
+                baseColor: AppColorsDark.onSurface.withValues(alpha: 0.1),
+                highlightColor: AppColorsDark.onSurface.withValues(alpha: 0.2),
                 child: Container(
                   width: 80,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20), // Chips are pill-shaped
+                    color: AppColorsDark.onSurface,
+                    borderRadius: BorderRadius.circular(
+                      20,
+                    ), // Chips are pill-shaped
                   ),
                 ),
               );
@@ -94,11 +97,11 @@ class MoodGenresShimmer extends StatelessWidget {
         delegate: SliverChildBuilderDelegate(
           (context, index) {
             return Shimmer.fromColors(
-              baseColor: Colors.white.withValues(alpha: 0.1),
-              highlightColor: Colors.white.withValues(alpha: 0.2),
+              baseColor: AppColorsDark.onSurface.withValues(alpha: 0.1),
+              highlightColor: AppColorsDark.onSurface.withValues(alpha: 0.2),
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColorsDark.onSurface,
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
@@ -129,7 +132,7 @@ class SongCardsShimmer extends StatelessWidget {
             width: 160,
             margin: const EdgeInsets.only(right: 16),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.05),
+              color: AppColorsDark.onSurface.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(
@@ -137,11 +140,13 @@ class SongCardsShimmer extends StatelessWidget {
               children: [
                 Expanded(
                   child: Shimmer.fromColors(
-                    baseColor: Colors.white.withValues(alpha: 0.1),
-                    highlightColor: Colors.white.withValues(alpha: 0.2),
+                    baseColor: AppColorsDark.onSurface.withValues(alpha: 0.1),
+                    highlightColor: AppColorsDark.onSurface.withValues(
+                      alpha: 0.2,
+                    ),
                     child: Container(
                       decoration: const BoxDecoration(
-                        color: Colors.white,
+                        color: AppColorsDark.onSurface,
                         borderRadius: BorderRadius.vertical(
                           top: Radius.circular(12),
                         ),
@@ -155,26 +160,34 @@ class SongCardsShimmer extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Shimmer.fromColors(
-                        baseColor: Colors.white.withValues(alpha: 0.1),
-                        highlightColor: Colors.white.withValues(alpha: 0.2),
+                        baseColor: AppColorsDark.onSurface.withValues(
+                          alpha: 0.1,
+                        ),
+                        highlightColor: AppColorsDark.onSurface.withValues(
+                          alpha: 0.2,
+                        ),
                         child: Container(
                           height: 14,
                           width: double.infinity,
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: AppColorsDark.onSurface,
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
                       ),
                       const SizedBox(height: 4),
                       Shimmer.fromColors(
-                        baseColor: Colors.white.withValues(alpha: 0.1),
-                        highlightColor: Colors.white.withValues(alpha: 0.2),
+                        baseColor: AppColorsDark.onSurface.withValues(
+                          alpha: 0.1,
+                        ),
+                        highlightColor: AppColorsDark.onSurface.withValues(
+                          alpha: 0.2,
+                        ),
                         child: Container(
                           height: 12,
                           width: 100,
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: AppColorsDark.onSurface,
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
@@ -217,13 +230,13 @@ class SectionTitleShimmer extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 32, 24, 16),
       child: Shimmer.fromColors(
-        baseColor: Colors.white.withValues(alpha: 0.1),
-        highlightColor: Colors.white.withValues(alpha: 0.2),
+        baseColor: AppColorsDark.onSurface.withValues(alpha: 0.1),
+        highlightColor: AppColorsDark.onSurface.withValues(alpha: 0.2),
         child: Container(
           height: 20,
           width: 150,
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColorsDark.onSurface,
             borderRadius: BorderRadius.circular(4),
           ),
         ),

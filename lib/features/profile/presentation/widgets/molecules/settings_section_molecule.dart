@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 
 class SettingsSectionMolecule extends StatelessWidget {
   final String title;
   final List<Widget> items;
 
   const SettingsSectionMolecule({
-    required this.title, required this.items, super.key,
+    required this.title,
+    required this.items,
+    super.key,
   });
 
   @override
@@ -18,7 +21,7 @@ class SettingsSectionMolecule extends StatelessWidget {
           child: Text(
             title,
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.6),
+              color: AppColorsDark.onSurface.withValues(alpha: 0.6),
               fontSize: 12,
               fontWeight: FontWeight.w600,
               letterSpacing: 1.2,

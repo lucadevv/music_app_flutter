@@ -65,7 +65,7 @@ class PlaylistActionButtonsMolecule extends StatelessWidget {
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColorsDark.primary,
-                  foregroundColor: Colors.white,
+                  foregroundColor: AppColorsDark.onSurface,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 32,
                     vertical: 12,

@@ -10,7 +10,8 @@ class RecentlyPlayedSongModel extends RecentlyPlayedSong {
     required super.videoId,
     required super.title,
     required super.artist,
-    required super.duration, super.thumbnail,
+    required super.duration,
+    super.thumbnail,
     super.durationSeconds = 0,
     super.playedAt,
     super.streamUrl,
@@ -21,7 +22,7 @@ class RecentlyPlayedSongModel extends RecentlyPlayedSong {
     // duration puede venir como número (segundos) o string ("m:ss")
     int durationSeconds = 0;
     String durationStr = '0:00';
-    
+
     final rawDuration = json['duration'];
     if (rawDuration != null) {
       if (rawDuration is int) {
@@ -53,7 +54,8 @@ class RecentlyPlayedSongModel extends RecentlyPlayedSong {
     String? streamUrl;
     if (json['stream_url'] != null) {
       streamUrl = json['stream_url'] as String?;
-    } else if (json['songData'] != null && json['songData'] is Map<String, dynamic>) {
+    } else if (json['songData'] != null &&
+        json['songData'] is Map<String, dynamic>) {
       streamUrl = json['songData']['stream_url'] as String?;
     }
 
@@ -85,16 +87,15 @@ class RecentlyPlayedResponse {
   final List<RecentlyPlayedSongModel> songs;
   final int total;
 
-  const RecentlyPlayedResponse({
-    required this.songs,
-    required this.total,
-  });
+  const RecentlyPlayedResponse({required this.songs, required this.total});
 
   factory RecentlyPlayedResponse.fromJson(Map<String, dynamic> json) {
     final songsList = json['songs'] as List<dynamic>? ?? [];
     return RecentlyPlayedResponse(
       songs: songsList
-          .map((s) => RecentlyPlayedSongModel.fromJson(s as Map<String, dynamic>))
+          .map(
+            (s) => RecentlyPlayedSongModel.fromJson(s as Map<String, dynamic>),
+          )
           .toList(),
       total: json['total'] as int? ?? 0,
     );

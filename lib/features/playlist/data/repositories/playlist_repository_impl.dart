@@ -19,6 +19,10 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
     int startIndex = 0,
     int limit = 10,
   }) async {
-    return _remoteDataSource.getPlaylist(id, startIndex: startIndex, limit: limit);
+    return _remoteDataSource.getPlaylist(
+      id,
+      startIndex: startIndex,
+      limit: limit,
+    );
   }
 }

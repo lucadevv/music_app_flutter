@@ -21,5 +21,13 @@ class LikedSongEntity extends Equatable {
   });
 
   @override
-  List<Object?> get props => [videoId, title, artist, thumbnail, duration, streamUrl, addedAt];
+  List<Object?> get props => [
+    videoId,
+    title,
+    artist,
+    thumbnail,
+    duration,
+    streamUrl,
+    addedAt,
+  ];
 }

@@ -61,6 +61,8 @@ class ArtistAlbum {
   const ArtistAlbum({
     required this.id,
     required this.title,
-    required this.year, required this.songCount, this.thumbnail,
+    required this.year,
+    required this.songCount,
+    this.thumbnail,
   });
 }

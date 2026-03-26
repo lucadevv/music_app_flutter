@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 
 /// Atom: Empty queue icon
 class QueueEmptyIcon extends StatelessWidget {
@@ -12,7 +13,7 @@ class QueueEmptyIcon extends StatelessWidget {
     return Icon(
       Icons.queue_music,
       size: size,
-      color: color ?? Colors.white.withValues(alpha: 0.3),
+      color: color ?? AppColorsDark.onSurface.withValues(alpha: 0.3),
     );
   }
 }

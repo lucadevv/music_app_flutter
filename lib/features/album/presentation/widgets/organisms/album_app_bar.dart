@@ -19,16 +19,19 @@ class AlbumAppBar extends StatelessWidget {
       pinned: true,
       backgroundColor: Colors.transparent,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+        icon: const Icon(
+          Icons.arrow_back_ios_new,
+          color: AppColorsDark.onSurface,
+        ),
         onPressed: onBackPressed ?? () => context.router.pop(),
       ),
       actions: [
         IconButton(
-          icon: const Icon(Icons.search, color: Colors.white),
+          icon: const Icon(Icons.search, color: AppColorsDark.onSurface),
           onPressed: () {},
         ),
         IconButton(
-          icon: const Icon(Icons.more_vert, color: Colors.white),
+          icon: const Icon(Icons.more_vert, color: AppColorsDark.onSurface),
           onPressed: () {},
         ),
       ],

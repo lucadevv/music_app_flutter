@@ -16,7 +16,12 @@ class DownloadsList extends StatelessWidget {
   final void Function(DownloadedSong) onSongDelete;
 
   const DownloadsList({
-    required this.downloadedSongs, required this.downloadingIds, required this.downloadProgress, required this.onSongTap, required this.onSongDelete, super.key,
+    required this.downloadedSongs,
+    required this.downloadingIds,
+    required this.downloadProgress,
+    required this.onSongTap,
+    required this.onSongDelete,
+    super.key,
   });
 
   @override
@@ -51,7 +56,12 @@ class DownloadsListWithNavigation extends StatelessWidget {
   final void Function(DownloadedSong) onDelete;
 
   const DownloadsListWithNavigation({
-    required this.downloadedSongs, required this.downloadingIds, required this.downloadProgress, required this.playDownloadedSong, required this.onDelete, super.key,
+    required this.downloadedSongs,
+    required this.downloadingIds,
+    required this.downloadProgress,
+    required this.playDownloadedSong,
+    required this.onDelete,
+    super.key,
   });
 
   @override

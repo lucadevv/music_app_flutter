@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:shimmer/shimmer.dart';
+
 import 'home_shimmer.dart';
 
 /// Widget para mostrar el estado de carga del home con shimmer
@@ -21,26 +23,30 @@ class HomeLoadingWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Shimmer.fromColors(
-                  baseColor: Colors.white.withValues(alpha: 0.1),
-                  highlightColor: Colors.white.withValues(alpha: 0.2),
+                  baseColor: AppColorsDark.onSurface.withValues(alpha: 0.1),
+                  highlightColor: AppColorsDark.onSurface.withValues(
+                    alpha: 0.2,
+                  ),
                   child: Container(
                     height: 16,
                     width: 100,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColorsDark.onSurface,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
                 ),
                 const SizedBox(height: 4),
                 Shimmer.fromColors(
-                  baseColor: Colors.white.withValues(alpha: 0.1),
-                  highlightColor: Colors.white.withValues(alpha: 0.2),
+                  baseColor: AppColorsDark.onSurface.withValues(alpha: 0.1),
+                  highlightColor: AppColorsDark.onSurface.withValues(
+                    alpha: 0.2,
+                  ),
                   child: Container(
                     height: 28,
                     width: 200,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColorsDark.onSurface,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -64,7 +70,6 @@ class HomeLoadingWidget extends StatelessWidget {
 
         // Más cards shimmer
         const SliverToBoxAdapter(child: SongCardsShimmer()),
-
 
         const SliverToBoxAdapter(child: SizedBox(height: 100)),
       ],

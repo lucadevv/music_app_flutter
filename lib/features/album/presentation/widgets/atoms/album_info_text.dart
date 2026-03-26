@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 
 /// Átomo: Textos de información del álbum (título y subtítulo)
 class AlbumInfoText extends StatelessWidget {
@@ -8,7 +9,8 @@ class AlbumInfoText extends StatelessWidget {
   final double subtitleFontSize;
 
   const AlbumInfoText({
-    required this.title, super.key,
+    required this.title,
+    super.key,
     this.titleFontSize = 24,
     this.subtitle,
     this.subtitleFontSize = 14,
@@ -23,7 +25,7 @@ class AlbumInfoText extends StatelessWidget {
         Text(
           title,
           style: TextStyle(
-            color: Colors.white,
+            color: AppColorsDark.onSurface,
             fontSize: titleFontSize,
             fontWeight: FontWeight.bold,
           ),
@@ -33,7 +35,7 @@ class AlbumInfoText extends StatelessWidget {
           Text(
             subtitle!,
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.6),
+              color: AppColorsDark.onSurface.withValues(alpha: 0.6),
               fontSize: subtitleFontSize,
             ),
           ),

@@ -1,7 +1,6 @@
 // ignore_for_file: deprecated_member_use_from_same_package
 import 'package:music_app/core/domain/entities/song.dart';
 
-
 /// Entidad del dominio para una búsqueda reciente
 class RecentSearch {
   final String id;

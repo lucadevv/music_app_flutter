@@ -91,7 +91,8 @@ class OfflineQueueItem extends HiveObject {
     required this.videoId,
     required this.title,
     required this.artist,
-    required this.position, this.thumbnail,
+    required this.position,
+    this.thumbnail,
     this.duration,
     this.localAudioPath,
   });

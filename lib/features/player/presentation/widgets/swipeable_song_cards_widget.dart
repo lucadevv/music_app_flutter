@@ -17,7 +17,8 @@ class SwipeableSongCardsWidget extends StatefulWidget {
   });
 
   @override
-  State<SwipeableSongCardsWidget> createState() => _SwipeableSongCardsWidgetState();
+  State<SwipeableSongCardsWidget> createState() =>
+      _SwipeableSongCardsWidgetState();
 }
 
 class _SwipeableSongCardsWidgetState extends State<SwipeableSongCardsWidget> {
@@ -85,7 +86,9 @@ class _SwipeableSongCardsWidgetState extends State<SwipeableSongCardsWidget> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isCurrentCard ? 0.5 : 0.3),
+            color: AppColorsDark.surfaceDim.withValues(
+              alpha: isCurrentCard ? 0.5 : 0.3,
+            ),
             blurRadius: isCurrentCard ? 20 : 10,
             offset: const Offset(0, 8),
           ),
@@ -115,7 +118,7 @@ class _SwipeableSongCardsWidgetState extends State<SwipeableSongCardsWidget> {
                     end: Alignment.bottomCenter,
                     colors: [
                       Colors.transparent,
-                      Colors.black.withValues(alpha: 0.8),
+                      AppColorsDark.surfaceDim.withValues(alpha: 0.8),
                     ],
                   ),
                 ),
@@ -133,7 +136,7 @@ class _SwipeableSongCardsWidgetState extends State<SwipeableSongCardsWidget> {
                   Text(
                     track.title,
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: AppColorsDark.onSurface,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
@@ -144,7 +147,7 @@ class _SwipeableSongCardsWidgetState extends State<SwipeableSongCardsWidget> {
                   Text(
                     track.artistsNames,
                     style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.7),
+                      color: AppColorsDark.onSurface.withValues(alpha: 0.7),
                       fontSize: 14,
                     ),
                     maxLines: 1,
@@ -159,7 +162,10 @@ class _SwipeableSongCardsWidgetState extends State<SwipeableSongCardsWidget> {
                 top: 16,
                 right: 16,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColorsDark.primary,
                     borderRadius: BorderRadius.circular(20),
@@ -167,7 +173,7 @@ class _SwipeableSongCardsWidgetState extends State<SwipeableSongCardsWidget> {
                   child: Text(
                     '${index + 1}/${widget.playlist.length}',
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: AppColorsDark.onSurface,
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                     ),

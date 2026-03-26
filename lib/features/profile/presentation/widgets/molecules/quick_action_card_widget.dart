@@ -9,7 +9,11 @@ class QuickActionCardWidget extends StatelessWidget {
   final VoidCallback onTap;
 
   const QuickActionCardWidget({
-    required this.icon, required this.title, required this.subtitle, required this.onTap, super.key,
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+    super.key,
   });
 
   @override
@@ -19,7 +23,7 @@ class QuickActionCardWidget extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.05),
+          color: AppColorsDark.onSurface.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -41,7 +45,7 @@ class QuickActionCardWidget extends StatelessWidget {
                   Text(
                     title,
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: AppColorsDark.onSurface,
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
@@ -50,7 +54,7 @@ class QuickActionCardWidget extends StatelessWidget {
                   Text(
                     subtitle,
                     style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.5),
+                      color: AppColorsDark.onSurface.withValues(alpha: 0.5),
                       fontSize: 12,
                     ),
                   ),
@@ -59,7 +63,7 @@ class QuickActionCardWidget extends StatelessWidget {
             ),
             Icon(
               Icons.chevron_right,
-              color: Colors.white.withValues(alpha: 0.3),
+              color: AppColorsDark.onSurface.withValues(alpha: 0.3),
             ),
           ],
         ),

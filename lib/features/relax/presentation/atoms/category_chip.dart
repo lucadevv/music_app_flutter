@@ -14,13 +14,15 @@ class CategoryChip extends StatelessWidget {
       decoration: BoxDecoration(
         color: isSelected
             ? AppColorsDark.primary
-            : Colors.white.withValues(alpha: 0.1),
+            : AppColorsDark.onSurface.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(18),
       ),
       child: Text(
         label,
         style: TextStyle(
-          color: isSelected ? Colors.black : Colors.white,
+          color: isSelected
+              ? AppColorsDark.surfaceDim
+              : AppColorsDark.onSurface,
           fontSize: 14,
           fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
         ),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/library/domain/repositories/library_repository.dart';
 import 'package:music_app/features/library/domain/use_cases/create_user_playlist_use_case.dart';
 import 'package:music_app/features/library/domain/use_cases/get_favorite_playlists_use_case.dart';
@@ -50,18 +51,21 @@ class _UserPlaylistsView extends StatelessWidget {
         title: Text(
           l10n.myPlaylists,
           style: const TextStyle(
-            color: Colors.white,
+            color: AppColorsDark.onSurface,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: AppColorsDark.onSurface,
+          ),
           onPressed: () => context.router.pop(),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.add, color: Colors.white),
+            icon: const Icon(Icons.add, color: AppColorsDark.onSurface),
             onPressed: () => _createPlaylist(context, l10n),
           ),
         ],
@@ -104,7 +108,7 @@ class _UserPlaylistsView extends StatelessWidget {
         children: [
           Text(
             state.errorMessage ?? l10n.errorUnknown,
-            style: const TextStyle(color: Colors.white),
+            style: const TextStyle(color: AppColorsDark.onSurface),
           ),
           const SizedBox(height: 16),
           ElevatedButton(

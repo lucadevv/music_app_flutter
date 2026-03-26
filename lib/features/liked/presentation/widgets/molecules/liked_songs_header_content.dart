@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/liked/presentation/widgets/atoms/liked_icon.dart';
 
 class LikedSongsHeaderContent extends StatelessWidget {
@@ -24,7 +25,7 @@ class LikedSongsHeaderContent extends StatelessWidget {
           Text(
             title,
             style: const TextStyle(
-              color: Colors.white,
+              color: AppColorsDark.onSurface,
               fontSize: 28,
               fontWeight: FontWeight.bold,
             ),
@@ -34,7 +35,7 @@ class LikedSongsHeaderContent extends StatelessWidget {
             Text(
               subtitle!,
               style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.6),
+                color: AppColorsDark.onSurface.withValues(alpha: 0.6),
                 fontSize: 14,
               ),
             ),

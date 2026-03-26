@@ -12,9 +12,10 @@ class SplashDataSource {
 
   /// Initialize app and determine redirect route
   Future<SplashEntity> initializeApp() async {
-    final isOnboardingCompleted = await _onboardingService.isOnboardingCompleted();
+    final isOnboardingCompleted = await _onboardingService
+        .isOnboardingCompleted();
     final isAuthenticated = await _authManager.isUserLoggedIn();
-    
+
     String? redirectRoute;
     if (!isOnboardingCompleted) {
       redirectRoute = '/onboarding';

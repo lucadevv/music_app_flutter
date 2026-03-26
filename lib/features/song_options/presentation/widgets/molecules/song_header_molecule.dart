@@ -9,7 +9,9 @@ class SongHeaderMolecule extends StatelessWidget {
   final String? thumbnail;
 
   const SongHeaderMolecule({
-    required this.title, required this.artist, super.key,
+    required this.title,
+    required this.artist,
+    super.key,
     this.thumbnail,
   });
 

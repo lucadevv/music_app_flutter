@@ -121,12 +121,12 @@ class _DownloadsBody extends StatelessWidget {
           content: Text(l10n.deleteDownloadMessage(song.title)),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
+              onPressed: () => dialogContext.router.maybePop(),
               child: Text(l10n.cancel),
             ),
             FilledButton(
               onPressed: () {
-                Navigator.of(dialogContext).pop();
+                dialogContext.router.maybePop();
                 context.read<DownloadsCubit>().removeDownload(song.videoId);
               },
               style: FilledButton.styleFrom(

@@ -9,7 +9,9 @@ class PlaylistTileMolecule extends StatelessWidget {
   final VoidCallback onTap;
 
   const PlaylistTileMolecule({
-    required this.playlist, required this.onTap, super.key,
+    required this.playlist,
+    required this.onTap,
+    super.key,
   });
 
   @override
@@ -38,13 +40,13 @@ class PlaylistTileMolecule extends StatelessWidget {
       ),
       title: Text(
         playlist.name,
-        style: const TextStyle(color: Colors.white),
+        style: const TextStyle(color: AppColorsDark.onSurface),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
       subtitle: Text(
         '${playlist.songCount} canciones',
-        style: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
+        style: TextStyle(color: AppColorsDark.onSurface.withValues(alpha: 0.6)),
       ),
       onTap: onTap,
     );

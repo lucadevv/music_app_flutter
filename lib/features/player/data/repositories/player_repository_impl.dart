@@ -3,7 +3,6 @@ import 'package:music_app/core/data/offline/services/offline_service.dart';
 import 'package:music_app/core/domain/entities/song.dart';
 import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
 import 'package:music_app/features/player/domain/repositories/player_repository.dart';
-import 'package:music_app/features/recently_played/domain/entities/recently_played_song.dart';
 import 'package:music_app/features/recently_played/domain/repositories/recently_played_repository.dart';
 
 class PlayerRepositoryImpl implements PlayerRepository {
@@ -19,7 +18,7 @@ class PlayerRepositoryImpl implements PlayerRepository {
   @override
   Future<Either<AppException, List<Song>>> getHistory({int limit = 50}) async {
     final result = await _recentlyPlayedRepository.getRecentlyPlayed();
-    return result.fold((exception) => Left(exception), (songs) {
+    return result.fold(Left.new, (songs) {
       // Convert RecentlyPlayedSong to Song
       final convertedSongs = songs
           .map(
@@ -39,10 +38,7 @@ class PlayerRepositoryImpl implements PlayerRepository {
   @override
   Future<Either<AppException, void>> addToHistory(Song song) async {
     final result = await _recentlyPlayedRepository.recordListen(song.videoId);
-    return result.fold(
-      (exception) => Left(exception),
-      (_) => const Right(null),
-    );
+    return result.fold(Left.new, (_) => const Right(null));
   }
 
   @override

@@ -24,13 +24,16 @@ class StreamingQualityScreen extends StatelessWidget {
         title: const Text(
           'Streaming Quality',
           style: TextStyle(
-            color: Colors.white,
+            color: AppColorsDark.onSurface,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: AppColorsDark.onSurface,
+          ),
           onPressed: () => context.router.pop(),
         ),
       ),
@@ -45,11 +48,13 @@ class StreamingQualityScreen extends StatelessWidget {
             onChanged: (value) {},
             title: Text(
               quality['name']!,
-              style: const TextStyle(color: Colors.white),
+              style: const TextStyle(color: AppColorsDark.onSurface),
             ),
             subtitle: Text(
               quality['description']!,
-              style: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
+              style: TextStyle(
+                color: AppColorsDark.onSurface.withValues(alpha: 0.6),
+              ),
             ),
             activeColor: AppColorsDark.primary,
             selected: isSelected,

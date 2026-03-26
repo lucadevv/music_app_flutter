@@ -9,13 +9,17 @@ class GlassBottomNav extends StatelessWidget {
   final List<IconData> filledIcons;
 
   const GlassBottomNav({
-    required this.currentIndex, required this.onTap, required this.outlinedIcons, required this.filledIcons, super.key,
+    required this.currentIndex,
+    required this.onTap,
+    required this.outlinedIcons,
+    required this.filledIcons,
+    super.key,
   });
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return Padding(
       padding: const EdgeInsets.only(left: 20, right: 20, bottom: 24),
       child: ClipRRect(
@@ -35,7 +39,12 @@ class GlassBottomNav extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: List.generate(outlinedIcons.length, (index) {
-                return _buildNavItem(outlinedIcons[index], filledIcons[index], index, colorScheme);
+                return _buildNavItem(
+                  outlinedIcons[index],
+                  filledIcons[index],
+                  index,
+                  colorScheme,
+                );
               }),
             ),
           ),
@@ -44,7 +53,12 @@ class GlassBottomNav extends StatelessWidget {
     );
   }
 
-  Widget _buildNavItem(IconData iconOutlined, IconData iconFilled, int index, ColorScheme colorScheme) {
+  Widget _buildNavItem(
+    IconData iconOutlined,
+    IconData iconFilled,
+    int index,
+    ColorScheme colorScheme,
+  ) {
     final isSelected = currentIndex == index;
     return GestureDetector(
       onTap: () => onTap(index),
@@ -53,12 +67,16 @@ class GlassBottomNav extends StatelessWidget {
         width: 60,
         height: 60,
         decoration: BoxDecoration(
-          color: isSelected ? colorScheme.onSurface.withValues(alpha: 0.15) : Colors.transparent,
+          color: isSelected
+              ? colorScheme.onSurface.withValues(alpha: 0.15)
+              : Colors.transparent,
           shape: BoxShape.circle,
         ),
         child: Icon(
           isSelected ? iconFilled : iconOutlined,
-          color: isSelected ? colorScheme.onSurface : colorScheme.onSurfaceVariant,
+          color: isSelected
+              ? colorScheme.onSurface
+              : colorScheme.onSurfaceVariant,
           size: 28,
         ),
       ),

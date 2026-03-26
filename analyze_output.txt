@@ -1,39 +1,138 @@
 Analyzing music_app_flutter...                                  
 
-   info • Sort directive sections alphabetically • lib/core/domain/mappers/song_mapper.dart:6:1 • directives_ordering
-   info • Method invocation or property access on a 'dynamic' target • lib/core/domain/mappers/song_mapper.dart:294:14 • avoid_dynamic_calls
-   info • 'Album' is deprecated and shouldn't be used. Usar Album desde core/domain/entities/album.dart • lib/features/album/domain/use_cases/get_album_use_case.dart:9:10 • deprecated_member_use_from_same_package
-   info • 'Album' is deprecated and shouldn't be used. Usar Album desde core/domain/entities/album.dart • lib/features/album/presentation/widgets/molecules/album_header.dart:7:9 • deprecated_member_use_from_same_package
-   info • 'Album' is deprecated and shouldn't be used. Usar Album desde core/domain/entities/album.dart • lib/features/album/presentation/widgets/organisms/album_app_bar.dart:9:9 • deprecated_member_use_from_same_package
-   info • 'Album' is deprecated and shouldn't be used. Usar Album desde core/domain/entities/album.dart • lib/features/album/presentation/widgets/organisms/album_content.dart:8:9 • deprecated_member_use_from_same_package
-   info • Sort directive sections alphabetically • lib/features/artist/data/repositories/artist_repository_impl.dart:4:1 • directives_ordering
-   info • Sort directive sections alphabetically • lib/features/artist/presentation/artist_screen.dart:8:1 • directives_ordering
-   info • Unnecessary use of multiple underscores • lib/features/artist/presentation/widgets/atoms/artist_backdrop_widget.dart:24:32 • unnecessary_underscores
-   info • Unnecessary use of multiple underscores • lib/features/artist/presentation/widgets/atoms/artist_backdrop_widget.dart:24:36 • unnecessary_underscores
-   info • Sort directive sections alphabetically • lib/features/artist/presentation/widgets/molecules/artist_action_buttons.dart:3:1 • directives_ordering
-   info • Sort directive sections alphabetically • lib/features/artist/presentation/widgets/molecules/artist_album_card_molecule.dart:4:1 • directives_ordering
-   info • Unnecessary use of multiple underscores • lib/features/artist/presentation/widgets/molecules/artist_album_card_molecule.dart:45:34 • unnecessary_underscores
-   info • Unnecessary use of multiple underscores • lib/features/artist/presentation/widgets/molecules/artist_album_card_molecule.dart:45:38 • unnecessary_underscores
-   info • Sort directive sections alphabetically • lib/features/artist/presentation/widgets/molecules/artist_song_item_molecule.dart:3:1 • directives_ordering
-   info • Method invocation or property access on a 'dynamic' target • lib/features/library/data/models/library_models.dart:198:19 • avoid_dynamic_calls
-warning • Dead code • lib/features/library/presentation/cubit/library_cubit.dart:286:45 • dead_code
-warning • The left operand can't be null, so the right operand is never executed • lib/features/library/presentation/cubit/library_cubit.dart:286:48 • dead_null_aware_expression
-   info • 'ConcatenatingAudioSource' is deprecated and shouldn't be used. Use AudioPlayer.setAudioSources instead • lib/features/player/infrastructure/just_audio_player_engine.dart:66:27 • deprecated_member_use
-   info • 'ConcatenatingAudioSource' is deprecated and shouldn't be used. Use AudioPlayer.setAudioSources instead • lib/features/player/infrastructure/just_audio_player_engine.dart:79:27 • deprecated_member_use
-   info • Unnecessary use of multiple underscores • lib/features/profile/presentation/widgets/atoms/profile_avatar_atom.dart:27:30 • unnecessary_underscores
-   info • Unnecessary use of multiple underscores • lib/features/profile/presentation/widgets/atoms/profile_avatar_atom.dart:28:30 • unnecessary_underscores
-   info • Unnecessary use of multiple underscores • lib/features/profile/presentation/widgets/atoms/profile_avatar_atom.dart:28:34 • unnecessary_underscores
-   info • 'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre • lib/features/profile/presentation/widgets/organisms/quality_picker_organism.dart:78:11 • deprecated_member_use
-   info • 'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre • lib/features/profile/presentation/widgets/organisms/quality_picker_organism.dart:79:11 • deprecated_member_use
-   info • Angle brackets will be interpreted as HTML • lib/features/song_options/domain/use_cases/add_to_playlist_use_case.dart:22:35 • unintended_html_in_doc_comment
-   info • Angle brackets will be interpreted as HTML • lib/features/song_options/domain/use_cases/create_playlist_use_case.dart:18:35 • unintended_html_in_doc_comment
-   info • Angle brackets will be interpreted as HTML • lib/features/song_options/domain/use_cases/get_user_playlists_use_case.dart:15:35 • unintended_html_in_doc_comment
-   info • Unnecessary use of multiple underscores • lib/features/song_options/presentation/widgets/atoms/thumbnail_atom.dart:32:37 • unnecessary_underscores
-   info • Unnecessary use of multiple underscores • lib/features/song_options/presentation/widgets/molecules/playlist_tile_molecule.dart:31:36 • unnecessary_underscores
-   info • Unnecessary use of multiple underscores • lib/features/song_options/presentation/widgets/molecules/playlist_tile_molecule.dart:31:40 • unnecessary_underscores
-warning • Dead code • lib/features/song_options/presentation/widgets/organisms/add_to_playlist_dialog_organism.dart:70:36 • dead_code
-warning • The left operand can't be null, so the right operand is never executed • lib/features/song_options/presentation/widgets/organisms/add_to_playlist_dialog_organism.dart:70:39 • dead_null_aware_expression
-warning • The declaration '_getErrorMessage' isn't referenced • lib/features/song_options/presentation/widgets/organisms/add_to_playlist_dialog_organism.dart:88:10 • unused_element
-warning • Dead code • lib/features/song_options/presentation/widgets/organisms/add_to_playlist_dialog_organism.dart:366:61 • dead_code
-warning • The left operand can't be null, so the right operand is never executed • lib/features/song_options/presentation/widgets/organisms/add_to_playlist_dialog_organism.dart:366:64 • dead_null_aware_expression
+   info • Sort directive sections alphabetically • lib/core/app_injection/app_injection.dart:24:1 • directives_ordering
+   info • Use 'const' with the constructor to improve performance • lib/features/album/data/repositories/album_repository_impl.dart:111:16 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/album/data/repositories/album_repository_impl.dart:113:16 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/album/data/repositories/album_repository_impl.dart:117:18 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/album/data/repositories/album_repository_impl.dart:119:18 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/artist/data/repositories/artist_repository_impl.dart:138:16 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/artist/data/repositories/artist_repository_impl.dart:140:16 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/artist/data/repositories/artist_repository_impl.dart:144:18 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/artist/data/repositories/artist_repository_impl.dart:146:18 • prefer_const_constructors
+   info • Sort directive sections alphabetically • lib/features/auth/data/data_sources/auth_remote_data_source.dart:7:1 • directives_ordering
+   info • Sort directive sections alphabetically • lib/features/auth/data/data_sources/auth_remote_data_source.dart:9:1 • directives_ordering
+  error • Target of URI doesn't exist: '../../register/domain/entities/register_response.dart' • lib/features/auth/data/models/oauth_request.dart:3:8 • uri_does_not_exist
+  error • Classes can only extend other classes • lib/features/auth/data/models/oauth_request.dart:32:29 • extends_non_class
+  error • No associated named super constructor parameter • lib/features/auth/data/models/oauth_request.dart:36:20 • super_formal_parameter_without_associated_named
+  error • No associated named super constructor parameter • lib/features/auth/data/models/oauth_request.dart:37:20 • super_formal_parameter_without_associated_named
+  error • No associated named super constructor parameter • lib/features/auth/data/models/oauth_request.dart:38:20 • super_formal_parameter_without_associated_named
+  error • No associated named super constructor parameter • lib/features/auth/data/models/oauth_request.dart:39:20 • super_formal_parameter_without_associated_named
+  error • Undefined name 'accessToken' • lib/features/auth/data/models/oauth_request.dart:62:20 • undefined_identifier
+  error • Undefined name 'refreshToken' • lib/features/auth/data/models/oauth_request.dart:63:21 • undefined_identifier
+  error • Undefined name 'expiresIn' • lib/features/auth/data/models/oauth_request.dart:64:18 • undefined_identifier
+  error • Undefined name 'user' • lib/features/auth/data/models/oauth_request.dart:65:14 • undefined_identifier
+   info • Sort directive sections alphabetically • lib/features/auth/data/repositories/auth_repository_impl.dart:4:1 • directives_ordering
+  error • Missing concrete implementation of 'abstract class AuthRepository.forgotPassword' • lib/features/auth/data/repositories/auth_repository_impl.dart:13:7 • non_abstract_class_inherits_abstract_member
+  error • Target of URI doesn't exist: 'user.dart' • lib/features/auth/domain/repositories/auth_repository.dart:11:8 • uri_does_not_exist
+   info • Angle brackets will be interpreted as HTML • lib/features/auth/domain/repositories/auth_repository.dart:14:51 • unintended_html_in_doc_comment
+   info • Sort directive sections alphabetically • lib/features/auth/domain/use_cases/login_use_case.dart:6:1 • directives_ordering
+   info • Sort directive sections alphabetically • lib/features/auth/domain/use_cases/oauth_sign_in_use_case.dart:5:1 • directives_ordering
+   info • Sort directive sections alphabetically • lib/features/auth/domain/use_cases/refresh_token_use_case.dart:5:1 • directives_ordering
+  error • The getter 'accessToken' isn't defined for the type 'OAuthResponse' • lib/features/auth/presentation/blocs/login_cubit.dart:96:38 • undefined_getter
+  error • The getter 'refreshToken' isn't defined for the type 'OAuthResponse' • lib/features/auth/presentation/blocs/login_cubit.dart:97:39 • undefined_getter
+  error • The getter 'expiresIn' isn't defined for the type 'OAuthResponse' • lib/features/auth/presentation/blocs/login_cubit.dart:98:36 • undefined_getter
+  error • The getter 'user' isn't defined for the type 'OAuthResponse' • lib/features/auth/presentation/blocs/login_cubit.dart:99:31 • undefined_getter
+  error • The getter 'accessToken' isn't defined for the type 'OAuthResponse' • lib/features/auth/presentation/blocs/login_cubit.dart:143:38 • undefined_getter
+  error • The getter 'refreshToken' isn't defined for the type 'OAuthResponse' • lib/features/auth/presentation/blocs/login_cubit.dart:144:39 • undefined_getter
+  error • The getter 'expiresIn' isn't defined for the type 'OAuthResponse' • lib/features/auth/presentation/blocs/login_cubit.dart:145:36 • undefined_getter
+  error • The getter 'user' isn't defined for the type 'OAuthResponse' • lib/features/auth/presentation/blocs/login_cubit.dart:146:31 • undefined_getter
+  error • Target of URI doesn't exist: '../../register/domain/entities/register_response.dart' • lib/features/auth/presentation/blocs/orquestador_auth_cubit.dart:5:8 • uri_does_not_exist
+  error • Target of URI doesn't exist: '../../register/presentation/cubit/register_cubit.dart' • lib/features/auth/presentation/blocs/orquestador_auth_cubit.dart:6:8 • uri_does_not_exist
+  error • Undefined class 'RegisterResponse' • lib/features/auth/presentation/blocs/orquestador_auth_cubit.dart:51:30 • undefined_class
+  error • The method 'RegisterState' isn't defined for the type 'OrquestadorAuthCubit' • lib/features/auth/presentation/blocs/orquestador_auth_cubit.dart:54:24 • undefined_method
+  error • Undefined class 'RegisterResponse' • lib/features/auth/presentation/blocs/orquestador_auth_cubit.dart:66:27 • undefined_class
+  error • Target of URI doesn't exist: 'widgets/widgets.dart' • lib/features/auth/presentation/screens/email_verification_screen.dart:14:8 • uri_does_not_exist
+  error • The method 'VideoBackground' isn't defined for the type '_EmailVerificationScreenState' • lib/features/auth/presentation/screens/email_verification_screen.dart:152:11 • undefined_method
+  error • The method 'VerificationContent' isn't defined for the type '_EmailVerificationScreenState' • lib/features/auth/presentation/screens/email_verification_screen.dart:168:20 • undefined_method
+  error • Target of URI doesn't exist: 'widgets/widgets.dart' • lib/features/auth/presentation/screens/forgot_password_screen.dart:11:8 • uri_does_not_exist
+  error • The method 'ForgotPasswordContent' isn't defined for the type '_ForgotPasswordScreenState' • lib/features/auth/presentation/screens/forgot_password_screen.dart:129:20 • undefined_method
+   info • Sort directive sections alphabetically • lib/features/auth/presentation/screens/login_screen.dart:13:1 • directives_ordering
+  error • Target of URI doesn't exist: 'package:music_app/features/auth/login/presentation/notifiers/login_form_notifier.dart' • lib/features/auth/presentation/screens/login_screen.dart:13:8 • uri_does_not_exist
+   info • Sort directive sections alphabetically • lib/features/auth/presentation/screens/login_screen.dart:19:1 • directives_ordering
+  error • Target of URI doesn't exist: 'package:music_app/features/auth/presentation/cubit/orquestador_auth_cubit.dart' • lib/features/auth/presentation/screens/login_screen.dart:19:8 • uri_does_not_exist
+  error • The name 'OrquestadorAuthCubit' isn't a type, so it can't be used as a type argument • lib/features/auth/presentation/screens/login_screen.dart:41:22 • non_type_as_type_argument
+  error • The method 'OrquestadorAuthCubit' isn't defined for the type 'LoginScreen' • lib/features/auth/presentation/screens/login_screen.dart:42:26 • undefined_method
+  error • The method 'LoginFormNotifier' isn't defined for the type '_LoginScreenState' • lib/features/auth/presentation/screens/login_screen.dart:55:25 • undefined_method
+  error • The name 'OrquestadorAuthCubit' isn't a type, so it can't be used as a type argument • lib/features/auth/presentation/screens/login_screen.dart:85:18 • non_type_as_type_argument
+  error • Undefined class 'LoginFormNotifier' • lib/features/auth/presentation/screens/login_screen.dart:148:9 • undefined_class
+  error • Target of URI doesn't exist: 'package:music_app/features/auth/presentation/cubit/orquestador_auth_cubit.dart' • lib/features/auth/presentation/screens/register_screen.dart:6:8 • uri_does_not_exist
+   info • Sort directive sections alphabetically • lib/features/auth/presentation/screens/register_screen.dart:7:1 • directives_ordering
+  error • Target of URI doesn't exist: 'package:music_app/features/auth/register/presentation/notifiers/register_form_notifier.dart' • lib/features/auth/presentation/screens/register_screen.dart:10:8 • uri_does_not_exist
+   info • Sort directive sections alphabetically • lib/features/auth/presentation/screens/register_screen.dart:11:1 • directives_ordering
+  error • The name 'OrquestadorAuthCubit' isn't a type, so it can't be used as a type argument • lib/features/auth/presentation/screens/register_screen.dart:30:22 • non_type_as_type_argument
+  error • The method 'OrquestadorAuthCubit' isn't defined for the type 'RegisterScreen' • lib/features/auth/presentation/screens/register_screen.dart:31:26 • undefined_method
+  error • The method 'RegisterFormNotifier' isn't defined for the type '_RegisterScreenState' • lib/features/auth/presentation/screens/register_screen.dart:52:25 • undefined_method
+  error • The name 'OrquestadorAuthCubit' isn't a type, so it can't be used as a type argument • lib/features/auth/presentation/screens/register_screen.dart:62:18 • non_type_as_type_argument
+   info • Sort directive sections alphabetically • lib/features/auth/presentation/screens/social_login_screen.dart:10:1 • directives_ordering
+  error • Target of URI doesn't exist: 'package:music_app/features/auth/presentation/cubit/orquestador_auth_cubit.dart' • lib/features/auth/presentation/screens/social_login_screen.dart:10:8 • uri_does_not_exist
+   info • Sort directive sections alphabetically • lib/features/auth/presentation/screens/social_login_screen.dart:15:1 • directives_ordering
+  error • The name 'OrquestadorAuthCubit' isn't a type, so it can't be used as a type argument • lib/features/auth/presentation/screens/social_login_screen.dart:33:22 • non_type_as_type_argument
+  error • The method 'OrquestadorAuthCubit' isn't defined for the type 'SocialLoginScreen' • lib/features/auth/presentation/screens/social_login_screen.dart:34:26 • undefined_method
+  error • The name 'OrquestadorAuthCubit' isn't a type, so it can't be used as a type argument • lib/features/auth/presentation/screens/social_login_screen.dart:51:22 • non_type_as_type_argument
+  error • Target of URI doesn't exist: 'package:music_app/features/auth/login/presentation/notifiers/login_form_notifier.dart' • lib/features/auth/presentation/widgets/login/atoms/email_input.dart:3:8 • uri_does_not_exist
+  error • Undefined class 'LoginFormNotifier' • lib/features/auth/presentation/widgets/login/atoms/email_input.dart:8:9 • undefined_class
+  error • Target of URI doesn't exist: 'package:music_app/features/auth/login/presentation/notifiers/login_form_notifier.dart' • lib/features/auth/presentation/widgets/login/atoms/password_input.dart:3:8 • uri_does_not_exist
+  error • Undefined class 'LoginFormNotifier' • lib/features/auth/presentation/widgets/login/atoms/password_input.dart:8:9 • undefined_class
+  error • Target of URI doesn't exist: 'package:music_app/features/auth/login/presentation/notifiers/login_form_notifier.dart' • lib/features/auth/presentation/widgets/login/login_form_widget.dart:2:8 • uri_does_not_exist
+  error • Undefined class 'LoginFormNotifier' • lib/features/auth/presentation/widgets/login/login_form_widget.dart:10:9 • undefined_class
+  error • Target of URI doesn't exist: 'package:music_app/features/auth/presentation/cubit/orquestador_auth_cubit.dart' • lib/features/auth/presentation/widgets/login/login_listeners.dart:5:8 • uri_does_not_exist
+  error • Target of URI doesn't exist: '../cubit/login_cubit.dart' • lib/features/auth/presentation/widgets/login/login_listeners.dart:7:8 • uri_does_not_exist
+  error • The name 'OrquestadorAuthCubit' isn't a type, so it can't be used as a type argument • lib/features/auth/presentation/widgets/login/login_listeners.dart:23:46 • non_type_as_type_argument
+  error • The property 'status' can't be unconditionally accessed because the receiver can be 'null' • lib/features/auth/presentation/widgets/login/login_listeners.dart:26:23 • unchecked_use_of_nullable_value
+  error • The property 'responseEntity' can't be unconditionally accessed because the receiver can be 'null' • lib/features/auth/presentation/widgets/login/login_listeners.dart:27:23 • unchecked_use_of_nullable_value
+  error • The property 'responseEntity' can't be unconditionally accessed because the receiver can be 'null' • lib/features/auth/presentation/widgets/login/login_listeners.dart:28:52 • unchecked_use_of_nullable_value
+  error • The property 'status' can't be unconditionally accessed because the receiver can be 'null' • lib/features/auth/presentation/widgets/login/login_listeners.dart:29:30 • unchecked_use_of_nullable_value
+  error • The property 'errorMessage' can't be unconditionally accessed because the receiver can be 'null' • lib/features/auth/presentation/widgets/login/login_listeners.dart:31:23 • unchecked_use_of_nullable_value
+  error • The name 'OrquestadorAuthCubit' isn't a type, so it can't be used as a type argument • lib/features/auth/presentation/widgets/login/login_listeners.dart:37:22 • non_type_as_type_argument
+  error • The name 'OrquestadorAuthState' isn't a type, so it can't be used as a type argument • lib/features/auth/presentation/widgets/login/login_listeners.dart:37:44 • non_type_as_type_argument
+  error • The property 'effect' can't be unconditionally accessed because the receiver can be 'null' • lib/features/auth/presentation/widgets/login/login_listeners.dart:39:34 • unchecked_use_of_nullable_value
+  error • The name 'NavigateToDashboardEffect' isn't defined, so it can't be used in an 'is' expression • lib/features/auth/presentation/widgets/login/login_listeners.dart:42:27 • type_test_with_undefined_name
+  error • The name 'OrquestadorAuthCubit' isn't a type, so it can't be used as a type argument • lib/features/auth/presentation/widgets/login/login_listeners.dart:43:28 • non_type_as_type_argument
+warning • Dead code • lib/features/auth/presentation/widgets/login/login_listeners.dart:46:20 • dead_code
+  error • The name 'NavigateToEmailVerificationEffect' isn't defined, so it can't be used in an 'is' expression • lib/features/auth/presentation/widgets/login/login_listeners.dart:46:34 • type_test_with_undefined_name
+  error • The name 'OrquestadorAuthCubit' isn't a type, so it can't be used as a type argument • lib/features/auth/presentation/widgets/login/login_listeners.dart:47:28 • non_type_as_type_argument
+  error • The name 'ShowErrorEffect' isn't defined, so it can't be used in an 'is' expression • lib/features/auth/presentation/widgets/login/login_listeners.dart:52:34 • type_test_with_undefined_name
+  error • The name 'OrquestadorAuthCubit' isn't a type, so it can't be used as a type argument • lib/features/auth/presentation/widgets/login/login_listeners.dart:53:28 • non_type_as_type_argument
+  error • Target of URI doesn't exist: 'package:music_app/features/auth/register/presentation/notifiers/register_form_notifier.dart' • lib/features/auth/presentation/widgets/register/register_body_content.dart:3:8 • uri_does_not_exist
+   info • Sort directive sections alphabetically • lib/features/auth/presentation/widgets/register/register_body_content.dart:4:1 • directives_ordering
+  error • Undefined class 'RegisterFormNotifier' • lib/features/auth/presentation/widgets/register/register_body_content.dart:19:9 • undefined_class
+  error • Target of URI doesn't exist: 'package:music_app/features/auth/presentation/cubit/orquestador_auth_cubit.dart' • lib/features/auth/presentation/widgets/register/register_button.dart:4:8 • uri_does_not_exist
+   info • Sort directive sections alphabetically • lib/features/auth/presentation/widgets/register/register_button.dart:5:1 • directives_ordering
+  error • The name 'OrquestadorAuthCubit' isn't a type, so it can't be used as a type argument • lib/features/auth/presentation/widgets/register/register_button.dart:18:24 • non_type_as_type_argument
+  error • The name 'OrquestadorAuthState' isn't a type, so it can't be used as a type argument • lib/features/auth/presentation/widgets/register/register_button.dart:18:46 • non_type_as_type_argument
+  error • The property 'registerState' can't be unconditionally accessed because the receiver can be 'null' • lib/features/auth/presentation/widgets/register/register_button.dart:20:33 • unchecked_use_of_nullable_value
+  error • Target of URI doesn't exist: 'package:music_app/features/auth/register/presentation/notifiers/register_form_notifier.dart' • lib/features/auth/presentation/widgets/register/register_form_fields.dart:2:8 • uri_does_not_exist
+  error • Undefined class 'RegisterFormNotifier' • lib/features/auth/presentation/widgets/register/register_form_fields.dart:12:9 • undefined_class
+  error • Target of URI doesn't exist: 'package:music_app/features/auth/presentation/cubit/orquestador_auth_cubit.dart' • lib/features/auth/presentation/widgets/register/register_listeners.dart:7:8 • uri_does_not_exist
+   info • Sort directive sections alphabetically • lib/features/auth/presentation/widgets/register/register_listeners.dart:8:1 • directives_ordering
+  error • The name 'OrquestadorAuthCubit' isn't a type, so it can't be used as a type argument • lib/features/auth/presentation/widgets/register/register_listeners.dart:23:46 • non_type_as_type_argument
+  error • The name 'OrquestadorAuthCubit' isn't a type, so it can't be used as a type argument • lib/features/auth/presentation/widgets/register/register_listeners.dart:38:22 • non_type_as_type_argument
+  error • The name 'OrquestadorAuthState' isn't a type, so it can't be used as a type argument • lib/features/auth/presentation/widgets/register/register_listeners.dart:38:44 • non_type_as_type_argument
+  error • The property 'effect' can't be unconditionally accessed because the receiver can be 'null' • lib/features/auth/presentation/widgets/register/register_listeners.dart:40:34 • unchecked_use_of_nullable_value
+  error • The name 'NavigateToDashboardEffect' isn't defined, so it can't be used in an 'is' expression • lib/features/auth/presentation/widgets/register/register_listeners.dart:43:27 • type_test_with_undefined_name
+  error • The name 'OrquestadorAuthCubit' isn't a type, so it can't be used as a type argument • lib/features/auth/presentation/widgets/register/register_listeners.dart:44:28 • non_type_as_type_argument
+warning • Dead code • lib/features/auth/presentation/widgets/register/register_listeners.dart:47:20 • dead_code
+  error • The name 'NavigateToEmailVerificationEffect' isn't defined, so it can't be used in an 'is' expression • lib/features/auth/presentation/widgets/register/register_listeners.dart:47:34 • type_test_with_undefined_name
+  error • The name 'OrquestadorAuthCubit' isn't a type, so it can't be used as a type argument • lib/features/auth/presentation/widgets/register/register_listeners.dart:48:28 • non_type_as_type_argument
+  error • The name 'OrquestadorAuthCubit' isn't a type, so it can't be used as a type argument • lib/features/auth/presentation/widgets/register/register_listeners.dart:57:22 • non_type_as_type_argument
+  error • The name 'OrquestadorAuthState' isn't a type, so it can't be used as a type argument • lib/features/auth/presentation/widgets/register/register_listeners.dart:57:44 • non_type_as_type_argument
+  error • The property 'registerState' can't be unconditionally accessed because the receiver can be 'null' • lib/features/auth/presentation/widgets/register/register_listeners.dart:59:24 • unchecked_use_of_nullable_value
+  error • The property 'registerState' can't be unconditionally accessed because the receiver can be 'null' • lib/features/auth/presentation/widgets/register/register_listeners.dart:59:56 • unchecked_use_of_nullable_value
+  error • The property 'registerState' can't be unconditionally accessed because the receiver can be 'null' • lib/features/auth/presentation/widgets/register/register_listeners.dart:61:23 • unchecked_use_of_nullable_value
+  error • The property 'registerState' can't be unconditionally accessed because the receiver can be 'null' • lib/features/auth/presentation/widgets/register/register_listeners.dart:65:27 • unchecked_use_of_nullable_value
+warning • Unused import: 'package:music_app/core/domain/mappers/song_mapper.dart' • lib/features/favorites/data/repositories/favorites_repository_impl.dart:3:8 • unused_import
+warning • Unused import: 'package:music_app/features/recently_played/domain/entities/recently_played_song.dart' • lib/features/player/data/repositories/player_repository_impl.dart:6:8 • unused_import
+   info • Closure should be a tearoff • lib/features/player/data/repositories/player_repository_impl.dart:22:24 • unnecessary_lambdas
+   info • Closure should be a tearoff • lib/features/player/data/repositories/player_repository_impl.dart:43:7 • unnecessary_lambdas
+   info • Method invocation or property access on a 'dynamic' target • lib/features/player/presentation/widgets/organisms/player_similar_songs_widget.dart:317:50 • avoid_dynamic_calls
+   info • Sort directive sections alphabetically • test/features/auth/presentation/cubit/login_cubit_test.dart:14:1 • directives_ordering
+  error • The matched value of type 'Either<AppException, DownloadedSong>' isn't assignable to the required type '(Object?, Object?)' • test/features/downloads/domain/use_cases/download_song_use_case_test.dart:49:13 • pattern_type_mismatch_in_irrefutable_context
+  error • The getter 'videoId' isn't defined for the type 'Object' • test/features/downloads/domain/use_cases/download_song_use_case_test.dart:54:20 • undefined_getter
+  error • The matched value of type 'Either<AppException, DownloadedSong>' isn't assignable to the required type '(Object?, Object?)' • test/features/downloads/domain/use_cases/download_song_use_case_test.dart:82:13 • pattern_type_mismatch_in_irrefutable_context
+  error • The getter 'message' isn't defined for the type 'Object' • test/features/downloads/domain/use_cases/download_song_use_case_test.dart:86:21 • undefined_getter
+  error • The matched value of type 'Either<AppException, DownloadedSong>' isn't assignable to the required type '(Object?, Object?)' • test/features/downloads/domain/use_cases/download_song_use_case_test.dart:159:13 • pattern_type_mismatch_in_irrefutable_context
+  error • The getter 'message' isn't defined for the type 'Object' • test/features/downloads/domain/use_cases/download_song_use_case_test.dart:163:21 • undefined_getter
+  error • The method 'clearError' isn't defined for the type 'DownloadsCubit' • test/features/downloads/presentation/cubit/downloads_cubit_test.dart:180:29 • undefined_method
+  error • The method 'isDownloading' isn't defined for the type 'DownloadsCubit' • test/features/downloads/presentation/cubit/downloads_cubit_test.dart:242:44 • undefined_method
+   info • Sort directive sections alphabetically • test/helpers/test_helpers.dart:8:1 • directives_ordering
 

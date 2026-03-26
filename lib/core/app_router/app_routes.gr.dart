@@ -14,15 +14,15 @@ import 'package:flutter/material.dart' as _i36;
 import 'package:music_app/features/album/presentation/album_screen.dart' as _i1;
 import 'package:music_app/features/artist/presentation/artist_screen.dart'
     as _i2;
-import 'package:music_app/features/auth/email_verification/presentation/email_verification_screen.dart'
+import 'package:music_app/features/auth/presentation/screens/email_verification_screen.dart'
     as _i5;
-import 'package:music_app/features/auth/forgot/presentation/forgot_password_screen.dart'
+import 'package:music_app/features/auth/presentation/screens/forgot_password_screen.dart'
     as _i7;
-import 'package:music_app/features/auth/login/presentation/login_screen.dart'
+import 'package:music_app/features/auth/presentation/screens/login_screen.dart'
     as _i14;
-import 'package:music_app/features/auth/register/presentation/register_screen.dart'
+import 'package:music_app/features/auth/presentation/screens/register_screen.dart'
     as _i25;
-import 'package:music_app/features/auth/social/presentation/social_login_screen.dart'
+import 'package:music_app/features/auth/presentation/screens/social_login_screen.dart'
     as _i30;
 import 'package:music_app/features/dashboard/presentation/dashboard_shell.dart'
     as _i3;

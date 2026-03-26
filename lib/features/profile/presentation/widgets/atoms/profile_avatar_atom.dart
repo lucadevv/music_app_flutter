@@ -8,7 +8,8 @@ class ProfileAvatarAtom extends StatelessWidget {
   final double size;
 
   const ProfileAvatarAtom({
-    required this.initials, super.key,
+    required this.initials,
+    super.key,
     this.avatarUrl,
     this.size = 56,
   });
@@ -50,7 +51,7 @@ class ProfileAvatarAtom extends StatelessWidget {
         child: Text(
           initials,
           style: TextStyle(
-            color: Colors.white,
+            color: AppColorsDark.onSurface,
             fontSize: size * 0.36,
             fontWeight: FontWeight.bold,
           ),

@@ -21,5 +21,13 @@ class OfflineSongEntity extends Equatable {
   });
 
   @override
-  List<Object?> get props => [videoId, title, artist, thumbnail, localPath, duration, downloadedAt];
+  List<Object?> get props => [
+    videoId,
+    title,
+    artist,
+    thumbnail,
+    localPath,
+    duration,
+    downloadedAt,
+  ];
 }

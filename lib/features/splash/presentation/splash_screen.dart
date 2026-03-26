@@ -5,6 +5,7 @@ import 'package:get_it/get_it.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/splash/presentation/cubit/splash_cubit.dart';
+import 'package:music_app/l10n/app_localizations.dart';
 
 /// Pantalla de splash que sirve como punto de entrada inicial.
 /// El SplashCubit decide a dónde navegar basado en:
@@ -43,15 +44,15 @@ class SplashScreen extends StatelessWidget {
                   if (state.status == SplashStatus.failure)
                     Column(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.error_outline,
-                          color: Colors.red[400],
+                          color: AppColorsDark.error,
                           size: 48,
                         ),
                         const SizedBox(height: 16),
                         Text(
                           state.errorMessage ?? 'Error al inicializar',
-                          style: TextStyle(color: Colors.red[400]),
+                          style: const TextStyle(color: AppColorsDark.error),
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 16),
@@ -59,14 +60,16 @@ class SplashScreen extends StatelessWidget {
                           onPressed: () {
                             context.read<SplashCubit>().initializeApp();
                           },
-                          child: const Text('Reintentar'),
+                          child: Text(AppLocalizations.of(context)!.retry),
                         ),
                       ],
                     )
                   else
                     Column(
                       children: [
-                        const CircularProgressIndicator(color: AppColorsDark.primary),
+                        const CircularProgressIndicator(
+                          color: AppColorsDark.primary,
+                        ),
                         const SizedBox(height: 24),
                         Text(
                           state.status == SplashStatus.loading

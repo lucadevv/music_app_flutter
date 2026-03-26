@@ -38,7 +38,7 @@ class LibraryHeader extends StatelessWidget {
                 Text(
                   l10n.yourLibrary,
                   style: const TextStyle(
-                    color: Colors.white,
+                    color: AppColorsDark.onSurface,
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Poppins',
@@ -70,7 +70,7 @@ class LibraryHeader extends StatelessWidget {
                         ),
                         child: Icon(
                           Icons.add,
-                          color: Colors.white.withValues(alpha: 0.8),
+                          color: AppColorsDark.onSurface.withValues(alpha: 0.8),
                           size: 20,
                         ),
                       ),
@@ -87,12 +87,16 @@ class LibraryHeader extends StatelessWidget {
                             children: [
                               Icon(
                                 Icons.playlist_add,
-                                color: Colors.white.withValues(alpha: 0.8),
+                                color: AppColorsDark.onSurface.withValues(
+                                  alpha: 0.8,
+                                ),
                               ),
                               const SizedBox(width: 12),
                               Text(
                                 l10n.createPlaylist,
-                                style: const TextStyle(color: Colors.white),
+                                style: const TextStyle(
+                                  color: AppColorsDark.onSurface,
+                                ),
                               ),
                             ],
                           ),

@@ -24,7 +24,10 @@ class PlaylistLoadingWidget extends StatelessWidget {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [AppColorsDark.surfaceContainerHigh, AppColorsDark.surface],
+                  colors: [
+                    AppColorsDark.surfaceContainerHigh,
+                    AppColorsDark.surface,
+                  ],
                 ),
               ),
               child: Padding(
@@ -37,14 +40,22 @@ class PlaylistLoadingWidget extends StatelessWidget {
                       width: 200,
                       height: 200,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: AppColorsDark.onSurface,
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
                     const SizedBox(height: 24),
-                    Container(width: 250, height: 28, color: Colors.white),
+                    Container(
+                      width: 250,
+                      height: 28,
+                      color: AppColorsDark.onSurface,
+                    ),
                     const SizedBox(height: 8),
-                    Container(width: 200, height: 14, color: Colors.white),
+                    Container(
+                      width: 200,
+                      height: 14,
+                      color: AppColorsDark.onSurface,
+                    ),
                   ],
                 ),
               ),
@@ -54,7 +65,10 @@ class PlaylistLoadingWidget extends StatelessWidget {
         // Action buttons shimmer
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24.0,
+              vertical: 16.0,
+            ),
             child: Row(
               children: [
                 Container(

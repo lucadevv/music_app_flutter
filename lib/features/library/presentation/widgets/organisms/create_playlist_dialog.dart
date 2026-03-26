@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/l10n/app_localizations.dart';
@@ -23,16 +24,23 @@ class CreatePlaylistDialog extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       title: Text(
         l10n.createPlaylist,
-        style: const TextStyle(color: Colors.white, fontFamily: 'Poppins'),
+        style: const TextStyle(
+          color: AppColorsDark.onSurface,
+          fontFamily: 'Poppins',
+        ),
       ),
       content: TextField(
         controller: nameController,
-        style: const TextStyle(color: Colors.white),
+        style: const TextStyle(color: AppColorsDark.onSurface),
         decoration: InputDecoration(
           hintText: l10n.playlistName,
-          hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.5)),
+          hintStyle: TextStyle(
+            color: AppColorsDark.onSurface.withValues(alpha: 0.5),
+          ),
           enabledBorder: UnderlineInputBorder(
-            borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
+            borderSide: BorderSide(
+              color: AppColorsDark.onSurface.withValues(alpha: 0.3),
+            ),
           ),
           focusedBorder: const UnderlineInputBorder(
             borderSide: BorderSide(color: AppColorsDark.primary),
@@ -42,11 +50,11 @@ class CreatePlaylistDialog extends StatelessWidget {
       ),
       actions: [
         TextButton(
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => context.router.maybePop(),
           child: Text(l10n.cancel),
         ),
         TextButton(
-          onPressed: () => Navigator.pop(context, nameController.text),
+          onPressed: () => context.router.maybePop(nameController.text),
           child: Text(
             l10n.createPlaylist,
             style: const TextStyle(color: AppColorsDark.primary),

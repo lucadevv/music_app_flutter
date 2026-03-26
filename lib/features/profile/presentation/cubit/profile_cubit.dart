@@ -27,15 +27,15 @@ class ProfileCubit extends Cubit<ProfileState> with BaseBlocMixin {
     required AuthManager authManager,
     required OfflineService offlineService,
     required FavoriteCubit favoriteCubit,
-  })  : _getProfileUseCase = getProfileUseCase,
-        _updateProfileUseCase = updateProfileUseCase,
-        _getSettingsUseCase = getSettingsUseCase,
-        _updateSettingsUseCase = updateSettingsUseCase,
-        _logoutUseCase = logoutUseCase,
-        _authManager = authManager,
-        _offlineService = offlineService,
-        _favoriteCubit = favoriteCubit,
-        super(const ProfileState());
+  }) : _getProfileUseCase = getProfileUseCase,
+       _updateProfileUseCase = updateProfileUseCase,
+       _getSettingsUseCase = getSettingsUseCase,
+       _updateSettingsUseCase = updateSettingsUseCase,
+       _logoutUseCase = logoutUseCase,
+       _authManager = authManager,
+       _offlineService = offlineService,
+       _favoriteCubit = favoriteCubit,
+       super(const ProfileState());
 
   Future<void> loadProfile() async {
     if (state.isLoading) return;
@@ -47,10 +47,12 @@ class ProfileCubit extends Cubit<ProfileState> with BaseBlocMixin {
     result.fold(
       (error) {
         if (isClosed) return;
-        emit(state.copyWith(
-          isLoading: false,
-          errorMessage: getErrorMessage(error),
-        ));
+        emit(
+          state.copyWith(
+            isLoading: false,
+            errorMessage: getErrorMessage(error),
+          ),
+        );
       },
       (profile) {
         if (isClosed) return;
@@ -83,10 +85,12 @@ class ProfileCubit extends Cubit<ProfileState> with BaseBlocMixin {
     result.fold(
       (error) {
         if (isClosed) return;
-        emit(state.copyWith(
-          isSettingsLoading: false,
-          settingsError: getErrorMessage(error),
-        ));
+        emit(
+          state.copyWith(
+            isSettingsLoading: false,
+            settingsError: getErrorMessage(error),
+          ),
+        );
       },
       (settings) {
         if (isClosed) return;
@@ -105,17 +109,18 @@ class ProfileCubit extends Cubit<ProfileState> with BaseBlocMixin {
     result.fold(
       (error) {
         if (isClosed) return;
-        emit(state.copyWith(
-          isSettingsLoading: false,
-          settingsError: getErrorMessage(error),
-        ));
+        emit(
+          state.copyWith(
+            isSettingsLoading: false,
+            settingsError: getErrorMessage(error),
+          ),
+        );
       },
       (updatedSettings) {
         if (isClosed) return;
-        emit(state.copyWith(
-          isSettingsLoading: false,
-          settings: updatedSettings,
-        ));
+        emit(
+          state.copyWith(isSettingsLoading: false, settings: updatedSettings),
+        );
       },
     );
   }
@@ -152,7 +157,7 @@ class ProfileCubit extends Cubit<ProfileState> with BaseBlocMixin {
     try {
       // Obtener canciones descargadas de OfflineService
       final downloadedCount = await _offlineService.getDownloadedSongsCount();
-      
+
       // Obtener favoritos de FavoriteCubit
       final favoriteState = _favoriteCubit.state;
       final songsCount = favoriteState.favoriteSongs.length;
@@ -182,19 +187,19 @@ class ProfileCubit extends Cubit<ProfileState> with BaseBlocMixin {
 
     emit(state.copyWith(isLoading: true, clearError: true));
 
-    final result = await _updateProfileUseCase(UpdateProfileParams(
-      name: name,
-      email: email,
-      avatar: avatar,
-    ));
+    final result = await _updateProfileUseCase(
+      UpdateProfileParams(name: name, email: email, avatar: avatar),
+    );
 
     result.fold(
       (error) {
         if (isClosed) return;
-        emit(state.copyWith(
-          isLoading: false,
-          errorMessage: getErrorMessage(error),
-        ));
+        emit(
+          state.copyWith(
+            isLoading: false,
+            errorMessage: getErrorMessage(error),
+          ),
+        );
       },
       (updatedProfile) {
         if (isClosed) return;
@@ -223,10 +228,12 @@ class ProfileCubit extends Cubit<ProfileState> with BaseBlocMixin {
     result.fold(
       (error) {
         if (isClosed) return;
-        emit(state.copyWith(
-          isLoading: false,
-          errorMessage: getErrorMessage(error),
-        ));
+        emit(
+          state.copyWith(
+            isLoading: false,
+            errorMessage: getErrorMessage(error),
+          ),
+        );
       },
       (_) {
         if (isClosed) return;

@@ -9,7 +9,9 @@ class ProfileAvatarWidget extends StatelessWidget {
   final String initials;
 
   const ProfileAvatarWidget({
-    required this.avatarUrl, required this.initials, super.key,
+    required this.avatarUrl,
+    required this.initials,
+    super.key,
   });
 
   @override
@@ -71,7 +73,7 @@ class ProfileAvatarWidget extends StatelessWidget {
         child: Text(
           initials,
           style: const TextStyle(
-            color: Colors.white,
+            color: AppColorsDark.onSurface,
             fontSize: 48,
             fontWeight: FontWeight.bold,
           ),

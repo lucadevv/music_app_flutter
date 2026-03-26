@@ -6,7 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/mood_genre/domain/use_cases/get_mood_playlists_use_case.dart';
+
 import 'cubit/mood_genre_cubit.dart';
 import 'widgets/mood_genre_error_widget.dart';
 import 'widgets/mood_genre_listeners.dart';
@@ -70,7 +72,7 @@ class _MoodGenreScreenState extends State<MoodGenreScreen> {
                             ),
                             fit: BoxFit.cover,
                             colorFilter: ColorFilter.mode(
-                              Colors.black.withValues(alpha: 0.7),
+                              AppColorsDark.surfaceDim.withValues(alpha: 0.7),
                               BlendMode.darken,
                             ),
                           ),
@@ -121,14 +123,17 @@ class _MoodGenreScreenState extends State<MoodGenreScreen> {
           backgroundColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+            icon: const Icon(
+              Icons.arrow_back_ios_new,
+              color: AppColorsDark.onSurface,
+            ),
             onPressed: () => context.router.pop(),
           ),
           flexibleSpace: FlexibleSpaceBar(
             title: Text(
               response.genreName,
               style: const TextStyle(
-                color: Colors.white,
+                color: AppColorsDark.onSurface,
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
@@ -145,7 +150,7 @@ class _MoodGenreScreenState extends State<MoodGenreScreen> {
                 padding: EdgeInsets.all(24.0),
                 child: Text(
                   'No hay playlists disponibles',
-                  style: TextStyle(color: Colors.white),
+                  style: TextStyle(color: AppColorsDark.onSurface),
                 ),
               ),
             ),
@@ -157,7 +162,7 @@ class _MoodGenreScreenState extends State<MoodGenreScreen> {
               child: Text(
                 'Playlists de la comunidad',
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.8),
+                  color: AppColorsDark.onSurface.withValues(alpha: 0.8),
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
                 ),

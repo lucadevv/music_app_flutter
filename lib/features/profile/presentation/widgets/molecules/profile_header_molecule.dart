@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 
 import 'profile_avatar_widget.dart';
 
@@ -10,7 +11,10 @@ class ProfileHeaderMolecule extends StatelessWidget {
   final double avatarSize;
 
   const ProfileHeaderMolecule({
-    required this.displayName, required this.avatarUrl, required this.initials, super.key,
+    required this.displayName,
+    required this.avatarUrl,
+    required this.initials,
+    super.key,
     this.avatarSize = 120,
   });
 
@@ -23,7 +27,7 @@ class ProfileHeaderMolecule extends StatelessWidget {
         Text(
           displayName,
           style: const TextStyle(
-            color: Colors.white,
+            color: AppColorsDark.onSurface,
             fontSize: 24,
             fontWeight: FontWeight.bold,
           ),

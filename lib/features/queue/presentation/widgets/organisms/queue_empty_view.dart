@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
+
 import '../atoms/queue_empty_icon.dart';
 
 /// Organism: Empty queue state view
@@ -19,7 +21,7 @@ class QueueEmptyView extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.7),
+              color: AppColorsDark.onSurface.withValues(alpha: 0.7),
               fontSize: 18,
             ),
           ),
@@ -28,7 +30,7 @@ class QueueEmptyView extends StatelessWidget {
             Text(
               subtitle!,
               style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.5),
+                color: AppColorsDark.onSurface.withValues(alpha: 0.5),
                 fontSize: 14,
               ),
             ),

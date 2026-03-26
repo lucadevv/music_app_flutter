@@ -1,7 +1,9 @@
 import 'dart:async';
 
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/core/utils/bottom_sheet_visibility.dart';
 
 /// Helper para transiciones seguras entre bottom sheets
@@ -26,7 +28,7 @@ class BottomSheetTransition {
     if (!context.mounted) return null;
 
     try {
-      Navigator.of(context).pop();
+      await context.router.maybePop();
       await Future.delayed(delay);
 
       if (!context.mounted) return null;
@@ -43,7 +45,7 @@ class BottomSheetTransition {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppColorsDark.error,
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -62,7 +64,7 @@ class BottomSheetTransition {
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       try {
-        Navigator.of(context).pop();
+        await context.router.maybePop();
         await Future.delayed(delay);
 
         if (!context.mounted) return;
@@ -79,7 +81,7 @@ class BottomSheetTransition {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Error al abrir opciones'),
-              backgroundColor: Colors.red,
+              backgroundColor: AppColorsDark.error,
             ),
           );
         }

@@ -14,7 +14,8 @@ class ProfileStatsRowWidget extends StatelessWidget {
   final double entryDelay;
 
   const ProfileStatsRowWidget({
-    required this.state, super.key,
+    required this.state,
+    super.key,
     this.entryDelay = 0.4,
   });
 
@@ -27,7 +28,7 @@ class ProfileStatsRowWidget extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.05),
+          color: AppColorsDark.onSurface.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(16),
         ),
         child: state.isLoadingStats
@@ -56,7 +57,7 @@ class ProfileStatsRowWidget extends StatelessWidget {
                   Container(
                     width: 1,
                     height: 40,
-                    color: Colors.white.withValues(alpha: 0.1),
+                    color: AppColorsDark.onSurface.withValues(alpha: 0.1),
                   ),
                   StatCardWidget(
                     icon: Icons.playlist_play,
@@ -69,7 +70,7 @@ class ProfileStatsRowWidget extends StatelessWidget {
                   Container(
                     width: 1,
                     height: 40,
-                    color: Colors.white.withValues(alpha: 0.1),
+                    color: AppColorsDark.onSurface.withValues(alpha: 0.1),
                   ),
                   StatCardWidget(
                     icon: Icons.download_done,

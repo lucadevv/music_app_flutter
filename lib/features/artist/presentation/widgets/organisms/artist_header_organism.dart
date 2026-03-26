@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:music_app/core/domain/entities/artist.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/artist/presentation/cubit/artist_cubit.dart';
 import 'package:music_app/features/artist/presentation/widgets/atoms/artist_backdrop_widget.dart';
 import 'package:music_app/features/artist/presentation/widgets/molecules/artist_action_buttons.dart';
@@ -10,7 +11,10 @@ class ArtistHeaderOrganism extends StatelessWidget {
   final VoidCallback onBackPressed;
 
   const ArtistHeaderOrganism({
-    required this.artist, required this.state, required this.onBackPressed, super.key,
+    required this.artist,
+    required this.state,
+    required this.onBackPressed,
+    super.key,
   });
 
   @override
@@ -20,12 +24,15 @@ class ArtistHeaderOrganism extends StatelessWidget {
       pinned: true,
       backgroundColor: Colors.transparent,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+        icon: const Icon(
+          Icons.arrow_back_ios_new,
+          color: AppColorsDark.onSurface,
+        ),
         onPressed: onBackPressed,
       ),
       actions: [
         IconButton(
-          icon: const Icon(Icons.more_vert, color: Colors.white),
+          icon: const Icon(Icons.more_vert, color: AppColorsDark.onSurface),
           onPressed: () {},
         ),
       ],
@@ -48,7 +55,10 @@ class ArtistHeaderOrganism extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [Colors.transparent, Colors.black.withValues(alpha: 0.7)],
+          colors: [
+            Colors.transparent,
+            AppColorsDark.surfaceDim.withValues(alpha: 0.7),
+          ],
         ),
       ),
     );
@@ -66,7 +76,7 @@ class ArtistHeaderOrganism extends StatelessWidget {
           Text(
             artist.name,
             style: const TextStyle(
-              color: Colors.white,
+              color: AppColorsDark.onSurface,
               fontSize: 28,
               fontWeight: FontWeight.bold,
             ),
@@ -75,7 +85,7 @@ class ArtistHeaderOrganism extends StatelessWidget {
             Text(
               _formatListeners(artist.monthlyListeners!),
               style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.7),
+                color: AppColorsDark.onSurface.withValues(alpha: 0.7),
                 fontSize: 14,
               ),
             ),
@@ -102,7 +112,12 @@ class ArtistContentWithActions extends StatelessWidget {
   final List<Widget> children;
 
   const ArtistContentWithActions({
-    required this.artist, required this.state, required this.onPlayPressed, required this.onFollowPressed, required this.children, super.key,
+    required this.artist,
+    required this.state,
+    required this.onPlayPressed,
+    required this.onFollowPressed,
+    required this.children,
+    super.key,
   });
 
   @override

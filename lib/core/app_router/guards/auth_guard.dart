@@ -17,7 +17,10 @@ class AuthGuard extends AutoRouteGuard {
   AuthGuard() : _appRouter = getIt<AppRouter>();
 
   @override
-  Future<void> onNavigation(NavigationResolver resolver, StackRouter router) async {
+  Future<void> onNavigation(
+    NavigationResolver resolver,
+    StackRouter router,
+  ) async {
     if (kDebugMode) {
       debugPrint(
         'AuthGuard: Verificando autenticación para ruta: ${resolver.route.name}',

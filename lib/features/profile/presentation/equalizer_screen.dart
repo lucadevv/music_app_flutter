@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/profile/presentation/cubit/profile_cubit.dart';
+import 'package:music_app/l10n/app_localizations.dart';
 
 @RoutePage()
 class EqualizerScreen extends StatelessWidget {
@@ -53,13 +54,16 @@ class _EqualizerView extends StatelessWidget {
             title: const Text(
               'Equalizer',
               style: TextStyle(
-                color: Colors.white,
+                color: AppColorsDark.onSurface,
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
             ),
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+              icon: const Icon(
+                Icons.arrow_back_ios_new,
+                color: AppColorsDark.onSurface,
+              ),
               onPressed: () => context.router.pop(),
             ),
           ),
@@ -72,12 +76,16 @@ class _EqualizerView extends StatelessWidget {
               return ListTile(
                 leading: Icon(
                   isSelected ? Icons.equalizer : Icons.equalizer_outlined,
-                  color: isSelected ? AppColorsDark.primary : Colors.white,
+                  color: isSelected
+                      ? AppColorsDark.primary
+                      : AppColorsDark.onSurface,
                 ),
                 title: Text(
                   preset['name'],
                   style: TextStyle(
-                    color: isSelected ? AppColorsDark.primary : Colors.white,
+                    color: isSelected
+                        ? AppColorsDark.primary
+                        : AppColorsDark.onSurface,
                     fontWeight: isSelected
                         ? FontWeight.bold
                         : FontWeight.normal,
@@ -86,7 +94,7 @@ class _EqualizerView extends StatelessWidget {
                 subtitle: Text(
                   preset['description'],
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.5),
+                    color: AppColorsDark.onSurface.withValues(alpha: 0.5),
                     fontSize: 12,
                   ),
                 ),
@@ -107,9 +115,11 @@ class _EqualizerView extends StatelessWidget {
       await context.read<ProfileCubit>().updateEqualizerPreset(presetId);
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error saving preset: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${AppLocalizations.of(context)!.errorOccurred}: $e'),
+          ),
+        );
       }
     }
   }

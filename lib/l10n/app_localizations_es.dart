@@ -630,4 +630,19 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get successfullyLoggedIn => 'Sesión iniciada exitosamente';
+
+  @override
+  String get ok => 'Aceptar';
+
+  @override
+  String get errorDownloadUrl => 'No se pudo obtener la URL de descarga';
+
+  @override
+  String get playlistNotFound => 'Playlist no encontrada';
+
+  @override
+  String get noSongsInPlaylist => 'No hay canciones en esta playlist';
+
+  @override
+  String get linkCopied => 'Enlace copiado al portapapeles';
 }

@@ -11,7 +11,8 @@ class UserPlaylistsRepositoryImpl implements UserPlaylistsRepository {
   UserPlaylistsRepositoryImpl(this._dataSource);
 
   @override
-  Future<Either<AppException, List<UserPlaylistEntity>>> getAllPlaylists() async {
+  Future<Either<AppException, List<UserPlaylistEntity>>>
+  getAllPlaylists() async {
     try {
       final playlists = await _dataSource.getAllPlaylists();
       return Right(playlists);
@@ -21,7 +22,8 @@ class UserPlaylistsRepositoryImpl implements UserPlaylistsRepository {
   }
 
   @override
-  Future<Either<AppException, List<UserPlaylistEntity>>> getUserPlaylists() async {
+  Future<Either<AppException, List<UserPlaylistEntity>>>
+  getUserPlaylists() async {
     try {
       final playlists = await _dataSource.getUserPlaylists();
       return Right(playlists);
@@ -31,7 +33,9 @@ class UserPlaylistsRepositoryImpl implements UserPlaylistsRepository {
   }
 
   @override
-  Future<Either<AppException, UserPlaylistEntity>> createPlaylist(String name) async {
+  Future<Either<AppException, UserPlaylistEntity>> createPlaylist(
+    String name,
+  ) async {
     try {
       final playlist = await _dataSource.createPlaylist(name);
       return Right(playlist);

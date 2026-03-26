@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
-import 'package:music_app/features/auth/login/presentation/cubit/login_cubit.dart';
+import 'package:music_app/features/auth/presentation/blocs/login_cubit.dart';
 import 'package:music_app/l10n/app_localizations.dart';
 
 class SocialAuthButtons extends StatelessWidget {
   final bool isVertical;
 
-  const SocialAuthButtons({
-    super.key,
-    this.isVertical = false,
-  });
+  const SocialAuthButtons({super.key, this.isVertical = false});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +18,9 @@ class SocialAuthButtons extends StatelessWidget {
         children: [
           BlocBuilder<LoginCubit, LoginState>(
             builder: (context, state) {
-              final isThisLoading = state.isLoadingFor(OAuthProviderType.google);
+              final isThisLoading = state.isLoadingFor(
+                OAuthProviderType.google,
+              );
               final isAnyLoading = state.status == LoginStatus.loading;
               return _SocialButtonVertical(
                 icon: Icons.g_mobiledata,
@@ -61,7 +60,9 @@ class SocialAuthButtons extends StatelessWidget {
         Expanded(
           child: BlocBuilder<LoginCubit, LoginState>(
             builder: (context, state) {
-              final isThisLoading = state.isLoadingFor(OAuthProviderType.google);
+              final isThisLoading = state.isLoadingFor(
+                OAuthProviderType.google,
+              );
               final isAnyLoading = state.status == LoginStatus.loading;
               return _SocialButtonHorizontal(
                 icon: Icons.g_mobiledata,
@@ -177,8 +178,8 @@ class _SocialButtonHorizontal extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         gradient: LinearGradient(
           colors: [
-            Colors.white.withValues(alpha: 0.1),
-            Colors.white.withValues(alpha: 0.05),
+            AppColorsDark.onSurface.withValues(alpha: 0.1),
+            AppColorsDark.onSurface.withValues(alpha: 0.05),
           ],
         ),
       ),
@@ -190,22 +191,20 @@ class _SocialButtonHorizontal extends StatelessWidget {
                 width: 20,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    AppColorsDark.onSurface,
+                  ),
                 ),
               )
-            : Icon(
-                icon,
-                color: Colors.white,
-                size: iconSize,
-              ),
+            : Icon(icon, color: AppColorsDark.onSurface, size: iconSize),
         label: Text(
           label,
-          style: const TextStyle(color: Colors.white),
+          style: const TextStyle(color: AppColorsDark.onSurface),
         ),
         style: OutlinedButton.styleFrom(
-          foregroundColor: Colors.white,
+          foregroundColor: AppColorsDark.onSurface,
           side: BorderSide(
-            color: Colors.white.withValues(alpha: 0.3),
+            color: AppColorsDark.onSurface.withValues(alpha: 0.3),
           ),
           padding: const EdgeInsets.symmetric(vertical: 14),
           shape: RoundedRectangleBorder(

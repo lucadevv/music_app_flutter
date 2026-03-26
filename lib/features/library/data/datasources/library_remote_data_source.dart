@@ -158,10 +158,7 @@ class LibraryRemoteDataSource {
     try {
       await _api.post(
         '/library/genres',
-        data: {
-          'externalParams': externalParams,
-          'name': ?name,
-        },
+        data: {'externalParams': externalParams, 'name': ?name},
       );
     } catch (e) {
       rethrow;

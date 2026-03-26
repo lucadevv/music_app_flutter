@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/library/presentation/widgets/molecules/quick_access_chip.dart';
 import 'package:music_app/l10n/app_localizations.dart';
 
@@ -33,7 +34,7 @@ class QuickAccessSection extends StatelessWidget {
                 const Text(
                   'Quick Access',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: AppColorsDark.onSurface,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Poppins',

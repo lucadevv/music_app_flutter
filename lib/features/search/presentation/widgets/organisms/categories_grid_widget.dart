@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/home/presentation/widgets/molecules/mood_genre_card_widget.dart';
 import 'package:music_app/features/search/domain/use_cases/get_categories_usecase.dart';
 import 'package:music_app/features/search/presentation/cubit/categories_cubit.dart';
@@ -12,8 +13,8 @@ class CategoriesGridWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => CategoriesCubit(getIt<GetCategoriesUseCase>())
-        ..loadCategories(),
+      create: (context) =>
+          CategoriesCubit(getIt<GetCategoriesUseCase>())..loadCategories(),
       child: BlocBuilder<CategoriesCubit, CategoriesState>(
         builder: (context, state) {
           // Si está cargando, mostrar shimmer o loading
@@ -35,7 +36,7 @@ class CategoriesGridWidget extends StatelessWidget {
                 child: Text(
                   'Browse all',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: AppColorsDark.onSurface,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
@@ -78,7 +79,7 @@ class CategoriesGridWidget extends StatelessWidget {
           child: Text(
             'Browse all',
             style: TextStyle(
-              color: Colors.white,
+              color: AppColorsDark.onSurface,
               fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
@@ -99,7 +100,7 @@ class CategoriesGridWidget extends StatelessWidget {
             itemBuilder: (context, index) {
               return Container(
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.1),
+                  color: AppColorsDark.onSurface.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Center(
@@ -107,7 +108,7 @@ class CategoriesGridWidget extends StatelessWidget {
                     width: 60,
                     height: 14,
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
+                      color: AppColorsDark.onSurface.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),

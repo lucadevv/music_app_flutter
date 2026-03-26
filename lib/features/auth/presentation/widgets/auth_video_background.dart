@@ -51,7 +51,7 @@ class _AuthVideoBackgroundState extends State<AuthVideoBackground>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (!widget.enableVideo) return;
-    
+
     // Pause when app goes to background
     if (state == AppLifecycleState.paused) {
       _videoController?.pause();

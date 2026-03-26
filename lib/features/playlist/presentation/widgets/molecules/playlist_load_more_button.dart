@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 
 class PlaylistLoadMoreButton extends StatelessWidget {
   final int loadedCount;
@@ -6,7 +7,10 @@ class PlaylistLoadMoreButton extends StatelessWidget {
   final VoidCallback onPressed;
 
   const PlaylistLoadMoreButton({
-    required this.loadedCount, required this.totalCount, required this.onPressed, super.key,
+    required this.loadedCount,
+    required this.totalCount,
+    required this.onPressed,
+    super.key,
   });
 
   @override
@@ -18,7 +22,10 @@ class PlaylistLoadMoreButton extends StatelessWidget {
           onPressed: onPressed,
           child: Text(
             'Cargar más canciones ($loadedCount/$totalCount)',
-            style: const TextStyle(color: Colors.white54, fontSize: 14),
+            style: const TextStyle(
+              color: AppColorsDark.onSurface54,
+              fontSize: 14,
+            ),
           ),
         ),
       ),

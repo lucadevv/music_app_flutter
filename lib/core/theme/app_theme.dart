@@ -47,7 +47,8 @@ class AppTheme {
 
       // COMPONENT THEMES
       actionIconTheme: ActionIconThemeData(
-        backButtonIconBuilder: (context) => const Icon(Icons.arrow_back_ios_new),
+        backButtonIconBuilder: (context) =>
+            const Icon(Icons.arrow_back_ios_new),
         closeButtonIconBuilder: (context) => const Icon(Icons.close),
       ),
 
@@ -126,7 +127,9 @@ class AppTheme {
         secondarySelectedColor: colorScheme.secondaryContainer,
         labelPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         labelStyle: TextStyle(color: colorScheme.onSurface, fontSize: 14),
-        shape: StadiumBorder(side: BorderSide(color: colorScheme.outlineVariant)),
+        shape: StadiumBorder(
+          side: BorderSide(color: colorScheme.outlineVariant),
+        ),
         secondaryLabelStyle: TextStyle(
           color: colorScheme.onPrimaryContainer,
           fontSize: 14,
@@ -487,7 +490,8 @@ class AppTheme {
 
       // COMPONENT THEMES
       actionIconTheme: ActionIconThemeData(
-        backButtonIconBuilder: (context) => const Icon(Icons.arrow_back_ios_new),
+        backButtonIconBuilder: (context) =>
+            const Icon(Icons.arrow_back_ios_new),
         closeButtonIconBuilder: (context) => const Icon(Icons.close),
       ),
 

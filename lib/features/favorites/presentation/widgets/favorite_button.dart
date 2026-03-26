@@ -17,7 +17,8 @@ class FavoriteButton extends StatefulWidget {
   final PlaylistMetadata? playlistMetadata;
 
   const FavoriteButton({
-    required this.videoId, super.key,
+    required this.videoId,
+    super.key,
     this.songId,
     this.type = FavoriteType.song,
     this.size = 24,
@@ -93,10 +94,7 @@ class _FavoriteButtonState extends State<FavoriteButton>
         return AnimatedBuilder(
           animation: _scaleAnimation,
           builder: (context, child) {
-            return Transform.scale(
-              scale: _scaleAnimation.value,
-              child: child,
-            );
+            return Transform.scale(scale: _scaleAnimation.value, child: child);
           },
           child: GestureDetector(
             onTap: _isProcessing
@@ -106,7 +104,7 @@ class _FavoriteButtonState extends State<FavoriteButton>
               padding: widget.showBackground ? const EdgeInsets.all(8) : null,
               decoration: widget.showBackground
                   ? BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.1),
+                      color: AppColorsDark.onSurface.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     )
                   : null,
@@ -115,7 +113,7 @@ class _FavoriteButtonState extends State<FavoriteButton>
                 color: isFavorite
                     ? (widget.activeColor ?? AppColorsDark.primary)
                     : (widget.inactiveColor ??
-                        Colors.white.withValues(alpha: 0.6)),
+                          AppColorsDark.onSurface.withValues(alpha: 0.6)),
                 size: widget.size,
               ),
             ),

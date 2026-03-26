@@ -10,7 +10,8 @@ part 'categories_state.dart';
 class CategoriesCubit extends Cubit<CategoriesState> with BaseBlocMixin {
   final GetCategoriesUseCase _getCategoriesUseCase;
 
-  CategoriesCubit(this._getCategoriesUseCase) : super(const CategoriesState.initial());
+  CategoriesCubit(this._getCategoriesUseCase)
+    : super(const CategoriesState.initial());
 
   /// Carga las categorías desde el endpoint /music/explore
   Future<void> loadCategories() async {

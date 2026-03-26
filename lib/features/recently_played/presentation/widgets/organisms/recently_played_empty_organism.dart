@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/l10n/app_localizations.dart';
 
 class RecentlyPlayedEmptyOrganism extends StatelessWidget {
@@ -15,13 +16,13 @@ class RecentlyPlayedEmptyOrganism extends StatelessWidget {
           Icon(
             Icons.history,
             size: 64,
-            color: Colors.white.withValues(alpha: 0.3),
+            color: AppColorsDark.onSurface.withValues(alpha: 0.3),
           ),
           const SizedBox(height: 16),
           Text(
             l10n.noRecentlyPlayed,
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.7),
+              color: AppColorsDark.onSurface.withValues(alpha: 0.7),
               fontSize: 18,
             ),
           ),
@@ -29,7 +30,7 @@ class RecentlyPlayedEmptyOrganism extends StatelessWidget {
           Text(
             l10n.songsYouListenToWillAppearHere,
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.5),
+              color: AppColorsDark.onSurface.withValues(alpha: 0.5),
               fontSize: 14,
             ),
             textAlign: TextAlign.center,

@@ -1,8 +1,9 @@
 // ignore_for_file: deprecated_member_use_from_same_package
-import 'package:music_app/core/data/offline/models/offline_history.dart' as offline;
-import 'package:music_app/core/data/offline/models/offline_song.dart' as offline;
-import 'package:music_app/core/domain/entities/artist.dart'
-    as artist;
+import 'package:music_app/core/data/offline/models/offline_history.dart'
+    as offline;
+import 'package:music_app/core/data/offline/models/offline_song.dart'
+    as offline;
+import 'package:music_app/core/domain/entities/artist.dart' as artist;
 import 'package:music_app/core/domain/entities/song.dart' as core;
 import 'package:music_app/features/album/domain/entities/album.dart' as album;
 import 'package:music_app/features/downloads/domain/entities/downloaded_song.dart';

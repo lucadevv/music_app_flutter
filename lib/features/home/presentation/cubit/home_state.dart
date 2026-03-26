@@ -23,12 +23,15 @@ class HomeState {
     if (homeResponse == null) return [];
     if (_filterQuery.isEmpty) return homeResponse!.sections;
 
-    return homeResponse!.sections.map((section) {
-      final filteredItems = section.contents
-          .where((item) => item.matchesQuery(_filterQuery))
-          .toList();
-      return section.copyWith(contents: filteredItems);
-    }).where((section) => section.contents.isNotEmpty).toList();
+    return homeResponse!.sections
+        .map((section) {
+          final filteredItems = section.contents
+              .where((item) => item.matchesQuery(_filterQuery))
+              .toList();
+          return section.copyWith(contents: filteredItems);
+        })
+        .where((section) => section.contents.isNotEmpty)
+        .toList();
   }
 
   HomeState copyWith({

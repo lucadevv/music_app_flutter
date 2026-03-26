@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/recently_played/presentation/widgets/atoms/header_icon_atom.dart';
 import 'package:music_app/l10n/app_localizations.dart';
 
@@ -20,7 +21,7 @@ class HeaderContentMolecule extends StatelessWidget {
         Text(
           l10n.recentlyPlayed,
           style: const TextStyle(
-            color: Colors.white,
+            color: AppColorsDark.onSurface,
             fontSize: 24,
             fontWeight: FontWeight.bold,
           ),
@@ -29,7 +30,7 @@ class HeaderContentMolecule extends StatelessWidget {
         Text(
           '$songCount ${l10n.songs}',
           style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.6),
+            color: AppColorsDark.onSurface.withValues(alpha: 0.6),
             fontSize: 14,
           ),
         ),

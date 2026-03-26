@@ -1,4 +1,5 @@
 // ignore_for_file: deprecated_member_use_from_same_package
+import 'package:auto_route/auto_route.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -117,7 +118,9 @@ class _AddSongsDialogOrganismState extends State<AddSongsDialogOrganism> {
       }
     }
 
-    Navigator.pop(context);
+    if (!mounted) return;
+    await context.router.maybePop();
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('${_selectedVideoIds.length} canción(es) agregada(s)'),
@@ -147,7 +150,7 @@ class _AddSongsDialogOrganismState extends State<AddSongsDialogOrganism> {
                 const Text(
                   'Agregar canciones',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: AppColorsDark.onSurface,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -166,28 +169,31 @@ class _AddSongsDialogOrganismState extends State<AddSongsDialogOrganism> {
                         ),
                       ),
                     IconButton(
-                      icon: const Icon(Icons.close, color: Colors.white),
-                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(
+                        Icons.close,
+                        color: AppColorsDark.onSurface,
+                      ),
+                      onPressed: () => context.router.maybePop(),
                     ),
                   ],
                 ),
               ],
             ),
           ),
-          const Divider(color: Colors.white24),
+          const Divider(color: AppColorsDark.onSurface24),
           Padding(
             padding: const EdgeInsets.all(16),
             child: TextField(
               controller: _searchController,
-              style: const TextStyle(color: Colors.white),
+              style: const TextStyle(color: AppColorsDark.onSurface),
               decoration: InputDecoration(
                 hintText: 'Buscar canciones...',
                 hintStyle: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.5),
+                  color: AppColorsDark.onSurface.withValues(alpha: 0.5),
                 ),
                 prefixIcon: Icon(
                   Icons.search,
-                  color: Colors.white.withValues(alpha: 0.5),
+                  color: AppColorsDark.onSurface.withValues(alpha: 0.5),
                 ),
                 filled: true,
                 fillColor: AppColorsDark.surfaceContainerLow,
@@ -218,7 +224,10 @@ class _AddSongsDialogOrganismState extends State<AddSongsDialogOrganism> {
     if (_error != null) {
       return Expanded(
         child: Center(
-          child: Text(_error!, style: const TextStyle(color: Colors.red)),
+          child: Text(
+            _error!,
+            style: const TextStyle(color: AppColorsDark.error),
+          ),
         ),
       );
     }
@@ -230,7 +239,9 @@ class _AddSongsDialogOrganismState extends State<AddSongsDialogOrganism> {
             _searchController.text.isEmpty
                 ? 'Busca una canción para agregar'
                 : 'No se encontraron resultados',
-            style: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
+            style: TextStyle(
+              color: AppColorsDark.onSurface.withValues(alpha: 0.7),
+            ),
           ),
         ),
       );
@@ -265,14 +276,14 @@ class _AddSongsDialogOrganismState extends State<AddSongsDialogOrganism> {
             ),
             title: Text(
               song.title,
-              style: const TextStyle(color: Colors.white),
+              style: const TextStyle(color: AppColorsDark.onSurface),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
             subtitle: Text(
               _getArtistNames(song),
               style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.6),
+                color: AppColorsDark.onSurface.withValues(alpha: 0.6),
                 fontSize: 12,
               ),
               maxLines: 1,
@@ -281,7 +292,9 @@ class _AddSongsDialogOrganismState extends State<AddSongsDialogOrganism> {
             trailing: IconButton(
               icon: Icon(
                 isSelected ? Icons.check_circle : Icons.add_circle_outline,
-                color: isSelected ? AppColorsDark.primary : Colors.white70,
+                color: isSelected
+                    ? AppColorsDark.primary
+                    : AppColorsDark.onSurface70,
               ),
               onPressed: () {
                 setState(() {

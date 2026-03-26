@@ -1,6 +1,8 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
+import 'package:music_app/l10n/app_localizations.dart';
 
 class PlaylistMenuBottomSheet extends StatelessWidget {
   final String playlistTitle;
@@ -9,7 +11,11 @@ class PlaylistMenuBottomSheet extends StatelessWidget {
   final VoidCallback onShufflePlay;
 
   const PlaylistMenuBottomSheet({
-    required this.playlistTitle, required this.onShare, required this.onAddToPlaylist, required this.onShufflePlay, super.key,
+    required this.playlistTitle,
+    required this.onShare,
+    required this.onAddToPlaylist,
+    required this.onShufflePlay,
+    super.key,
   });
 
   static void show({
@@ -42,7 +48,7 @@ class PlaylistMenuBottomSheet extends StatelessWidget {
             height: 4,
             margin: const EdgeInsets.only(top: 12, bottom: 20),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.3),
+              color: AppColorsDark.onSurface.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -50,13 +56,13 @@ class PlaylistMenuBottomSheet extends StatelessWidget {
             icon: Icons.share,
             label: 'Share',
             onTap: () {
-              Navigator.pop(context);
+              context.router.maybePop();
               Clipboard.setData(
                 ClipboardData(text: 'Check out this playlist: $playlistTitle'),
               );
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: const Text('Playlist link copied to clipboard'),
+                  content: Text(AppLocalizations.of(context)!.linkCopied),
                   backgroundColor: AppColorsDark.primary,
                   behavior: SnackBarBehavior.floating,
                   shape: RoundedRectangleBorder(
@@ -70,7 +76,7 @@ class PlaylistMenuBottomSheet extends StatelessWidget {
             icon: Icons.playlist_add,
             label: 'Add to playlist',
             onTap: () {
-              Navigator.pop(context);
+              context.router.maybePop();
               onAddToPlaylist();
             },
           ),
@@ -78,7 +84,7 @@ class PlaylistMenuBottomSheet extends StatelessWidget {
             icon: Icons.shuffle,
             label: 'Shuffle play',
             onTap: () {
-              Navigator.pop(context);
+              context.router.maybePop();
               onShufflePlay();
             },
           ),
@@ -103,8 +109,11 @@ class _MenuItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: Icon(icon, color: Colors.white),
-      title: Text(label, style: const TextStyle(color: Colors.white)),
+      leading: Icon(icon, color: AppColorsDark.onSurface),
+      title: Text(
+        label,
+        style: const TextStyle(color: AppColorsDark.onSurface),
+      ),
       onTap: onTap,
     );
   }

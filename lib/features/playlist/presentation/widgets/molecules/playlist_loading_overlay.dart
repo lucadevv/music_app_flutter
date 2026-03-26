@@ -19,7 +19,7 @@ class PlaylistLoadingOverlay extends StatelessWidget {
         child,
         if (isLoading)
           Container(
-            color: Colors.black.withValues(alpha: 0.7),
+            color: AppColorsDark.surfaceDim.withValues(alpha: 0.7),
             child: Center(
               child: Container(
                 padding: const EdgeInsets.all(24),
@@ -39,7 +39,7 @@ class PlaylistLoadingOverlay extends StatelessWidget {
                     const Text(
                       'Cargando playlist...',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: AppColorsDark.onSurface,
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
                       ),
@@ -48,7 +48,7 @@ class PlaylistLoadingOverlay extends StatelessWidget {
                     Text(
                       'Preparando las canciones para reproducir',
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.6),
+                        color: AppColorsDark.onSurface.withValues(alpha: 0.6),
                         fontSize: 14,
                       ),
                     ),

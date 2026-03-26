@@ -11,7 +11,10 @@ class QueueNowPlayingCard extends StatelessWidget {
   final String nowPlayingLabel;
 
   const QueueNowPlayingCard({
-    required this.track, required this.isPlaying, required this.nowPlayingLabel, super.key,
+    required this.track,
+    required this.isPlaying,
+    required this.nowPlayingLabel,
+    super.key,
   });
 
   @override
@@ -20,7 +23,7 @@ class QueueNowPlayingCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       margin: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.1),
+        color: AppColorsDark.onSurface.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -67,7 +70,7 @@ class QueueNowPlayingCard extends StatelessWidget {
         Text(
           track.title,
           style: const TextStyle(
-            color: Colors.white,
+            color: AppColorsDark.onSurface,
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
@@ -76,7 +79,7 @@ class QueueNowPlayingCard extends StatelessWidget {
         ),
         Text(
           track.artistsNames,
-          style: const TextStyle(color: Colors.white, fontSize: 14),
+          style: const TextStyle(color: AppColorsDark.onSurface, fontSize: 14),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
@@ -88,7 +91,7 @@ class QueueNowPlayingCard extends StatelessWidget {
     return IconButton(
       icon: Icon(
         isPlaying ? Icons.pause : Icons.play_arrow,
-        color: Colors.white,
+        color: AppColorsDark.onSurface,
       ),
       onPressed: () {
         // This will be connected via callback or bloc

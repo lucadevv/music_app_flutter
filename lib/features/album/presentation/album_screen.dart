@@ -72,7 +72,9 @@ class _AlbumView extends StatelessWidget {
             return Center(
               child: Text(
                 'Álbum no encontrado',
-                style: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
+                style: TextStyle(
+                  color: AppColorsDark.onSurface.withValues(alpha: 0.7),
+                ),
               ),
             );
           }

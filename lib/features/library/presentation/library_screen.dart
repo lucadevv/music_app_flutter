@@ -110,8 +110,8 @@ class _LibraryViewState extends State<_LibraryView> {
         child: BlocBuilder<LibraryCubit, LibraryState>(
           builder: (context, state) {
             return RefreshIndicator(
-              color: Colors.white,
-              backgroundColor: Colors.black54,
+              color: AppColorsDark.onSurface,
+              backgroundColor: AppColorsDark.surfaceDim54,
               onRefresh: () => context.read<LibraryCubit>().loadLibrary(),
               child: CustomScrollView(
                 controller: _scrollController,

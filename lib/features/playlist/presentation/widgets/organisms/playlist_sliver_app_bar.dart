@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/playlist/presentation/widgets/molecules/playlist_app_bar_actions.dart';
 import 'package:music_app/features/playlist/presentation/widgets/organisms/playlist_header_widget.dart';
 
@@ -12,7 +13,11 @@ class PlaylistSliverAppBar extends StatelessWidget {
   final VoidCallback onMorePressed;
 
   const PlaylistSliverAppBar({
-    required this.playlist, required this.showSearch, required this.onSearchPressed, required this.onMorePressed, super.key,
+    required this.playlist,
+    required this.showSearch,
+    required this.onSearchPressed,
+    required this.onMorePressed,
+    super.key,
   });
 
   @override
@@ -52,13 +57,13 @@ class PlaylistSliverAppBar extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.3),
+        color: AppColorsDark.surfaceDim.withValues(alpha: 0.3),
         shape: BoxShape.circle,
       ),
       child: IconButton(
         icon: const Icon(
           Icons.arrow_back_ios_new,
-          color: Colors.white,
+          color: AppColorsDark.onSurface,
           size: 20,
         ),
         onPressed: () => context.router.pop(),

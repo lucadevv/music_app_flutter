@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/playlist/presentation/cubit/playlist_cubit.dart';
 import 'package:music_app/l10n/app_localizations.dart';
 
@@ -27,13 +28,13 @@ class PlaylistErrorWidget extends StatelessWidget {
             Icon(
               Icons.error_outline,
               size: 64,
-              color: Colors.white.withValues(alpha: 0.6),
+              color: AppColorsDark.onSurface.withValues(alpha: 0.6),
             ),
             const SizedBox(height: 16),
             Text(
               l10n.errorLoadingPlaylist,
               style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.9),
+                color: AppColorsDark.onSurface.withValues(alpha: 0.9),
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
@@ -42,7 +43,7 @@ class PlaylistErrorWidget extends StatelessWidget {
             Text(
               errorMessage,
               style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.6),
+                color: AppColorsDark.onSurface.withValues(alpha: 0.6),
                 fontSize: 14,
               ),
               textAlign: TextAlign.center,
@@ -53,8 +54,8 @@ class PlaylistErrorWidget extends StatelessWidget {
                 context.read<PlaylistCubit>().loadPlaylist(playlistId);
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.black,
+                backgroundColor: AppColorsDark.onSurface,
+                foregroundColor: AppColorsDark.surfaceDim,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 32,
                   vertical: 16,

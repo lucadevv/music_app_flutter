@@ -12,7 +12,8 @@ class RelaxPlaylistEntity extends Equatable {
     required this.id,
     required this.title,
     required this.description,
-    required this.category, this.thumbnail,
+    required this.category,
+    this.thumbnail,
   });
 
   @override

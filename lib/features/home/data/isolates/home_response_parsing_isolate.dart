@@ -3,7 +3,7 @@ import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
 import 'package:music_app/features/home/data/models/home_response_model.dart';
 
 /// Clase responsable del parseo aislado de la respuesta de Home (Multi-threading)
-/// 
+///
 /// Esto previene UI Jank durante la decodificación de objetos JSON de gran peso.
 class HomeResponseParsingIsolate {
   /// Procesa la respuesta JSON del servidor y la transforma en un [HomeResponseModel].

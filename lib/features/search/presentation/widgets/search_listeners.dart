@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/search/presentation/cubit/orquestador_search_cubit.dart';
 import 'package:music_app/features/search/presentation/cubit/recent_searches_cubit.dart';
+
 import '../cubit/search_cubit.dart' show SearchCubit, SearchState;
 
 /// Widget que escucha los cambios del SearchCubit, RecentSearchesCubit y OrquestadorSearchCubit
@@ -41,7 +43,7 @@ class SearchListeners extends StatelessWidget {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(effect.message),
-                  backgroundColor: Colors.red,
+                  backgroundColor: AppColorsDark.error,
                 ),
               );
             }

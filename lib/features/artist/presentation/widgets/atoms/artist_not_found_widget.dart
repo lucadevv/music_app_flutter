@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 
 class ArtistNotFoundWidget extends StatelessWidget {
   const ArtistNotFoundWidget({super.key});
@@ -8,7 +9,7 @@ class ArtistNotFoundWidget extends StatelessWidget {
     return Center(
       child: Text(
         'Artista no encontrado',
-        style: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
+        style: TextStyle(color: AppColorsDark.onSurface.withValues(alpha: 0.7)),
       ),
     );
   }

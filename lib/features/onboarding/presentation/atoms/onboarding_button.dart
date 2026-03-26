@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 
 class OnboardingButton extends StatelessWidget {
   final VoidCallback? onPressed;
@@ -6,7 +7,10 @@ class OnboardingButton extends StatelessWidget {
   final String text;
 
   const OnboardingButton({
-    required this.onPressed, required this.isLoading, required this.text, super.key,
+    required this.onPressed,
+    required this.isLoading,
+    required this.text,
+    super.key,
   });
 
   @override
@@ -16,8 +20,8 @@ class OnboardingButton extends StatelessWidget {
       child: FilledButton(
         onPressed: onPressed,
         style: FilledButton.styleFrom(
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.black,
+          backgroundColor: AppColorsDark.onSurface,
+          foregroundColor: AppColorsDark.surfaceDim,
           padding: const EdgeInsets.symmetric(vertical: 18),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30),
@@ -29,7 +33,7 @@ class OnboardingButton extends StatelessWidget {
                 height: 20,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  color: Colors.black,
+                  color: AppColorsDark.surfaceDim,
                 ),
               )
             : Text(

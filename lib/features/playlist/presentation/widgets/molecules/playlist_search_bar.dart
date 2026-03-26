@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 
 class PlaylistSearchBar extends StatelessWidget {
   final TextEditingController controller;
   final ValueChanged<String> onChanged;
 
   const PlaylistSearchBar({
-    required this.controller, required this.onChanged, super.key,
+    required this.controller,
+    required this.onChanged,
+    super.key,
   });
 
   @override
@@ -15,16 +18,18 @@ class PlaylistSearchBar extends StatelessWidget {
       child: TextField(
         controller: controller,
         onChanged: onChanged,
-        style: const TextStyle(color: Colors.white),
+        style: const TextStyle(color: AppColorsDark.onSurface),
         decoration: InputDecoration(
           hintText: 'Search songs...',
-          hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.5)),
+          hintStyle: TextStyle(
+            color: AppColorsDark.onSurface.withValues(alpha: 0.5),
+          ),
           prefixIcon: Icon(
             Icons.search,
-            color: Colors.white.withValues(alpha: 0.5),
+            color: AppColorsDark.onSurface.withValues(alpha: 0.5),
           ),
           filled: true,
-          fillColor: Colors.white.withValues(alpha: 0.1),
+          fillColor: AppColorsDark.onSurface.withValues(alpha: 0.1),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(24),
             borderSide: BorderSide.none,

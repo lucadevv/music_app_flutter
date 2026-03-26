@@ -83,7 +83,7 @@ class PlaylistTrackItemWidget extends StatelessWidget {
                         )
                       : Icon(
                           Icons.play_arrow,
-                          color: Colors.white.withValues(
+                          color: AppColorsDark.onSurface.withValues(
                             alpha: isDisabled ? 0.3 : 0.6,
                           ),
                           size: 20,
@@ -105,7 +105,7 @@ class PlaylistTrackItemWidget extends StatelessWidget {
                 IconButton(
                   icon: Icon(
                     Icons.more_vert,
-                    color: Colors.white.withValues(
+                    color: AppColorsDark.onSurface.withValues(
                       alpha: isDisabled ? 0.3 : 0.6,
                     ),
                     size: 20,

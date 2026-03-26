@@ -8,7 +8,10 @@ class ProfileFieldWidget extends StatelessWidget {
   final IconData icon;
 
   const ProfileFieldWidget({
-    required this.label, required this.value, required this.icon, super.key,
+    required this.label,
+    required this.value,
+    required this.icon,
+    super.key,
   });
 
   @override
@@ -16,7 +19,7 @@ class ProfileFieldWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
+        color: AppColorsDark.onSurface.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -30,14 +33,17 @@ class ProfileFieldWidget extends StatelessWidget {
                 Text(
                   label,
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.6),
+                    color: AppColorsDark.onSurface.withValues(alpha: 0.6),
                     fontSize: 12,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   value,
-                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                  style: const TextStyle(
+                    color: AppColorsDark.onSurface,
+                    fontSize: 16,
+                  ),
                 ),
               ],
             ),

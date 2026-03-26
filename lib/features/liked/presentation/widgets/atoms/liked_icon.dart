@@ -21,7 +21,7 @@ class LikedIcon extends StatelessWidget {
       child: Icon(
         filled ? Icons.favorite : Icons.favorite_border,
         size: size,
-        color: Colors.white,
+        color: AppColorsDark.onSurface,
       ),
     );
   }

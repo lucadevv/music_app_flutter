@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/l10n/app_localizations.dart';
+
 import '../cubit/mood_genre_cubit.dart';
 
 /// Widget para mostrar el estado de error
@@ -12,7 +14,8 @@ class MoodGenreErrorWidget extends StatelessWidget {
   final String params;
 
   const MoodGenreErrorWidget({
-    required this.params, super.key,
+    required this.params,
+    super.key,
     this.errorMessage,
   });
 
@@ -26,7 +29,7 @@ class MoodGenreErrorWidget extends StatelessWidget {
         children: [
           Text(
             errorMessage ?? l10n.errorLoadingPlaylists,
-            style: const TextStyle(color: Colors.white),
+            style: const TextStyle(color: AppColorsDark.onSurface),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),

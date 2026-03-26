@@ -1,3 +1,4 @@
+import 'package:dartz/dartz.dart';
 import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
 import 'package:music_app/features/downloads/domain/entities/downloaded_song.dart';
 import 'package:music_app/features/downloads/domain/repositories/downloads_repository.dart';
@@ -11,9 +12,7 @@ class GetDownloadedSongsUseCase {
 
   GetDownloadedSongsUseCase(this._repository);
 
-  Future<(AppException?, List<DownloadedSong>?)> call() async {
-    final result = await _repository.getDownloadedSongs();
-
-    return result.fold((error) => (error, null), (songs) => (null, songs));
+  Future<Either<AppException, List<DownloadedSong>>> call() async {
+    return _repository.getDownloadedSongs();
   }
 }

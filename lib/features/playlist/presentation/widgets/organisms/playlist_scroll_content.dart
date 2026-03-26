@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/playlist/domain/entities/playlist_response.dart';
 import 'package:music_app/features/playlist/presentation/cubit/playlist_state.dart';
 import 'package:music_app/features/playlist/presentation/widgets/molecules/playlist_loading_more_section.dart';
@@ -20,15 +21,25 @@ class PlaylistScrollContent extends StatelessWidget {
   final Function(BuildContext, dynamic) onShowMenu;
 
   const PlaylistScrollContent({
-    required this.playlist, required this.playlistState, required this.scrollController, required this.searchController, required this.showSearch, required this.onToggleSearch, required this.onSearchChanged, required this.onLoadMore, required this.onRefresh, required this.onShowMenu, super.key,
+    required this.playlist,
+    required this.playlistState,
+    required this.scrollController,
+    required this.searchController,
+    required this.showSearch,
+    required this.onToggleSearch,
+    required this.onSearchChanged,
+    required this.onLoadMore,
+    required this.onRefresh,
+    required this.onShowMenu,
+    super.key,
   });
 
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
       onRefresh: () async => onRefresh(),
-      color: Colors.white,
-      backgroundColor: Colors.black54,
+      color: AppColorsDark.onSurface,
+      backgroundColor: AppColorsDark.surfaceDim54,
       child: CustomScrollView(
         controller: scrollController,
         physics: const AlwaysScrollableScrollPhysics(),

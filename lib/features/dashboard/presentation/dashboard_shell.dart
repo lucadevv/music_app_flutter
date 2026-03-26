@@ -93,8 +93,6 @@ class _DashboardShellState extends State<DashboardShell> {
 
             final miniPlayerBottom = isBottomSheetOpen ? 512 : 0;
 
-            
-
             return Scaffold(
               backgroundColor: AppColorsDark.surface,
               body: Stack(

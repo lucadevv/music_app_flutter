@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 
 /// Widget que muestra cuando no hay resultados de búsqueda.
 class SearchNoResults extends StatelessWidget {
@@ -16,13 +17,13 @@ class SearchNoResults extends StatelessWidget {
             Icon(
               Icons.search_off,
               size: 64,
-              color: Colors.white.withValues(alpha: 0.5),
+              color: AppColorsDark.onSurface.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 16),
             Text(
               'No results for "$searchQuery"',
               style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.7),
+                color: AppColorsDark.onSurface.withValues(alpha: 0.7),
                 fontSize: 16,
               ),
             ),

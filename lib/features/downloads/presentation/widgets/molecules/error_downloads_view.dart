@@ -30,7 +30,8 @@ class ErrorDownloadsViewWithRetry extends StatelessWidget {
   final VoidCallback onRetry;
 
   const ErrorDownloadsViewWithRetry({
-    required this.onRetry, super.key,
+    required this.onRetry,
+    super.key,
     this.errorMessage,
   });
 

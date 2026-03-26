@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/home/domain/entities/mood_genre.dart';
 
 /// Widget para mostrar una categoría de mood/genre
@@ -24,14 +25,14 @@ class MoodGenreCardWidget extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.1),
+          color: AppColorsDark.onSurface.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Center(
           child: Text(
             moodGenre.title,
             style: const TextStyle(
-              color: Colors.white,
+              color: AppColorsDark.onSurface,
               fontSize: 13,
               fontWeight: FontWeight.w500,
             ),

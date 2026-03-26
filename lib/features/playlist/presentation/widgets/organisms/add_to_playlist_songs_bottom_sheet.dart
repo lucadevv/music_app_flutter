@@ -1,3 +1,5 @@
+import 'package:auto_route/auto_route.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/playlist/domain/entities/playlist_track.dart';
@@ -45,19 +47,19 @@ class AddToPlaylistSongsBottomSheet extends StatelessWidget {
                 const Text(
                   'Select a song to add',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: AppColorsDark.onSurface,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.close, color: Colors.white),
-                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.close, color: AppColorsDark.onSurface),
+                  onPressed: () => context.router.maybePop(),
                 ),
               ],
             ),
           ),
-          const Divider(color: Colors.white24),
+          const Divider(color: AppColorsDark.onSurface24),
           Flexible(
             child: ListView.builder(
               shrinkWrap: true,
@@ -92,27 +94,27 @@ class _TrackItem extends StatelessWidget {
         child: track.thumbnails.isNotEmpty
             ? ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: Image.network(
-                  track.thumbnails.last.url,
+                child: CachedNetworkImage(
+                  imageUrl: track.thumbnails.last.url,
                   fit: BoxFit.cover,
                 ),
               )
-            : const Icon(Icons.music_note, color: Colors.white54),
+            : const Icon(Icons.music_note, color: AppColorsDark.onSurface54),
       ),
       title: Text(
         track.title,
-        style: const TextStyle(color: Colors.white),
+        style: const TextStyle(color: AppColorsDark.onSurface),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
       subtitle: Text(
         track.artists.map((a) => a.name).join(', '),
-        style: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
+        style: TextStyle(color: AppColorsDark.onSurface.withValues(alpha: 0.7)),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
       onTap: () {
-        Navigator.pop(context);
+        context.router.maybePop();
         SongOptionsBottomSheet.show(
           context: context,
           song: SongOptionsData(

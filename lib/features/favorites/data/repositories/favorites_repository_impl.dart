@@ -1,10 +1,8 @@
 import 'package:dartz/dartz.dart';
 import 'package:music_app/core/domain/entities/song.dart';
-import 'package:music_app/core/domain/mappers/song_mapper.dart';
 import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
 import 'package:music_app/features/favorites/data/datasources/favorites_remote_data_source.dart';
 import 'package:music_app/features/favorites/domain/repositories/favorites_repository.dart';
-import 'package:music_app/features/library/data/models/library_models.dart';
 
 /// Implementation of FavoritesRepository.
 class FavoritesRepositoryImpl implements FavoritesRepository {
@@ -18,13 +16,21 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
     int limit = 10,
   }) async {
     try {
-      final data = await _remoteDataSource.getFavorites(
+      final response = await _remoteDataSource.getFavorites(
         page: page,
         limit: limit,
       );
-      final response = FavoriteSongsResponse.fromJson(data);
-      final songs = response.data
-          .map(SongMapper.fromFavoriteSong)
+      // Convert FavoriteSongModel to Song using SongMapper
+      final songs = response.songs
+          .map(
+            (model) => Song(
+              videoId: model.videoId,
+              title: model.title,
+              artist: model.artist ?? '',
+              thumbnail: model.thumbnail,
+              duration: model.durationSeconds?.toString() ?? '0',
+            ),
+          )
           .toList();
       return Right(songs);
     } catch (e) {

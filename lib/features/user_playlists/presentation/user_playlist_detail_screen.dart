@@ -63,7 +63,7 @@ class _UserPlaylistDetailView extends StatelessWidget {
               ? FloatingActionButton(
                   onPressed: () => _showAddSongsDialog(context),
                   backgroundColor: AppColorsDark.primary,
-                  child: const Icon(Icons.add, color: Colors.white),
+                  child: const Icon(Icons.add, color: AppColorsDark.onSurface),
                 )
               : null,
         );
@@ -210,7 +210,7 @@ class _PlaylistPlayButton extends StatelessWidget {
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColorsDark.primary,
-                  foregroundColor: Colors.white,
+                  foregroundColor: AppColorsDark.onSurface,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 32,
                     vertical: 12,

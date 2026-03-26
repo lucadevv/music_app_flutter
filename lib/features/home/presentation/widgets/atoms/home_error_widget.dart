@@ -22,13 +22,13 @@ class HomeErrorWidget extends StatelessWidget {
             Icon(
               Icons.error_outline,
               size: 64,
-              color: Colors.white.withValues(alpha: 0.5),
+              color: AppColorsDark.onSurface.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 16),
             Text(
               errorMessage ?? l10n.errorLoadingHome,
               style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.7),
+                color: AppColorsDark.onSurface.withValues(alpha: 0.7),
                 fontSize: 16,
               ),
               textAlign: TextAlign.center,
@@ -42,7 +42,7 @@ class HomeErrorWidget extends StatelessWidget {
               label: Text(l10n.retry),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColorsDark.primary,
-                foregroundColor: Colors.white,
+                foregroundColor: AppColorsDark.onSurface,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 24,
                   vertical: 12,

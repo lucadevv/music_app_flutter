@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 
 /// Atom: Badge showing "Now Playing" label
 class QueueNowPlayingBadge extends StatelessWidget {
@@ -11,7 +12,7 @@ class QueueNowPlayingBadge extends StatelessWidget {
     return Text(
       text,
       style: TextStyle(
-        color: Colors.white.withValues(alpha: 0.6),
+        color: AppColorsDark.onSurface.withValues(alpha: 0.6),
         fontSize: 12,
         fontWeight: FontWeight.w500,
       ),

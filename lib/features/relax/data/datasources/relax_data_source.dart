@@ -11,25 +11,36 @@ class RelaxDataSource {
   /// Get relax playlists
   Future<List<RelaxPlaylistEntity>> getRelaxPlaylists() async {
     final result = await _moodDataSource.getMoodPlaylists('relax');
-    
-    return result.fold(
-      (error) => [],
-      (response) {
-        // Filter for relax-related moods from playlists
-        final relaxMoods = ['morning', 'evening', 'focus', 'sleep', 'relax', 'calm'];
-        
-        return response.playlists
-            .where((playlist) => relaxMoods.contains(playlist.title.toLowerCase()) || 
-                               relaxMoods.contains(playlist.category.toLowerCase()))
-            .map((playlist) => RelaxPlaylistEntity(
-                  id: playlist.browseId,
-                  title: playlist.title,
-                  description: playlist.author,
-                  thumbnail: playlist.thumbnails.isNotEmpty ? playlist.thumbnails.first.url : null,
-                  category: playlist.category,
-                ))
-            .toList();
-      },
-    );
+
+    return result.fold((error) => [], (response) {
+      // Filter for relax-related moods from playlists
+      final relaxMoods = [
+        'morning',
+        'evening',
+        'focus',
+        'sleep',
+        'relax',
+        'calm',
+      ];
+
+      return response.playlists
+          .where(
+            (playlist) =>
+                relaxMoods.contains(playlist.title.toLowerCase()) ||
+                relaxMoods.contains(playlist.category.toLowerCase()),
+          )
+          .map(
+            (playlist) => RelaxPlaylistEntity(
+              id: playlist.browseId,
+              title: playlist.title,
+              description: playlist.author,
+              thumbnail: playlist.thumbnails.isNotEmpty
+                  ? playlist.thumbnails.first.url
+                  : null,
+              category: playlist.category,
+            ),
+          )
+          .toList();
+    });
   }
 }

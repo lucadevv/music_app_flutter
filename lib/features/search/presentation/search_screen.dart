@@ -99,9 +99,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
                   // Mostrar loading shimmer si está buscando
                   if (isLoading)
-                    const SliverToBoxAdapter(
-                      child: SearchLoadingView(),
-                    ),
+                    const SliverToBoxAdapter(child: SearchLoadingView()),
 
                   // Mostrar resultados si hay búsqueda
                   if (hasQuery && hasResults)
@@ -110,7 +108,8 @@ class _SearchScreenState extends State<SearchScreen> {
                         results: searchState.responseEntity!.results,
                         query: searchState.query,
                         hasMore: searchState.hasMore,
-                        isLoadingMore: searchState.status == SearchStatus.loadingMore,
+                        isLoadingMore:
+                            searchState.status == SearchStatus.loadingMore,
                         onLoadMore: () {
                           context.read<SearchCubit>().loadMore();
                         },
@@ -136,5 +135,3 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 }
-
-

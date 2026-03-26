@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:shimmer/shimmer.dart';
 
 /// Widgets de shimmer genéricos para toda la app
@@ -8,8 +9,9 @@ import 'package:shimmer/shimmer.dart';
 
 /// Colores base para shimmer en tema oscuro
 class ShimmerColors {
-  static Color get baseColor => Colors.white.withValues(alpha: 0.1);
-  static Color get highlightColor => Colors.white.withValues(alpha: 0.2);
+  static Color get baseColor => AppColorsDark.onSurface.withValues(alpha: 0.1);
+  static Color get highlightColor =>
+      AppColorsDark.onSurface.withValues(alpha: 0.2);
 }
 
 /// Shimmer base wrapper
@@ -51,7 +53,7 @@ class ShimmerContainer extends StatelessWidget {
         height: height,
         margin: margin,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColorsDark.onSurface,
           borderRadius: BorderRadius.circular(borderRadius),
         ),
       ),
@@ -72,7 +74,7 @@ class AvatarShimmer extends StatelessWidget {
         width: size,
         height: size,
         decoration: const BoxDecoration(
-          color: Colors.white,
+          color: AppColorsDark.onSurface,
           shape: BoxShape.circle,
         ),
       ),
@@ -87,7 +89,9 @@ class ThumbnailShimmer extends StatelessWidget {
   final double borderRadius;
 
   const ThumbnailShimmer({
-    required this.width, required this.height, super.key,
+    required this.width,
+    required this.height,
+    super.key,
     this.borderRadius = 12,
   });
 
@@ -114,10 +118,7 @@ class TextShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ShimmerContainer(
-      width: width,
-      height: height,
-    );
+    return ShimmerContainer(width: width, height: height);
   }
 }
 
@@ -126,19 +127,11 @@ class ButtonShimmer extends StatelessWidget {
   final double width;
   final double height;
 
-  const ButtonShimmer({
-    super.key,
-    this.width = 120,
-    this.height = 48,
-  });
+  const ButtonShimmer({super.key, this.width = 120, this.height = 48});
 
   @override
   Widget build(BuildContext context) {
-    return ShimmerContainer(
-      width: width,
-      height: height,
-      borderRadius: 24,
-    );
+    return ShimmerContainer(width: width, height: height, borderRadius: 24);
   }
 }
 
@@ -176,11 +169,7 @@ class SongCardShimmer extends StatelessWidget {
   final double width;
   final double height;
 
-  const SongCardShimmer({
-    super.key,
-    this.width = 160,
-    this.height = 180,
-  });
+  const SongCardShimmer({super.key, this.width = 160, this.height = 180});
 
   @override
   Widget build(BuildContext context) {
@@ -190,11 +179,7 @@ class SongCardShimmer extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ThumbnailShimmer(
-            width: width,
-            height: height - 50,
-            borderRadius: 12,
-          ),
+          ThumbnailShimmer(width: width, height: height - 50, borderRadius: 12),
           const SizedBox(height: 8),
           const TextShimmer(height: 14),
           const SizedBox(height: 4),

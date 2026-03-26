@@ -4,12 +4,7 @@ import 'package:music_app/features/search/domain/entities/artist.dart';
 import 'package:music_app/features/search/domain/entities/thumbnail.dart';
 
 /// Tipo de contenido en las secciones del home
-enum HomeContentType {
-  song,
-  album,
-  playlist,
-  unknown,
-}
+enum HomeContentType { song, album, playlist, unknown }
 
 /// Entidad para items de contenido en las secciones de home
 ///
@@ -35,13 +30,15 @@ class HomeContentItem extends Equatable {
   final SearchAlbum? album;
   final String? description; // Para playlists
   final String?
-      streamUrl; // URL de streaming (viene del endpoint con include_stream_urls=true)
+  streamUrl; // URL de streaming (viene del endpoint con include_stream_urls=true)
   final Thumbnail?
-      thumbnail; // Thumbnail de mejor calidad (viene junto con stream_url)
+  thumbnail; // Thumbnail de mejor calidad (viene junto con stream_url)
 
   const HomeContentItem({
     required this.title,
-    required this.thumbnails, required this.artists, this.videoId,
+    required this.thumbnails,
+    required this.artists,
+    this.videoId,
     this.playlistId,
     this.browseId,
     this.audioPlaylistId,
@@ -72,7 +69,8 @@ class HomeContentItem extends Equatable {
   }
 
   /// Verifica si es una canción reproducible
-  bool get isPlayable => contentType == HomeContentType.song && streamUrl != null;
+  bool get isPlayable =>
+      contentType == HomeContentType.song && streamUrl != null;
 
   /// Verifica si es una canción (legacy - usar contentType)
   bool get isSong => videoId != null && videoId!.isNotEmpty;
@@ -88,9 +86,11 @@ class HomeContentItem extends Equatable {
   bool matchesQuery(String query) {
     if (query.trim().isEmpty) return true;
     final lowerQuery = query.toLowerCase();
-    
+
     final matchesTitle = title.toLowerCase().contains(lowerQuery);
-    final matchesArtist = artists.any((a) => a.name.toLowerCase().contains(lowerQuery));
+    final matchesArtist = artists.any(
+      (a) => a.name.toLowerCase().contains(lowerQuery),
+    );
 
     return matchesTitle || matchesArtist;
   }
@@ -134,20 +134,20 @@ class HomeContentItem extends Equatable {
 
   @override
   List<Object?> get props => [
-        title,
-        videoId,
-        playlistId,
-        browseId,
-        audioPlaylistId,
-        type,
-        videoType,
-        thumbnails,
-        isExplicit,
-        artists,
-        views,
-        album,
-        description,
-        streamUrl,
-        thumbnail,
-      ];
+    title,
+    videoId,
+    playlistId,
+    browseId,
+    audioPlaylistId,
+    type,
+    videoType,
+    thumbnails,
+    isExplicit,
+    artists,
+    views,
+    album,
+    description,
+    streamUrl,
+    thumbnail,
+  ];
 }

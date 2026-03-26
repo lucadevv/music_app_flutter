@@ -22,9 +22,9 @@ class SearchLoadingView extends StatelessWidget {
           ArtistListItemShimmer(),
           ArtistListItemShimmer(),
           ArtistListItemShimmer(),
-          
+
           SizedBox(height: 32),
-          
+
           // Categories shimmer
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 24),

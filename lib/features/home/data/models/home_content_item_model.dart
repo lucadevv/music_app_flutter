@@ -13,8 +13,10 @@ import 'package:music_app/features/search/data/models/thumbnail_model.dart';
 class HomeContentItemModel extends HomeContentItem {
   const HomeContentItemModel({
     required super.title,
-    
-    required super.thumbnails, required super.artists, super.videoId,
+
+    required super.thumbnails,
+    required super.artists,
+    super.videoId,
     super.playlistId,
     super.browseId,
     super.audioPlaylistId,
@@ -37,13 +39,20 @@ class HomeContentItemModel extends HomeContentItem {
       audioPlaylistId: json['audioPlaylistId'] as String?,
       type: json['type'] as String?,
       videoType: json['videoType'] as String?,
-      thumbnails: (json['thumbnails'] as List<dynamic>?)
-              ?.map((item) => ThumbnailModel.fromJson(item as Map<String, dynamic>))
+      thumbnails:
+          (json['thumbnails'] as List<dynamic>?)
+              ?.map(
+                (item) => ThumbnailModel.fromJson(item as Map<String, dynamic>),
+              )
               .toList() ??
           [],
       isExplicit: json['isExplicit'] as bool? ?? false,
-      artists: (json['artists'] as List<dynamic>?)
-              ?.map((item) => SearchArtistModel.fromJson(item as Map<String, dynamic>))
+      artists:
+          (json['artists'] as List<dynamic>?)
+              ?.map(
+                (item) =>
+                    SearchArtistModel.fromJson(item as Map<String, dynamic>),
+              )
               .toList() ??
           [],
       views: json['views'] as String? ?? '0',
@@ -62,11 +71,7 @@ class HomeContentItemModel extends HomeContentItem {
     if (thumbnail == null) return null;
     if (thumbnail is String) {
       // Si es string, crear un Thumbnail con esa URL
-      return ThumbnailModel(
-        url: thumbnail,
-        width: 800,
-        height: 800,
-      );
+      return ThumbnailModel(url: thumbnail, width: 800, height: 800);
     }
     if (thumbnail is Map<String, dynamic>) {
       return ThumbnailModel.fromJson(thumbnail);
@@ -83,14 +88,17 @@ class HomeContentItemModel extends HomeContentItem {
       if (audioPlaylistId != null) 'audioPlaylistId': audioPlaylistId,
       if (type != null) 'type': type,
       if (videoType != null) 'videoType': videoType,
-      'thumbnails': thumbnails.map((t) => (t as ThumbnailModel).toJson()).toList(),
+      'thumbnails': thumbnails
+          .map((t) => (t as ThumbnailModel).toJson())
+          .toList(),
       'isExplicit': isExplicit,
       'artists': artists.map((a) => (a as SearchArtistModel).toJson()).toList(),
       'views': views,
       if (album != null) 'album': (album as SearchAlbumModel).toJson(),
       if (description != null) 'description': description,
       if (streamUrl != null) 'stream_url': streamUrl,
-      if (thumbnail != null) 'thumbnail': (thumbnail as ThumbnailModel).toJson(),
+      if (thumbnail != null)
+        'thumbnail': (thumbnail as ThumbnailModel).toJson(),
     };
   }
 

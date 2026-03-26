@@ -1,4 +1,6 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 
 class DialogUtils {
   static Future<T?> showCustomDialog<T>({
@@ -59,18 +61,20 @@ class DialogUtils {
         actions: [
           // ✅ Cancelar - retorna false
           TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
+            onPressed: () => context.router.maybePop(false),
             child: Text(
               cancelText,
-              style: TextStyle(color: cancelColor ?? Colors.grey),
+              style: TextStyle(
+                color: cancelColor ?? AppColorsDark.onSurfaceVariant,
+              ),
             ),
           ),
           // ✅ Aceptar - retorna true
           TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
+            onPressed: () => context.router.maybePop(true),
             child: Text(
               acceptText,
-              style: TextStyle(color: acceptColor ?? Colors.blue),
+              style: TextStyle(color: acceptColor ?? AppColorsDark.primary),
             ),
           ),
         ],
@@ -105,10 +109,10 @@ class DialogUtils {
         content: content,
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => context.router.maybePop(),
             child: Text(
               buttonText,
-              style: TextStyle(color: buttonColor ?? Colors.blue),
+              style: TextStyle(color: buttonColor ?? AppColorsDark.primary),
             ),
           ),
         ],
@@ -144,7 +148,7 @@ class DialogUtils {
           // ✅ Generar botones dinámicamente desde el map
           for (final entry in actions.entries)
             TextButton(
-              onPressed: () => Navigator.of(context).pop(entry.value),
+              onPressed: () => context.router.maybePop(entry.value),
               child: Text(entry.key),
             ),
         ],
@@ -153,6 +157,6 @@ class DialogUtils {
   }
 
   static void closeDialog(BuildContext context) {
-    Navigator.of(context, rootNavigator: true).pop();
+    context.router.maybePop();
   }
 }

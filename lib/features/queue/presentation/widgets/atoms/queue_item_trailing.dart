@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 
 /// Atom: Trailing widget for queue items (duration + remove button)
 class QueueItemTrailing extends StatelessWidget {
@@ -6,7 +7,9 @@ class QueueItemTrailing extends StatelessWidget {
   final VoidCallback onRemove;
 
   const QueueItemTrailing({
-    required this.duration, required this.onRemove, super.key,
+    required this.duration,
+    required this.onRemove,
+    super.key,
   });
 
   @override
@@ -17,7 +20,7 @@ class QueueItemTrailing extends StatelessWidget {
         Text(
           duration,
           style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.6),
+            color: AppColorsDark.onSurface.withValues(alpha: 0.6),
             fontSize: 12,
           ),
         ),
@@ -25,7 +28,7 @@ class QueueItemTrailing extends StatelessWidget {
         IconButton(
           icon: Icon(
             Icons.close,
-            color: Colors.white.withValues(alpha: 0.6),
+            color: AppColorsDark.onSurface.withValues(alpha: 0.6),
             size: 20,
           ),
           onPressed: onRemove,

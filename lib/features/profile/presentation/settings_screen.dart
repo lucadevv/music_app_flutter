@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
 import 'package:music_app/core/bloc/locale_cubit.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:music_app/features/profile/presentation/widgets/atoms/settings_item_atom.dart';
 import 'package:music_app/features/profile/presentation/widgets/molecules/settings_section_molecule.dart';
@@ -45,13 +46,16 @@ class _SettingsView extends StatelessWidget {
         title: Text(
           l10n.settings,
           style: const TextStyle(
-            color: Colors.white,
+            color: AppColorsDark.onSurface,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: AppColorsDark.onSurface,
+          ),
           onPressed: () => context.router.pop(),
         ),
       ),
@@ -101,7 +105,7 @@ class _SettingsView extends StatelessWidget {
             QualityPickerOrganism.getLanguageName(
               localeState.locale.languageCode,
             ),
-            style: const TextStyle(color: Colors.white70),
+            style: const TextStyle(color: AppColorsDark.onSurface70),
           ),
           onTap: () => context.router.push(const LanguageRoute()),
         ),
@@ -112,7 +116,7 @@ class _SettingsView extends StatelessWidget {
             QualityPickerOrganism.getQualityName(
               profileState.settings?.streamingQuality ?? 'high',
             ),
-            style: const TextStyle(color: Colors.white70),
+            style: const TextStyle(color: AppColorsDark.onSurface70),
           ),
           onTap: () => QualityPickerOrganism.show(
             context,
@@ -127,7 +131,7 @@ class _SettingsView extends StatelessWidget {
             QualityPickerOrganism.getQualityName(
               profileState.settings?.downloadQuality ?? 'high',
             ),
-            style: const TextStyle(color: Colors.white70),
+            style: const TextStyle(color: AppColorsDark.onSurface70),
           ),
           onTap: () => QualityPickerOrganism.show(
             context,
@@ -142,7 +146,7 @@ class _SettingsView extends StatelessWidget {
             QualityPickerOrganism.getEqualizerName(
               profileState.settings?.equalizerPreset ?? 'flat',
             ),
-            style: const TextStyle(color: Colors.white70),
+            style: const TextStyle(color: AppColorsDark.onSurface70),
           ),
           onTap: () => context.router.push(const EqualizerRoute()),
         ),

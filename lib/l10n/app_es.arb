@@ -48,7 +48,6 @@
   "language": "Idioma",
   "english": "Inglés",
   "spanish": "Español",
-
   "yourLibrary": "Tu biblioteca",
   "likedSongs": "Canciones que te gustan",
   "genres": "Géneros",
@@ -65,7 +64,6 @@
   "createPlaylistToOrganize": "Crea playlists para organizar tu música",
   "share": "Compartir",
   "errorLoadingLibrary": "Error al cargar la biblioteca",
-
   "musicLanguages": "Idiomas de música",
   "streamingQuality": "Calidad de streaming",
   "downloadQuality": "Calidad de descarga",
@@ -78,7 +76,6 @@
   "others": "Otros",
   "helpAndSupport": "Ayuda y soporte",
   "hd": "HD",
-
   "myProfile": "Mi perfil",
   "exit": "Salir",
   "errorLoadingProfile": "Error al cargar el perfil",
@@ -94,7 +91,6 @@
   "save": "Guardar",
   "edit": "Editar",
   "delete": "Eliminar",
-
   "errorUnknown": "Error desconocido",
   "song": "Canción",
   "deleteDownloadConfirmation": "Eliminar descarga",
@@ -107,7 +103,6 @@
     }
   },
   "downloadingTitle": "Descargando",
-
   "skip": "Saltar",
   "discoverNewMusic": "Descubre Nueva Música",
   "discoverNewMusicDesc": "Explora millones de canciones y encuentra tu próxima obsesión musical",
@@ -116,7 +111,6 @@
   "listenWithoutLimits": "Escucha Sin Límites",
   "listenWithoutLimitsDesc": "Disfruta de música de alta calidad sin interrupciones, donde quieras",
   "getStarted": "Comenzar",
-
   "loginTitle": "Iniciar sesión",
   "enterYourCredentials": "Ingresa tus credenciales",
   "emailAddress": "Correo electrónico",
@@ -128,12 +122,10 @@
   "or": "o",
   "noAccount": "¿No tienes una cuenta?",
   "register": "Registrarse",
-
   "welcome": "Bienvenido a Vibeat",
   "signInToContinue": "Inicia sesión para continuar",
   "continueWithGoogle": "Continuar con Google",
   "continueWithApple": "Continuar con Apple",
-
   "verifyYourEmail": "Verifica tu correo",
   "verificationEmailSent": "Hemos enviado un enlace de verificación a tu correo electrónico.",
   "openMyEmail": "Abrir mi correo",
@@ -141,16 +133,13 @@
   "errorClosingSession": "Error al cerrar sesión. Intenta nuevamente.",
   "onceVerifiedAccess": "Una vez que verifiques tu correo, podrás acceder a todas las funciones de la aplicación.",
   "logoutTokensWarning": "¿Estás seguro de que deseas cerrar sesión? Se eliminarán todos tus tokens.",
-
   "likedSongsCount": "canciones que te gustan",
   "noLikedSongsYet": "Aún no hay canciones que te gusten",
   "songsYouLikeWillAppearHere": "Las canciones que te gusten aparecerán aquí",
   "errorLoadingSongs": "Error al cargar las canciones",
-
   "errorLoadingPlaylist": "Error al cargar la playlist",
   "errorLoadingHome": "Error al cargar el inicio",
   "errorLoadingPlaylists": "Error al cargar las playlists",
-
   "monthsJan": "Ene",
   "monthsFeb": "Feb",
   "monthsMar": "Mar",
@@ -163,14 +152,11 @@
   "monthsOct": "Oct",
   "monthsNov": "Nov",
   "monthsDec": "Dic",
-
   "hi": "Hola",
   "goodMorning": "Buenos días",
   "goodAfternoon": "Buenas tardes",
   "goodEvening": "Buenas noches",
-
   "artistName": "Nombre del artista",
-  "song": "Canción",
   "monthlyListeners": "oyentes mensuales",
   "popular": "Popular",
   "relax": "Relax",
@@ -178,7 +164,6 @@
   "travel": "Viaje",
   "focus": "Concentración",
   "energize": "Energía",
-
   "profileAndSettings": "Perfil y Configuración",
   "areYouSureYouWantToLogout": "¿Estás seguro de que quieres cerrar sesión?",
   "clear": "Limpiar",
@@ -205,17 +190,14 @@
   "selectCategories": "Seleccionar categorías",
   "searchFor": "Buscar canción, artista o álbum...",
   "all": "Todo",
-  
   "diveIntoYour": "Sumérgete en tu",
   "vibeat": "Vibeat.",
   "onboardingSubtitle": "Disfruta de una experiencia musical sin interrupciones,\ncreada para cada momento.",
   "startExplore": "Empezar a Explorar",
-  
   "recoverPassword": "Recuperar contraseña",
   "emailSent": "Email enviado",
   "checkInbox": "Revisa tu bandeja de entrada para restablecer tu contraseña",
   "enterEmailInstructions": "Ingresa tu email y te enviaremos las instrucciones para restablecer tu contraseña",
-
   "createAccount": "Crear cuenta",
   "signUpToStart": "Regístrate para comenzar",
   "firstName": "Nombre",
@@ -223,15 +205,18 @@
   "confirmPassword": "Confirmar contraseña",
   "minimum8Characters": "Mínimo 8 caracteres",
   "repeatYourPassword": "Repite tu contraseña",
-  "register": "Registrarse",
   "alreadyHaveAccount": "¿Ya tienes una cuenta?",
   "signIn": "Iniciar sesión",
-
   "emailLabel": "Email",
   "emailPlaceholder": "tu@email.com",
   "pleaseEnterEmail": "Por favor ingresa tu email",
   "enterValidEmail": "Ingresa un email válido",
   "sendInstructions": "Enviar instrucciones",
   "backToLogin": "Volver a iniciar sesión",
-  "successfullyLoggedIn": "Sesión iniciada exitosamente"
+  "successfullyLoggedIn": "Sesión iniciada exitosamente",
+  "ok": "Aceptar",
+  "errorDownloadUrl": "No se pudo obtener la URL de descarga",
+  "playlistNotFound": "Playlist no encontrada",
+  "noSongsInPlaylist": "No hay canciones en esta playlist",
+  "linkCopied": "Enlace copiado al portapapeles"
 }

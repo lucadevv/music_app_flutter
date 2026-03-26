@@ -61,6 +61,22 @@ class AppColorsDark {
   static const Color onInverseSurface = Color(0xFF0D0D12);
   static const Color inversePrimary = Color(0xFF0083B0);
   static const Color surfaceTint = Color(0xFF00E5FF);
+
+  // Auto-generated Alpha Variants from Color Script migration
+  static const Color onSurface10 = Color(0x19FFFFFF);
+  static const Color onSurface12 = Color(0x1FFFFFFF);
+  static const Color onSurface24 = Color(0x3DFFFFFF);
+  static const Color onSurface30 = Color(0x4DFFFFFF);
+  static const Color onSurface38 = Color(0x61FFFFFF);
+  static const Color onSurface54 = Color(0x8AFFFFFF);
+  static const Color onSurface60 = Color(0x99FFFFFF);
+  static const Color onSurface70 = Color(0xB3FFFFFF);
+  static const Color surfaceDim12 = Color(0x1F000000);
+  static const Color surfaceDim26 = Color(0x42000000);
+  static const Color surfaceDim38 = Color(0x61000000);
+  static const Color surfaceDim45 = Color(0x73000000);
+  static const Color surfaceDim54 = Color(0x8A000000);
+  static const Color surfaceDim87 = Color(0xDE000000);
 }
 
 ColorScheme createDarkColorScheme() {

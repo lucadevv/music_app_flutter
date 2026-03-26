@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/home/presentation/cubit/home_cubit.dart';
 import 'package:music_app/features/home/presentation/cubit/orquestador_home_cubit.dart';
 
@@ -53,7 +54,7 @@ class _HomeListenersState extends State<HomeListeners> {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(effect.message),
-                  backgroundColor: Colors.red,
+                  backgroundColor: AppColorsDark.error,
                 ),
               );
             }

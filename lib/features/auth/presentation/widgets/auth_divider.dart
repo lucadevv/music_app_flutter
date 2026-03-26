@@ -11,27 +11,15 @@ class AuthDivider extends StatelessWidget {
 
     return Row(
       children: [
-        const Expanded(
-          child: Divider(
-            color: AppColorsDark.outlineVariant,
-          ),
-        ),
+        const Expanded(child: Divider(color: AppColorsDark.outlineVariant)),
         Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 16,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
             l10n.or,
-            style: const TextStyle(
-              color: AppColorsDark.onSurfaceVariant,
-            ),
+            style: const TextStyle(color: AppColorsDark.onSurfaceVariant),
           ),
         ),
-        const Expanded(
-          child: Divider(
-            color: AppColorsDark.outlineVariant,
-          ),
-        ),
+        const Expanded(child: Divider(color: AppColorsDark.outlineVariant)),
       ],
     );
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:shimmer/shimmer.dart';
 
 /// Widgets de shimmer para el reproductor
@@ -12,13 +13,13 @@ class TitleShimmer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
-      baseColor: Colors.white.withValues(alpha: 0.1),
-      highlightColor: Colors.white.withValues(alpha: 0.2),
+      baseColor: AppColorsDark.onSurface.withValues(alpha: 0.1),
+      highlightColor: AppColorsDark.onSurface.withValues(alpha: 0.2),
       child: Container(
         height: 28,
         width: 250,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColorsDark.onSurface,
           borderRadius: BorderRadius.circular(4),
         ),
       ),
@@ -34,13 +35,13 @@ class SubtitleShimmer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
-      baseColor: Colors.white.withValues(alpha: 0.1),
-      highlightColor: Colors.white.withValues(alpha: 0.2),
+      baseColor: AppColorsDark.onSurface.withValues(alpha: 0.1),
+      highlightColor: AppColorsDark.onSurface.withValues(alpha: 0.2),
       child: Container(
         height: 16,
         width: width,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColorsDark.onSurface,
           borderRadius: BorderRadius.circular(4),
         ),
       ),
@@ -54,13 +55,13 @@ class MetadataShimmer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
-      baseColor: Colors.white.withValues(alpha: 0.1),
-      highlightColor: Colors.white.withValues(alpha: 0.2),
+      baseColor: AppColorsDark.onSurface.withValues(alpha: 0.1),
+      highlightColor: AppColorsDark.onSurface.withValues(alpha: 0.2),
       child: Container(
         height: 50,
         width: double.infinity,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColorsDark.onSurface,
           borderRadius: BorderRadius.circular(12),
         ),
       ),
@@ -98,13 +99,13 @@ class _ShimmerCircle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
-      baseColor: Colors.white.withValues(alpha: 0.1),
-      highlightColor: Colors.white.withValues(alpha: 0.2),
+      baseColor: AppColorsDark.onSurface.withValues(alpha: 0.1),
+      highlightColor: AppColorsDark.onSurface.withValues(alpha: 0.2),
       child: Container(
         width: size,
         height: size,
         decoration: const BoxDecoration(
-          color: Colors.white,
+          color: AppColorsDark.onSurface,
           shape: BoxShape.circle,
         ),
       ),

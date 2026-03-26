@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
+
 import '../atoms/queue_up_next_label.dart';
 
 /// Molecule: Header row for "Up Next" section
@@ -8,7 +10,9 @@ class QueueUpNextHeader extends StatelessWidget {
   final VoidCallback? onAutoRecommendationsTap;
 
   const QueueUpNextHeader({
-    required this.upNextLabel, required this.autoRecommendationsLabel, super.key,
+    required this.upNextLabel,
+    required this.autoRecommendationsLabel,
+    super.key,
     this.onAutoRecommendationsTap,
   });
 
@@ -24,7 +28,10 @@ class QueueUpNextHeader extends StatelessWidget {
             onPressed: onAutoRecommendationsTap,
             child: Text(
               autoRecommendationsLabel,
-              style: const TextStyle(color: Colors.white, fontSize: 12),
+              style: const TextStyle(
+                color: AppColorsDark.onSurface,
+                fontSize: 12,
+              ),
             ),
           ),
         ],

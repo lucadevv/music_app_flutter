@@ -19,5 +19,12 @@ class UserPlaylistEntity extends Equatable {
   });
 
   @override
-  List<Object?> get props => [id, name, description, thumbnail, trackCount, isOwner];
+  List<Object?> get props => [
+    id,
+    name,
+    description,
+    thumbnail,
+    trackCount,
+    isOwner,
+  ];
 }

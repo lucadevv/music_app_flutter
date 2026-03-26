@@ -9,7 +9,10 @@ class StatCardWidget extends StatelessWidget {
   final VoidCallback? onTap;
 
   const StatCardWidget({
-    required this.icon, required this.number, required this.label, super.key,
+    required this.icon,
+    required this.number,
+    required this.label,
+    super.key,
     this.onTap,
   });
 
@@ -24,7 +27,7 @@ class StatCardWidget extends StatelessWidget {
           Text(
             number,
             style: const TextStyle(
-              color: Colors.white,
+              color: AppColorsDark.onSurface,
               fontSize: 24,
               fontWeight: FontWeight.bold,
             ),
@@ -33,7 +36,7 @@ class StatCardWidget extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.6),
+              color: AppColorsDark.onSurface.withValues(alpha: 0.6),
               fontSize: 12,
             ),
           ),

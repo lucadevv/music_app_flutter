@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 
 class PlaylistLoadingMoreIndicator extends StatelessWidget {
   const PlaylistLoadingMoreIndicator({super.key});
@@ -11,7 +12,9 @@ class PlaylistLoadingMoreIndicator extends StatelessWidget {
         child: Center(
           child: CircularProgressIndicator(
             strokeWidth: 2,
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.white54),
+            valueColor: AlwaysStoppedAnimation<Color>(
+              AppColorsDark.onSurface54,
+            ),
           ),
         ),
       ),

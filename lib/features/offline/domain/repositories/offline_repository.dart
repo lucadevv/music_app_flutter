@@ -11,7 +11,10 @@ abstract class OfflineRepository {
   Future<Either<AppException, List<OfflineSongEntity>>> getDownloadedSongs();
 
   /// Download a song for offline use (requires streamUrl)
-  Future<Either<AppException, void>> downloadSong(OfflineSongEntity song, String streamUrl);
+  Future<Either<AppException, void>> downloadSong(
+    OfflineSongEntity song,
+    String streamUrl,
+  );
 
   /// Remove downloaded song
   Future<Either<AppException, void>> removeDownload(String videoId);
@@ -20,5 +23,7 @@ abstract class OfflineRepository {
   Future<Either<AppException, String>> getDownloadStatus(String videoId);
 
   /// Sync favorites when back online (requires server songs list)
-  Future<Either<AppException, void>> syncFavorites(List<Map<String, dynamic>> serverSongs);
+  Future<Either<AppException, void>> syncFavorites(
+    List<Map<String, dynamic>> serverSongs,
+  );
 }

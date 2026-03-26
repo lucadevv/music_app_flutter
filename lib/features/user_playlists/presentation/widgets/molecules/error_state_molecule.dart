@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/l10n/app_localizations.dart';
 
 class ErrorStateMolecule extends StatelessWidget {
@@ -21,7 +22,7 @@ class ErrorStateMolecule extends StatelessWidget {
         children: [
           Text(
             errorMessage ?? l10n.errorUnknown,
-            style: const TextStyle(color: Colors.white),
+            style: const TextStyle(color: AppColorsDark.onSurface),
           ),
           const SizedBox(height: 16),
           ElevatedButton(onPressed: onRetry, child: Text(l10n.retry)),

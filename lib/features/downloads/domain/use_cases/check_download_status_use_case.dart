@@ -1,3 +1,4 @@
+import 'package:dartz/dartz.dart';
 import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
 import 'package:music_app/features/downloads/domain/repositories/downloads_repository.dart';
 
@@ -10,12 +11,7 @@ class CheckDownloadStatusUseCase {
 
   CheckDownloadStatusUseCase(this._repository);
 
-  Future<(AppException?, bool)> call(String videoId) async {
-    final result = await _repository.isDownloaded(videoId);
-
-    return result.fold(
-      (error) => (error, false),
-      (isDownloaded) => (null, isDownloaded),
-    );
+  Future<Either<AppException, bool>> call(String videoId) async {
+    return _repository.isDownloaded(videoId);
   }
 }

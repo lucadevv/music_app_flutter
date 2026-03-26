@@ -7,8 +7,8 @@ import 'package:music_app/core/managers/auth/auth_manager.dart';
 import 'package:music_app/core/services/auth/auth_service.dart';
 import 'package:music_app/core/services/network/api_services.dart';
 import 'package:music_app/core/services/security/ssl_pinning_interceptor.dart';
-import 'package:music_app/features/auth/refresh_token/domain/entities/refresh_token_request.dart';
-import 'package:music_app/features/auth/refresh_token/domain/use_cases/refresh_token_use_case.dart';
+import 'package:music_app/features/auth/domain/entities/refresh_token_request.dart';
+import 'package:music_app/features/auth/domain/use_cases/refresh_token_use_case.dart';
 import 'package:music_app/main.dart';
 
 /// SOLID: Open/Closed Principle (OCP)
@@ -52,8 +52,6 @@ class DioApiServicesImpl implements ApiServices {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-         
-          
           // Obtener el access token actual del AuthManager
           try {
             final authManager = await getIt.getAsync<AuthManager>();
@@ -61,21 +59,14 @@ class DioApiServicesImpl implements ApiServices {
                 .getCurrentAccessToken();
             if (currentAccessToken != null && currentAccessToken.isNotEmpty) {
               options.headers['Authorization'] = 'Bearer $currentAccessToken';
-             
-            } else {
-             
-            }
+            } else {}
           } catch (e) {
-            if (kDebugMode) {
-             
-            }
+            if (kDebugMode) {}
           }
 
           return handler.next(options);
         },
         onError: (e, handler) async {
-        
-          
           final statusCode = e.response?.statusCode;
 
           // Solo considerar errores de token para códigos específicos
@@ -158,7 +149,6 @@ class DioApiServicesImpl implements ApiServices {
       final refreshToken = await authManager.getCurrentRefreshToken();
 
       if (refreshToken == null || refreshToken.isEmpty) {
-       
         _isRefreshing = false;
         _refreshTokenCompleter!.complete(false);
         _refreshTokenCompleter = null;
@@ -172,7 +162,6 @@ class DioApiServicesImpl implements ApiServices {
 
       return await response.fold(
         (failure) async {
-         
           _isRefreshing = false;
           _refreshTokenCompleter!.complete(false);
           _refreshTokenCompleter = null;
@@ -186,8 +175,6 @@ class DioApiServicesImpl implements ApiServices {
             isEmailVerified: refreshResponse.isEmailVerified,
           );
 
-        
-
           _isRefreshing = false;
           _refreshTokenCompleter!.complete(true);
           _refreshTokenCompleter = null;
@@ -195,7 +182,6 @@ class DioApiServicesImpl implements ApiServices {
         },
       );
     } catch (e) {
-    
       _isRefreshing = false;
       _refreshTokenCompleter!.complete(false);
       _refreshTokenCompleter = null;
@@ -226,7 +212,6 @@ class DioApiServicesImpl implements ApiServices {
       _handleAuthErrorCompleter!.complete();
       _handleAuthErrorCompleter = null;
     } catch (e) {
-      
       // Intentar logout aunque falle clearAuthData
       try {
         final authManager = await getIt.getAsync<AuthManager>();
@@ -299,24 +284,18 @@ class DioApiServicesImpl implements ApiServices {
     int attempts = 0;
     DioException? lastError;
 
-    
-
     while (attempts < maxRetries) {
       try {
-      
         return await request();
       } on DioException catch (e) {
         lastError = e;
         attempts++;
-
-        
 
         // No hacer retry para errores 4xx (excepto 401 que ya se maneja en el interceptor)
         if (e.response?.statusCode != null &&
             e.response!.statusCode! >= 400 &&
             e.response!.statusCode! < 500 &&
             e.response!.statusCode != 401) {
-          
           rethrow;
         }
 

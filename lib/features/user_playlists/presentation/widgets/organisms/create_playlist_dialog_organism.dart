@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/l10n/app_localizations.dart';
@@ -21,8 +22,8 @@ class CreatePlaylistDialogOrganism extends StatelessWidget {
       context: context,
       builder: (dialogContext) => CreatePlaylistDialogOrganism(
         nameController: nameController,
-        onCancel: () => Navigator.pop(dialogContext),
-        onCreate: () => Navigator.pop(dialogContext, nameController.text),
+        onCancel: () => dialogContext.router.maybePop(),
+        onCreate: () => dialogContext.router.maybePop(nameController.text),
       ),
     );
 
@@ -37,16 +38,20 @@ class CreatePlaylistDialogOrganism extends StatelessWidget {
       backgroundColor: AppColorsDark.surfaceContainerHigh,
       title: Text(
         l10n.createPlaylist,
-        style: const TextStyle(color: Colors.white),
+        style: const TextStyle(color: AppColorsDark.onSurface),
       ),
       content: TextField(
         controller: nameController,
-        style: const TextStyle(color: Colors.white),
+        style: const TextStyle(color: AppColorsDark.onSurface),
         decoration: InputDecoration(
           hintText: l10n.playlistName,
-          hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.5)),
+          hintStyle: TextStyle(
+            color: AppColorsDark.onSurface.withValues(alpha: 0.5),
+          ),
           enabledBorder: UnderlineInputBorder(
-            borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
+            borderSide: BorderSide(
+              color: AppColorsDark.onSurface.withValues(alpha: 0.3),
+            ),
           ),
           focusedBorder: const UnderlineInputBorder(
             borderSide: BorderSide(color: AppColorsDark.primary),

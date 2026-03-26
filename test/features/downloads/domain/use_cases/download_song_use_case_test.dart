@@ -46,7 +46,9 @@ void main() {
         duration: const Duration(minutes: 3),
         onProgress: (_) {},
       );
-      final (error, song) = await useCase(params);
+      final result = await useCase(params);
+      final error = result.fold((l) => l, (r) => null);
+      final song = result.fold((l) => null, (r) => r);
 
       // Assert
       expect(error, isNull);
@@ -79,7 +81,9 @@ void main() {
         duration: const Duration(minutes: 3),
         onProgress: (_) {},
       );
-      final (error, song) = await useCase(params);
+      final result = await useCase(params);
+      final error = result.fold((l) => l, (r) => null);
+      final song = result.fold((l) => null, (r) => r);
 
       // Assert
       expect(error, isNotNull);
@@ -156,7 +160,8 @@ void main() {
         duration: const Duration(minutes: 3),
         onProgress: (_) {},
       );
-      final (error, _) = await useCase(params);
+      final result = await useCase(params);
+      final error = result.fold((l) => l, (r) => null);
 
       // Assert
       expect(error, isA<ServerException>());

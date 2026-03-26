@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 
 /// Átomo: Botón de like
 class LikeButton extends StatelessWidget {
@@ -12,7 +13,7 @@ class LikeButton extends StatelessWidget {
     return IconButton(
       icon: Icon(
         isLiked ? Icons.favorite : Icons.favorite_border,
-        color: isLiked ? Colors.red : Colors.white,
+        color: isLiked ? AppColorsDark.error : AppColorsDark.onSurface,
       ),
       onPressed: onPressed,
     );

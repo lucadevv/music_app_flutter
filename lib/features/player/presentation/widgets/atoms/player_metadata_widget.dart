@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
+
 import '../organisms/player_shimmer_widgets.dart';
 
 /// Widget para mostrar metadata de la canción (views, explicit)
@@ -25,7 +27,7 @@ class PlayerMetadataWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
+        color: AppColorsDark.onSurface.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -34,13 +36,13 @@ class PlayerMetadataWidget extends StatelessWidget {
           Icon(
             Icons.visibility,
             size: 16,
-            color: Colors.white.withValues(alpha: 0.6),
+            color: AppColorsDark.onSurface.withValues(alpha: 0.6),
           ),
           const SizedBox(width: 4),
           Text(
             track.views,
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.8),
+              color: AppColorsDark.onSurface.withValues(alpha: 0.8),
               fontSize: 14,
             ),
           ),
@@ -49,13 +51,13 @@ class PlayerMetadataWidget extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
+                color: AppColorsDark.onSurface.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: const Text(
                 'E',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: AppColorsDark.onSurface,
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
                 ),

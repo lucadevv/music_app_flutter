@@ -7,11 +7,15 @@ class SearchResponseModel extends SearchResponse {
 
   factory SearchResponseModel.fromJson(Map<String, dynamic> json) {
     final resultsList = json['results'] as List<dynamic>? ?? [];
-    
+
     final parsedResults = resultsList
         .whereType<Map<String, dynamic>>()
         .map((result) {
-          try { return SongModel.fromJson(result); } catch (_) { return null; }
+          try {
+            return SongModel.fromJson(result);
+          } catch (_) {
+            return null;
+          }
         })
         .whereType<SongModel>()
         .toList();

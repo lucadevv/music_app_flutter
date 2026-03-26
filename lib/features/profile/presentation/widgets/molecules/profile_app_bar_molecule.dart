@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/l10n/app_localizations.dart';
 
 /// Molécula que muestra el AppBar del perfil con título, botón de back y acciones.
@@ -10,7 +11,9 @@ class ProfileAppBarMolecule extends StatelessWidget
   final String? logoutText;
 
   const ProfileAppBarMolecule({
-    required this.title, required this.onBack, super.key,
+    required this.title,
+    required this.onBack,
+    super.key,
     this.onLogout,
     this.logoutText,
   });
@@ -28,13 +31,16 @@ class ProfileAppBarMolecule extends StatelessWidget
       title: Text(
         title,
         style: const TextStyle(
-          color: Colors.white,
+          color: AppColorsDark.onSurface,
           fontSize: 20,
           fontWeight: FontWeight.bold,
         ),
       ),
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+        icon: const Icon(
+          Icons.arrow_back_ios_new,
+          color: AppColorsDark.onSurface,
+        ),
         onPressed: onBack,
       ),
       actions: [
@@ -43,7 +49,7 @@ class ProfileAppBarMolecule extends StatelessWidget
             onPressed: onLogout,
             child: Text(
               logoutText ?? l10n.exit,
-              style: const TextStyle(color: Colors.red, fontSize: 16),
+              style: const TextStyle(color: AppColorsDark.error, fontSize: 16),
             ),
           ),
       ],

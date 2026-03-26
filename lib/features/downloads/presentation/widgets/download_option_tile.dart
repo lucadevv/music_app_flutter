@@ -1,4 +1,6 @@
 import 'dart:async';
+
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,6 +9,7 @@ import 'package:music_app/core/services/network/api_services.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/core/utils/bottom_sheet_visibility.dart';
 import 'package:music_app/features/downloads/presentation/cubit/downloads_cubit.dart';
+import 'package:music_app/l10n/app_localizations.dart';
 
 /// Widget de opción de descarga para usar en menús de 3 puntos
 ///
@@ -132,7 +135,10 @@ class _DownloadOptionTileState extends State<DownloadOptionTile> {
           height: 24,
           child: CircularProgressIndicator(strokeWidth: 2),
         ),
-        title: Text('Cargando...', style: TextStyle(color: Colors.white)),
+        title: Text(
+          'Cargando...',
+          style: TextStyle(color: AppColorsDark.onSurface),
+        ),
       );
     }
 
@@ -190,7 +196,7 @@ class _DownloadOptionTileState extends State<DownloadOptionTile> {
         ),
         title: Text(
           'Descargando... ${(progress * 100).toInt()}%',
-          style: const TextStyle(color: Colors.white),
+          style: const TextStyle(color: AppColorsDark.onSurface),
         ),
         onTap: () {
           _cubit?.removeDownload(widget.videoId);
@@ -212,7 +218,7 @@ class _DownloadOptionTileState extends State<DownloadOptionTile> {
         ),
         subtitle: const Text(
           'Disponible offline',
-          style: TextStyle(color: Colors.white54, fontSize: 12),
+          style: TextStyle(color: AppColorsDark.onSurface54, fontSize: 12),
         ),
         onTap: _showDownloadedOptions,
       );
@@ -228,14 +234,20 @@ class _DownloadOptionTileState extends State<DownloadOptionTile> {
         ),
         title: Text(
           'Obteniendo URL de descarga...',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: AppColorsDark.onSurface),
         ),
       );
     }
 
     return ListTile(
-      leading: Icon(widget.icon, color: widget.iconColor ?? Colors.white70),
-      title: Text(widget.label, style: const TextStyle(color: Colors.white)),
+      leading: Icon(
+        widget.icon,
+        color: widget.iconColor ?? AppColorsDark.onSurface70,
+      ),
+      title: Text(
+        widget.label,
+        style: const TextStyle(color: AppColorsDark.onSurface),
+      ),
       onTap: _startDownload,
     );
   }
@@ -250,8 +262,8 @@ class _DownloadOptionTileState extends State<DownloadOptionTile> {
     if (streamUrl == null || streamUrl.isEmpty) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('No se pudo obtener la URL de descarga'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.errorDownloadUrl),
           ),
         );
       }
@@ -284,24 +296,27 @@ class _DownloadOptionTileState extends State<DownloadOptionTile> {
             ListTile(
               leading: const Icon(
                 Icons.play_circle_outline,
-                color: Colors.white,
+                color: AppColorsDark.onSurface,
               ),
               title: const Text(
                 'Reproducir offline',
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: AppColorsDark.onSurface),
               ),
               onTap: () {
-                Navigator.pop(bottomSheetContext);
+                bottomSheetContext.router.maybePop();
               },
             ),
             ListTile(
-              leading: Icon(Icons.delete_outline, color: Colors.red.shade300),
+              leading: Icon(
+                Icons.delete_outline,
+                color: AppColorsDark.error.withValues(alpha: 0.7),
+              ),
               title: Text(
                 'Eliminar descarga',
-                style: TextStyle(color: Colors.red.shade300),
+                style: TextStyle(color: AppColorsDark.error.withValues(alpha: 0.7)),
               ),
               onTap: () {
-                Navigator.pop(bottomSheetContext);
+                bottomSheetContext.router.maybePop();
                 _cubit?.removeDownload(widget.videoId);
               },
             ),

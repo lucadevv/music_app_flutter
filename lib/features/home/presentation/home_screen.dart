@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/home/domain/entities/home_content_item.dart';
 import 'package:music_app/features/home/presentation/cubit/home_cubit.dart'
     show HomeCubit, HomeStatus;
@@ -13,6 +14,7 @@ import 'package:music_app/features/home/presentation/widgets/organisms/home_list
 import 'package:music_app/features/home/presentation/widgets/organisms/home_loading_widget.dart';
 import 'package:music_app/features/home/presentation/widgets/organisms/home_section_widget.dart';
 import 'package:music_app/features/profile/presentation/cubit/profile_cubit.dart';
+import 'package:music_app/l10n/app_localizations.dart';
 
 @RoutePage()
 class HomeScreen extends StatefulWidget {
@@ -87,8 +89,8 @@ class _HomeScreenState extends State<HomeScreen> {
               return RefreshIndicator(
                 key: _refreshIndicatorKey,
                 onRefresh: _onRefresh,
-                color: Colors.white,
-                backgroundColor: Colors.black54,
+                color: AppColorsDark.onSurface,
+                backgroundColor: AppColorsDark.surfaceDim54,
                 child: CustomScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   slivers: [
@@ -159,13 +161,13 @@ class _HomeScreenState extends State<HomeScreen> {
           Icon(
             Icons.search_off,
             size: 64,
-            color: Colors.white.withValues(alpha: 0.5),
+            color: AppColorsDark.onSurface.withValues(alpha: 0.5),
           ),
           const SizedBox(height: 16),
           Text(
             message,
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.7),
+              color: AppColorsDark.onSurface.withValues(alpha: 0.7),
               fontSize: 16,
             ),
             textAlign: TextAlign.center,
@@ -174,10 +176,10 @@ class _HomeScreenState extends State<HomeScreen> {
           ElevatedButton.icon(
             onPressed: _onRefresh,
             icon: const Icon(Icons.refresh),
-            label: const Text('Retry'),
+            label: Text(AppLocalizations.of(context)!.retry),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white24,
-              foregroundColor: Colors.white,
+              backgroundColor: AppColorsDark.onSurface24,
+              foregroundColor: AppColorsDark.onSurface,
             ),
           ),
         ],

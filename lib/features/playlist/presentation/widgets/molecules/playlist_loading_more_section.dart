@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/playlist/presentation/cubit/playlist_state.dart';
 import 'package:music_app/features/playlist/presentation/widgets/molecules/playlist_load_more_button.dart';
 
@@ -10,7 +11,12 @@ class PlaylistLoadingMoreSection extends StatelessWidget {
   final VoidCallback onLoadMore;
 
   const PlaylistLoadingMoreSection({
-    required this.status, required this.hasMore, required this.loadedCount, required this.totalCount, required this.onLoadMore, super.key,
+    required this.status,
+    required this.hasMore,
+    required this.loadedCount,
+    required this.totalCount,
+    required this.onLoadMore,
+    super.key,
   });
 
   @override
@@ -22,7 +28,9 @@ class PlaylistLoadingMoreSection extends StatelessWidget {
           child: Center(
             child: CircularProgressIndicator(
               strokeWidth: 2,
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.white54),
+              valueColor: AlwaysStoppedAnimation<Color>(
+                AppColorsDark.onSurface54,
+              ),
             ),
           ),
         ),

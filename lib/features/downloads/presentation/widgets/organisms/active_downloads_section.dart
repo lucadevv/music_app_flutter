@@ -11,7 +11,10 @@ class ActiveDownloadsSection extends StatelessWidget {
   final AppLocalizations l10n;
 
   const ActiveDownloadsSection({
-    required this.downloadingIds, required this.downloadProgress, required this.l10n, super.key,
+    required this.downloadingIds,
+    required this.downloadProgress,
+    required this.l10n,
+    super.key,
   });
 
   @override

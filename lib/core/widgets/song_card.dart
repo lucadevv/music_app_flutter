@@ -10,7 +10,11 @@ class SongCard extends StatelessWidget {
   final double height;
 
   const SongCard({
-    required this.title, required this.artist, required this.imageUrl, required this.onTap, super.key,
+    required this.title,
+    required this.artist,
+    required this.imageUrl,
+    required this.onTap,
+    super.key,
     this.width = 160,
     this.height = 200,
   });
@@ -18,7 +22,7 @@ class SongCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return GestureDetector(
       onTap: onTap,
       child: Container(

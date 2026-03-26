@@ -1,4 +1,3 @@
-// ignore_for_file: use_late_for_private_fields_and_variables
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -9,189 +8,71 @@ import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/dashboard/presentation/bloc/player_bloc_bloc.dart';
 import 'package:music_app/features/home/presentation/widgets/organisms/home_shimmer.dart';
 import 'package:music_app/features/player/domain/entities/now_playing_data.dart';
-import 'package:music_app/features/player/domain/entities/radio_track_entity.dart';
 import 'package:music_app/features/player/domain/usecases/get_radio_playlist_usecase.dart';
+import 'package:music_app/features/player/presentation/cubit/similar_songs/similar_songs_cubit.dart';
 import 'package:music_app/l10n/app_localizations.dart';
 
 /// Widget para mostrar canciones de radio (similares)
 ///
-/// SOLID: Single Responsibility Principle (SRP)
-/// Responsable única: Mostrar lista de canciones de radio basadas en la canción actual
-class PlayerSimilarSongsWidget extends StatefulWidget {
+/// Refactorizado arquitectónicamente para delegar al Cubit.
+class PlayerSimilarSongsWidget extends StatelessWidget {
   final String videoId;
 
   const PlayerSimilarSongsWidget({required this.videoId, super.key});
 
   @override
-  State<PlayerSimilarSongsWidget> createState() =>
-      _PlayerSimilarSongsWidgetState();
+  Widget build(BuildContext context) {
+    if (videoId.isEmpty) return const SizedBox.shrink();
+
+    return BlocProvider(
+      key: ValueKey(videoId),
+      create: (_) =>
+          SimilarSongsCubit(GetIt.I<GetRadioPlaylistUseCase>())
+            ..loadSimilarSongs(videoId),
+      child: const _PlayerSimilarSongsContent(),
+    );
+  }
 }
 
-class _PlayerSimilarSongsWidgetState extends State<PlayerSimilarSongsWidget> {
-  late final GetRadioPlaylistUseCase _getRadioPlaylistUseCase;
-  List<RadioTrackEntity> _radioTracks = [];
-  bool _isLoading = true;
-  String? _error;
-  bool _isDisposed = false;
-  //   String? _currentLoadingVideoId; // Track which videoId is being loaded
-
-  @override
-  void initState() {
-    super.initState();
-    _getRadioPlaylistUseCase = GetIt.I<GetRadioPlaylistUseCase>();
-    //     _currentLoadingVideoId = widget.videoId;
-    _loadRadioPlaylist();
-  }
-
-  @override
-  void dispose() {
-    _isDisposed = true;
-    super.dispose();
-  }
-
-  @override
-  void didUpdateWidget(PlayerSimilarSongsWidget oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.videoId != widget.videoId) {
-      // Reset state immediately for new videoId
-      //       _currentLoadingVideoId = widget.videoId;
-      _radioTracks = [];
-      _error = null;
-      _isLoading = true;
-      _loadRadioPlaylist();
-    }
-  }
-
-  Future<void> _loadRadioPlaylist() async {
-    if (_isDisposed) return;
-
-    // Guardar el videoId actual que se va a cargar
-    final loadingVideoId = widget.videoId;
-
-    // No cargar si el videoId está vacío
-    if (loadingVideoId.isEmpty) {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-          _radioTracks = [];
-        });
-      }
-      return;
-    }
-
-    if (mounted) {
-      setState(() {
-        _isLoading = true;
-        _error = null;
-      });
-    }
-
-    try {
-      final result = await _getRadioPlaylistUseCase(loadingVideoId, limit: 10);
-
-      if (_isDisposed) return;
-
-      // Verificar que el videoId sigue siendo el mismo antes de actualizar
-      if (widget.videoId != loadingVideoId) {
-        // El videoId cambió mientras cargábamos, ignorar esta respuesta
-        return;
-      }
-
-      result.fold(
-        (error) {
-          if (mounted) {
-            setState(() {
-              _error = error.message;
-              _isLoading = false;
-              _radioTracks = [];
-            });
-          }
-        },
-        (tracks) {
-          if (mounted) {
-            setState(() {
-              _radioTracks = tracks;
-              _isLoading = false;
-            });
-          }
-        },
-      );
-    } catch (e) {
-      if (_isDisposed) return;
-
-      // Verificar que el videoId sigue siendo el mismo
-      if (widget.videoId != loadingVideoId) {
-        return;
-      }
-
-      // Ignorar errores de cancelación/interrupción de conexión
-      final errorString = e.toString().toLowerCase();
-      final isIgnorableError =
-          errorString.contains('cancelled') ||
-          errorString.contains('interrupted') ||
-          errorString.contains('loading interrupted') ||
-          errorString.contains('connection') &&
-              errorString.contains('closed') ||
-          errorString.contains('socketexception') ||
-          errorString.contains('timeout') ||
-          errorString.contains('resetear player') ||
-          errorString.contains('bad response') ||
-          errorString.contains('500') ||
-          errorString.contains('502') ||
-          errorString.contains('503') ||
-          errorString.contains('dioexception');
-
-      if (isIgnorableError) {
-        // No mostrar error al usuario, simplemente cargar en silencio
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-            _radioTracks = [];
-          });
-        }
-        return;
-      }
-
-      if (mounted) {
-        setState(() {
-          _error = e.toString();
-          _isLoading = false;
-        });
-      }
-    }
-  }
+class _PlayerSimilarSongsContent extends StatelessWidget {
+  const _PlayerSimilarSongsContent();
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 16),
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              l10n.songsSimilarToThis,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+    return BlocBuilder<SimilarSongsCubit, SimilarSongsState>(
+      builder: (context, state) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 16),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  l10n.songsSimilarToThis,
+                  style: const TextStyle(
+                    color: AppColorsDark.onSurface,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
-        const SizedBox(height: 16),
-        if (_isLoading)
-          _buildLoadingState()
-        else if (_error != null)
-          _buildErrorState()
-        else if (_radioTracks.isEmpty)
-          _buildEmptyState()
-        else
-          _buildTracksList(),
-      ],
+            const SizedBox(height: 16),
+            if (state.status == SimilarSongsStatus.loading ||
+                state.status == SimilarSongsStatus.initial)
+              _buildLoadingState()
+            else if (state.status == SimilarSongsStatus.failure)
+              _buildErrorState(state.error)
+            else if (state.tracks.isEmpty)
+              _buildEmptyState()
+            else
+              _buildTracksList(context, state),
+          ],
+        );
+      },
     );
   }
 
@@ -207,13 +88,13 @@ class _PlayerSimilarSongsWidgetState extends State<PlayerSimilarSongsWidget> {
     );
   }
 
-  Widget _buildErrorState() {
+  Widget _buildErrorState(String? error) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16),
       child: Text(
-        _error ?? 'Error loading radio',
+        error ?? 'Error loading radio',
         style: TextStyle(
-          color: Colors.white.withValues(alpha: 0.6),
+          color: AppColorsDark.onSurface.withValues(alpha: 0.6),
           fontSize: 14,
         ),
       ),
@@ -226,37 +107,30 @@ class _PlayerSimilarSongsWidgetState extends State<PlayerSimilarSongsWidget> {
       child: Text(
         'No similar songs found',
         style: TextStyle(
-          color: Colors.white.withValues(alpha: 0.6),
+          color: AppColorsDark.onSurface.withValues(alpha: 0.6),
           fontSize: 14,
         ),
       ),
     );
   }
 
-  Widget _buildTracksList() {
+  Widget _buildTracksList(BuildContext context, SimilarSongsState state) {
     return Column(
-      children: _radioTracks.map((track) {
-        final title = track.title;
-        final videoId = track.videoId;
-        final artist = track.displayArtist;
-        final thumbnailUrl = track.thumbnail;
-        final streamUrl = track.streamUrl;
-        final duration = track.length ?? '0:00';
-        final durationSeconds = track.durationSeconds;
-
+      children: state.tracks.map((track) {
         return _SimilarSongItem(
-          title: title,
-          artist: artist,
-          videoId: videoId,
-          thumbnail: thumbnailUrl,
-          durationSeconds: durationSeconds,
+          title: track.title,
+          artist: track.displayArtist,
+          videoId: track.videoId,
+          thumbnail: track.thumbnail,
+          durationSeconds: track.durationSeconds,
           onTap: () => _playTrack(
-            videoId: videoId,
-            title: title,
-            artist: artist,
-            thumbnailUrl: thumbnailUrl,
-            streamUrl: streamUrl,
-            duration: duration,
+            context: context,
+            videoId: track.videoId,
+            title: track.title,
+            artist: track.displayArtist,
+            thumbnailUrl: track.thumbnail,
+            streamUrl: track.streamUrl,
+            duration: track.length ?? '0:00',
           ),
         );
       }).toList(),
@@ -264,6 +138,7 @@ class _PlayerSimilarSongsWidgetState extends State<PlayerSimilarSongsWidget> {
   }
 
   Future<void> _playTrack({
+    required BuildContext context,
     required String videoId,
     required String title,
     required String artist,
@@ -271,7 +146,6 @@ class _PlayerSimilarSongsWidgetState extends State<PlayerSimilarSongsWidget> {
     required String? streamUrl,
     required String duration,
   }) async {
-    // Convert duration string to seconds (handles "M:SS" and "H:MM:SS" formats)
     int durationSeconds = 0;
     try {
       final parts = duration.split(':');
@@ -285,7 +159,6 @@ class _PlayerSimilarSongsWidgetState extends State<PlayerSimilarSongsWidget> {
       }
     } catch (_) {}
 
-    // ✅ Fetch streamUrl on demand si no existe
     String? resolvedStreamUrl = streamUrl;
     if (resolvedStreamUrl == null || resolvedStreamUrl.isEmpty) {
       resolvedStreamUrl = await _fetchStreamUrl(videoId);
@@ -302,18 +175,18 @@ class _PlayerSimilarSongsWidgetState extends State<PlayerSimilarSongsWidget> {
       streamUrl: resolvedStreamUrl,
     );
 
-    if (mounted) {
+    if (context.mounted) {
       context.read<PlayerBlocBloc>().add(
         LoadTrackEvent(nowPlayingData, sourceId: 'radio'),
       );
     }
   }
 
-  /// Fetch streamUrl desde el backend
   Future<String?> _fetchStreamUrl(String videoId) async {
     try {
       final apiServices = GetIt.I.get<ApiServices>();
       final response = await apiServices.get('/music/stream/$videoId');
+      // ignore: avoid_dynamic_calls
       final data = response is Map ? response : (response.data as Map?);
       return data?['streamUrl'] as String?;
     } catch (e) {
@@ -324,8 +197,6 @@ class _PlayerSimilarSongsWidgetState extends State<PlayerSimilarSongsWidget> {
     }
   }
 }
-
-// Removed _parseDurationToSeconds as it was unused
 
 class _SimilarSongItem extends StatelessWidget {
   final String title;
@@ -371,7 +242,7 @@ class _SimilarSongItem extends StatelessWidget {
       title: Text(
         title,
         style: const TextStyle(
-          color: Colors.white,
+          color: AppColorsDark.onSurface,
           fontSize: 15,
           fontWeight: FontWeight.w500,
         ),
@@ -381,7 +252,7 @@ class _SimilarSongItem extends StatelessWidget {
       subtitle: Text(
         artist,
         style: TextStyle(
-          color: Colors.white.withValues(alpha: 0.6),
+          color: AppColorsDark.onSurface.withValues(alpha: 0.6),
           fontSize: 13,
         ),
         maxLines: 1,
@@ -391,7 +262,7 @@ class _SimilarSongItem extends StatelessWidget {
           ? Text(
               durationText,
               style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.6),
+                color: AppColorsDark.onSurface.withValues(alpha: 0.6),
                 fontSize: 13,
               ),
             )

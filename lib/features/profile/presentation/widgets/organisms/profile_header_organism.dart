@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:music_app/core/app_router/app_routes.gr.dart';
+import 'package:music_app/core/theme/app_colors_dark.dart';
 import 'package:music_app/features/profile/presentation/widgets/atoms/profile_avatar_atom.dart';
 
 class ProfileHeaderOrganism extends StatelessWidget {
@@ -10,7 +11,10 @@ class ProfileHeaderOrganism extends StatelessWidget {
   final String? avatarUrl;
 
   const ProfileHeaderOrganism({
-    required this.displayName, required this.email, required this.initials, super.key,
+    required this.displayName,
+    required this.email,
+    required this.initials,
+    super.key,
     this.avatarUrl,
   });
 
@@ -22,7 +26,7 @@ class ProfileHeaderOrganism extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 24),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.05),
+          color: AppColorsDark.onSurface.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
@@ -36,7 +40,7 @@ class ProfileHeaderOrganism extends StatelessWidget {
                   Text(
                     displayName,
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: AppColorsDark.onSurface,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
@@ -45,7 +49,7 @@ class ProfileHeaderOrganism extends StatelessWidget {
                   Text(
                     email,
                     style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.6),
+                      color: AppColorsDark.onSurface.withValues(alpha: 0.6),
                       fontSize: 14,
                     ),
                   ),
@@ -54,7 +58,7 @@ class ProfileHeaderOrganism extends StatelessWidget {
             ),
             Icon(
               Icons.chevron_right,
-              color: Colors.white.withValues(alpha: 0.3),
+              color: AppColorsDark.onSurface.withValues(alpha: 0.3),
             ),
           ],
         ),

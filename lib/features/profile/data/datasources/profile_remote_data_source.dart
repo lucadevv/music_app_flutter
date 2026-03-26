@@ -33,11 +33,7 @@ class ProfileRemoteDataSource {
     try {
       final response = await _api.put(
         '/auth/me',
-        data: {
-          'name': ?name,
-          'email': ?email,
-          'avatar': ?avatar,
-        },
+        data: {'name': ?name, 'email': ?email, 'avatar': ?avatar},
       );
       final data = response is Response ? response.data : response;
       return UserProfileModel.fromJson(data);

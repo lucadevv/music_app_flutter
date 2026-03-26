@@ -1,158 +1,129 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app/core/theme/app_colors_dark.dart';
-import 'package:music_app/core/utils/exeptions/app_exceptions.dart';
-import 'package:music_app/features/library/data/models/library_models.dart';
-import 'package:music_app/features/library/domain/use_cases/add_song_to_user_playlist_use_case.dart';
-import 'package:music_app/features/library/domain/use_cases/create_user_playlist_use_case.dart';
-import 'package:music_app/features/library/domain/use_cases/get_user_playlists_use_case.dart'
-    as lib_usecase;
+import 'package:music_app/features/song_options/domain/use_cases/add_to_playlist_use_case.dart';
+import 'package:music_app/features/song_options/domain/use_cases/create_playlist_use_case.dart';
+import 'package:music_app/features/song_options/domain/use_cases/get_user_playlists_use_case.dart';
+import 'package:music_app/features/song_options/presentation/cubit/playlist_dialog_cubit.dart';
 import 'package:music_app/features/song_options/presentation/widgets/atoms/error_widget_atom.dart';
 import 'package:music_app/features/song_options/presentation/widgets/molecules/playlist_tile_molecule.dart';
 import 'package:music_app/features/song_options/presentation/widgets/song_options_bottom_sheet.dart'
     show SongOptionsData;
+import 'package:music_app/features/user_playlists/domain/entities/user_playlist_entity.dart';
 import 'package:music_app/l10n/app_localizations.dart';
 import 'package:music_app/main.dart';
 
 /// Organism: Add to playlist dialog content
-class AddToPlaylistDialogOrganism extends StatefulWidget {
+/// Refactorizado arquitectónicamente para delegar en `PlaylistDialogCubit`
+class AddToPlaylistDialogOrganism extends StatelessWidget {
   final SongOptionsData song;
   final VoidCallback? onSongAdded;
   final VoidCallback? onPlaylistCreated;
 
   const AddToPlaylistDialogOrganism({
-    required this.song, super.key,
+    required this.song,
+    super.key,
     this.onSongAdded,
     this.onPlaylistCreated,
   });
 
   @override
-  State<AddToPlaylistDialogOrganism> createState() =>
-      _AddToPlaylistDialogOrganismState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => PlaylistDialogCubit(
+        getUserPlaylistsUseCase: getIt<GetUserPlaylistsUseCase>(),
+        addToPlaylistUseCase: getIt<AddToPlaylistUseCase>(),
+        createPlaylistUseCase: getIt<CreatePlaylistUseCase>(),
+      )..loadPlaylists(),
+      child: _AddToPlaylistDialogContent(
+        song: song,
+        onSongAdded: onSongAdded,
+        onPlaylistCreated: onPlaylistCreated,
+      ),
+    );
+  }
 }
 
-class _AddToPlaylistDialogOrganismState
-    extends State<AddToPlaylistDialogOrganism> {
-  final _getUserPlaylistsUseCase = getIt<lib_usecase.GetUserPlaylistsUseCase>();
-  final _addSongToPlaylistUseCase = getIt<AddSongToUserPlaylistUseCase>();
-  List<UserPlaylist> _playlists = [];
-  bool _isLoading = true;
-  String? _error;
-  String _searchQuery = '';
+class _AddToPlaylistDialogContent extends StatefulWidget {
+  final SongOptionsData song;
+  final VoidCallback? onSongAdded;
+  final VoidCallback? onPlaylistCreated;
+
+  const _AddToPlaylistDialogContent({
+    required this.song,
+    this.onSongAdded,
+    this.onPlaylistCreated,
+  });
 
   @override
-  void initState() {
-    super.initState();
-    _loadPlaylists();
-  }
+  State<_AddToPlaylistDialogContent> createState() =>
+      _AddToPlaylistDialogContentState();
+}
 
-  Future<void> _loadPlaylists() async {
-    final result = await _getUserPlaylistsUseCase(limit: 50);
-    if (mounted) {
-      result.fold(
-        (error) {
-          setState(() {
-            _error = _getErrorMessageFromAppException(error);
-            _isLoading = false;
-          });
-        },
-        (playlists) {
-          setState(() {
-            _playlists = playlists;
-            _error = null;
-            _isLoading = false;
-          });
-        },
-      );
-    }
-  }
-
-  String _getErrorMessageFromAppException(AppException error) {
-    final errorStr = error.message;
-    if (errorStr.contains('SocketException') ||
-        errorStr.contains('Connection')) {
-      return 'Sin conexión a internet';
-    } else if (errorStr.contains('TimeoutException')) {
-      return 'Tiempo de espera agotado';
-    } else if (errorStr.contains('401')) {
-      return 'Sesión expirada';
-    } else if (errorStr.contains('403')) {
-      return 'No tienes permiso para esta acción';
-    } else if (errorStr.contains('404')) {
-      return 'Playlist no encontrada';
-    } else if (errorStr.contains('409')) {
-      return 'La canción ya está en esta playlist';
-    }
-    return errorStr.isNotEmpty ? errorStr : 'Error al cargar las playlists';
-  }
-
-
-
-  Future<void> _addSongToPlaylist(UserPlaylist playlist) async {
-    final result = await _addSongToPlaylistUseCase(
-      playlist.id,
-      videoId: widget.song.videoId,
-      title: widget.song.title,
-      artist: widget.song.artist,
-      thumbnail: widget.song.thumbnail,
-      duration: widget.song.durationSeconds,
-    );
-
-    if (mounted) {
-      result.fold(
-        (error) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Error: ${_getErrorMessageFromAppException(error)}',
-              ),
-              backgroundColor: Colors.red,
-            ),
-          );
-        },
-        (_) {
-          Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('${widget.song.title} agregada a ${playlist.name}'),
-              backgroundColor: AppColorsDark.primary,
-            ),
-          );
-          widget.onSongAdded?.call();
-        },
-      );
-    }
-  }
-
-  List<UserPlaylist> get _filteredPlaylists {
-    if (_searchQuery.isEmpty) return _playlists;
-    return _playlists
-        .where((p) => p.name.toLowerCase().contains(_searchQuery.toLowerCase()))
-        .toList();
-  }
+class _AddToPlaylistDialogContentState
+    extends State<_AddToPlaylistDialogContent> {
+  String _searchQuery = '';
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return Container(
-      constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.7,
-      ),
-      padding: EdgeInsets.only(
-        top: 16,
-        bottom: MediaQuery.of(context).padding.bottom + 16,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildHeader(context, l10n),
-          const Divider(color: Colors.white24),
-          _buildSearchField(l10n),
-          const SizedBox(height: 8),
-          Expanded(child: _buildContent(l10n)),
-        ],
-      ),
+    return BlocConsumer<PlaylistDialogCubit, PlaylistDialogState>(
+      listener: (context, state) {
+        if (state is PlaylistDialogError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                '${AppLocalizations.of(context)!.errorOccurred}: ${state.message}',
+              ),
+              backgroundColor: AppColorsDark.error,
+            ),
+          );
+        } else if (state is PlaylistDialogSongAdded) {
+          context.router.maybePop();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('${widget.song.title} agregada exitosamente'),
+              backgroundColor: AppColorsDark.primary,
+            ),
+          );
+          widget.onSongAdded?.call();
+        } else if (state is PlaylistDialogPlaylistCreated) {
+          widget.onPlaylistCreated?.call();
+          // After creating, automatically add the song to the new playlist
+          context.read<PlaylistDialogCubit>().addSongToPlaylist(
+            playlistId: state.playlist.id,
+            videoId: widget.song.videoId,
+            title: widget.song.title,
+            artist: widget.song.artist,
+            thumbnail: widget.song.thumbnail,
+            duration: widget.song.durationSeconds,
+          );
+        }
+      },
+      builder: (context, state) {
+        return Container(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.7,
+          ),
+          padding: EdgeInsets.only(
+            top: 16,
+            bottom: MediaQuery.of(context).padding.bottom + 16,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHeader(context, l10n),
+              const Divider(color: AppColorsDark.onSurface24),
+              _buildSearchField(context, l10n, state),
+              const SizedBox(height: 8),
+              Expanded(child: _buildContent(context, l10n, state)),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -165,37 +136,44 @@ class _AddToPlaylistDialogOrganismState
           Text(
             l10n.addToPlaylist,
             style: const TextStyle(
-              color: Colors.white,
+              color: AppColorsDark.onSurface,
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.close, color: Colors.white),
-            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.close, color: AppColorsDark.onSurface),
+            onPressed: () => context.router.maybePop(),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSearchField(AppLocalizations l10n) {
+  Widget _buildSearchField(
+    BuildContext context,
+    AppLocalizations l10n,
+    PlaylistDialogState state,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
           Expanded(
             child: TextField(
-              onChanged: (value) => setState(() => _searchQuery = value),
-              style: const TextStyle(color: Colors.white),
+              onChanged: (value) {
+                setState(() => _searchQuery = value);
+                context.read<PlaylistDialogCubit>().searchPlaylists(value);
+              },
+              style: const TextStyle(color: AppColorsDark.onSurface),
               decoration: InputDecoration(
                 hintText: 'Buscar playlists...',
                 hintStyle: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.5),
+                  color: AppColorsDark.onSurface.withValues(alpha: 0.5),
                 ),
                 prefixIcon: Icon(
                   Icons.search,
-                  color: Colors.white.withValues(alpha: 0.5),
+                  color: AppColorsDark.onSurface.withValues(alpha: 0.5),
                 ),
                 filled: true,
                 fillColor: AppColorsDark.surfaceContainerLow,
@@ -212,33 +190,53 @@ class _AddToPlaylistDialogOrganismState
           ),
           const SizedBox(width: 8),
           _CreatePlaylistButton(
-            onCreated: (newPlaylist) async {
-              await _addSongToPlaylist(newPlaylist);
-            },
+            isCreating: state is PlaylistDialogCreatingPlaylist,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildContent(AppLocalizations l10n) {
-    if (_isLoading) {
+  Widget _buildContent(
+    BuildContext context,
+    AppLocalizations l10n,
+    PlaylistDialogState state,
+  ) {
+    if (state is PlaylistDialogInitial || state is PlaylistDialogLoading) {
       return const Center(
         child: CircularProgressIndicator(color: AppColorsDark.primary),
       );
     }
 
-    if (_error != null) {
+    List<UserPlaylistEntity> playlists = [];
+    bool isAdding = false;
+
+    if (state is PlaylistDialogLoaded) {
+      playlists = state.playlists;
+    } else if (state is PlaylistDialogAddingSong) {
+      playlists = state.playlists;
+      isAdding = true;
+    } else if (state is PlaylistDialogCreatingPlaylist) {
+      playlists = state.playlists;
+    }
+
+    if (state is PlaylistDialogError && playlists.isEmpty) {
       return ErrorWidgetAtom(
-        message: _error!,
-        onRetry: () {
-          setState(() => _isLoading = true);
-          _loadPlaylists();
-        },
+        message: state.message,
+        onRetry: () => context.read<PlaylistDialogCubit>().loadPlaylists(),
       );
     }
 
-    if (_filteredPlaylists.isEmpty) {
+    final filteredPlaylists = _searchQuery.isEmpty
+        ? playlists
+        : playlists
+              .where(
+                (p) =>
+                    p.name.toLowerCase().contains(_searchQuery.toLowerCase()),
+              )
+              .toList();
+
+    if (filteredPlaylists.isEmpty && !isAdding) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -246,14 +244,16 @@ class _AddToPlaylistDialogOrganismState
             Icon(
               _searchQuery.isNotEmpty ? Icons.search_off : Icons.playlist_play,
               size: 48,
-              color: Colors.white.withValues(alpha: 0.5),
+              color: AppColorsDark.onSurface.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 8),
             Text(
               _searchQuery.isNotEmpty
                   ? 'No se encontraron playlists'
                   : l10n.noPlaylistsYet,
-              style: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
+              style: TextStyle(
+                color: AppColorsDark.onSurface.withValues(alpha: 0.7),
+              ),
             ),
           ],
         ),
@@ -261,20 +261,38 @@ class _AddToPlaylistDialogOrganismState
     }
 
     return RefreshIndicator(
-      onRefresh: () async {
-        setState(() => _isLoading = true);
-        await _loadPlaylists();
-      },
+      onRefresh: () async =>
+          context.read<PlaylistDialogCubit>().loadPlaylists(),
       color: AppColorsDark.primary,
-      child: ListView.builder(
-        itemCount: _filteredPlaylists.length,
-        itemBuilder: (context, index) {
-          final playlist = _filteredPlaylists[index];
-          return PlaylistTileMolecule(
-            playlist: playlist,
-            onTap: () => _addSongToPlaylist(playlist),
-          );
-        },
+      child: Stack(
+        children: [
+          ListView.builder(
+            itemCount: filteredPlaylists.length,
+            itemBuilder: (context, index) {
+              final playlist = filteredPlaylists[index];
+              return PlaylistTileMolecule(
+                // Nota: Asumiendo que PlaylistTileMolecule acepta UserPlaylistEntity o dynamic.
+                // Si esto causa error en flutter analyze, castear a dyn amic o cambiar molecula.
+                playlist: playlist as dynamic,
+                onTap: () {
+                  context.read<PlaylistDialogCubit>().addSongToPlaylist(
+                    playlistId: playlist.id,
+                    videoId: widget.song.videoId,
+                    title: widget.song.title,
+                    artist: widget.song.artist,
+                    thumbnail: widget.song.thumbnail,
+                    duration: widget.song.durationSeconds,
+                  );
+                },
+              );
+            },
+          ),
+          if (isAdding)
+            const Align(
+              alignment: Alignment.topCenter,
+              child: LinearProgressIndicator(color: AppColorsDark.primary),
+            ),
+        ],
       ),
     );
   }
@@ -282,9 +300,9 @@ class _AddToPlaylistDialogOrganismState
 
 /// Widget para crear nueva playlist
 class _CreatePlaylistButton extends StatelessWidget {
-  final Function(UserPlaylist) onCreated;
+  final bool isCreating;
 
-  const _CreatePlaylistButton({required this.onCreated});
+  const _CreatePlaylistButton({required this.isCreating});
 
   @override
   Widget build(BuildContext context) {
@@ -294,8 +312,17 @@ class _CreatePlaylistButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
       ),
       child: IconButton(
-        icon: const Icon(Icons.add, color: Colors.white),
-        onPressed: () => _showCreatePlaylistDialog(context),
+        icon: isCreating
+            ? const SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  color: AppColorsDark.onSurface,
+                  strokeWidth: 2,
+                ),
+              )
+            : const Icon(Icons.add, color: AppColorsDark.onSurface),
+        onPressed: isCreating ? null : () => _showCreatePlaylistDialog(context),
         tooltip: 'Crear nueva playlist',
       ),
     );
@@ -304,57 +331,39 @@ class _CreatePlaylistButton extends StatelessWidget {
   Future<void> _showCreatePlaylistDialog(BuildContext context) async {
     final textController = TextEditingController();
 
-    final result = await showDialog<bool>(
+    final result = await showDialog<String>(
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: AppColorsDark.surfaceContainerLow,
         title: const Text(
           'Crear playlist',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: AppColorsDark.onSurface),
         ),
         content: TextField(
           controller: textController,
-          style: const TextStyle(color: Colors.white),
+          style: const TextStyle(color: AppColorsDark.onSurface),
           decoration: const InputDecoration(
             hintText: 'Nombre de la playlist',
-            hintStyle: TextStyle(color: Colors.white54),
+            hintStyle: TextStyle(color: AppColorsDark.onSurface54),
           ),
           autofocus: true,
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Cancelar'),
+            onPressed: () => dialogContext.router.maybePop(null),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Crear'),
+            onPressed: () =>
+                dialogContext.router.maybePop(textController.text.trim()),
+            child: Text(AppLocalizations.of(context)!.createPlaylist),
           ),
         ],
       ),
     );
 
-    if (result == true && context.mounted) {
-      final createPlaylistUseCase = getIt<CreateUserPlaylistUseCase>();
-      final createResult = await createPlaylistUseCase(
-        name: textController.text.trim(),
-      );
-
-      createResult.fold(
-        (error) {
-          if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'Error al crear playlist: ${error.message}',
-                ),
-                backgroundColor: Colors.red,
-              ),
-            );
-          }
-        },
-        onCreated,
-      );
+    if (result != null && result.isNotEmpty && context.mounted) {
+      await context.read<PlaylistDialogCubit>().createPlaylist(name: result);
     }
   }
 }

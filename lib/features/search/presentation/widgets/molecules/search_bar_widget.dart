@@ -11,7 +11,7 @@ class SearchBarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     return Container(
       height: 48,
       decoration: BoxDecoration(
@@ -24,7 +24,7 @@ class SearchBarWidget extends StatelessWidget {
       ),
       child: TextField(
         controller: controller,
-        style: const TextStyle(color: Colors.white),
+        style: const TextStyle(color: AppColorsDark.onSurface),
         onChanged: onChanged,
         decoration: InputDecoration(
           hintText: l10n.searchFor,

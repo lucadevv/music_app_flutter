@@ -123,13 +123,13 @@ class PlaylistActionsWidget extends StatelessWidget {
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2.5,
                                   valueColor: AlwaysStoppedAnimation<Color>(
-                                    Colors.white,
+                                    AppColorsDark.onSurface,
                                   ),
                                 ),
                               )
                             : Icon(
                                 showPause ? Icons.pause : Icons.play_arrow,
-                                color: Colors.white,
+                                color: AppColorsDark.onSurface,
                                 size: 36,
                               ),
                       ),
@@ -156,7 +156,7 @@ class PlaylistActionsWidget extends StatelessWidget {
                         Icons.shuffle,
                         color: playerState.isShuffleEnabled
                             ? AppColorsDark.primary
-                            : Colors.white,
+                            : AppColorsDark.onSurface,
                         size: 28,
                       ),
                       onPressed: playlist.tracks.length > 1
@@ -172,7 +172,7 @@ class PlaylistActionsWidget extends StatelessWidget {
                             : Icons.repeat,
                         color: playerState.loopMode != LoopModeType.off
                             ? AppColorsDark.primary
-                            : Colors.white,
+                            : AppColorsDark.onSurface,
                         size: 28,
                       ),
                       onPressed: () {
@@ -194,7 +194,7 @@ class PlaylistActionsWidget extends StatelessWidget {
                     const IconButton(
                       icon: Icon(
                         Icons.download_outlined,
-                        color: Colors.white,
+                        color: AppColorsDark.onSurface,
                         size: 28,
                       ),
                       onPressed: null, // Sin funcionalidad por ahora

@@ -6,7 +6,9 @@ class AnimatedProfileFieldWidget extends StatefulWidget {
   final Widget child;
 
   const AnimatedProfileFieldWidget({
-    required this.delay, required this.child, super.key,
+    required this.delay,
+    required this.child,
+    super.key,
   });
 
   @override

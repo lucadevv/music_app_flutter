@@ -71,7 +71,7 @@ class _SearchResultsWidgetState extends State<SearchResultsWidget> {
           padding: EdgeInsets.all(24.0),
           child: Text(
             'No se encontraron resultados',
-            style: TextStyle(color: Colors.white, fontSize: 16),
+            style: TextStyle(color: AppColorsDark.onSurface, fontSize: 16),
           ),
         ),
       );
@@ -237,7 +237,7 @@ class _SongItem extends StatelessWidget {
                   Text(
                     song.title,
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: AppColorsDark.onSurface,
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                     ),
@@ -248,7 +248,7 @@ class _SongItem extends StatelessWidget {
                   Text(
                     '$artistsNames • ${song.album.name}',
                     style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.6),
+                      color: AppColorsDark.onSurface.withValues(alpha: 0.6),
                       fontSize: 14,
                     ),
                     maxLines: 1,
@@ -258,7 +258,7 @@ class _SongItem extends StatelessWidget {
                   Text(
                     '${song.duration} • ${song.views}',
                     style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.5),
+                      color: AppColorsDark.onSurface.withValues(alpha: 0.5),
                       fontSize: 12,
                     ),
                   ),
@@ -281,7 +281,7 @@ class _SongItem extends StatelessWidget {
                 IconButton(
                   icon: Icon(
                     Icons.more_vert,
-                    color: Colors.white.withValues(alpha: 0.5),
+                    color: AppColorsDark.onSurface.withValues(alpha: 0.5),
                   ),
                   onPressed: () {
                     SongOptionsBottomSheet.show(

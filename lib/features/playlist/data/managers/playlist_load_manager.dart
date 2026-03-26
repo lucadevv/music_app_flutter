@@ -15,7 +15,7 @@ class PlaylistLoadProgress {
 }
 
 /// Manager para cargar playlists sin bloquear la UI
-/// 
+///
 /// Flujo:
 /// 1. Cargar primera canción
 /// 2. Reproducir primera
@@ -30,19 +30,16 @@ class PlaylistLoadManager {
   int _totalTracks = 0;
   bool _remainingStarted = false;
 
-  PlaylistLoadManager({
-    this.onTrackLoaded,
-    this.onProgress,
-  });
+  PlaylistLoadManager({this.onTrackLoaded, this.onProgress});
 
   /// Cancela la carga
   void cancel() {
     _isCancelled = true;
   }
 
-  /// Carga la primera canción y espera. 
+  /// Carga la primera canción y espera.
   /// El caller debe indicar cuando empezar a cargar el resto con startRemaining()
-  /// 
+  ///
   /// [tracks] - Lista de tracks a cargar
   /// [getStreamUrl] - Función para obtener URL de streaming
   Future<NowPlayingData?> loadFirst({
@@ -60,22 +57,32 @@ class PlaylistLoadManager {
     try {
       // Cargar primera canción con retry
       NowPlayingData? firstTrackWithUrl;
-      
-      for (int i = 0; i < total && firstTrackWithUrl == null && !_isCancelled; i++) {
+
+      for (
+        int i = 0;
+        i < total && firstTrackWithUrl == null && !_isCancelled;
+        i++
+      ) {
         final track = tracks[i];
-        
+
         String? streamUrl;
-        for (int retry = 0; retry < 3 && (streamUrl == null || streamUrl.isEmpty) && !_isCancelled; retry++) {
+        for (
+          int retry = 0;
+          retry < 3 &&
+              (streamUrl == null || streamUrl.isEmpty) &&
+              !_isCancelled;
+          retry++
+        ) {
           if (retry > 0) {
             await Future.delayed(const Duration(seconds: 2));
           }
           streamUrl = await getStreamUrl(track.videoId);
         }
-        
+
         if (streamUrl != null && streamUrl.isNotEmpty) {
           firstTrackWithUrl = _copyWithStreamUrl(track, streamUrl);
         }
-        
+
         // Delay entre canciones si falló
         if (firstTrackWithUrl == null && i < total - 1) {
           await Future.delayed(const Duration(seconds: 1));
@@ -83,14 +90,18 @@ class PlaylistLoadManager {
       }
 
       if (firstTrackWithUrl == null || _isCancelled) {
-        onProgress?.call(PlaylistLoadProgress(loaded: 0, total: total, isFirst: true));
+        onProgress?.call(
+          PlaylistLoadProgress(loaded: 0, total: total, isFirst: true),
+        );
         _isRunning = false;
         return null;
       }
 
       // Enviar primera al player
       onTrackLoaded?.call(firstTrackWithUrl, true);
-      onProgress?.call(PlaylistLoadProgress(loaded: 1, total: total, isFirst: true));
+      onProgress?.call(
+        PlaylistLoadProgress(loaded: 1, total: total, isFirst: true),
+      );
 
       return firstTrackWithUrl;
     } catch (e) {
@@ -109,8 +120,10 @@ class PlaylistLoadManager {
     if (_remainingStarted) return;
     _remainingStarted = true;
 
-    final remainingTracks = tracks.where((t) => t.videoId != firstTrack.videoId).toList();
-    
+    final remainingTracks = tracks
+        .where((t) => t.videoId != firstTrack.videoId)
+        .toList();
+
     if (remainingTracks.isEmpty || _isCancelled) {
       _isRunning = false;
       return;
@@ -123,20 +136,28 @@ class PlaylistLoadManager {
       if (i > 0) {
         await Future.delayed(const Duration(milliseconds: 800));
       }
-      
+
       final track = remainingTracks[i];
       final url = await getStreamUrl(track.videoId);
-      
+
       if (url != null && url.isNotEmpty) {
         final trackWithUrl = _copyWithStreamUrl(track, url);
         onTrackLoaded?.call(trackWithUrl, false);
         loaded++;
-        onProgress?.call(PlaylistLoadProgress(loaded: loaded, total: _totalTracks));
+        onProgress?.call(
+          PlaylistLoadProgress(loaded: loaded, total: _totalTracks),
+        );
       }
     }
 
     // Carga completa
-    onProgress?.call(PlaylistLoadProgress(loaded: _totalTracks, total: _totalTracks, isFirst: false));
+    onProgress?.call(
+      PlaylistLoadProgress(
+        loaded: _totalTracks,
+        total: _totalTracks,
+        isFirst: false,
+      ),
+    );
     _isRunning = false;
   }
 

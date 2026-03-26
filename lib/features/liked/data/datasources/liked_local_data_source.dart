@@ -5,12 +5,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// Uses SharedPreferences for simple caching.
 class LikedLocalDataSource {
   static const String _likedSongsKey = 'liked_songs_cache';
-  
+
   Future<SharedPreferences> get _prefs => SharedPreferences.getInstance();
 
   /// Get cached liked songs
   Future<List<LikedSongEntity>> getCachedLikedSongs() async {
-//     final prefs = await _prefs;
+    //     final prefs = await _prefs;
     // This is a simplified version - in production you'd want JSON serialization
     return [];
   }

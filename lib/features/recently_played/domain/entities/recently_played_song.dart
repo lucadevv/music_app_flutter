@@ -17,7 +17,8 @@ class RecentlyPlayedSong extends Equatable {
     required this.videoId,
     required this.title,
     required this.artist,
-    required this.duration, this.thumbnail,
+    required this.duration,
+    this.thumbnail,
     this.durationSeconds = 0,
     this.playedAt,
     this.streamUrl,
@@ -25,12 +26,12 @@ class RecentlyPlayedSong extends Equatable {
 
   @override
   List<Object?> get props => [
-        videoId,
-        title,
-        artist,
-        thumbnail,
-        duration,
-        durationSeconds,
-        streamUrl,
-      ];
+    videoId,
+    title,
+    artist,
+    thumbnail,
+    duration,
+    durationSeconds,
+    streamUrl,
+  ];
 }
